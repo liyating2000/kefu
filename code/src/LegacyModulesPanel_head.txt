@@ -1,0 +1,100 @@
+﻿import React, { useMemo, useState } from 'react';
+import {
+  ChevronDown,
+  ChevronUp,
+  Download,
+  FileText,
+  Pause,
+  Play,
+  RotateCcw,
+  Search,
+  Send,
+  Upload,
+  Volume2,
+  X,
+} from 'lucide-react';
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
+function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
+export type LegacyModulePage =
+  | 'recording-query'
+  | 'sample-recording-query'
+  | 'sample-recording-audit'
+  | 'sms-delivery-query'
+  | 'mail-delivery-query'
+  | 'summary-management'
+  | 'appointment-message-management'
+  | 'agent-monitoring'
+  | 'queue-monitoring'
+  | 'webchat-history-query'
+  | 'webchat-message-management'
+  | 'webchat-blacklist-query'
+  | 'webchat-blacklist-approval'
+  | 'user-system-management';
+
+export const legacyModuleLabels: Record<LegacyModulePage, string> = {
+  'recording-query': '褰曢煶鏌ヨ',
+  'sample-recording-query': '鑼冧緥褰曢煶鏌ヨ',
+  'sample-recording-audit': '鑼冧緥褰曢煶瀹℃牳',
+  'sms-delivery-query': '鐭俊鍙戜俊鍘嗗彶',
+  'mail-delivery-query': '閭欢鏀跺彂鏌ヨ',
+  'summary-management': '灏忕粨绠＄悊',
+  'appointment-message-management': '棰勭害鍥炵數/鐣欒█绠＄悊',
+  'agent-monitoring': '璇濆姟鍛樼洃鎺?,
+  'queue-monitoring': '队列监控',
+  'webchat-history-query': '缃戣亰鍘嗗彶鏌ヨ',
+  'webchat-message-management': '缃戣亰鐣欒█绠＄悊',
+  'webchat-blacklist-query': '缃戣亰榛戝悕鍗曟煡璇?,
+  'webchat-blacklist-approval': '缃戣亰榛戝悕鍗曞鎵?,
+  'user-system-management': '鐢ㄦ埛浣撶郴绠＄悊',
+};
+
+export const telephoneServiceLegacyMenus = [
+  { key: 'recording-query', label: '褰曢煶鏌ヨ' },
+  { key: 'sample-recording-query', label: '鑼冧緥褰曢煶鏌ヨ' },
+  { key: 'sample-recording-audit', label: '鑼冧緥褰曢煶瀹℃牳' },
+  { key: 'sms-delivery-query', label: '鐭俊鍙戜俊鍘嗗彶' },
+  { key: 'mail-delivery-query', label: '閭欢鏀跺彂鏌ヨ' },
+] as const satisfies ReadonlyArray<{ key: LegacyModulePage; label: string }>;
+
+export const utilityToolsLegacyMenus = [
+  { key: 'summary-management', label: '灏忕粨绠＄悊' },
+  { key: 'appointment-message-management', label: '棰勭害鍥炵數/鐣欒█绠＄悊' },
+] as const satisfies ReadonlyArray<{ key: LegacyModulePage; label: string }>;
+
+export const monitoringLegacyMenus = [
+  { key: 'agent-monitoring', label: '璇濆姟鍛樼洃鎺? },
+  { key: 'queue-monitoring', label: '闃熷垪鐩戞帶' },
+] as const satisfies ReadonlyArray<{ key: LegacyModulePage; label: string }>;
+
+export const webchatLegacyMenus = [
+  { key: 'webchat-history-query', label: '缃戣亰鍘嗗彶鏌ヨ' },
+  { key: 'webchat-message-management', label: '缃戣亰鐣欒█绠＄悊' },
+  { key: 'webchat-blacklist-query', label: '缃戣亰榛戝悕鍗曟煡璇? },
+  { key: 'webchat-blacklist-approval', label: '缃戣亰榛戝悕鍗曞鎵? },
+] as const satisfies ReadonlyArray<{ key: LegacyModulePage; label: string }>;
+
+const pageWrapperClass = 'flex min-h-0 flex-1 flex-col overflow-hidden bg-[#f7f9fc]';
+const pageScrollClass = 'flex min-h-0 flex-1 flex-col overflow-auto px-4 pb-4 pt-3 custom-scrollbar';
+const pageCardClass = 'overflow-hidden rounded-[18px] border border-slate-200 bg-white shadow-sm';
+const inputClass =
+  'h-10 w-full min-w-0 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-600 outline-none transition-colors placeholder:text-slate-400 focus:border-[#12b89f]';
+const primaryButtonClass =
+  'inline-flex h-10 shrink-0 items-center justify-center whitespace-nowrap rounded-md border border-[#8fe0d2] bg-[#effbf8] px-4 text-[13px] font-medium text-[#18bca2] transition-colors hover:bg-[#e3f8f3]';
+const secondaryButtonClass =
+  'inline-flex h-10 shrink-0 items-center justify-center whitespace-nowrap rounded-md border border-slate-200 bg-white px-4 text-[13px] font-medium text-slate-500 transition-colors hover:bg-slate-50';
+const solidButtonClass =
+  'inline-flex h-10 shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-[#12b89f] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#0da88f]';
+
+const userSystemRows = [
+  { id: '1', name: '澹拌亰1', blacklistDays: 30, createdAt: '2025-04-29 11:15:14', updatedAt: '2025-04-29 11:15:14' },
+  { id: '2', name: '鏁欒偛鐑嚎', blacklistDays: 15, createdAt: '2025-04-28 09:32:10', updatedAt: '2025-04-28 09:32:10' },
+];
+
+const summaryRows = [
+  { id: '1', businessLine: '鏁欒偛', category: '鏅哄缃?, product: '骞虫澘', type: '鍜ㄨ', status: '鏆傚瓨', createdAt: '2025-04-29 11:15:14', summaryType: '鍦ㄧ嚎', department: '鏁欒偛閮?, agent: '鍧愬腑A', issueType: '鎿嶄綔鎸囧', level1: '涓€绾ч棶棰樺垎绫?, level2: '浜岀骇闂鍒嗙被', level3: '涓夌骇闂鍒嗙被', customerId: '-', sessionId: '2011', correctionCount: 0 },
+  { id: '2', businessLine: '鏁欒偛', category: '鐢佃剳', product: '绗旇鏈數鑴?, type: '鍜ㄨ', status: '宸插畬鎴?, createdAt: '2025-04-29 11:15:14', summaryType: '鐑嚎', department: '鏁欒偛閮?, agent: '鍧愬腑A', issueType: '浜у搧鏁呴殰', level1: '涓€绾ч棶棰樺垎绫?, level2: '浜岀骇闂鍒嗙被', level3: '涓夌骇闂鍒嗙被', customerId: '18017682333', sessionId: '-', correctionCount: 1 },
