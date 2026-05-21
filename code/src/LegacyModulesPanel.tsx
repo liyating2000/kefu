@@ -5916,7 +5916,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                       <table className="w-full table-auto text-left text-[13px]">
                         <thead className="bg-[#fafafa] text-slate-600">
                           <tr>
-                            {['序号', '队列', '队列名', '累计呼入量', '队列实时排队数', '平均排队时长', '最大等待时长', '接起率', '20s服务水平', '30s服务水平'].map((column) => (
+                            {['序号', '技能组', '累计呼入量', '队列实时排队数', '平均排队时长', '最大等待时长', '接起率', '20s服务水平', '30s服务水平'].map((column) => (
                               <th key={`phone-${column}`} className="px-2 py-3 text-[12px] font-medium">
                                 {column}
                               </th>
@@ -5927,7 +5927,6 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                           {queueMonitorPhoneRows.map((row, index) => (
                             <tr key={row.id} className={cn(index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]')}>
                               <td className="px-2 py-3">{index + 1}</td>
-                              <td className="px-2 py-3">{row.queue}</td>
                               <td className="px-2 py-3">{row.queueName}</td>
                               <td className="px-2 py-3">{row.inboundTotal}</td>
                               <td className="px-2 py-3">{row.realtimeQueueCount}</td>
@@ -5940,7 +5939,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                           ))}
                           {queueMonitorPhoneRows.length === 0 ? (
                             <tr>
-                              <td colSpan={10} className="px-4 py-8 text-center text-slate-400">
+                              <td colSpan={9} className="px-4 py-8 text-center text-slate-400">
                                 暂无电话队列数据
                               </td>
                             </tr>
