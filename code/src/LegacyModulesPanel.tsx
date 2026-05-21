@@ -8,11 +8,13 @@ import {
   FileVideo,
   Hand,
   Lock,
+  LogOut,
   Pause,
   Play,
   PlayCircle,
   RotateCcw,
   Search,
+  Undo2,
   Upload,
   Volume2,
   X,
@@ -2771,16 +2773,18 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                 <span className="text-[12px] font-normal text-slate-400">会话ID：{sessionId || '-'}</span>
               </div>
               <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setWebchatHistoryMessageContent('');
-                    setWebchatHistoryMessageModalOpen(true);
-                  }}
-                  className={primaryButtonClass}
-                >
-                  留言
-                </button>
+                {webchatHistoryMessages.length === 0 ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setWebchatHistoryMessageContent('');
+                      setWebchatHistoryMessageModalOpen(true);
+                    }}
+                    className={primaryButtonClass}
+                  >
+                    留言
+                  </button>
+                ) : null}
                 <button
                   type="button"
                   onClick={() => setWebchatHistoryDetail(null)}
@@ -2879,6 +2883,33 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                       </div>
                     </div>
                   </div>
+
+                  {webchatHistoryMessages.map((msg) => (
+                    <div key={msg.id} className="flex flex-col items-end gap-1">
+                      <div className="flex items-center gap-2 text-[12px] text-slate-400">
+                        <span>留言</span>
+                        <span>{msg.time}</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <div className="group relative max-w-[78%] rounded-lg bg-[#fff8e6] px-4 py-3 text-[13px] leading-6 text-slate-600 shadow-sm">
+                          <div className="whitespace-pre-wrap">{msg.content}</div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setWebchatHistoryMessages((prev) => prev.filter((m) => m.id !== msg.id));
+                              setWebchatHistoryMessageContent(msg.content);
+                              setWebchatHistoryMessageModalOpen(true);
+                            }}
+                            className="mt-2 inline-flex items-center gap-1 rounded-md border border-orange-200 bg-orange-50 px-2 py-0.5 text-[11px] text-orange-500 transition-colors hover:bg-orange-100"
+                          >
+                            <Undo2 size={12} />
+                            撤回
+                          </button>
+                        </div>
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#f59e3e] text-[13px] font-semibold text-white">留</div>
+                      </div>
+                    </div>
+                  ))}
 
                   <div className="flex flex-col items-center gap-2">
                     <div className="rounded-full bg-slate-200/80 px-4 py-1 text-[12px] text-slate-500">开始时间: {startTime}</div>
@@ -4172,6 +4203,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
   const [webchatHistoryVideoPreview, setWebchatHistoryVideoPreview] = useState(false);
   const [webchatHistoryMessageModalOpen, setWebchatHistoryMessageModalOpen] = useState(false);
   const [webchatHistoryMessageContent, setWebchatHistoryMessageContent] = useState('');
+  const [webchatHistoryMessages, setWebchatHistoryMessages] = useState<{ id: string; content: string; time: string }[]>([]);
 
   const handleAddWebchatHistorySummaryTab = () => {
     const maxIndex = webchatHistorySummaryTabs.reduce((result, tab) => {
@@ -5764,18 +5796,37 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                           </span>
                         ) : null}
                         {(card.status !== '离线状态' && card.status !== 'LOGOUT') ? (
-                          <button
-                            type="button"
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              openSupportDialog(card.name, card.mode === 'webchat' ? 'webchat' : 'phone', card.status);
-                            }}
-                            title={card.mode === 'webchat' ? '网聊辅助' : '电话辅助'}
-                            aria-label={card.mode === 'webchat' ? '网聊辅助' : '电话辅助'}
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-[#2d8f80] transition-colors hover:bg-white"
-                          >
-                            <Hand size={15} />
-                          </button>
+                          card.mode === 'webchat' ? (
+                            <>
+                              <button type="button" onClick={(event) => { event.stopPropagation(); if (confirm(`确认强退 ${card.name} 吗？`)) { showToast(`已强退 ${card.name}`); } }} title="强退" className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-[#ff7875] transition-colors hover:bg-white">
+                                <LogOut size={15} />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  openSupportDialog(card.name, 'webchat', card.status);
+                                }}
+                                title="网聊辅助"
+                                aria-label="网聊辅助"
+                                className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-[#2d8f80] transition-colors hover:bg-white"
+                              >
+                                <Hand size={15} />
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              {card.status === '通话状态' ? (
+                                <button type="button" onClick={(event) => { event.stopPropagation(); if (confirm(`确认监听 ${card.name} 吗？`)) { showToast(`已开始监听 ${card.name}`); } }} title="监听" className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-[#4aa3ff] transition-colors hover:bg-white">
+                                  <Volume2 size={15} />
+                                </button>
+                              ) : (card.status === '空闲状态' || card.status === '忙碌状态') ? (
+                                <button type="button" onClick={(event) => { event.stopPropagation(); if (confirm(`确认强退 ${card.name} 吗？`)) { showToast(`已强退 ${card.name}`); } }} title="强退" className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-[#ff7875] transition-colors hover:bg-white">
+                                  <LogOut size={15} />
+                                </button>
+                              ) : null}
+                            </>
+                          )
                         ) : null}
                       </div>
                     </div>
@@ -6300,7 +6351,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
         <Modal title="强制转移" onClose={closeWaitingTransferDialog} widthClass="max-w-2xl">
           <div className="space-y-5 px-6 py-6">
             <div className="flex items-center gap-3 text-[13px] text-slate-600">
-              <span className="w-[52px] shrink-0 text-right">技能组</span>
+              <span className="w-[52px] shrink-0 text-right">队列</span>
               <select
                 value={waitingTransferSkillGroup}
                 onChange={(event) => {
@@ -6309,7 +6360,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                 }}
                 className="h-10 w-[260px] rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-600 outline-none focus:border-[#12b89f]"
               >
-                <option value="">请选择技能组</option>
+                <option value="">请选择队列</option>
                 {waitingMonitorSkillGroupOptions.map((option) => (
                   <option key={option} value={option}>
                     {option}
@@ -6404,18 +6455,25 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                       className={cn(inputClass, 'h-10')}
                     />
                   ) : (
-                    <select
-                      value={summaryCorrectionForm[label] ?? ''}
-                      onChange={(event) => setSummaryCorrectionForm((current) => ({ ...current, [label]: event.target.value }))}
-                      className={cn(inputClass, 'h-10')}
-                    >
-                      <option value="">请选择</option>
-                      {Array.from(new Set([summaryCorrectionForm[label], ...(summaryRecordDetailSelectOptions[label] ?? [])].filter(Boolean))).map((option) => (
-                        <option key={option} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="flex items-center gap-2">
+                      <select
+                        value={summaryCorrectionForm[label] ?? ''}
+                        onChange={(event) => setSummaryCorrectionForm((current) => ({ ...current, [label]: event.target.value }))}
+                        className={cn(inputClass, 'h-10 flex-1')}
+                      >
+                        <option value="">请选择</option>
+                        {Array.from(new Set([summaryCorrectionForm[label], ...(summaryRecordDetailSelectOptions[label] ?? [])].filter(Boolean))).map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
+                      {label === '问题分类三级' ? (
+                        <button type="button" title="搜索" className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-700">
+                          <Search size={16} />
+                        </button>
+                      ) : null}
+                    </div>
                   )}
                 </div>
               );
@@ -6812,7 +6870,10 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                   window.alert('请输入留言内容');
                   return;
                 }
-                window.alert('留言提交成功');
+                const now = new Date();
+                const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+                setWebchatHistoryMessages((prev) => [...prev, { id: `msg-${Date.now()}`, content: webchatHistoryMessageContent.trim(), time: timeStr }]);
+                showToast('留言提交成功');
                 setWebchatHistoryMessageContent('');
                 setWebchatHistoryMessageModalOpen(false);
               }}

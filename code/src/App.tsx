@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import logoImage from './logo.png';
 import LegacyModulesPanel, {
   legacyModuleLabels,
@@ -341,7 +341,8 @@ type MainTab =
   | '繁忙公告管理'
   | '隐私声明管理'
   | '用户体系管理'
-  | '网聊维护';
+  | '网聊维护'
+  | '部门角色管理';
 type ManagerPortalPage = 'dashboard' | 'overview-detail';
 
 // 繁忙公告管理类型定义
@@ -3805,6 +3806,7 @@ export default function App() {
   const [isPrivacyStatementManagementTabVisible, setIsPrivacyStatementManagementTabVisible] = useState(false);
   const [isUserSystemManagementTabVisible, setIsUserSystemManagementTabVisible] = useState(false);
   const [isWebchatMaintenanceTabVisible, setIsWebchatMaintenanceTabVisible] = useState(false);
+  const [isDeptRoleManagementTabVisible, setIsDeptRoleManagementTabVisible] = useState(false);
 
   // 繁忙公告管理 state
   const [busyAnnouncements, setBusyAnnouncements] = useState<BusyAnnouncement[]>(busyAnnouncementManagementRows);
@@ -3943,6 +3945,29 @@ export default function App() {
   const [isScheduleManagementExpanded, setIsScheduleManagementExpanded] = useState(false);
   const [isMessageNoticeExpanded, setIsMessageNoticeExpanded] = useState(false);
   const [isSystemSettingsExpanded, setIsSystemSettingsExpanded] = useState(false);
+  const [isOrgStructureExpanded, setIsOrgStructureExpanded] = useState(false);
+
+  const [deptRoleMainTab, setDeptRoleMainTab] = useState<'department' | 'role'>('role');
+  const [deptRoleStatusFilter, setDeptRoleStatusFilter] = useState<'all' | 'enabled' | 'disabled'>('enabled');
+  const [deptRoleSelectedRole, setDeptRoleSelectedRole] = useState('管理员');
+  const [deptRoleInnerTab, setDeptRoleInnerTab] = useState<'members' | 'channel-permission'>('channel-permission');
+  const [deptRoleChannelFilters, setDeptRoleChannelFilters] = useState({ channelName: '', channelId: '', userSystem: '', accessType: '' });
+  const [deptRoleChannelPage, setDeptRoleChannelPage] = useState(1);
+  const [deptRoleChannelPageSize, setDeptRoleChannelPageSize] = useState(10);
+  const [deptRoleSelectedChannelIds, setDeptRoleSelectedChannelIds] = useState<string[]>([]);
+  const [deptRoleAddChannelModalOpen, setDeptRoleAddChannelModalOpen] = useState(false);
+  const [deptRoleAddChannelFilters, setDeptRoleAddChannelFilters] = useState({ channelName: '', channelId: '', userSystem: '' });
+  const [deptRoleAddChannelPage, setDeptRoleAddChannelPage] = useState(1);
+  const [deptRoleAddChannelSelected, setDeptRoleAddChannelSelected] = useState<string[]>([]);
+  const [deptRoleAssignedChannels, setDeptRoleAssignedChannels] = useState([
+    { id: 'ch1', name: 'AI学APP', channelId: '188882222', userSystem: '体系1', accessType: 'APP', createdAt: '2025-04-29 11:15:14' },
+    { id: 'ch2', name: 'PC1', channelId: '188882223', userSystem: '体系1', accessType: 'PC', createdAt: '2025-04-29 11:15:14' },
+    { id: 'ch3', name: 'PC2', channelId: '188882224', userSystem: '体系1', accessType: 'PC', createdAt: '2025-04-29 11:15:14' },
+    { id: 'ch4', name: '小程序1', channelId: '188882225', userSystem: '体系1', accessType: '小程序', createdAt: '2025-04-29 11:15:14' },
+    { id: 'ch5', name: '公众号1', channelId: '188882226', userSystem: '体系1', accessType: '公众号', createdAt: '2025-04-29 11:15:14' },
+    { id: 'ch6', name: '公众号2', channelId: '188882227', userSystem: '体系1', accessType: '公众号', createdAt: '2025-04-29 11:15:14' },
+  ]);
+
   const [activeLegacyModulePage, setActiveLegacyModulePage] = useState<LegacyModulePage | null>(null);
   const [openLegacyModulePages, setOpenLegacyModulePages] = useState<LegacyModulePage[]>([]);
   const [activeMessageServiceMailbox, setActiveMessageServiceMailbox] =
@@ -4336,6 +4361,12 @@ export default function App() {
       setActiveTab('网聊维护');
       return;
     }
+    if (tab === '部门角色管理') {
+      setIsDeptRoleManagementTabVisible(true);
+      setIsOrgStructureExpanded(true);
+      setActiveTab('部门角色管理');
+      return;
+    }
     setLastPrimaryTab(tab);
     setActiveTab(tab);
   };
@@ -4393,6 +4424,13 @@ export default function App() {
     setActiveLegacyModulePage(null);
     setIsWebchatMaintenanceTabVisible(false);
     if (activeTab === '网聊维护') {
+      setActiveTab(lastPrimaryTab);
+    }
+  };
+  const handleCloseDeptRoleManagementTab = () => {
+    setActiveLegacyModulePage(null);
+    setIsDeptRoleManagementTabVisible(false);
+    if (activeTab === '部门角色管理') {
       setActiveTab(lastPrimaryTab);
     }
   };
@@ -10853,6 +10891,465 @@ export default function App() {
     </div>
   );
 
+  const deptRoleAllChannels = [
+    { id: 'ch1', name: 'AI学APP', channelId: '188882222', userSystem: '体系1', accessType: 'APP', createdAt: '2025-04-29 11:15:14' },
+    { id: 'ch2', name: 'PC1', channelId: '188882223', userSystem: '体系1', accessType: 'PC', createdAt: '2025-04-29 11:15:14' },
+    { id: 'ch3', name: 'PC2', channelId: '188882224', userSystem: '体系1', accessType: 'PC', createdAt: '2025-04-29 11:15:14' },
+    { id: 'ch4', name: '小程序1', channelId: '188882225', userSystem: '体系1', accessType: '小程序', createdAt: '2025-04-29 11:15:14' },
+    { id: 'ch5', name: '公众号1', channelId: '188882226', userSystem: '体系1', accessType: '公众号', createdAt: '2025-04-29 11:15:14' },
+    { id: 'ch6', name: '公众号2', channelId: '188882227', userSystem: '体系1', accessType: '公众号', createdAt: '2025-04-29 11:15:14' },
+    { id: 'ch7', name: 'H5页面1', channelId: '188882228', userSystem: '体系2', accessType: 'H5', createdAt: '2025-04-30 09:20:00' },
+    { id: 'ch8', name: 'H5页面2', channelId: '188882229', userSystem: '体系2', accessType: 'H5', createdAt: '2025-04-30 09:20:00' },
+    { id: 'ch9', name: '企业微信1', channelId: '188882230', userSystem: '体系1', accessType: '企业微信', createdAt: '2025-04-30 10:30:00' },
+    { id: 'ch10', name: '抖音小程序', channelId: '188882231', userSystem: '体系2', accessType: '小程序', createdAt: '2025-04-30 14:05:00' },
+  ];
+
+  const deptRoleFilteredChannels = useMemo(() => {
+    return deptRoleAssignedChannels.filter((ch) => {
+      if (deptRoleChannelFilters.channelName && !ch.name.includes(deptRoleChannelFilters.channelName)) return false;
+      if (deptRoleChannelFilters.channelId && !ch.channelId.includes(deptRoleChannelFilters.channelId)) return false;
+      if (deptRoleChannelFilters.userSystem && ch.userSystem !== deptRoleChannelFilters.userSystem) return false;
+      return true;
+    });
+  }, [deptRoleAssignedChannels, deptRoleChannelFilters]);
+
+  const deptRoleTotalChannels = deptRoleFilteredChannels.length;
+  const deptRoleTotalPages = Math.max(1, Math.ceil(deptRoleTotalChannels / deptRoleChannelPageSize));
+  const deptRoleChannelRows = deptRoleFilteredChannels.slice((deptRoleChannelPage - 1) * deptRoleChannelPageSize, deptRoleChannelPage * deptRoleChannelPageSize);
+
+  const deptRoleAddAvailableChannels = useMemo(() => {
+    const assignedIds = new Set(deptRoleAssignedChannels.map((ch) => ch.id));
+    return deptRoleAllChannels.filter((ch) => {
+      if (assignedIds.has(ch.id)) return false;
+      if (deptRoleAddChannelFilters.channelName && !ch.name.includes(deptRoleAddChannelFilters.channelName)) return false;
+      if (deptRoleAddChannelFilters.channelId && !ch.channelId.includes(deptRoleAddChannelFilters.channelId)) return false;
+      if (deptRoleAddChannelFilters.userSystem && ch.userSystem !== deptRoleAddChannelFilters.userSystem) return false;
+      return true;
+    });
+  }, [deptRoleAssignedChannels, deptRoleAddChannelFilters]);
+
+  const deptRoleAddTotalPages = Math.max(1, Math.ceil(deptRoleAddAvailableChannels.length / 10));
+  const deptRoleAddChannelRows = deptRoleAddAvailableChannels.slice((deptRoleAddChannelPage - 1) * 10, deptRoleAddChannelPage * 10);
+
+  const deptRoleRoles = [
+    { name: '管理员', icon: '👤', children: ['留言管理员', '运维人员', '客服'] },
+  ];
+
+  const renderDeptRoleManagementContent = () => (
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[#f7f9fc]">
+      <div className="flex min-h-0 flex-1 flex-col overflow-auto px-3 pb-3 pt-2 custom-scrollbar">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[12px] border border-slate-200 bg-white shadow-sm">
+          <div className="flex items-center gap-6 border-b border-slate-100 px-5">
+            {([{ key: 'department' as const, label: '部门管理' }, { key: 'role' as const, label: '角色管理' }]).map((tab) => (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => setDeptRoleMainTab(tab.key)}
+                className={cn(
+                  "relative py-3.5 text-[14px] font-semibold transition-colors",
+                  deptRoleMainTab === tab.key ? "text-[#18bca2]" : "text-slate-500 hover:text-slate-700"
+                )}
+              >
+                {tab.label}
+                {deptRoleMainTab === tab.key && <span className="absolute inset-x-0 bottom-0 h-0.5 bg-[#18bca2]" />}
+              </button>
+            ))}
+          </div>
+
+          {deptRoleMainTab === 'role' ? (
+            <div className="flex min-h-0 flex-1">
+              {/* Left: Role Tree */}
+              <div className="flex w-[200px] shrink-0 flex-col border-r border-slate-100 bg-white">
+                <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+                  <div className="flex items-center gap-4 text-[12px]">
+                    <span className={cn("cursor-pointer", deptRoleStatusFilter === 'all' ? "font-semibold text-slate-800" : "text-slate-400")} onClick={() => setDeptRoleStatusFilter('all')}>全部</span>
+                    <span className="text-slate-300">•</span>
+                    <span className={cn("cursor-pointer", deptRoleStatusFilter === 'enabled' ? "font-semibold text-slate-800" : "text-slate-400")} onClick={() => setDeptRoleStatusFilter('enabled')}>启用</span>
+                    <span className="text-slate-300">•</span>
+                    <span className={cn("cursor-pointer", deptRoleStatusFilter === 'disabled' ? "font-semibold text-slate-800" : "text-slate-400")} onClick={() => setDeptRoleStatusFilter('disabled')}>停用</span>
+                  </div>
+                  <button type="button" className="text-slate-400 hover:text-slate-600"><Search size={14} /></button>
+                </div>
+                <div className="flex-1 overflow-y-auto px-2 py-2 custom-scrollbar">
+                  {deptRoleRoles.map((role) => (
+                    <div key={role.name}>
+                      <button
+                        type="button"
+                        onClick={() => setDeptRoleSelectedRole(role.name)}
+                        className={cn(
+                          "flex w-full items-center gap-2 rounded-md px-3 py-2 text-[13px] transition-colors",
+                          deptRoleSelectedRole === role.name ? "bg-[#18bca2] text-white" : "text-slate-600 hover:bg-slate-50"
+                        )}
+                      >
+                        <span>⭐</span>
+                        <span>{role.name}</span>
+                      </button>
+                      {role.children.map((child) => (
+                        <button
+                          key={child}
+                          type="button"
+                          onClick={() => setDeptRoleSelectedRole(child)}
+                          className={cn(
+                            "flex w-full items-center gap-2 rounded-md py-2 pl-8 pr-3 text-[13px] transition-colors",
+                            deptRoleSelectedRole === child ? "bg-[#18bca2] text-white" : "text-slate-600 hover:bg-slate-50"
+                          )}
+                        >
+                          <span>◆</span>
+                          <span>{child}</span>
+                        </button>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Right: Content area */}
+              <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+                <div className="flex items-center gap-6 border-b border-slate-100 px-5">
+                  {([{ key: 'members' as const, label: '成员管理' }, { key: 'channel-permission' as const, label: '渠道查询权限配置' }]).map((tab) => (
+                    <button
+                      key={tab.key}
+                      type="button"
+                      onClick={() => setDeptRoleInnerTab(tab.key)}
+                      className={cn(
+                        "relative py-3 text-[13px] font-semibold transition-colors",
+                        deptRoleInnerTab === tab.key ? "text-[#18bca2]" : "text-slate-500 hover:text-slate-700"
+                      )}
+                    >
+                      {tab.label}
+                      {deptRoleInnerTab === tab.key && <span className="absolute inset-x-0 bottom-0 h-0.5 bg-[#18bca2]" />}
+                    </button>
+                  ))}
+                </div>
+
+                {deptRoleInnerTab === 'channel-permission' ? (
+                  <div className="flex min-h-0 flex-1 flex-col overflow-auto px-5 py-4">
+                    {/* Filter bar */}
+                    <div className="mb-4 flex flex-wrap items-center gap-3">
+                      <label className="flex items-center gap-1.5 text-[13px] text-slate-600">
+                        渠道名称:
+                        <input
+                          value={deptRoleChannelFilters.channelName}
+                          onChange={(e) => setDeptRoleChannelFilters((f) => ({ ...f, channelName: e.target.value }))}
+                          placeholder="请输入渠道名称"
+                          className="h-[32px] w-[150px] rounded-md border border-slate-200 bg-[#fcfcfd] px-2.5 text-[12px] outline-none focus:border-[#12b89f]"
+                        />
+                      </label>
+                      <label className="flex items-center gap-1.5 text-[13px] text-slate-600">
+                        渠道id:
+                        <input
+                          value={deptRoleChannelFilters.channelId}
+                          onChange={(e) => setDeptRoleChannelFilters((f) => ({ ...f, channelId: e.target.value }))}
+                          placeholder="请输入渠道id"
+                          className="h-[32px] w-[150px] rounded-md border border-slate-200 bg-[#fcfcfd] px-2.5 text-[12px] outline-none focus:border-[#12b89f]"
+                        />
+                      </label>
+                      <label className="flex items-center gap-1.5 text-[13px] text-slate-600">
+                        用户体系:
+                        <select
+                          value={deptRoleChannelFilters.userSystem}
+                          onChange={(e) => setDeptRoleChannelFilters((f) => ({ ...f, userSystem: e.target.value }))}
+                          className="h-[32px] w-[150px] rounded-md border border-slate-200 bg-[#fcfcfd] px-2.5 text-[12px] outline-none focus:border-[#12b89f]"
+                        >
+                          <option value="">请选择用户体系</option>
+                          <option value="体系1">体系1</option>
+                          <option value="体系2">体系2</option>
+                        </select>
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setDeptRoleChannelPage(1)}
+                        className="rounded-md border border-[#18bca2] bg-white px-4 py-1.5 text-[12px] font-medium text-[#18bca2] transition-colors hover:bg-[#f0fbf8]"
+                      >
+                        查 询
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setDeptRoleChannelFilters({ channelName: '', channelId: '', userSystem: '', accessType: '' }); setDeptRoleChannelPage(1); }}
+                        className="rounded-md border border-slate-200 px-4 py-1.5 text-[12px] font-medium text-slate-500 transition-colors hover:bg-slate-50"
+                      >
+                        重 置
+                      </button>
+                    </div>
+
+                    {/* Action buttons */}
+                    <div className="mb-4 flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => { setDeptRoleAddChannelModalOpen(true); setDeptRoleAddChannelSelected([]); setDeptRoleAddChannelFilters({ channelName: '', channelId: '', userSystem: '' }); setDeptRoleAddChannelPage(1); }}
+                        className="rounded-md bg-[#18bca2] px-4 py-1.5 text-[12px] font-medium text-white transition-colors hover:bg-[#15a892]"
+                      >
+                        添 加
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (deptRoleSelectedChannelIds.length === 0) { window.alert('请先选择要移除的渠道'); return; }
+                          setDeptRoleAssignedChannels((prev) => prev.filter((ch) => !deptRoleSelectedChannelIds.includes(ch.id)));
+                          setDeptRoleSelectedChannelIds([]);
+                        }}
+                        className="rounded-md border border-[#18bca2] bg-white px-4 py-1.5 text-[12px] font-medium text-[#18bca2] transition-colors hover:bg-[#f0fbf8]"
+                      >
+                        批量移除
+                      </button>
+                    </div>
+
+                    {/* Table */}
+                    <div className="min-h-0 flex-1 overflow-hidden rounded-lg border border-slate-100">
+                      <div className="h-full overflow-auto custom-scrollbar">
+                        <table className="min-w-full table-auto text-left">
+                          <thead className="sticky top-0 z-10 bg-[#eef9f6] text-[13px] text-slate-700">
+                            <tr>
+                              <th className="w-10 px-3 py-3 font-medium">
+                                <input
+                                  type="checkbox"
+                                  checked={deptRoleSelectedChannelIds.length === deptRoleChannelRows.length && deptRoleChannelRows.length > 0}
+                                  onChange={(e) => setDeptRoleSelectedChannelIds(e.target.checked ? deptRoleChannelRows.map((r) => r.id) : [])}
+                                  className="accent-[#18bca2]"
+                                />
+                              </th>
+                              <th className="px-3 py-3 font-medium">序号</th>
+                              <th className="px-3 py-3 font-medium">渠道名称</th>
+                              <th className="px-3 py-3 font-medium">渠道id</th>
+                              <th className="px-3 py-3 font-medium">用户体系</th>
+                              <th className="px-3 py-3 font-medium">接入类型</th>
+                              <th className="px-3 py-3 font-medium">创建时间</th>
+                            </tr>
+                          </thead>
+                          <tbody className="text-[13px] text-slate-600">
+                            {deptRoleChannelRows.length === 0 ? (
+                              <tr><td colSpan={7} className="px-3 py-8 text-center text-slate-400">暂无数据</td></tr>
+                            ) : deptRoleChannelRows.map((row, idx) => (
+                              <tr key={row.id} className={idx % 2 === 0 ? "bg-white" : "bg-[#fbfdfd]"}>
+                                <td className="px-3 py-3">
+                                  <input
+                                    type="checkbox"
+                                    checked={deptRoleSelectedChannelIds.includes(row.id)}
+                                    onChange={(e) => setDeptRoleSelectedChannelIds((prev) => e.target.checked ? [...prev, row.id] : prev.filter((id) => id !== row.id))}
+                                    className="accent-[#18bca2]"
+                                  />
+                                </td>
+                                <td className="px-3 py-3">{(deptRoleChannelPage - 1) * deptRoleChannelPageSize + idx + 1}</td>
+                                <td className="px-3 py-3">{row.name}</td>
+                                <td className="px-3 py-3">{row.channelId}</td>
+                                <td className="px-3 py-3">{row.userSystem}</td>
+                                <td className="px-3 py-3">{row.accessType}</td>
+                                <td className="px-3 py-3">{row.createdAt}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    {/* Pagination */}
+                    <div className="mt-4 flex items-center justify-end gap-2 text-[12px] text-slate-500">
+                      <span>共 {deptRoleTotalChannels} 条记录</span>
+                      <button type="button" disabled={deptRoleChannelPage <= 1} onClick={() => setDeptRoleChannelPage((p) => p - 1)} className="rounded border border-slate-200 px-2 py-1 disabled:opacity-40">&lt;</button>
+                      {[1].map((p) => (
+                        <button key={p} type="button" onClick={() => setDeptRoleChannelPage(p)} className={cn("rounded border px-2 py-1", deptRoleChannelPage === p ? "border-[#18bca2] text-[#18bca2]" : "border-slate-200")}>
+                          {p}
+                        </button>
+                      ))}
+                      <span>...</span>
+                      {[deptRoleChannelPage - 1, deptRoleChannelPage, deptRoleChannelPage + 1].filter((p) => p > 1 && p < deptRoleTotalPages).map((p) => (
+                        <button key={p} type="button" onClick={() => setDeptRoleChannelPage(p)} className={cn("rounded border px-2 py-1", deptRoleChannelPage === p ? "border-[#18bca2] text-[#18bca2]" : "border-slate-200")}>
+                          {p}
+                        </button>
+                      ))}
+                      {deptRoleChannelPage + 1 < deptRoleTotalPages && <span>...</span>}
+                      <button type="button" onClick={() => setDeptRoleChannelPage(deptRoleTotalPages)} className={cn("rounded border px-2 py-1", deptRoleChannelPage === deptRoleTotalPages ? "border-[#18bca2] text-[#18bca2]" : "border-slate-200")}>{deptRoleTotalPages}</button>
+                      <button type="button" disabled={deptRoleChannelPage >= deptRoleTotalPages} onClick={() => setDeptRoleChannelPage((p) => p + 1)} className="rounded border border-slate-200 px-2 py-1 disabled:opacity-40">&gt;</button>
+                      <select value={deptRoleChannelPageSize} onChange={(e) => { setDeptRoleChannelPageSize(Number(e.target.value)); setDeptRoleChannelPage(1); }} className="rounded border border-slate-200 px-1 py-1 text-[12px]">
+                        <option value={10}>10条/页</option>
+                        <option value={20}>20条/页</option>
+                        <option value={50}>50条/页</option>
+                      </select>
+                      <span>跳至</span>
+                      <input
+                        type="number"
+                        min={1}
+                        max={deptRoleTotalPages}
+                        className="w-[50px] rounded border border-slate-200 px-1.5 py-1 text-center text-[12px] outline-none"
+                        onKeyDown={(e) => { if (e.key === 'Enter') { const v = Number((e.target as HTMLInputElement).value); if (v >= 1 && v <= deptRoleTotalPages) setDeptRoleChannelPage(v); } }}
+                      />
+                      <span>页</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-1 items-center justify-center text-[13px] text-slate-400">
+                    成员管理内容区域
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-1 items-center justify-center text-[13px] text-slate-400">
+              部门管理内容区域
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Add Channel Modal */}
+      {deptRoleAddChannelModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="flex max-h-[80vh] w-full max-w-[900px] flex-col rounded-xl bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+              <span className="text-[16px] font-semibold text-slate-800">添加渠道</span>
+              <button type="button" onClick={() => setDeptRoleAddChannelModalOpen(false)} className="text-slate-400 hover:text-slate-600"><X size={20} /></button>
+            </div>
+            <div className="flex-1 overflow-auto px-6 py-5">
+              {/* Modal filters */}
+              <div className="mb-4 flex flex-wrap items-center gap-3">
+                <label className="flex items-center gap-1.5 text-[13px] text-slate-600">
+                  渠道名称:
+                  <input
+                    value={deptRoleAddChannelFilters.channelName}
+                    onChange={(e) => setDeptRoleAddChannelFilters((f) => ({ ...f, channelName: e.target.value }))}
+                    placeholder="请输入渠道名称"
+                    className="h-[32px] w-[150px] rounded-md border border-slate-200 bg-[#fcfcfd] px-2.5 text-[12px] outline-none focus:border-[#12b89f]"
+                  />
+                </label>
+                <label className="flex items-center gap-1.5 text-[13px] text-slate-600">
+                  渠道id:
+                  <input
+                    value={deptRoleAddChannelFilters.channelId}
+                    onChange={(e) => setDeptRoleAddChannelFilters((f) => ({ ...f, channelId: e.target.value }))}
+                    placeholder="请输入渠道id"
+                    className="h-[32px] w-[150px] rounded-md border border-slate-200 bg-[#fcfcfd] px-2.5 text-[12px] outline-none focus:border-[#12b89f]"
+                  />
+                </label>
+                <label className="flex items-center gap-1.5 text-[13px] text-slate-600">
+                  用户体系:
+                  <select
+                    value={deptRoleAddChannelFilters.userSystem}
+                    onChange={(e) => setDeptRoleAddChannelFilters((f) => ({ ...f, userSystem: e.target.value }))}
+                    className="h-[32px] w-[150px] rounded-md border border-slate-200 bg-[#fcfcfd] px-2.5 text-[12px] outline-none focus:border-[#12b89f]"
+                  >
+                    <option value="">请选择用户体系</option>
+                    <option value="体系1">体系1</option>
+                    <option value="体系2">体系2</option>
+                  </select>
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setDeptRoleAddChannelPage(1)}
+                  className="rounded-md border border-[#18bca2] bg-white px-4 py-1.5 text-[12px] font-medium text-[#18bca2] transition-colors hover:bg-[#f0fbf8]"
+                >
+                  查 询
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setDeptRoleAddChannelFilters({ channelName: '', channelId: '', userSystem: '' }); setDeptRoleAddChannelPage(1); }}
+                  className="rounded-md border border-slate-200 px-4 py-1.5 text-[12px] font-medium text-slate-500 transition-colors hover:bg-slate-50"
+                >
+                  重 置
+                </button>
+              </div>
+
+              {/* Modal table */}
+              <div className="overflow-hidden rounded-lg border border-slate-100">
+                <table className="min-w-full table-auto text-left">
+                  <thead className="bg-[#eef9f6] text-[13px] text-slate-700">
+                    <tr>
+                      <th className="w-10 px-3 py-3 font-medium">
+                        <input
+                          type="checkbox"
+                          checked={deptRoleAddChannelRows.length > 0 && deptRoleAddChannelRows.every((r) => deptRoleAddChannelSelected.includes(r.id))}
+                          onChange={(e) => setDeptRoleAddChannelSelected((prev) => e.target.checked ? [...new Set([...prev, ...deptRoleAddChannelRows.map((r) => r.id)])] : prev.filter((id) => !deptRoleAddChannelRows.some((r) => r.id === id)))}
+                          className="accent-[#18bca2]"
+                        />
+                      </th>
+                      <th className="px-3 py-3 font-medium">序号</th>
+                      <th className="px-3 py-3 font-medium">渠道名称</th>
+                      <th className="px-3 py-3 font-medium">渠道id</th>
+                      <th className="px-3 py-3 font-medium">用户体系</th>
+                      <th className="px-3 py-3 font-medium">接入类型</th>
+                      <th className="px-3 py-3 font-medium">创建时间</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-[13px] text-slate-600">
+                    {deptRoleAddChannelRows.length === 0 ? (
+                      <tr><td colSpan={7} className="px-3 py-8 text-center text-slate-400">暂无可添加的渠道</td></tr>
+                    ) : deptRoleAddChannelRows.map((row, idx) => (
+                      <tr key={row.id} className={idx % 2 === 0 ? "bg-white" : "bg-[#fbfdfd]"}>
+                        <td className="px-3 py-3">
+                          <input
+                            type="checkbox"
+                            checked={deptRoleAddChannelSelected.includes(row.id)}
+                            onChange={(e) => setDeptRoleAddChannelSelected((prev) => e.target.checked ? [...prev, row.id] : prev.filter((id) => id !== row.id))}
+                            className="accent-[#18bca2]"
+                          />
+                        </td>
+                        <td className="px-3 py-3">{(deptRoleAddChannelPage - 1) * 10 + idx + 1}</td>
+                        <td className="px-3 py-3">{row.name}</td>
+                        <td className="px-3 py-3">{row.channelId}</td>
+                        <td className="px-3 py-3">{row.userSystem}</td>
+                        <td className="px-3 py-3">{row.accessType}</td>
+                        <td className="px-3 py-3">{row.createdAt}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Modal pagination */}
+              <div className="mt-4 flex items-center justify-end gap-2 text-[12px] text-slate-500">
+                <span>共 {deptRoleAddAvailableChannels.length} 条记录</span>
+                <button type="button" disabled={deptRoleAddChannelPage <= 1} onClick={() => setDeptRoleAddChannelPage((p) => p - 1)} className="rounded border border-slate-200 px-2 py-1 disabled:opacity-40">&lt;</button>
+                {deptRoleAddTotalPages <= 7 ? Array.from({ length: deptRoleAddTotalPages }, (_, i) => i + 1).map((p) => (
+                  <button key={p} type="button" onClick={() => setDeptRoleAddChannelPage(p)} className={cn("rounded border px-2 py-1", deptRoleAddChannelPage === p ? "border-[#18bca2] text-[#18bca2]" : "border-slate-200")}>{p}</button>
+                )) : (<>
+                  {[1].map((p) => (
+                    <button key={p} type="button" onClick={() => setDeptRoleAddChannelPage(p)} className={cn("rounded border px-2 py-1", deptRoleAddChannelPage === p ? "border-[#18bca2] text-[#18bca2]" : "border-slate-200")}>{p}</button>
+                  ))}
+                  <span>...</span>
+                  {[deptRoleAddChannelPage - 1, deptRoleAddChannelPage, deptRoleAddChannelPage + 1].filter((p) => p > 1 && p < deptRoleAddTotalPages).map((p) => (
+                    <button key={p} type="button" onClick={() => setDeptRoleAddChannelPage(p)} className={cn("rounded border px-2 py-1", deptRoleAddChannelPage === p ? "border-[#18bca2] text-[#18bca2]" : "border-slate-200")}>{p}</button>
+                  ))}
+                  {deptRoleAddChannelPage + 1 < deptRoleAddTotalPages && <span>...</span>}
+                  <button type="button" onClick={() => setDeptRoleAddChannelPage(deptRoleAddTotalPages)} className={cn("rounded border px-2 py-1", deptRoleAddChannelPage === deptRoleAddTotalPages ? "border-[#18bca2] text-[#18bca2]" : "border-slate-200")}>{deptRoleAddTotalPages}</button>
+                </>)}
+                <button type="button" disabled={deptRoleAddChannelPage >= deptRoleAddTotalPages} onClick={() => setDeptRoleAddChannelPage((p) => p + 1)} className="rounded border border-slate-200 px-2 py-1 disabled:opacity-40">&gt;</button>
+                <select value={10} className="rounded border border-slate-200 px-1 py-1 text-[12px]">
+                  <option value={10}>10条/页</option>
+                </select>
+                <span>跳至</span>
+                <input type="number" min={1} max={deptRoleTotalPages} className="w-[50px] rounded border border-slate-200 px-1.5 py-1 text-center text-[12px] outline-none" onKeyDown={(e) => { if (e.key === 'Enter') { const v = Number((e.target as HTMLInputElement).value); if (v >= 1 && v <= deptRoleTotalPages) setDeptRoleAddChannelPage(v); } }} />
+                <span>页</span>
+              </div>
+            </div>
+
+            {/* Modal footer */}
+            <div className="flex items-center justify-end gap-3 border-t border-slate-100 px-6 py-4">
+              <button
+                type="button"
+                onClick={() => setDeptRoleAddChannelModalOpen(false)}
+                className="rounded-md border border-slate-200 px-5 py-1.5 text-[13px] font-medium text-slate-500 transition-colors hover:bg-slate-50"
+              >
+                取 消
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (deptRoleAddChannelSelected.length === 0) { window.alert('请先选择要添加的渠道'); return; }
+                  const newChannels = deptRoleAllChannels.filter((ch) => deptRoleAddChannelSelected.includes(ch.id));
+                  setDeptRoleAssignedChannels((prev) => [...prev, ...newChannels]);
+                  setDeptRoleAddChannelSelected([]);
+                  setDeptRoleAddChannelModalOpen(false);
+                }}
+                className="rounded-md bg-[#18bca2] px-5 py-1.5 text-[13px] font-medium text-white transition-colors hover:bg-[#15a892]"
+              >
+                确 定
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
   const renderWebchatMaintenanceContent = () => (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[#f7f9fc]">
       <div className="flex min-h-0 flex-1 flex-col overflow-auto px-3 pb-3 pt-2 custom-scrollbar">
@@ -13330,7 +13827,32 @@ export default function App() {
               </div>
             )}
           </div>
-          <SidebarItem icon={LayoutGrid} label="组织架构" hasSub collapsed={isSidebarCollapsed} />
+          <div>
+            <SidebarItem
+              icon={LayoutGrid}
+              label="组织架构"
+              hasSub
+              expanded={isOrgStructureExpanded}
+              collapsed={isSidebarCollapsed}
+              onClick={() => setIsOrgStructureExpanded((v) => !v)}
+            />
+            {isOrgStructureExpanded && !isSidebarCollapsed && (
+              <div className="pb-2">
+                <button
+                  type="button"
+                  onClick={() => handleOpenMainTab('部门角色管理')}
+                  className={cn(
+                    "flex w-full items-center pl-[58px] pr-2 py-3.5 text-left text-[15px] font-medium leading-5 transition-colors whitespace-normal break-words focus-visible:outline-none",
+                    activeTab === '部门角色管理'
+                      ? "bg-[#1f5a67] text-[#18d1b3]"
+                      : "text-slate-400 hover:bg-[#1f5a67] hover:text-white active:bg-[#244854] active:text-white focus-visible:bg-[#1f5a67] focus-visible:text-white"
+                  )}
+                >
+                  部门/角色管理
+                </button>
+              </div>
+            )}
+          </div>
           <SidebarItem icon={User} label="权限管理" hasSub collapsed={isSidebarCollapsed} />
           <div>
             <SidebarItem
@@ -13525,6 +14047,7 @@ export default function App() {
               ...(isPrivacyStatementManagementTabVisible ? (['隐私声明管理'] as MainTab[]) : []),
               ...(isUserSystemManagementTabVisible ? (['用户体系管理'] as MainTab[]) : []),
               ...(isWebchatMaintenanceTabVisible ? (['网聊维护'] as MainTab[]) : []),
+              ...(isDeptRoleManagementTabVisible ? (['部门角色管理'] as MainTab[]) : []),
             ] as MainTab[]).map((tab) => {
               const isOnlineTab = tab === '在线工作台';
               const isMessageServiceTab = tab === '消息服务';
@@ -13534,6 +14057,7 @@ export default function App() {
               const isPrivacyStatementManagementTab = tab === '隐私声明管理';
               const isUserSystemManagementTab = tab === '用户体系管理';
               const isWebchatMaintenanceTab = tab === '网聊维护';
+              const isDeptRoleManagementTab = tab === '部门角色管理';
               const isActive = activeTab === tab && !activeLegacyModulePage;
               return (
                 <div
@@ -13553,7 +14077,8 @@ export default function App() {
                   isBusyAnnouncementManagementTab ||
                   isPrivacyStatementManagementTab ||
                   isUserSystemManagementTab ||
-                  isWebchatMaintenanceTab ? (
+                  isWebchatMaintenanceTab ||
+                  isDeptRoleManagementTab ? (
                     <button
                       type="button"
                       aria-label={
@@ -13571,6 +14096,8 @@ export default function App() {
                                     ? '关闭隐私声明管理'
                                     : isUserSystemManagementTab
                                       ? '关闭用户体系管理'
+                                      : isDeptRoleManagementTab
+                                        ? '关闭部门角色管理'
                                 : '关闭网聊维护'
                       }
                       onClick={(event) => {
@@ -13601,6 +14128,10 @@ export default function App() {
                         }
                         if (isUserSystemManagementTab) {
                           handleCloseUserSystemManagementTab();
+                          return;
+                        }
+                        if (isDeptRoleManagementTab) {
+                          handleCloseDeptRoleManagementTab();
                           return;
                         }
                         handleCloseWebchatMaintenanceTab();
@@ -13652,7 +14183,7 @@ export default function App() {
           </div>
         </header>
 
-        {activeLegacyModulePage ? <LegacyModulesPanel page={activeLegacyModulePage} onOpenMainTab={handleOpenMainTab} onOpenLegacyModulePage={handleOpenLegacyModulePage} /> : activeTab === '呼叫工作台' ? callWorkbenchContent : activeTab === '在线工作台' ? onlineWorkbenchContent : activeTab === '消息服务' ? messageServiceContent : activeTab === '排班信息展示' ? scheduleDisplayContent : activeTab === '业务字段管理' ? businessFieldManagementContent : activeTab === '繁忙公告管理' ? busyAnnouncementManagementContent : activeTab === '隐私声明管理' ? privacyStatementManagementContent : activeTab === '用户体系管理' ? userSystemManagementContent : activeTab === '网聊维护' ? renderWebchatMaintenanceContent() : (
+        {activeLegacyModulePage ? <LegacyModulesPanel page={activeLegacyModulePage} onOpenMainTab={handleOpenMainTab} onOpenLegacyModulePage={handleOpenLegacyModulePage} /> : activeTab === '呼叫工作台' ? callWorkbenchContent : activeTab === '在线工作台' ? onlineWorkbenchContent : activeTab === '消息服务' ? messageServiceContent : activeTab === '排班信息展示' ? scheduleDisplayContent : activeTab === '业务字段管理' ? businessFieldManagementContent : activeTab === '繁忙公告管理' ? busyAnnouncementManagementContent : activeTab === '隐私声明管理' ? privacyStatementManagementContent : activeTab === '用户体系管理' ? userSystemManagementContent : activeTab === '网聊维护' ? renderWebchatMaintenanceContent() : activeTab === '部门角色管理' ? renderDeptRoleManagementContent() : (
         <div className="flex min-h-0 flex-1 overflow-y-auto p-5 custom-scrollbar">
           <div className="flex min-h-0 flex-1 flex-col space-y-5">
           {viewMode === 'manager' && managerPortalPage === 'overview-detail' ? (
