@@ -4183,12 +4183,22 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
   const [waitingMonitorSkillGroup, setWaitingMonitorSkillGroup] = useState('');
   const [waitingMonitorPage, setWaitingMonitorPage] = useState(1);
   const [waitingMonitorPageSize, setWaitingMonitorPageSize] = useState(10);
+  const [waitingMonitorAutoRefresh, setWaitingMonitorAutoRefresh] = useState(true);
+  const [waitingMonitorRefreshSeed, setWaitingMonitorRefreshSeed] = useState(0);
+  const [waitingMonitorRefreshedAt, setWaitingMonitorRefreshedAt] = useState(() =>
+    new Date().toLocaleTimeString('zh-CN', { hour12: false })
+  );
   const [waitingTransferTarget, setWaitingTransferTarget] = useState<WaitingMonitorRow | null>(null);
   const [waitingTransferSkillGroup, setWaitingTransferSkillGroup] = useState('');
   const [waitingTransferSelectedAgentId, setWaitingTransferSelectedAgentId] = useState<string | null>(null);
   const [channelMonitorName, setChannelMonitorName] = useState('');
   const [channelMonitorPage, setChannelMonitorPage] = useState(1);
   const [channelMonitorPageSize, setChannelMonitorPageSize] = useState(10);
+  const [channelMonitorAutoRefresh, setChannelMonitorAutoRefresh] = useState(true);
+  const [channelMonitorRefreshSeed, setChannelMonitorRefreshSeed] = useState(0);
+  const [channelMonitorRefreshedAt, setChannelMonitorRefreshedAt] = useState(() =>
+    new Date().toLocaleTimeString('zh-CN', { hour12: false })
+  );
   const [monitorDetailTarget, setMonitorDetailTarget] = useState<AgentMonitorCard | null>(null);
   const [supportDialog, setSupportDialog] = useState<{ target: string; type: SupportDialogType; status: AgentMonitorStatus } | null>(null);
   const [supportSessions, setSupportSessions] = useState<SupportSession[]>([]);
@@ -4242,6 +4252,22 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
     setQueueMonitorRefreshedAt(new Date().toLocaleTimeString('zh-CN', { hour12: false }));
     if (showMessage) {
       showToast('队列监控已刷新');
+    }
+  };
+
+  const refreshWaitingMonitoring = (showMessage = false) => {
+    setWaitingMonitorRefreshSeed((current) => current + 1);
+    setWaitingMonitorRefreshedAt(new Date().toLocaleTimeString('zh-CN', { hour12: false }));
+    if (showMessage) {
+      showToast('排队监控已刷新');
+    }
+  };
+
+  const refreshChannelMonitoring = (showMessage = false) => {
+    setChannelMonitorRefreshSeed((current) => current + 1);
+    setChannelMonitorRefreshedAt(new Date().toLocaleTimeString('zh-CN', { hour12: false }));
+    if (showMessage) {
+      showToast('渠道监控已刷新');
     }
   };
 
@@ -4337,6 +4363,28 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
 
     return () => window.clearInterval(timer);
   }, [page, queueMonitorAutoRefresh]);
+
+  useEffect(() => {
+    if (page !== 'waiting-monitoring' || !waitingMonitorAutoRefresh) {
+      return undefined;
+    }
+    const timer = window.setInterval(() => {
+      setWaitingMonitorRefreshSeed((current) => current + 1);
+      setWaitingMonitorRefreshedAt(new Date().toLocaleTimeString('zh-CN', { hour12: false }));
+    }, 30000);
+    return () => window.clearInterval(timer);
+  }, [page, waitingMonitorAutoRefresh]);
+
+  useEffect(() => {
+    if (page !== 'channel-monitoring' || !channelMonitorAutoRefresh) {
+      return undefined;
+    }
+    const timer = window.setInterval(() => {
+      setChannelMonitorRefreshSeed((current) => current + 1);
+      setChannelMonitorRefreshedAt(new Date().toLocaleTimeString('zh-CN', { hour12: false }));
+    }, 30000);
+    return () => window.clearInterval(timer);
+  }, [page, channelMonitorAutoRefresh]);
 
   const blacklistRows = [
     { sessionId: '2001', visitorId: '10002', channel: 'APP', channelName: 'APP', userSystem: '体系1', seatNo: '2001', blocker: 'kily', reason: '脏话', blockedAt: '2025-04-29 11:15:14', removedAt: '2025-04-30 11:15:14', auditStatus: '待审核' },
@@ -6085,13 +6133,35 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
             <SectionCard>
               <div className="border-b border-slate-100 px-5 py-4">
                 <div className="space-y-4">
-                  <div className="flex justify-end">
-                    <QueryActions
-                      onReset={() => {
-                        setWaitingMonitorSkillGroup('');
-                        setWaitingMonitorPage(1);
-                      }}
-                    />
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 text-[13px]">
+                      <button
+                        type="button"
+                        onClick={() => setWaitingMonitorAutoRefresh((current) => !current)}
+                        className={cn(
+                          'inline-flex items-center gap-2 rounded-full border px-3 py-1.5 transition-colors',
+                          waitingMonitorAutoRefresh ? 'border-[#8fe0d2] bg-[#effbf8] text-[#18bca2]' : 'border-slate-200 bg-white text-slate-500'
+                        )}
+                      >
+                        <span>定时刷新</span>
+                        <span className={cn('relative inline-flex h-5 w-9 rounded-full transition-colors', waitingMonitorAutoRefresh ? 'bg-[#18bca2]' : 'bg-slate-300')}>
+                          <span className={cn('absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-all', waitingMonitorAutoRefresh ? 'translate-x-[18px]' : 'translate-x-[2px]')} />
+                        </span>
+                      </button>
+                      <span className="text-slate-400">上次刷新: {waitingMonitorRefreshedAt}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <button type="button" onClick={() => refreshWaitingMonitoring(true)} className={primaryButtonClass}>
+                        <RotateCcw size={14} className="mr-1.5" />
+                        立即刷新
+                      </button>
+                      <QueryActions
+                        onReset={() => {
+                          setWaitingMonitorSkillGroup('');
+                          setWaitingMonitorPage(1);
+                        }}
+                      />
+                    </div>
                   </div>
                   <div className="grid grid-cols-1 gap-4 xl:grid-cols-12">
                     <Field label="队列筛选:" className="xl:col-span-4 [&>span]:w-[88px]">
@@ -6223,13 +6293,35 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
             <SectionCard>
               <div className="border-b border-slate-100 px-5 py-4">
                 <div className="space-y-4">
-                  <div className="flex justify-end">
-                    <QueryActions
-                      onReset={() => {
-                        setChannelMonitorName('');
-                        setChannelMonitorPage(1);
-                      }}
-                    />
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 text-[13px]">
+                      <button
+                        type="button"
+                        onClick={() => setChannelMonitorAutoRefresh((current) => !current)}
+                        className={cn(
+                          'inline-flex items-center gap-2 rounded-full border px-3 py-1.5 transition-colors',
+                          channelMonitorAutoRefresh ? 'border-[#8fe0d2] bg-[#effbf8] text-[#18bca2]' : 'border-slate-200 bg-white text-slate-500'
+                        )}
+                      >
+                        <span>定时刷新</span>
+                        <span className={cn('relative inline-flex h-5 w-9 rounded-full transition-colors', channelMonitorAutoRefresh ? 'bg-[#18bca2]' : 'bg-slate-300')}>
+                          <span className={cn('absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-all', channelMonitorAutoRefresh ? 'translate-x-[18px]' : 'translate-x-[2px]')} />
+                        </span>
+                      </button>
+                      <span className="text-slate-400">上次刷新: {channelMonitorRefreshedAt}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <button type="button" onClick={() => refreshChannelMonitoring(true)} className={primaryButtonClass}>
+                        <RotateCcw size={14} className="mr-1.5" />
+                        立即刷新
+                      </button>
+                      <QueryActions
+                        onReset={() => {
+                          setChannelMonitorName('');
+                          setChannelMonitorPage(1);
+                        }}
+                      />
+                    </div>
                   </div>
                   <div className="grid grid-cols-1 gap-4 xl:grid-cols-12">
                     <Field label="渠道名称:" className="xl:col-span-4 [&>span]:w-[88px]">

@@ -13,6 +13,7 @@ import LegacyModulesPanel, {
   webchatLegacyMenus,
   type LegacyModulePage,
 } from './LegacyModulesPanel';
+import { helpDocContent } from './helpDocContent';
 import channelMobileIcon from './assets/channel-icons/移动端.png';
 import channelWebIcon from './assets/channel-icons/Web端.png';
 import channelKuaishouIcon from './assets/channel-icons/快手.png';
@@ -3776,6 +3777,186 @@ const SidebarItem = ({
   </div>
 );
 
+function HelpSidebarContent({ onClose }: { onClose: () => void }) {
+  const toAnchor = (text: string) => text.replace(/\s+/g, '-').replace(/[^\w一-鿿-]/g, '');
+  const stripSectionNum = (text: string) => text.replace(/^\d+(\.\d+)*\s*/, '');
+
+  const parsed = useMemo(() => {
+    const lines = helpDocContent.split('\n');
+    const tocEntries: { level: number; label: string; anchor: string }[] = [];
+    for (const line of lines) {
+      const tocMatch = line.match(/^TOC:(\d+):(.+)$/);
+      if (tocMatch) {
+        const level = parseInt(tocMatch[1], 10);
+        const label = tocMatch[2];
+        tocEntries.push({ level, label, anchor: toAnchor(stripSectionNum(label)) });
+      }
+    }
+    const contentBlocks: React.ReactNode[] = [];
+    let i = 0;
+    while (i < lines.length) {
+      const line = lines[i];
+      if (line.startsWith('|') && i + 1 < lines.length && lines[i + 1].startsWith('|') && lines[i + 1].includes('---')) {
+        const tableLines: string[] = [];
+        while (i < lines.length && lines[i].startsWith('|')) { tableLines.push(lines[i]); i++; }
+        const headerCells = tableLines[0].split('|').filter(Boolean).map(c => c.trim());
+        const dataRows = tableLines.slice(2).map(r => r.split('|').filter(Boolean).map(c => c.trim()));
+        contentBlocks.push(
+          <div key={`tbl-${i}`} className="my-3 overflow-x-auto rounded-lg border border-slate-200">
+            <table className="min-w-full text-left text-[12px]">
+              <thead className="bg-[#eef9f6]">
+                <tr>{headerCells.map((c, ci) => <th key={ci} className="whitespace-nowrap border-b border-slate-200 px-3 py-2 font-semibold text-slate-700">{c}</th>)}</tr>
+              </thead>
+              <tbody>
+                {dataRows.map((row, ri) => (
+                  <tr key={ri} className={ri % 2 === 0 ? 'bg-white' : 'bg-slate-50/60'}>
+                    {row.map((c, ci) => <td key={ci} className="border-b border-slate-100 px-3 py-2 text-slate-600">{c}</td>)}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
+      } else if (line.startsWith('#### ')) {
+        const label = line.slice(5).trim();
+        contentBlocks.push(<h4 key={`h4-${i}`} id={`help-${toAnchor(label)}`} className="mb-1 mt-5 text-[14px] font-semibold text-slate-600">{label}</h4>);
+        i++;
+      } else if (line.startsWith('### ')) {
+        const label = line.slice(4).trim();
+        contentBlocks.push(<h3 key={`h3-${i}`} id={`help-${toAnchor(label)}`} className="mb-2 mt-6 text-[15px] font-semibold text-slate-700">{label}</h3>);
+        i++;
+      } else if (line.startsWith('## ')) {
+        const label = line.slice(3).trim();
+        contentBlocks.push(<h2 key={`h2-${i}`} id={`help-${toAnchor(label)}`} className="mb-2 mt-7 text-[17px] font-bold text-slate-700">{label}</h2>);
+        i++;
+      } else if (line.startsWith('# ')) {
+        const label = line.slice(2).trim();
+        contentBlocks.push(<h1 key={`h1-${i}`} id={`help-${toAnchor(label)}`} className="mb-3 mt-10 border-b border-slate-200 pb-2 text-[20px] font-bold text-slate-800">{label}</h1>);
+        i++;
+      } else if (line.trim() === '' || line.startsWith('TOC:') || line.startsWith('<!-- TOC_START') || line.startsWith('<!-- TOC_END')) {
+        i++;
+      } else {
+        contentBlocks.push(<p key={`p-${i}`} className="my-1 text-[13px]">{line}</p>);
+        i++;
+      }
+    }
+    return { tocEntries, contentBlocks };
+  }, []);
+
+  const contentRef = useRef<HTMLDivElement>(null);
+  const windowRef = useRef<HTMLDivElement>(null);
+  const [windowSize, setWindowSize] = useState({ w: 960, h: 600 });
+  const [windowPos, setWindowPos] = useState({ x: -1, y: -1 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
+  const dragOffset = useRef({ x: 0, y: 0 });
+  const resizeStart = useRef({ x: 0, y: 0, w: 0, h: 0 });
+
+  useEffect(() => {
+    if (windowPos.x === -1) {
+      setWindowPos({
+        x: Math.max(0, (window.innerWidth - windowSize.w) / 2),
+        y: Math.max(0, (window.innerHeight - windowSize.h) / 2),
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (isDragging) {
+        setWindowPos({ x: e.clientX - dragOffset.current.x, y: e.clientY - dragOffset.current.y });
+      } else if (isResizing) {
+        const dw = e.clientX - resizeStart.current.x;
+        const dh = e.clientY - resizeStart.current.y;
+        setWindowSize({
+          w: Math.max(600, resizeStart.current.w + dw),
+          h: Math.max(400, resizeStart.current.h + dh),
+        });
+      }
+    };
+    const handleMouseUp = () => { setIsDragging(false); setIsResizing(false); };
+    if (isDragging || isResizing) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      return () => { document.removeEventListener('mousemove', handleMouseMove); document.removeEventListener('mouseup', handleMouseUp); };
+    }
+  }, [isDragging, isResizing]);
+
+  return (
+    <div className="fixed inset-0 z-70">
+      <div className="absolute inset-0 bg-black/30" onClick={onClose} />
+      <div
+        ref={windowRef}
+        className="absolute flex flex-col rounded-xl shadow-2xl overflow-hidden"
+        style={{ left: windowPos.x, top: windowPos.y, width: windowSize.w, height: windowSize.h }}
+      >
+        {/* Title bar - draggable */}
+        <div
+          className="flex items-center justify-between border-b border-slate-200 bg-slate-100 px-5 py-3 cursor-move select-none"
+          onMouseDown={(e) => {
+            setIsDragging(true);
+            dragOffset.current = { x: e.clientX - windowPos.x, y: e.clientY - windowPos.y };
+          }}
+        >
+          <span className="text-[14px] font-semibold text-slate-800">科大客服项目需求规格说明书 V1.0</span>
+          <button type="button" onClick={onClose} className="text-slate-400 hover:text-slate-600" onMouseDown={(e) => e.stopPropagation()}><X size={18} /></button>
+        </div>
+        {/* Body: left TOC + right content */}
+        <div className="flex flex-1 overflow-hidden">
+          {/* Left TOC menu */}
+          <div className="flex w-[220px] shrink-0 flex-col border-r border-slate-200 bg-slate-50">
+            <div className="flex-1 overflow-y-auto custom-scrollbar px-2 py-2">
+              <div className="flex flex-col gap-0.5">
+                {parsed.tocEntries.map((entry, ei) => (
+                  <a
+                    key={ei}
+                    href={`#help-${entry.anchor}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      const el = contentRef.current?.querySelector(`#help-${entry.anchor}`);
+                      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }}
+                    className={cn(
+                      'rounded px-2 py-1 text-slate-600 transition-colors hover:bg-[#eef9f6] hover:text-[#18bca2]',
+                      entry.level === 1 ? 'text-[13px] font-bold' : '',
+                      entry.level === 2 ? 'pl-4 text-[12px] font-medium' : '',
+                      entry.level === 3 ? 'pl-7 text-[11px]' : '',
+                      entry.level === 4 ? 'pl-10 text-[11px]' : '',
+                    )}
+                  >
+                    {entry.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+          {/* Right content panel */}
+          <div className="flex flex-1 flex-col bg-white overflow-hidden">
+            <div ref={contentRef} className="flex-1 overflow-y-auto px-6 py-5 custom-scrollbar">
+              <div className="max-w-none text-[13px] leading-7 text-slate-600">
+                {parsed.contentBlocks}
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* Resize handle */}
+        <div
+          className="absolute bottom-0 right-0 h-4 w-4 cursor-nwse-resize"
+          onMouseDown={(e) => {
+            e.stopPropagation();
+            setIsResizing(true);
+            resizeStart.current = { x: e.clientX, y: e.clientY, w: windowSize.w, h: windowSize.h };
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" className="text-slate-400">
+            <path d="M14 14L8 14M14 14L14 8M14 14L6 6" stroke="currentColor" strokeWidth="1.5" fill="none" />
+          </svg>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const CALL_LEFT_PANEL_DEFAULT_RATIO = 1 / 3;
   const CALL_LEFT_PANEL_MIN_WIDTH = 280;
@@ -3946,6 +4127,7 @@ export default function App() {
   const [isMessageNoticeExpanded, setIsMessageNoticeExpanded] = useState(false);
   const [isSystemSettingsExpanded, setIsSystemSettingsExpanded] = useState(false);
   const [isOrgStructureExpanded, setIsOrgStructureExpanded] = useState(false);
+  const [isHelpSidebarOpen, setIsHelpSidebarOpen] = useState(false);
 
   const [deptRoleMainTab, setDeptRoleMainTab] = useState<'department' | 'role'>('role');
   const [deptRoleStatusFilter, setDeptRoleStatusFilter] = useState<'all' | 'enabled' | 'disabled'>('enabled');
@@ -16349,6 +16531,21 @@ export default function App() {
           background: #cbd5e1;
         }
       `}</style>
+
+      {/* Help floating button */}
+      <button
+        type="button"
+        onClick={() => setIsHelpSidebarOpen(true)}
+        className="fixed bottom-6 right-6 z-[60] flex h-12 w-12 items-center justify-center rounded-full bg-[#18bca2] text-white shadow-lg transition-transform hover:scale-110 hover:bg-[#15a892]"
+        aria-label="帮助文档"
+      >
+        <HelpCircle size={24} />
+      </button>
+
+      {/* Help sidebar overlay */}
+      {isHelpSidebarOpen && (
+        <HelpSidebarContent onClose={() => setIsHelpSidebarOpen(false)} />
+      )}
     </div>
   );
 }
