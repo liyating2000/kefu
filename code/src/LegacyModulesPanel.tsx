@@ -5521,7 +5521,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                   <thead className="bg-[#fafafa] text-slate-600">
                     <tr>
                       {(appointmentTab === 'message'
-                        ? ['序号', '业务线', '主叫号码', '被叫号码', '开始通话时间', '结束通话时间', '处理部门', '处理人', '技能组', '调剂人', '调剂时间', '调剂次数', '操作']
+                        ? ['序号', '业务线', '主叫号码', '被叫号码', '开始留言时间', '结束留言时间', '处理部门', '处理人', '技能组', '调剂人', '调剂时间', '调剂次数', '操作']
                         : ['序号', '业务线', '主叫号码', '被叫号码', '开始通话时间', '结束通话时间', '处理部门', '处理人', '技能组', '调剂人', '调剂时间', '调剂次数', '备注', '操作']
                       ).map((column) => (
                         <th key={column} className="px-4 py-3 font-medium">{column}</th>
@@ -6003,7 +6003,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                       </div>
                       <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 md:grid-cols-4 xl:grid-cols-7">
                         <div>累计呼入量：<span className="text-slate-800">{queueMonitorPhoneSummary.inboundTotal}</span></div>
-                        <div>队列实时排队数：<span className="text-slate-800">{queueMonitorPhoneSummary.realtimeQueueCount}</span></div>
+                        <div>实时排队数：<span className="text-slate-800">{queueMonitorPhoneSummary.realtimeQueueCount}</span></div>
                         <div>平均排队时长：<span className="text-slate-800">{queueMonitorPhoneSummary.avgQueueTime}</span></div>
                         <div>最大等待时长：<span className="text-slate-800">{queueMonitorPhoneSummary.maxWaitTime}</span></div>
                         <div>接起率：<span className="text-slate-800">{queueMonitorPhoneSummary.answerRate}</span></div>
@@ -6015,7 +6015,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                       <table className="w-full table-auto text-left text-[13px]">
                         <thead className="bg-[#fafafa] text-slate-600">
                           <tr>
-                            {['序号', '技能组', '累计呼入量', '队列实时排队数', '平均排队时长', '最大等待时长', '接起率', '20s服务水平', '30s服务水平'].map((column) => (
+                            {['序号', '技能组', '累计呼入量', '实时排队数', '平均排队时长', '最大等待时长', '接起率', '20s服务水平', '30s服务水平'].map((column) => (
                               <th key={`phone-${column}`} className="px-2 py-3 text-[12px] font-medium">
                                 {column}
                               </th>

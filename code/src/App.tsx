@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import logoImage from './logo.png';
 import LegacyModulesPanel, {
   legacyModuleLabels,
@@ -73,7 +73,8 @@ import {
   Bell, 
   House,
   Settings,
-  ChevronDown, 
+  ChevronDown,
+  ChevronUp, 
   ChevronLeft,
   ChevronRight,
   User,
@@ -3852,6 +3853,112 @@ function HelpSidebarContent({ onClose }: { onClose: () => void }) {
   const dragOffset = useRef({ x: 0, y: 0 });
   const resizeStart = useRef({ x: 0, y: 0, w: 0, h: 0 });
 
+  const [helpSearchKeyword, setHelpSearchKeyword] = useState('');
+  const [helpSearchIndex, setHelpSearchIndex] = useState(0);
+  const [helpSearchTotal, setHelpSearchTotal] = useState(0);
+  const helpSearchInputRef = useRef<HTMLInputElement>(null);
+
+  const doHelpSearch = useCallback((keyword: string, jumpToIndex: number) => {
+    const container = contentRef.current;
+    if (!container) return;
+    const treeWalker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
+    const allTextNodes: Text[] = [];
+    while (treeWalker.nextNode()) allTextNodes.push(treeWalker.currentNode as Text);
+
+    // Remove old highlights
+    container.querySelectorAll('mark[data-help-search]').forEach((mark) => {
+      const parent = mark.parentNode;
+      if (parent) {
+        parent.replaceChild(document.createTextNode(mark.textContent || ''), mark);
+        parent.normalize();
+      }
+    });
+
+    if (!keyword.trim()) {
+      setHelpSearchTotal(0);
+      setHelpSearchIndex(0);
+      return;
+    }
+
+    const lowerKw = keyword.toLowerCase();
+    let matchCount = 0;
+    const marks: HTMLElement[] = [];
+
+    // Re-walk after cleanup since DOM changed
+    const walker2 = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
+    const textNodes: Text[] = [];
+    while (walker2.nextNode()) textNodes.push(walker2.currentNode as Text);
+
+    for (const node of textNodes) {
+      const text = node.textContent || '';
+      const lower = text.toLowerCase();
+      let searchFrom = 0;
+      const fragments: (string | { text: string; idx: number })[] = [];
+      let lastEnd = 0;
+      while (true) {
+        const pos = lower.indexOf(lowerKw, searchFrom);
+        if (pos === -1) break;
+        if (pos > lastEnd) fragments.push(text.slice(lastEnd, pos));
+        fragments.push({ text: text.slice(pos, pos + keyword.length), idx: matchCount });
+        matchCount++;
+        lastEnd = pos + keyword.length;
+        searchFrom = pos + 1;
+      }
+      if (fragments.length > 0) {
+        if (lastEnd < text.length) fragments.push(text.slice(lastEnd));
+        const parent = node.parentNode;
+        if (!parent) continue;
+        const frag = document.createDocumentFragment();
+        for (const f of fragments) {
+          if (typeof f === 'string') {
+            frag.appendChild(document.createTextNode(f));
+          } else {
+            const mark = document.createElement('mark');
+            mark.setAttribute('data-help-search', String(f.idx));
+            mark.style.backgroundColor = '#fef08a';
+            mark.style.borderRadius = '2px';
+            mark.style.padding = '0 1px';
+            mark.textContent = f.text;
+            marks.push(mark);
+            frag.appendChild(mark);
+          }
+        }
+        parent.replaceChild(frag, node);
+      }
+    }
+
+    setHelpSearchTotal(matchCount);
+    if (matchCount > 0) {
+      const idx = ((jumpToIndex % matchCount) + matchCount) % matchCount;
+      setHelpSearchIndex(idx);
+      marks.forEach((m, mi) => {
+        m.style.backgroundColor = mi === idx ? '#f97316' : '#fef08a';
+        m.style.color = mi === idx ? '#fff' : '';
+      });
+      marks[idx]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else {
+      setHelpSearchIndex(0);
+    }
+  }, []);
+
+  const jumpHelpSearch = useCallback((delta: number) => {
+    const container = contentRef.current;
+    if (!container) return;
+    const marks = container.querySelectorAll('mark[data-help-search]');
+    if (marks.length === 0) return;
+    const total = marks.length;
+    setHelpSearchTotal(total);
+    setHelpSearchIndex((prev) => {
+      const next = ((prev + delta) % total + total) % total;
+      marks.forEach((m, mi) => {
+        (m as HTMLElement).style.backgroundColor = mi === next ? '#f97316' : '#fef08a';
+        (m as HTMLElement).style.color = mi === next ? '#fff' : '';
+      });
+      marks[next]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return next;
+    });
+  }, []);
+
   useEffect(() => {
     if (windowPos.x === -1) {
       setWindowPos({
@@ -3892,14 +3999,46 @@ function HelpSidebarContent({ onClose }: { onClose: () => void }) {
       >
         {/* Title bar - draggable */}
         <div
-          className="flex items-center justify-between border-b border-slate-200 bg-slate-100 px-5 py-3 cursor-move select-none"
+          className="flex items-center justify-between border-b border-slate-200 bg-slate-100 px-5 py-2 cursor-move select-none gap-3"
           onMouseDown={(e) => {
             setIsDragging(true);
             dragOffset.current = { x: e.clientX - windowPos.x, y: e.clientY - windowPos.y };
           }}
         >
-          <span className="text-[14px] font-semibold text-slate-800">科大客服项目需求规格说明书 V1.0</span>
-          <button type="button" onClick={onClose} className="text-slate-400 hover:text-slate-600" onMouseDown={(e) => e.stopPropagation()}><X size={18} /></button>
+          <span className="shrink-0 text-[14px] font-semibold text-slate-800">科大客服项目需求规格说明书 V1.0</span>
+          <div className="flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2 py-1" onMouseDown={(e) => e.stopPropagation()}>
+            <Search size={14} className="shrink-0 text-slate-400" />
+            <input
+              ref={helpSearchInputRef}
+              type="text"
+              placeholder="搜索内容..."
+              value={helpSearchKeyword}
+              onChange={(e) => {
+                setHelpSearchKeyword(e.target.value);
+                doHelpSearch(e.target.value, 0);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  if (e.shiftKey) jumpHelpSearch(-1);
+                  else jumpHelpSearch(1);
+                }
+                if (e.key === 'Escape') {
+                  setHelpSearchKeyword('');
+                  doHelpSearch('', 0);
+                }
+              }}
+              className="w-36 border-none bg-transparent text-[12px] text-slate-700 outline-none placeholder:text-slate-400"
+            />
+            {helpSearchKeyword && (
+              <span className="shrink-0 text-[11px] text-slate-400">
+                {helpSearchTotal > 0 ? `${helpSearchIndex + 1}/${helpSearchTotal}` : '0/0'}
+              </span>
+            )}
+            <button type="button" title="上一个 (Shift+Enter)" onClick={() => jumpHelpSearch(-1)} className="shrink-0 rounded p-0.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 disabled:opacity-30" disabled={helpSearchTotal === 0}><ChevronUp size={14} /></button>
+            <button type="button" title="下一个 (Enter)" onClick={() => jumpHelpSearch(1)} className="shrink-0 rounded p-0.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 disabled:opacity-30" disabled={helpSearchTotal === 0}><ChevronDown size={14} /></button>
+          </div>
+          <button type="button" onClick={onClose} className="shrink-0 text-slate-400 hover:text-slate-600" onMouseDown={(e) => e.stopPropagation()}><X size={18} /></button>
         </div>
         {/* Body: left TOC + right content */}
         <div className="flex flex-1 overflow-hidden">
