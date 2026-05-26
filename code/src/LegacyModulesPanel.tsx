@@ -3337,203 +3337,315 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                 />
               </div>
 
-              <div className="grid grid-cols-1 gap-4 xl:grid-cols-12">
-                <Field label="访客ID:" className="xl:col-span-3 xl:[&>span]:w-[72px]">
-                  <input
-                    value={webchatHistoryFilterForm.visitorId}
-                    onChange={(event) => setWebchatHistoryFilterForm((current) => ({ ...current, visitorId: event.target.value }))}
-                    placeholder="请输入访客ID"
-                    className={inputClass}
-                  />
-                </Field>
-                <Field label="会话ID:" className="xl:col-span-3 xl:[&>span]:w-[72px]">
-                  <input
-                    value={webchatHistoryFilterForm.sessionId}
-                    onChange={(event) => setWebchatHistoryFilterForm((current) => ({ ...current, sessionId: event.target.value }))}
-                    placeholder="请输入会话ID"
-                    className={inputClass}
-                  />
-                </Field>
-                <Field label="员工部门:" className="xl:col-span-3 xl:[&>span]:w-[72px]">
-                  <select
-                    value={webchatHistoryFilterForm.department}
-                    onChange={(event) => setWebchatHistoryFilterForm((current) => ({ ...current, department: event.target.value }))}
-                    className={inputClass}
-                  >
-                    <option value="">请选择</option>
-                    <option value="测试">测试</option>
-                    <option value="系统组">系统组</option>
-                  </select>
-                </Field>
-                <Field label="员工:" className="xl:col-span-3 xl:[&>span]:w-[72px]">
-                  <input
-                    value={webchatHistoryFilterForm.employeeId}
-                    onChange={(event) => setWebchatHistoryFilterForm((current) => ({ ...current, employeeId: event.target.value }))}
-                    placeholder="请输入员工姓名/工号"
-                    className={inputClass}
-                  />
-                </Field>
-              </div>
-
-              {showWebchatHistoryMoreFilters ? (
+              {webchatHistoryAdvancedSearch ? (
+                <div className="grid grid-cols-1 gap-4 xl:grid-cols-12">
+                  <Field label="请求时间:" className="xl:col-span-5 xl:[&>span]:w-[72px]">
+                    <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2">
+                      <input
+                        type="datetime-local"
+                        value={webchatHistoryFilterForm.startAt}
+                        onChange={(event) => setWebchatHistoryFilterForm((current) => ({ ...current, startAt: event.target.value }))}
+                        className={cn(inputClass, 'px-2 text-[12px]')}
+                      />
+                      <span className="text-slate-400">至</span>
+                      <input
+                        type="datetime-local"
+                        value={webchatHistoryFilterForm.endAt}
+                        onChange={(event) => setWebchatHistoryFilterForm((current) => ({ ...current, endAt: event.target.value }))}
+                        className={cn(inputClass, 'px-2 text-[12px]')}
+                      />
+                    </div>
+                  </Field>
+                  <Field label="渠道:" className="xl:col-span-3 xl:[&>span]:w-[72px]">
+                    <select
+                      value={webchatHistoryFilterForm.channel}
+                      onChange={(event) => setWebchatHistoryFilterForm((current) => ({ ...current, channel: event.target.value }))}
+                      className={inputClass}
+                    >
+                      <option value="">请选择渠道</option>
+                      <option value="web">Web</option>
+                      <option value="微信">微信</option>
+                    </select>
+                  </Field>
+                  <Field label="聊天内容:" className="xl:col-span-4 xl:[&>span]:w-[72px]">
+                    <input
+                      value={webchatHistoryFilterForm.content}
+                      onChange={(event) => setWebchatHistoryFilterForm((current) => ({ ...current, content: event.target.value }))}
+                      placeholder="输入内容可查询聊天记录"
+                      className={inputClass}
+                    />
+                  </Field>
+                </div>
+              ) : (
                 <>
-                  <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-12">
-                    <Field label="请求时间:" className="xl:col-span-4 xl:[&>span]:w-[72px]">
-                      <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2">
-                        <input
-                          type="datetime-local"
-                          value={webchatHistoryFilterForm.startAt}
-                          onChange={(event) => setWebchatHistoryFilterForm((current) => ({ ...current, startAt: event.target.value }))}
-                          className={cn(inputClass, 'px-2 text-[12px]')}
-                        />
-                        <span className="text-slate-400">-</span>
-                        <input
-                          type="datetime-local"
-                          value={webchatHistoryFilterForm.endAt}
-                          onChange={(event) => setWebchatHistoryFilterForm((current) => ({ ...current, endAt: event.target.value }))}
-                          className={cn(inputClass, 'px-2 text-[12px]')}
-                        />
-                      </div>
-                    </Field>
-                    <Field label="是否小结:" className="xl:col-span-2 xl:[&>span]:w-[72px]">
-                      <select
-                        value={webchatHistoryFilterForm.summarized}
-                        onChange={(event) => setWebchatHistoryFilterForm((current) => ({ ...current, summarized: event.target.value }))}
-                        className={inputClass}
-                      >
-                        <option value="">请选择</option>
-                        <option value="已小结">已小结</option>
-                        <option value="未小结">未小结</option>
-                      </select>
-                    </Field>
-                    <Field label="渠道:" className="xl:col-span-2 xl:[&>span]:w-[72px]">
+                  <div className="grid grid-cols-1 gap-4 xl:grid-cols-12">
+                    <Field label="访客ID:" className="xl:col-span-3 xl:[&>span]:w-[72px]">
                       <input
-                        value={webchatHistoryFilterForm.channel}
-                        onChange={(event) => setWebchatHistoryFilterForm((current) => ({ ...current, channel: event.target.value }))}
-                        placeholder="请输入渠道名称"
+                        value={webchatHistoryFilterForm.visitorId}
+                        onChange={(event) => setWebchatHistoryFilterForm((current) => ({ ...current, visitorId: event.target.value }))}
+                        placeholder="请输入访客ID"
                         className={inputClass}
                       />
                     </Field>
-                    <Field label="所属队列:" className="xl:col-span-2 xl:[&>span]:w-[72px]">
+                    <Field label="会话ID:" className="xl:col-span-3 xl:[&>span]:w-[72px]">
                       <input
-                        value={webchatHistoryFilterForm.queue}
-                        onChange={(event) => setWebchatHistoryFilterForm((current) => ({ ...current, queue: event.target.value }))}
-                        placeholder="请输入所属队列"
+                        value={webchatHistoryFilterForm.sessionId}
+                        onChange={(event) => setWebchatHistoryFilterForm((current) => ({ ...current, sessionId: event.target.value }))}
+                        placeholder="请输入会话ID"
                         className={inputClass}
                       />
                     </Field>
-                    <Field label="结束原因:" className="xl:col-span-2 xl:[&>span]:w-[72px]">
+                    <Field label="员工部门:" className="xl:col-span-3 xl:[&>span]:w-[72px]">
                       <select
-                        value={webchatHistoryFilterForm.endReason}
-                        onChange={(event) => setWebchatHistoryFilterForm((current) => ({ ...current, endReason: event.target.value }))}
+                        value={webchatHistoryFilterForm.department}
+                        onChange={(event) => setWebchatHistoryFilterForm((current) => ({ ...current, department: event.target.value }))}
                         className={inputClass}
                       >
                         <option value="">请选择</option>
-                        <option value="坐席结束">坐席结束</option>
-                        <option value="坐席超时">坐席超时</option>
-                        <option value="访客超时">访客超时</option>
-                        <option value="排队超时">排队超时</option>
-                        <option value="访客结束">访客结束</option>
-                        <option value="异常退出">异常退出</option>
+                        <option value="测试">测试</option>
+                        <option value="系统组">系统组</option>
                       </select>
                     </Field>
-                  </div>
-                  <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-12">
-                    <Field label="聊天内容:" className="xl:col-span-6 xl:[&>span]:w-[72px]">
+                    <Field label="员工:" className="xl:col-span-3 xl:[&>span]:w-[72px]">
                       <input
-                        value={webchatHistoryFilterForm.content}
-                        onChange={(event) => setWebchatHistoryFilterForm((current) => ({ ...current, content: event.target.value }))}
-                        placeholder="输入内容可查询聊天记录"
+                        value={webchatHistoryFilterForm.employeeId}
+                        onChange={(event) => setWebchatHistoryFilterForm((current) => ({ ...current, employeeId: event.target.value }))}
+                        placeholder="请输入员工姓名/工号"
                         className={inputClass}
                       />
                     </Field>
                   </div>
+
+                  {showWebchatHistoryMoreFilters && (
+                    <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-12">
+                      <Field label="请求时间:" className="xl:col-span-4 xl:[&>span]:w-[72px]">
+                        <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2">
+                          <input
+                            type="datetime-local"
+                            value={webchatHistoryFilterForm.startAt}
+                            onChange={(event) => setWebchatHistoryFilterForm((current) => ({ ...current, startAt: event.target.value }))}
+                            className={cn(inputClass, 'px-2 text-[12px]')}
+                          />
+                          <span className="text-slate-400">-</span>
+                          <input
+                            type="datetime-local"
+                            value={webchatHistoryFilterForm.endAt}
+                            onChange={(event) => setWebchatHistoryFilterForm((current) => ({ ...current, endAt: event.target.value }))}
+                            className={cn(inputClass, 'px-2 text-[12px]')}
+                          />
+                        </div>
+                      </Field>
+                      <Field label="是否小结:" className="xl:col-span-2 xl:[&>span]:w-[72px]">
+                        <select
+                          value={webchatHistoryFilterForm.summarized}
+                          onChange={(event) => setWebchatHistoryFilterForm((current) => ({ ...current, summarized: event.target.value }))}
+                          className={inputClass}
+                        >
+                          <option value="">请选择</option>
+                          <option value="已小结">已小结</option>
+                          <option value="未小结">未小结</option>
+                        </select>
+                      </Field>
+                      <Field label="渠道:" className="xl:col-span-2 xl:[&>span]:w-[72px]">
+                        <select
+                          value={webchatHistoryFilterForm.channel}
+                          onChange={(event) => setWebchatHistoryFilterForm((current) => ({ ...current, channel: event.target.value }))}
+                          className={inputClass}
+                        >
+                          <option value="">请选择渠道</option>
+                          <option value="web">Web</option>
+                          <option value="微信">微信</option>
+                        </select>
+                      </Field>
+                      <Field label="所属队列:" className="xl:col-span-2 xl:[&>span]:w-[72px]">
+                        <input
+                          value={webchatHistoryFilterForm.queue}
+                          onChange={(event) => setWebchatHistoryFilterForm((current) => ({ ...current, queue: event.target.value }))}
+                          placeholder="请输入所属队列"
+                          className={inputClass}
+                        />
+                      </Field>
+                      <Field label="结束原因:" className="xl:col-span-2 xl:[&>span]:w-[72px]">
+                        <select
+                          value={webchatHistoryFilterForm.endReason}
+                          onChange={(event) => setWebchatHistoryFilterForm((current) => ({ ...current, endReason: event.target.value }))}
+                          className={inputClass}
+                        >
+                          <option value="">请选择</option>
+                          <option value="坐席结束">坐席结束</option>
+                          <option value="坐席超时">坐席超时</option>
+                          <option value="访客超时">访客超时</option>
+                          <option value="排队超时">排队超时</option>
+                          <option value="访客结束">访客结束</option>
+                          <option value="异常退出">异常退出</option>
+                        </select>
+                      </Field>
+                    </div>
+                  )}
                 </>
-              ) : null}
+              )}
+
+              {showWebchatHistoryMoreFilters && (
+                <div className="mt-4 flex items-center gap-2">
+                  <span className="text-[13px] text-slate-500">高级检索</span>
+                  <button
+                    type="button"
+                    onClick={() => setWebchatHistoryAdvancedSearch((v) => !v)}
+                    className={cn(
+                      'relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full transition-colors',
+                      webchatHistoryAdvancedSearch ? 'bg-[#18bca2]' : 'bg-slate-300'
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        'pointer-events-none inline-block h-4 w-4 translate-y-0.5 rounded-full bg-white shadow transition-transform',
+                        webchatHistoryAdvancedSearch ? 'translate-x-[18px]' : 'translate-x-0.5'
+                      )}
+                    />
+                  </button>
+                </div>
+              )}
             </div>
 
-            <div className="flex items-center gap-3 border-b border-slate-100 px-5 py-4">
-              <button type="button" className={solidButtonClass}>
-                下载聊天记录
-              </button>
-              <button type="button" onClick={openWebchatHistorySampleSubmitModal} className={primaryButtonClass}>
-                提交范例
-              </button>
-              <button type="button" className={secondaryButtonClass}>
-                导出
-              </button>
-            </div>
+            {!webchatHistoryAdvancedSearch && (
+              <div className="flex items-center gap-3 border-b border-slate-100 px-5 py-4">
+                <button type="button" className={solidButtonClass}>
+                  下载聊天记录
+                </button>
+                <button type="button" onClick={openWebchatHistorySampleSubmitModal} className={primaryButtonClass}>
+                  提交范例
+                </button>
+                <button type="button" className={secondaryButtonClass}>
+                  导出
+                </button>
+              </div>
+            )}
 
             <div className="overflow-auto px-5 py-4 custom-scrollbar">
-              <table className="min-w-[1900px] table-fixed text-left text-[13px]">
-                <thead className="bg-[#fafafa] text-slate-600">
-                  <tr>
-                    <th className="w-10 px-2 py-3 text-center font-medium">
-                      <input
-                        type="checkbox"
-                        checked={allSelected}
-                        onChange={(event) =>
-                          setSelectedWebchatHistoryIds(event.target.checked ? filteredWebchatHistoryRows.map((row) => row.id) : [])
-                        }
-                        className="h-4 w-4 cursor-pointer accent-[#18bca2]"
-                      />
-                    </th>
-                    {['序号', '访客ID', '会话ID', '员工姓名', '员工工号', '所属队列', '所属工作组', '请求时间', '聊天开始时间', '聊天结束时间', '聊天时长', '结束原因', '渠道', '满意度', '提交范例库状态'].map((column) => (
-                      <th key={column} className="whitespace-nowrap px-4 py-3 font-medium">
-                        {column}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="text-slate-600">
-                  {filteredWebchatHistoryRows.map((row, index) => (
-                    <tr
-                      key={row.id}
-                      onDoubleClick={() => {
-                        setWebchatHistoryDetail(row.id);
-                        setWebchatHistoryDetailTab('summary');
-                      }}
-                      className={cn(
-                        'cursor-pointer transition-colors hover:bg-[#f1fbf8]',
-                        index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]'
-                      )}
-                    >
-                      <td className="px-2 py-4 text-center" onDoubleClick={(event) => event.stopPropagation()}>
+              {webchatHistoryAdvancedSearch ? (
+                <>
+                  <div className="mb-3 text-[14px] font-medium text-slate-700">会话历史</div>
+                  <table className="w-full table-fixed text-left text-[13px]">
+                    <thead className="bg-[#fafafa] text-slate-600">
+                      <tr>
+                        <th className="w-16 whitespace-nowrap px-4 py-3 font-medium">序号</th>
+                        <th className="w-52 whitespace-nowrap px-4 py-3 font-medium">会话ID</th>
+                        <th className="whitespace-nowrap px-4 py-3 font-medium">会话内容</th>
+                        <th className="w-20 whitespace-nowrap px-4 py-3 font-medium">操作</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-slate-600">
+                      {filteredWebchatHistoryRows.map((row, index) => (
+                        <tr
+                          key={row.id}
+                          className={cn(
+                            'transition-colors hover:bg-[#f1fbf8]',
+                            index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]'
+                          )}
+                        >
+                          <td className="px-4 py-4">{index + 1}</td>
+                          <td className="px-4 py-4">{row.requestAt.replace(/[-: ]/g, '').slice(0, 14) + row.sessionId + '00'}</td>
+                          <td className="truncate px-4 py-4 text-slate-500">
+                            {(() => {
+                              const fullText = `${row.content}，{"keyword":"${row.sessionId}","type":"${row.channel}","timestamp":"${row.requestAt}"}`;
+                              const keyword = webchatHistoryFilters.content;
+                              if (!keyword) return fullText;
+                              const parts = fullText.split(new RegExp(`(${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'));
+                              return parts.map((part, i) =>
+                                part.toLowerCase() === keyword.toLowerCase()
+                                  ? <span key={i} className="text-red-500">{part}</span>
+                                  : part
+                              );
+                            })()}
+                          </td>
+                          <td className="px-4 py-4">
+                            <button
+                              type="button"
+                              className="text-[#18bca2] hover:underline"
+                              onClick={() => {
+                                setWebchatHistoryDetail(row.id);
+                                setWebchatHistoryDetailTab('summary');
+                              }}
+                            >
+                              详情
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </>
+              ) : (
+                <table className="min-w-[1900px] table-fixed text-left text-[13px]">
+                  <thead className="bg-[#fafafa] text-slate-600">
+                    <tr>
+                      <th className="w-10 px-2 py-3 text-center font-medium">
                         <input
                           type="checkbox"
-                          checked={selectedWebchatHistoryIds.includes(row.id)}
+                          checked={allSelected}
                           onChange={(event) =>
-                            setSelectedWebchatHistoryIds((current) =>
-                              event.target.checked ? [...current, row.id] : current.filter((id) => id !== row.id)
-                            )
+                            setSelectedWebchatHistoryIds(event.target.checked ? filteredWebchatHistoryRows.map((row) => row.id) : [])
                           }
                           className="h-4 w-4 cursor-pointer accent-[#18bca2]"
                         />
-                      </td>
-                      <td className="px-4 py-4">{index + 1}</td>
-                      <td className="hidden px-4 py-4">
-                        <button type="button" className="hidden text-[#18bca2]" onClick={() => showToast('已提交范例库')}>
-                          提交范例库
-                        </button>
-                      </td>
-                      <td className="px-4 py-4">{row.visitorId}</td>
-                      <td className="px-4 py-4">{row.sessionId}</td>
-                      <td className="px-4 py-4">{row.employeeName}</td>
-                      <td className="px-4 py-4">{row.employeeId}</td>
-                      <td className="px-4 py-4">{row.queue}</td>
-                      <td className="px-4 py-4">{row.workgroup}</td>
-                      <td className="px-4 py-4">{row.requestAt}</td>
-                      <td className="px-4 py-4">{row.chatStartedAt}</td>
-                      <td className="px-4 py-4">{row.chatEndedAt}</td>
-                      <td className="px-4 py-4">{row.duration}</td>
-                      <td className="px-4 py-4">{row.endReason}</td>
-                      <td className="px-4 py-4">{row.channel}</td>
-                      <td className="px-4 py-4">{row.satisfaction || '-'}</td>
-                      <td className="px-4 py-4">{row.exampleStatus}</td>
+                      </th>
+                      {['序号', '访客ID', '会话ID', '员工姓名', '员工工号', '所属队列', '所属工作组', '请求时间', '聊天开始时间', '聊天结束时间', '聊天时长', '结束原因', '渠道', '满意度', '提交范例库状态'].map((column) => (
+                        <th key={column} className="whitespace-nowrap px-4 py-3 font-medium">
+                          {column}
+                        </th>
+                      ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="text-slate-600">
+                    {filteredWebchatHistoryRows.map((row, index) => (
+                      <tr
+                        key={row.id}
+                        onDoubleClick={() => {
+                          setWebchatHistoryDetail(row.id);
+                          setWebchatHistoryDetailTab('summary');
+                        }}
+                        className={cn(
+                          'cursor-pointer transition-colors hover:bg-[#f1fbf8]',
+                          index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]'
+                        )}
+                      >
+                        <td className="px-2 py-4 text-center" onDoubleClick={(event) => event.stopPropagation()}>
+                          <input
+                            type="checkbox"
+                            checked={selectedWebchatHistoryIds.includes(row.id)}
+                            onChange={(event) =>
+                              setSelectedWebchatHistoryIds((current) =>
+                                event.target.checked ? [...current, row.id] : current.filter((id) => id !== row.id)
+                              )
+                            }
+                            className="h-4 w-4 cursor-pointer accent-[#18bca2]"
+                          />
+                        </td>
+                        <td className="px-4 py-4">{index + 1}</td>
+                        <td className="hidden px-4 py-4">
+                          <button type="button" className="hidden text-[#18bca2]" onClick={() => showToast('已提交范例库')}>
+                            提交范例库
+                          </button>
+                        </td>
+                        <td className="px-4 py-4">{row.visitorId}</td>
+                        <td className="px-4 py-4">{row.sessionId}</td>
+                        <td className="px-4 py-4">{row.employeeName}</td>
+                        <td className="px-4 py-4">{row.employeeId}</td>
+                        <td className="px-4 py-4">{row.queue}</td>
+                        <td className="px-4 py-4">{row.workgroup}</td>
+                        <td className="px-4 py-4">{row.requestAt}</td>
+                        <td className="px-4 py-4">{row.chatStartedAt}</td>
+                        <td className="px-4 py-4">{row.chatEndedAt}</td>
+                        <td className="px-4 py-4">{row.duration}</td>
+                        <td className="px-4 py-4">{row.endReason}</td>
+                        <td className="px-4 py-4">{row.channel}</td>
+                        <td className="px-4 py-4">{row.satisfaction || '-'}</td>
+                        <td className="px-4 py-4">{row.exampleStatus}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
 
             <FooterPagination total={`共 ${filteredWebchatHistoryRows.length} 条记录`} />
@@ -4147,6 +4259,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
   const [appointmentTab, setAppointmentTab] = useState<'appointment' | 'message' | 'todo'>('appointment');
   const [showAppointmentFilters, setShowAppointmentFilters] = useState(true);
   const [showWebchatHistoryMoreFilters, setShowWebchatHistoryMoreFilters] = useState(false);
+  const [webchatHistoryAdvancedSearch, setWebchatHistoryAdvancedSearch] = useState(false);
   const [showWebchatMessageMoreFilters, setShowWebchatMessageMoreFilters] = useState(false);
   const [appointmentFilters, setAppointmentFilters] = useState({
     businessLine: '',
@@ -6325,15 +6438,19 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                   </div>
                   <div className="grid grid-cols-1 gap-4 xl:grid-cols-12">
                     <Field label="渠道名称:" className="xl:col-span-4 [&>span]:w-[88px]">
-                      <input
+                      <select
                         value={channelMonitorName}
                         onChange={(event) => {
                           setChannelMonitorName(event.target.value);
                           setChannelMonitorPage(1);
                         }}
-                        placeholder="请输入渠道名称"
                         className={inputClass}
-                      />
+                      >
+                        <option value="">请选择渠道</option>
+                        {channelMonitorBaseRows.map((row) => (
+                          <option key={row.id} value={row.channelName}>{row.channelName}</option>
+                        ))}
+                      </select>
                     </Field>
                   </div>
                 </div>

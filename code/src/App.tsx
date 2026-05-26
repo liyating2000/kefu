@@ -3785,15 +3785,20 @@ function HelpSidebarContent({ onClose }: { onClose: () => void }) {
   const parsed = useMemo(() => {
     const lines = helpDocContent.split('\n');
     const tocEntries: { level: number; label: string; anchor: string }[] = [];
+    const tocAnchorCount: Record<string, number> = {};
     for (const line of lines) {
       const tocMatch = line.match(/^TOC:(\d+):(.+)$/);
       if (tocMatch) {
         const level = parseInt(tocMatch[1], 10);
         const label = tocMatch[2];
-        tocEntries.push({ level, label, anchor: toAnchor(stripSectionNum(label)) });
+        const baseAnchor = toAnchor(stripSectionNum(label));
+        tocAnchorCount[baseAnchor] = (tocAnchorCount[baseAnchor] || 0) + 1;
+        const anchor = tocAnchorCount[baseAnchor] > 1 ? `${baseAnchor}-${tocAnchorCount[baseAnchor]}` : baseAnchor;
+        tocEntries.push({ level, label, anchor });
       }
     }
     const contentBlocks: React.ReactNode[] = [];
+    const headingAnchorCount: Record<string, number> = {};
     let i = 0;
     while (i < lines.length) {
       const line = lines[i];
@@ -3820,19 +3825,31 @@ function HelpSidebarContent({ onClose }: { onClose: () => void }) {
         );
       } else if (line.startsWith('#### ')) {
         const label = line.slice(5).trim();
-        contentBlocks.push(<h4 key={`h4-${i}`} id={`help-${toAnchor(label)}`} className="mb-1 mt-5 text-[14px] font-semibold text-slate-600">{label}</h4>);
+        const baseAnchor = toAnchor(label);
+        headingAnchorCount[baseAnchor] = (headingAnchorCount[baseAnchor] || 0) + 1;
+        const anchorId = headingAnchorCount[baseAnchor] > 1 ? `help-${baseAnchor}-${headingAnchorCount[baseAnchor]}` : `help-${baseAnchor}`;
+        contentBlocks.push(<h4 key={`h4-${i}`} id={anchorId} className="mb-1 mt-5 text-[14px] font-semibold text-slate-600">{label}</h4>);
         i++;
       } else if (line.startsWith('### ')) {
         const label = line.slice(4).trim();
-        contentBlocks.push(<h3 key={`h3-${i}`} id={`help-${toAnchor(label)}`} className="mb-2 mt-6 text-[15px] font-semibold text-slate-700">{label}</h3>);
+        const baseAnchor = toAnchor(label);
+        headingAnchorCount[baseAnchor] = (headingAnchorCount[baseAnchor] || 0) + 1;
+        const anchorId = headingAnchorCount[baseAnchor] > 1 ? `help-${baseAnchor}-${headingAnchorCount[baseAnchor]}` : `help-${baseAnchor}`;
+        contentBlocks.push(<h3 key={`h3-${i}`} id={anchorId} className="mb-2 mt-6 text-[15px] font-semibold text-slate-700">{label}</h3>);
         i++;
       } else if (line.startsWith('## ')) {
         const label = line.slice(3).trim();
-        contentBlocks.push(<h2 key={`h2-${i}`} id={`help-${toAnchor(label)}`} className="mb-2 mt-7 text-[17px] font-bold text-slate-700">{label}</h2>);
+        const baseAnchor = toAnchor(label);
+        headingAnchorCount[baseAnchor] = (headingAnchorCount[baseAnchor] || 0) + 1;
+        const anchorId = headingAnchorCount[baseAnchor] > 1 ? `help-${baseAnchor}-${headingAnchorCount[baseAnchor]}` : `help-${baseAnchor}`;
+        contentBlocks.push(<h2 key={`h2-${i}`} id={anchorId} className="mb-2 mt-7 text-[17px] font-bold text-slate-700">{label}</h2>);
         i++;
       } else if (line.startsWith('# ')) {
         const label = line.slice(2).trim();
-        contentBlocks.push(<h1 key={`h1-${i}`} id={`help-${toAnchor(label)}`} className="mb-3 mt-10 border-b border-slate-200 pb-2 text-[20px] font-bold text-slate-800">{label}</h1>);
+        const baseAnchor = toAnchor(label);
+        headingAnchorCount[baseAnchor] = (headingAnchorCount[baseAnchor] || 0) + 1;
+        const anchorId = headingAnchorCount[baseAnchor] > 1 ? `help-${baseAnchor}-${headingAnchorCount[baseAnchor]}` : `help-${baseAnchor}`;
+        contentBlocks.push(<h1 key={`h1-${i}`} id={anchorId} className="mb-3 mt-10 border-b border-slate-200 pb-2 text-[20px] font-bold text-slate-800">{label}</h1>);
         i++;
       } else if (line.trim() === '' || line.startsWith('TOC:') || line.startsWith('<!-- TOC_START') || line.startsWith('<!-- TOC_END')) {
         i++;
