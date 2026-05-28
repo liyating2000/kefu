@@ -1329,13 +1329,13 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                   <option value="all">不限制</option>
                 </select>
               </Field>
-              <Field label="业务线:" className="xl:col-span-2">
+              <Field label="业务类型:" className="xl:col-span-2">
                 <select
                   value={summaryFilters.businessLine}
                   onChange={(event) => setSummaryFilters((current) => ({ ...current, businessLine: event.target.value }))}
                   className={summarySelectClass}
                 >
-                  <option value="">请选择业务线</option>
+                  <option value="">请选择业务类型</option>
                   <option value="教育">教育</option>
                   <option value="法院">法院</option>
                 </select>
@@ -1480,7 +1480,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
             <table className="min-w-[1700px] table-fixed text-left text-[13px]">
               <thead className="bg-[#fafafa] text-slate-600">
                 <tr>
-                  {['序号', '业务线', '产品分类', '产品名称', '咨询类型', '小结状态', '创建时间', '小结类型', '处理部门', '处理人', '问题分类一级', '问题分类二级', '问题分类三级', '客户号码', '会话ID'].map((column) => (
+                  {['序号', '业务类型', '产品分类', '产品名称', '咨询类型', '小结状态', '创建时间', '小结类型', '处理部门', '处理人', '问题分类一级', '问题分类二级', '问题分类三级', '客户号码', '会话ID'].map((column) => (
                     <th key={column} className="whitespace-nowrap px-4 py-3 font-medium">
                       {column}
                     </th>
@@ -4275,7 +4275,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
     department: '',
     agent: '',
     caller: '',
-    callee: '',
+    status: '',
   });
   const [appointmentTodoFilterForm, setAppointmentTodoFilterForm] = useState({ ...appointmentTodoFilterDefaults });
   const [appointmentTodoFilters, setAppointmentTodoFilters] = useState({ ...appointmentTodoFilterDefaults });
@@ -4285,6 +4285,8 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
   const [appointmentTransferDepartment, setAppointmentTransferDepartment] = useState('');
   const [appointmentTransferHistoryTarget, setAppointmentTransferHistoryTarget] = useState<(typeof appointmentRows)[number] | null>(null);
   const [appointmentAudioRowId, setAppointmentAudioRowId] = useState<string | null>(null);
+  const [appointmentDetailTarget, setAppointmentDetailTarget] = useState<(typeof appointmentRows)[number] | null>(null);
+  const [appointmentCallbackConfirm, setAppointmentCallbackConfirm] = useState(false);
   const [monitorScope, setMonitorScope] = useState<'all' | 'phone' | 'webchat'>('all');
   const [monitorHideOffline, setMonitorHideOffline] = useState(false);
   const [showMonitorDepartmentDialog, setShowMonitorDepartmentDialog] = useState(false);
@@ -4748,9 +4750,9 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
   );
 
   const appointmentRows = [
-    { id: '1', businessLine: '教育', caller: '-', callee: '-', startAt: '2025-04-29 11:15:14', endAt: '2025-04-29 11:15:14', status: '处理中', department: '教育部', agent: '坐席A', skillGroup: '教育组', transferAgent: '-', transferAt: '-', transferCount: 0, canTransfer: true, remark: '客户希望下午回电' },
-    { id: '2', businessLine: '教育', caller: '18017682333', callee: '-', startAt: '2025-04-29 11:15:14', endAt: '2025-04-29 11:15:14', status: '已调剂', department: '教育部', agent: '坐席A', skillGroup: '教育组', transferAgent: '坐席B', transferAt: '2025-04-29 11:15:14', transferCount: 1, canTransfer: false, remark: '已转交相关部门跟进' },
-    { id: '3', businessLine: '法院', caller: '-', callee: '-', startAt: '2025-04-29 11:15:14', endAt: '2025-04-29 11:15:14', status: '处理中', department: '教育部', agent: '坐席A', skillGroup: '教育组', transferAgent: '-', transferAt: '-', transferCount: 0, canTransfer: true, remark: '-' },
+    { id: '1', businessLine: '教育', callbackNo: '18017682113', caller: '-', callee: '-', startAt: '2025-04-29 11:15:14', endAt: '2025-04-29 11:15:14', status: '未处理', department: '教育部', agent: '坐席A', skillGroup: '教育组', transferAgent: '-', transferAt: '-', transferCount: 0, canTransfer: true, remark: '客户希望下午回电' },
+    { id: '2', businessLine: '教育', callbackNo: '18017682333', caller: '18017682333', callee: '-', startAt: '2025-04-29 11:15:14', endAt: '2025-04-29 11:15:14', status: '处理完毕', department: '教育部', agent: '坐席A', skillGroup: '教育组', transferAgent: '坐席B', transferAt: '2025-04-29 11:15:14', transferCount: 1, canTransfer: false, remark: '已转交相关部门跟进' },
+    { id: '3', businessLine: '法院', callbackNo: '18017623333', caller: '-', callee: '-', startAt: '2025-04-29 11:15:14', endAt: '2025-04-29 11:15:14', status: '处理中', department: '教育部', agent: '坐席A', skillGroup: '教育组', transferAgent: '-', transferAt: '-', transferCount: 0, canTransfer: true, remark: '-' },
   ];
 
   /*
@@ -5509,15 +5511,35 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                 ) : (
                   <>
                 <div className="grid grid-cols-1 gap-4 xl:grid-cols-12">
-                  <Field label="业务线:" className="xl:col-span-2">
+                  <Field label="业务类型:" className="xl:col-span-2">
                     <select
                       value={appointmentFilters.businessLine}
                       onChange={(event) => setAppointmentFilters((current) => ({ ...current, businessLine: event.target.value }))}
                       className={inputClass}
                     >
-                      <option value="">请选择业务线</option>
+                      <option value="">请选择业务类型</option>
                       <option value="教育">教育</option>
                       <option value="法院">法院</option>
+                    </select>
+                  </Field>
+                  <Field label={appointmentTab === 'appointment' ? '回电号码:' : '主叫号码:'} className="xl:col-span-2">
+                    <input
+                      value={appointmentFilters.caller}
+                      onChange={(event) => setAppointmentFilters((current) => ({ ...current, caller: event.target.value }))}
+                      placeholder={appointmentTab === 'appointment' ? '请输入回电号码' : '请输入主叫号码'}
+                      className={inputClass}
+                    />
+                  </Field>
+                  <Field label="状态:" className="xl:col-span-2">
+                    <select
+                      value={appointmentFilters.status}
+                      onChange={(event) => setAppointmentFilters((current) => ({ ...current, status: event.target.value }))}
+                      className={inputClass}
+                    >
+                      <option value="">全部</option>
+                      <option value="未处理">未处理</option>
+                      <option value="处理中">处理中</option>
+                      <option value="处理完毕">处理完毕</option>
                     </select>
                   </Field>
                   <Field label="时间范围:" className="xl:col-span-4">
@@ -5537,6 +5559,24 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                       />
                     </div>
                   </Field>
+                  <div className="flex items-center justify-end xl:col-span-2">
+                    <QueryActions
+                      onReset={() =>
+                        setAppointmentFilters({
+                          businessLine: '',
+                          startAt: '2021-12-12T14:55',
+                          endAt: '2021-12-23T20:54',
+                          department: '',
+                          agent: '',
+                          caller: '',
+                          status: '',
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+                {showAppointmentFilters ? (
+                  <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-12">
                   <Field label="处理部门:" className="xl:col-span-2 xl:[&>span]:w-[72px]">
                     <select
                       value={appointmentFilters.department}
@@ -5558,40 +5598,6 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                       <option value="坐席B">坐席B</option>
                     </select>
                   </Field>
-                  <div className="flex items-center justify-end xl:col-span-2">
-                    <QueryActions
-                      onReset={() =>
-                        setAppointmentFilters({
-                          businessLine: '',
-                          startAt: '2021-12-12T14:55',
-                          endAt: '2021-12-23T20:54',
-                          department: '',
-                          agent: '',
-                          caller: '',
-                          callee: '',
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-                {showAppointmentFilters ? (
-                  <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-12">
-                    <Field label="主叫号码:" className="xl:col-span-2">
-                      <input
-                        value={appointmentFilters.caller}
-                        onChange={(event) => setAppointmentFilters((current) => ({ ...current, caller: event.target.value }))}
-                        placeholder="请输入主叫号码"
-                        className={inputClass}
-                      />
-                    </Field>
-                    <Field label="被叫号码:" className="xl:col-span-2">
-                      <input
-                        value={appointmentFilters.callee}
-                        onChange={(event) => setAppointmentFilters((current) => ({ ...current, callee: event.target.value }))}
-                        placeholder="请输入被叫号码"
-                        className={inputClass}
-                      />
-                    </Field>
                   </div>
                 ) : null}
                   </>
@@ -5637,12 +5643,12 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                     </tbody>
                   </table>
                 ) : (
-                  <table className={cn('table-fixed text-left text-[13px]', appointmentTab === 'message' ? 'min-w-[1500px]' : 'min-w-[1620px]')}>
+                  <table className={cn('table-fixed text-left text-[13px]', appointmentTab === 'message' ? 'min-w-[1500px]' : 'min-w-[1380px]')}>
                   <thead className="bg-[#fafafa] text-slate-600">
                     <tr>
                       {(appointmentTab === 'message'
-                        ? ['序号', '业务线', '主叫号码', '被叫号码', '开始留言时间', '结束留言时间', '处理部门', '处理人', '技能组', '调剂人', '调剂时间', '调剂次数', '操作']
-                        : ['序号', '业务线', '主叫号码', '被叫号码', '开始通话时间', '结束通话时间', '处理部门', '处理人', '技能组', '调剂人', '调剂时间', '调剂次数', '备注', '操作']
+                        ? ['序号', '业务类型', '主叫号码', '被叫号码', '开始留言时间', '结束留言时间', '处理部门', '处理人', '技能组', '调剂人', '调剂时间', '调剂次数', '操作']
+                        : ['序号', '业务类型', '回电号码', '开始通话时间', '结束通话时间', '状态', '处理部门', '处理人', '调剂人', '调剂时间', '调剂次数', '备注', '操作']
                       ).map((column) => (
                         <th key={column} className="px-4 py-3 font-medium">{column}</th>
                       ))}
@@ -5661,13 +5667,33 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                       >
                         <td className="px-4 py-4">{index + 1}</td>
                         <td className="px-4 py-4">{row.businessLine}</td>
-                        <td className="px-4 py-4">{row.caller}</td>
-                        <td className="px-4 py-4">{row.callee}</td>
+                        {appointmentTab === 'message' ? (
+                          <>
+                            <td className="px-4 py-4">{row.caller}</td>
+                            <td className="px-4 py-4">{row.callee}</td>
+                          </>
+                        ) : (
+                          <td className="px-4 py-4">{row.callbackNo}</td>
+                        )}
                         <td className="px-4 py-4">{row.startAt}</td>
                         <td className="px-4 py-4">{row.endAt}</td>
+                        {appointmentTab === 'appointment' ? (
+                          <td className="px-4 py-4">
+                            <span className={cn(
+                              'inline-flex rounded-full border px-2.5 py-1 text-xs font-medium leading-none',
+                              row.status === '未处理' ? 'border-[#fde68a] bg-[#fffbeb] text-[#d97706]' :
+                              row.status === '处理中' ? 'border-[#b7ebd8] bg-[#effcf6] text-[#12a57f]' :
+                              'border-slate-200 bg-slate-50 text-slate-500'
+                            )}>
+                              {row.status}
+                            </span>
+                          </td>
+                        ) : null}
                         <td className="px-4 py-4">{row.department}</td>
                         <td className="px-4 py-4">{row.agent}</td>
-                        <td className="px-4 py-4">{row.skillGroup}</td>
+                        {appointmentTab === 'message' ? (
+                          <td className="px-4 py-4">{row.skillGroup}</td>
+                        ) : null}
                         <td className="px-4 py-4">{row.transferAgent}</td>
                         <td className="px-4 py-4">{row.transferAt}</td>
                         <td className="px-4 py-4 text-[#5f6fff]">
@@ -5689,35 +5715,8 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                             <button type="button" onClick={() => openAppointmentTransfer(row)}>
                               调剂
                             </button>
-                            <button type="button" onClick={openCallWorkbench}>
+                            <button type="button" onClick={() => setAppointmentCallbackConfirm(true)}>
                               回电
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setCustomerInfoTarget({
-                                  id: row.id,
-                                  businessLine: row.businessLine,
-                                  category: '',
-                                  product: '',
-                                  type: '',
-                                  status: row.status,
-                                  createdAt: row.startAt,
-                                  summaryType: '热线',
-                                  department: row.department,
-                                  agent: row.agent,
-                                  issueType: '',
-                                  level1: '',
-                                  level2: '',
-                                  level3: '',
-                                  customerId: row.caller && row.caller !== '-' ? row.caller : (row.callee && row.callee !== '-' ? row.callee : '-'),
-                                  sessionId: '-',
-                                  correctionCount: 0,
-                                });
-                                onOpenLegacyModulePage?.('customer-info-view');
-                              }}
-                            >
-                              查看
                             </button>
                           </div>
                         </td>
@@ -6887,6 +6886,180 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                 ))}
               </tbody>
             </table>
+          </div>
+        </Modal>
+      ) : null}
+
+      {appointmentCallbackConfirm ? (
+        <Modal title="回电确认" onClose={() => setAppointmentCallbackConfirm(false)} widthClass="max-w-sm">
+          <div className="px-6 py-6 text-center text-[14px] text-slate-600">
+            确定要对该客户进行回电吗？
+          </div>
+          <div className="flex items-center justify-end gap-2 border-t border-slate-100 px-6 py-4">
+            <button type="button" onClick={() => setAppointmentCallbackConfirm(false)} className={secondaryButtonClass}>取消</button>
+            <button type="button" onClick={() => { setAppointmentCallbackConfirm(false); openCallWorkbench(); }} className={solidButtonClass}>确定</button>
+          </div>
+        </Modal>
+      ) : null}
+
+      {appointmentDetailTarget ? (
+        <Modal title="客户资料" onClose={() => setAppointmentDetailTarget(null)} widthClass="max-w-6xl">
+          <div className="max-h-[70vh] overflow-y-auto custom-scrollbar">
+            <div className="space-y-6 px-6 py-6 text-[13px] text-slate-600">
+              <div>
+                <div className="mb-3 text-[15px] font-medium text-slate-700">客户信息</div>
+                <div className="grid grid-cols-1 gap-x-4 gap-y-4 md:grid-cols-2 xl:grid-cols-4">
+                  <Field label="姓名:" className="[&>span]:w-[72px]">
+                    <input defaultValue={`客户${appointmentDetailTarget.id}`} placeholder="请输入姓名" className={inputClass} />
+                  </Field>
+                  <Field label="客户类型:" className="[&>span]:w-[72px]">
+                    <select className={inputClass}>
+                      <option>请选择客户类型</option>
+                      <option>个人客户</option>
+                      <option>企业客户</option>
+                    </select>
+                  </Field>
+                  <Field label="证件类型:" className="[&>span]:w-[72px]">
+                    <select className={inputClass}>
+                      <option>请选择证件类型</option>
+                      <option>身份证</option>
+                      <option>护照</option>
+                    </select>
+                  </Field>
+                  <Field label="证件号码:" className="[&>span]:w-[72px]">
+                    <input placeholder="请输入证件号码" className={inputClass} />
+                  </Field>
+                  <Field label="性别:" className="[&>span]:w-[72px]">
+                    <select className={inputClass}>
+                      <option>请选择</option>
+                      <option>男</option>
+                      <option>女</option>
+                    </select>
+                  </Field>
+                  <Field label="出生日期:" className="[&>span]:w-[72px]">
+                    <input type="date" className={inputClass} />
+                  </Field>
+                  <Field label="手机:" className="[&>span]:w-[72px]">
+                    <input defaultValue={appointmentDetailTarget.callbackNo} placeholder="请输入手机" className={inputClass} />
+                  </Field>
+                  <Field label="办公电话:" className="[&>span]:w-[72px]">
+                    <input placeholder="请输入办公电话" className={inputClass} />
+                  </Field>
+                  <Field label="家庭电话:" className="[&>span]:w-[72px]">
+                    <input placeholder="请输入家庭电话" className={inputClass} />
+                  </Field>
+                  <Field label="邮箱:" className="[&>span]:w-[72px]">
+                    <input placeholder="请输入邮箱" className={inputClass} />
+                  </Field>
+                  <Field label="QQ:" className="[&>span]:w-[72px]">
+                    <input placeholder="请输入QQ" className={inputClass} />
+                  </Field>
+                  <Field label="传真:" className="[&>span]:w-[72px]">
+                    <input placeholder="请输入传真" className={inputClass} />
+                  </Field>
+                  <Field label="省:" className="[&>span]:w-[72px]">
+                    <select className={inputClass}>
+                      <option>请选择</option>
+                      <option>安徽</option>
+                    </select>
+                  </Field>
+                  <Field label="市:" className="[&>span]:w-[72px]">
+                    <select className={inputClass}>
+                      <option>请选择</option>
+                      <option>合肥</option>
+                    </select>
+                  </Field>
+                  <Field label="区:" className="[&>span]:w-[72px]">
+                    <select className={inputClass}>
+                      <option>请选择</option>
+                      <option>高新区</option>
+                    </select>
+                  </Field>
+                  <Field label="地址:" className="[&>span]:w-[72px]">
+                    <input placeholder="请输入地址" className={inputClass} />
+                  </Field>
+                </div>
+                <div className="mt-4 flex flex-wrap items-center gap-3">
+                  <button type="button" className={primaryButtonClass}>查询</button>
+                  <button type="button" className={solidButtonClass} onClick={() => showToast('保存成功')}>保存</button>
+                  <button type="button" className={solidButtonClass} onClick={() => { setAppointmentDetailTarget(null); onOpenMainTab?.('呼叫工作台'); }}>
+                    回电
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <div className="mb-3 text-[15px] font-medium text-slate-700">小结编辑</div>
+                <div className="grid grid-cols-1 gap-x-4 gap-y-4 md:grid-cols-2 xl:grid-cols-4">
+                  <Field label="一级小结:" className="[&>span]:w-[72px]">
+                    <select className={inputClass}>
+                      <option>请选择一级小结</option>
+                    </select>
+                  </Field>
+                  <Field label="二级小结:" className="[&>span]:w-[72px]">
+                    <select className={inputClass}>
+                      <option>请选择二级小结</option>
+                    </select>
+                  </Field>
+                  <Field label="三级小结:" className="[&>span]:w-[72px]">
+                    <select className={inputClass}>
+                      <option>请选择三级小结</option>
+                    </select>
+                  </Field>
+                  <Field label="四级小结:" className="[&>span]:w-[72px]">
+                    <select className={inputClass}>
+                      <option>请选择四级小结</option>
+                    </select>
+                  </Field>
+                </div>
+                <div className="mt-4">
+                  <span className="mb-2 block text-slate-500">备注:</span>
+                  <textarea
+                    rows={3}
+                    defaultValue={appointmentDetailTarget.remark || ''}
+                    placeholder="请输入备注"
+                    className={cn(inputClass, 'h-auto py-2')}
+                  />
+                </div>
+                <div className="mt-4 flex flex-wrap items-center gap-3">
+                  <button type="button" className={solidButtonClass} onClick={() => showToast('小结已暂存')}>暂存小结</button>
+                  <button type="button" className={primaryButtonClass} onClick={() => showToast('小结已完结')}>小结完结</button>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-2">
+                  {['电话历史', '工单历史', '短信接收历史', '邮件发送历史', '邮件接受历史', '聊天历史'].map((tab, index) => (
+                    <button
+                      key={tab}
+                      type="button"
+                      className={cn(
+                        'rounded-md px-3 py-1.5 text-[13px] transition-colors',
+                        index === 0 ? 'bg-[#effbf8] text-[#18bca2]' : 'text-slate-500 hover:bg-slate-50'
+                      )}
+                    >
+                      {tab}
+                    </button>
+                  ))}
+                </div>
+                <div className="mt-3 overflow-auto custom-scrollbar">
+                  <table className="min-w-[960px] table-fixed text-left text-[13px]">
+                    <thead className="bg-[#fafafa] text-slate-600">
+                      <tr>
+                        {['序号', '主叫号码', '被叫号码', '通话开始时间', '通话结束时间', '电话类型', '话务员', '小结类型', '小结描述'].map((column) => (
+                          <th key={column} className="whitespace-nowrap px-4 py-3 font-medium">{column}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody className="text-slate-600">
+                      <tr>
+                        <td colSpan={9} className="px-4 py-10 text-center text-slate-400">暂无数据</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
           </div>
         </Modal>
       ) : null}
