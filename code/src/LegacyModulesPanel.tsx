@@ -758,9 +758,10 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
   const [summaryRecordDetailForm, setSummaryRecordDetailForm] = useState<Record<string, string>>({});
   const [summaryHotlineRow, setSummaryHotlineRow] = useState<(typeof summaryRows)[number] | null>(null);
   const [customerInfoTarget, setCustomerInfoTarget] = useState<(typeof summaryRows)[number] | null>(null);
+  const [customerInfoModalTarget, setCustomerInfoModalTarget] = useState<(typeof summaryRows)[number] | null>(null);
   const [summaryCorrectionForm, setSummaryCorrectionForm] = useState<Record<string, string>>({});
   const [summaryFilters, setSummaryFilters] = useState({
-    scope: 'my' as 'my' | 'managed',
+    scope: 'my' as 'my' | 'managed' | 'all',
     businessLine: '',
     category: '',
     product: '',
@@ -830,7 +831,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
         const endStamp = summaryFilters.endAt ? new Date(summaryFilters.endAt).getTime() : null;
 
         return (
-          (summaryFilters.scope === 'managed' || row.agent === currentSummaryAgent) &&
+          (summaryFilters.scope === 'managed' || summaryFilters.scope === 'all' || row.agent === currentSummaryAgent) &&
           (!summaryFilters.businessLine || row.businessLine === summaryFilters.businessLine) &&
           (!summaryFilters.category || row.category === summaryFilters.category) &&
           (!summaryFilters.product || row.product === summaryFilters.product) &&
@@ -1318,12 +1319,13 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                 <select
                   value={summaryFilters.scope}
                   onChange={(event) =>
-                    setSummaryFilters((current) => ({ ...current, scope: event.target.value as 'my' | 'managed' }))
+                    setSummaryFilters((current) => ({ ...current, scope: event.target.value as 'my' | 'managed' | 'all' }))
                   }
                   className={summarySelectClass}
                 >
                   <option value="my">我的</option>
                   <option value="managed">我管的</option>
+                  <option value="all">不限制</option>
                 </select>
               </Field>
               <Field label="业务线:" className="xl:col-span-2">
@@ -1513,12 +1515,16 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                   <tr
                     key={row.id}
                     onDoubleClick={() => {
+                      if (row.status === '暂存') {
+                        setCustomerInfoModalTarget(row);
+                        return;
+                      }
                       if (row.summaryType === '在线') {
                         setCustomerInfoTarget(row);
                         onOpenLegacyModulePage?.('customer-info-edit');
                         return;
                       }
-                      if (row.summaryType === '热线' && (row.status === '暂存' || row.status === '已完成')) {
+                      if (row.summaryType === '热线' && row.status === '已完成') {
                         setCustomerInfoTarget(row);
                         onOpenLegacyModulePage?.('customer-info-edit');
                         return;
@@ -7580,6 +7586,191 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                 ))}
               </tbody>
             </table>
+          </div>
+        </Modal>
+      ) : null}
+
+      {customerInfoModalTarget ? (
+        <Modal title="客户资料" onClose={() => setCustomerInfoModalTarget(null)} widthClass="max-w-6xl">
+          <div className="max-h-[80vh] overflow-auto px-6 py-6 text-[13px] text-slate-600 custom-scrollbar">
+            <div className="space-y-6">
+              <div>
+                <div className="mb-3 text-[15px] font-medium text-slate-700">客户信息</div>
+                <div className="grid grid-cols-1 gap-x-4 gap-y-4 md:grid-cols-2 xl:grid-cols-4">
+                  <Field label="姓名:" className="[&>span]:w-[72px]">
+                    <input defaultValue={customerInfoModalTarget.customerId === '-' ? '' : `客户${customerInfoModalTarget.id}`} placeholder="请输入姓名" className={inputClass} />
+                  </Field>
+                  <Field label="客户类型:" className="[&>span]:w-[72px]">
+                    <select className={inputClass}>
+                      <option>请选择客户类型</option>
+                      <option>个人客户</option>
+                      <option>企业客户</option>
+                    </select>
+                  </Field>
+                  <Field label="证件类型:" className="[&>span]:w-[72px]">
+                    <select className={inputClass}>
+                      <option>请选择证件类型</option>
+                      <option>身份证</option>
+                      <option>护照</option>
+                    </select>
+                  </Field>
+                  <Field label="证件号码:" className="[&>span]:w-[72px]">
+                    <input placeholder="请输入证件号码" className={inputClass} />
+                  </Field>
+                  <Field label="性别:" className="[&>span]:w-[72px]">
+                    <select className={inputClass}>
+                      <option>请选择</option>
+                      <option>男</option>
+                      <option>女</option>
+                    </select>
+                  </Field>
+                  <Field label="出生日期:" className="[&>span]:w-[72px]">
+                    <input type="date" className={inputClass} />
+                  </Field>
+                  <Field label="手机:" className="[&>span]:w-[72px]">
+                    <input defaultValue={customerInfoModalTarget.customerId !== '-' ? customerInfoModalTarget.customerId : ''} placeholder="请输入手机" className={inputClass} />
+                  </Field>
+                  <Field label="办公电话:" className="[&>span]:w-[72px]">
+                    <input placeholder="请输入办公电话" className={inputClass} />
+                  </Field>
+                  <Field label="家庭电话:" className="[&>span]:w-[72px]">
+                    <input placeholder="请输入家庭电话" className={inputClass} />
+                  </Field>
+                  <Field label="邮箱:" className="[&>span]:w-[72px]">
+                    <input placeholder="请输入邮箱" className={inputClass} />
+                  </Field>
+                  <Field label="QQ:" className="[&>span]:w-[72px]">
+                    <input placeholder="请输入QQ" className={inputClass} />
+                  </Field>
+                  <Field label="传真:" className="[&>span]:w-[72px]">
+                    <input placeholder="请输入传真" className={inputClass} />
+                  </Field>
+                  <Field label="省:" className="[&>span]:w-[72px]">
+                    <select className={inputClass}>
+                      <option>请选择</option>
+                      <option>安徽</option>
+                    </select>
+                  </Field>
+                  <Field label="市:" className="[&>span]:w-[72px]">
+                    <select className={inputClass}>
+                      <option>请选择</option>
+                      <option>合肥</option>
+                    </select>
+                  </Field>
+                  <Field label="区:" className="[&>span]:w-[72px]">
+                    <select className={inputClass}>
+                      <option>请选择</option>
+                      <option>高新区</option>
+                    </select>
+                  </Field>
+                  <Field label="地址:" className="[&>span]:w-[72px]">
+                    <input placeholder="请输入地址" className={inputClass} />
+                  </Field>
+                </div>
+                <div className="mt-4 flex flex-wrap items-center gap-3">
+                  <button type="button" className={primaryButtonClass}>查询</button>
+                  <button type="button" className={solidButtonClass}>保存</button>
+                </div>
+              </div>
+
+              {(() => {
+                const isSummaryReadOnly = customerInfoModalTarget.status === '已完成' || customerInfoModalTarget.summaryType === '在线';
+                return (
+                  <div>
+                    <div className="mb-3 text-[15px] font-medium text-slate-700">{isSummaryReadOnly ? '小结信息' : '小结编辑'}</div>
+                    <div className="grid grid-cols-1 gap-x-4 gap-y-4 md:grid-cols-2 xl:grid-cols-4">
+                      <Field label="一级小结:" className="[&>span]:w-[72px]">
+                        <select
+                          className={cn(inputClass, isSummaryReadOnly && 'cursor-not-allowed bg-slate-100 text-slate-400')}
+                          defaultValue={customerInfoModalTarget.level1}
+                          disabled={isSummaryReadOnly}
+                        >
+                          <option>请选择一级小结</option>
+                          <option value={customerInfoModalTarget.level1}>{customerInfoModalTarget.level1}</option>
+                        </select>
+                      </Field>
+                      <Field label="二级小结:" className="[&>span]:w-[72px]">
+                        <select
+                          className={cn(inputClass, isSummaryReadOnly && 'cursor-not-allowed bg-slate-100 text-slate-400')}
+                          defaultValue={customerInfoModalTarget.level2}
+                          disabled={isSummaryReadOnly}
+                        >
+                          <option>请选择二级小结</option>
+                          <option value={customerInfoModalTarget.level2}>{customerInfoModalTarget.level2}</option>
+                        </select>
+                      </Field>
+                      <Field label="三级小结:" className="[&>span]:w-[72px]">
+                        <select
+                          className={cn(inputClass, isSummaryReadOnly && 'cursor-not-allowed bg-slate-100 text-slate-400')}
+                          defaultValue={customerInfoModalTarget.level3}
+                          disabled={isSummaryReadOnly}
+                        >
+                          <option>请选择三级小结</option>
+                          <option value={customerInfoModalTarget.level3}>{customerInfoModalTarget.level3}</option>
+                        </select>
+                      </Field>
+                      {isSummaryReadOnly ? null : (
+                        <Field label="四级小结:" className="[&>span]:w-[72px]">
+                          <select className={inputClass}>
+                            <option>请选择四级小结</option>
+                          </select>
+                        </Field>
+                      )}
+                    </div>
+                    <div className="mt-4">
+                      <span className="mb-2 block text-slate-500">备注:</span>
+                      <textarea
+                        rows={3}
+                        placeholder="请输入备注"
+                        className={cn(inputClass, 'h-auto py-2', isSummaryReadOnly && 'cursor-not-allowed bg-slate-100 text-slate-400')}
+                        readOnly={isSummaryReadOnly}
+                      />
+                    </div>
+                    {isSummaryReadOnly ? null : (
+                      <div className="mt-4 flex flex-wrap items-center gap-3">
+                        <button type="button" className={solidButtonClass} onClick={() => { showToast('小结已暂存'); setCustomerInfoModalTarget(null); }}>暂存小结</button>
+                        <button type="button" className={primaryButtonClass} onClick={() => { showToast('小结已完结'); setCustomerInfoModalTarget(null); }}>小结完结</button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
+              <div>
+                <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-2">
+                  {['电话历史', '工单历史', '短信接收历史', '邮件发送历史', '邮件接受历史', '聊天历史'].map((tab, index) => (
+                    <button
+                      key={tab}
+                      type="button"
+                      className={cn(
+                        'rounded-md px-3 py-1.5 text-[13px] transition-colors',
+                        index === 0 ? 'bg-[#effbf8] text-[#18bca2]' : 'text-slate-500 hover:bg-slate-50'
+                      )}
+                    >
+                      {tab}
+                    </button>
+                  ))}
+                </div>
+                <div className="mt-3 overflow-auto custom-scrollbar">
+                  <table className="min-w-[960px] table-fixed text-left text-[13px]">
+                    <thead className="bg-[#fafafa] text-slate-600">
+                      <tr>
+                        {['序号', '主叫号码', '被叫号码', '通话开始时间', '通话结束时间', '电话类型', '话务员', '小结类型', '小结描述'].map((column) => (
+                          <th key={column} className="whitespace-nowrap px-4 py-3 font-medium">
+                            {column}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody className="text-slate-600">
+                      <tr>
+                        <td colSpan={9} className="px-4 py-10 text-center text-slate-400">暂无数据</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
           </div>
         </Modal>
       ) : null}

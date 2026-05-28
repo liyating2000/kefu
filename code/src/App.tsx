@@ -14,6 +14,8 @@ import LegacyModulesPanel, {
   type LegacyModulePage,
 } from './LegacyModulesPanel';
 import { helpDocContent } from './helpDocContent';
+import GroupMaintenance from './GroupMaintenance';
+import TargetValueMaintenance from './TargetValueMaintenance';
 import channelMobileIcon from './assets/channel-icons/移动端.png';
 import channelWebIcon from './assets/channel-icons/Web端.png';
 import channelKuaishouIcon from './assets/channel-icons/快手.png';
@@ -344,7 +346,9 @@ type MainTab =
   | '隐私声明管理'
   | '用户体系管理'
   | '网聊维护'
-  | '部门角色管理';
+  | '部门角色管理'
+  | '组别维护'
+  | '目标值维护';
 type ManagerPortalPage = 'dashboard' | 'overview-detail';
 
 // 繁忙公告管理类型定义
@@ -3152,10 +3156,14 @@ const messageNoticeSubMenus = [
 
 const systemSettingsSubMenus = [
   { label: '业务字段管理', key: 'business-field-management' },
+  { label: '组别维护', key: 'group-maintenance' },
+  { label: '目标值维护', key: 'target-value-maintenance' },
 ] as const;
 
 const systemSettingsMenuTabMap = {
   'business-field-management': '业务字段管理',
+  'group-maintenance': '组别维护',
+  'target-value-maintenance': '目标值维护',
 } as const satisfies Record<(typeof systemSettingsSubMenus)[number]['key'], MainTab>;
 
 const busyAnnouncementManagementRows: BusyAnnouncement[] = [
@@ -3809,7 +3817,7 @@ function HelpSidebarContent({ onClose }: { onClose: () => void }) {
         const dataRows = tableLines.slice(2).map(r => r.split('|').filter(Boolean).map(c => c.trim()));
         contentBlocks.push(
           <div key={`tbl-${i}`} className="my-3 overflow-x-auto rounded-lg border border-slate-200">
-            <table className="min-w-full text-left text-[12px]">
+            <table className="min-w-full text-left text-[14px]">
               <thead className="bg-[#eef9f6]">
                 <tr>{headerCells.map((c, ci) => <th key={ci} className="whitespace-nowrap border-b border-slate-200 px-3 py-2 font-semibold text-slate-700">{c}</th>)}</tr>
               </thead>
@@ -3828,33 +3836,33 @@ function HelpSidebarContent({ onClose }: { onClose: () => void }) {
         const baseAnchor = toAnchor(label);
         headingAnchorCount[baseAnchor] = (headingAnchorCount[baseAnchor] || 0) + 1;
         const anchorId = headingAnchorCount[baseAnchor] > 1 ? `help-${baseAnchor}-${headingAnchorCount[baseAnchor]}` : `help-${baseAnchor}`;
-        contentBlocks.push(<h4 key={`h4-${i}`} id={anchorId} className="mb-1 mt-5 text-[14px] font-semibold text-slate-600">{label}</h4>);
+        contentBlocks.push(<h4 key={`h4-${i}`} id={anchorId} className="mb-1 mt-5 text-[16px] font-semibold text-slate-600">{label}</h4>);
         i++;
       } else if (line.startsWith('### ')) {
         const label = line.slice(4).trim();
         const baseAnchor = toAnchor(label);
         headingAnchorCount[baseAnchor] = (headingAnchorCount[baseAnchor] || 0) + 1;
         const anchorId = headingAnchorCount[baseAnchor] > 1 ? `help-${baseAnchor}-${headingAnchorCount[baseAnchor]}` : `help-${baseAnchor}`;
-        contentBlocks.push(<h3 key={`h3-${i}`} id={anchorId} className="mb-2 mt-6 text-[15px] font-semibold text-slate-700">{label}</h3>);
+        contentBlocks.push(<h3 key={`h3-${i}`} id={anchorId} className="mb-2 mt-6 text-[17px] font-semibold text-slate-700">{label}</h3>);
         i++;
       } else if (line.startsWith('## ')) {
         const label = line.slice(3).trim();
         const baseAnchor = toAnchor(label);
         headingAnchorCount[baseAnchor] = (headingAnchorCount[baseAnchor] || 0) + 1;
         const anchorId = headingAnchorCount[baseAnchor] > 1 ? `help-${baseAnchor}-${headingAnchorCount[baseAnchor]}` : `help-${baseAnchor}`;
-        contentBlocks.push(<h2 key={`h2-${i}`} id={anchorId} className="mb-2 mt-7 text-[17px] font-bold text-slate-700">{label}</h2>);
+        contentBlocks.push(<h2 key={`h2-${i}`} id={anchorId} className="mb-2 mt-7 text-[19px] font-bold text-slate-700">{label}</h2>);
         i++;
       } else if (line.startsWith('# ')) {
         const label = line.slice(2).trim();
         const baseAnchor = toAnchor(label);
         headingAnchorCount[baseAnchor] = (headingAnchorCount[baseAnchor] || 0) + 1;
         const anchorId = headingAnchorCount[baseAnchor] > 1 ? `help-${baseAnchor}-${headingAnchorCount[baseAnchor]}` : `help-${baseAnchor}`;
-        contentBlocks.push(<h1 key={`h1-${i}`} id={anchorId} className="mb-3 mt-10 border-b border-slate-200 pb-2 text-[20px] font-bold text-slate-800">{label}</h1>);
+        contentBlocks.push(<h1 key={`h1-${i}`} id={anchorId} className="mb-3 mt-10 border-b border-slate-200 pb-2 text-[22px] font-bold text-slate-800">{label}</h1>);
         i++;
       } else if (line.trim() === '' || line.startsWith('TOC:') || line.startsWith('<!-- TOC_START') || line.startsWith('<!-- TOC_END')) {
         i++;
       } else {
-        contentBlocks.push(<p key={`p-${i}`} className="my-1 text-[13px]">{line}</p>);
+        contentBlocks.push(<p key={`p-${i}`} className="my-1 text-[15px]">{line}</p>);
         i++;
       }
     }
@@ -3863,7 +3871,7 @@ function HelpSidebarContent({ onClose }: { onClose: () => void }) {
 
   const contentRef = useRef<HTMLDivElement>(null);
   const windowRef = useRef<HTMLDivElement>(null);
-  const [windowSize, setWindowSize] = useState({ w: 960, h: 600 });
+  const [windowSize, setWindowSize] = useState({ w: 1400, h: 900 });
   const [windowPos, setWindowPos] = useState({ x: -1, y: -1 });
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
@@ -4060,7 +4068,7 @@ function HelpSidebarContent({ onClose }: { onClose: () => void }) {
         {/* Body: left TOC + right content */}
         <div className="flex flex-1 overflow-hidden">
           {/* Left TOC menu */}
-          <div className="flex w-[220px] shrink-0 flex-col border-r border-slate-200 bg-slate-50">
+          <div className="flex w-[260px] shrink-0 flex-col border-r border-slate-200 bg-slate-50">
             <div className="flex-1 overflow-y-auto custom-scrollbar px-2 py-2">
               <div className="flex flex-col gap-0.5">
                 {parsed.tocEntries.map((entry, ei) => (
@@ -4074,10 +4082,10 @@ function HelpSidebarContent({ onClose }: { onClose: () => void }) {
                     }}
                     className={cn(
                       'rounded px-2 py-1 text-slate-600 transition-colors hover:bg-[#eef9f6] hover:text-[#18bca2]',
-                      entry.level === 1 ? 'text-[13px] font-bold' : '',
-                      entry.level === 2 ? 'pl-4 text-[12px] font-medium' : '',
-                      entry.level === 3 ? 'pl-7 text-[11px]' : '',
-                      entry.level === 4 ? 'pl-10 text-[11px]' : '',
+                      entry.level === 1 ? 'text-[14px] font-bold' : '',
+                      entry.level === 2 ? 'pl-4 text-[13px] font-medium' : '',
+                      entry.level === 3 ? 'pl-7 text-[12px]' : '',
+                      entry.level === 4 ? 'pl-10 text-[12px]' : '',
                     )}
                   >
                     {entry.label}
@@ -4089,7 +4097,7 @@ function HelpSidebarContent({ onClose }: { onClose: () => void }) {
           {/* Right content panel */}
           <div className="flex flex-1 flex-col bg-white overflow-hidden">
             <div ref={contentRef} className="flex-1 overflow-y-auto px-6 py-5 custom-scrollbar">
-              <div className="max-w-none text-[13px] leading-7 text-slate-600">
+              <div className="max-w-none text-[15px] leading-8 text-slate-600">
                 {parsed.contentBlocks}
               </div>
             </div>
@@ -4139,6 +4147,8 @@ export default function App() {
   const [isMessageServiceTabVisible, setIsMessageServiceTabVisible] = useState(false);
   const [isScheduleDisplayTabVisible, setIsScheduleDisplayTabVisible] = useState(false);
   const [isBusinessFieldManagementTabVisible, setIsBusinessFieldManagementTabVisible] = useState(false);
+  const [isGroupMaintenanceTabVisible, setIsGroupMaintenanceTabVisible] = useState(false);
+  const [isTargetValueMaintenanceTabVisible, setIsTargetValueMaintenanceTabVisible] = useState(false);
   const [isBusyAnnouncementManagementTabVisible, setIsBusyAnnouncementManagementTabVisible] = useState(false);
   const [isPrivacyStatementManagementTabVisible, setIsPrivacyStatementManagementTabVisible] = useState(false);
   const [isUserSystemManagementTabVisible, setIsUserSystemManagementTabVisible] = useState(false);
@@ -4675,6 +4685,18 @@ export default function App() {
       setActiveTab('业务字段管理');
       return;
     }
+    if (tab === '组别维护') {
+      setIsGroupMaintenanceTabVisible(true);
+      setIsSystemSettingsExpanded(true);
+      setActiveTab('组别维护');
+      return;
+    }
+    if (tab === '目标值维护') {
+      setIsTargetValueMaintenanceTabVisible(true);
+      setIsSystemSettingsExpanded(true);
+      setActiveTab('目标值维护');
+      return;
+    }
     if (tab === '繁忙公告管理') {
       setIsBusyAnnouncementManagementTabVisible(true);
       setIsSystemSettingsExpanded(true);
@@ -4734,6 +4756,20 @@ export default function App() {
     setActiveLegacyModulePage(null);
     setIsBusinessFieldManagementTabVisible(false);
     if (activeTab === '业务字段管理') {
+      setActiveTab(lastPrimaryTab);
+    }
+  };
+  const handleCloseGroupMaintenanceTab = () => {
+    setActiveLegacyModulePage(null);
+    setIsGroupMaintenanceTabVisible(false);
+    if (activeTab === '组别维护') {
+      setActiveTab(lastPrimaryTab);
+    }
+  };
+  const handleCloseTargetValueMaintenanceTab = () => {
+    setActiveLegacyModulePage(null);
+    setIsTargetValueMaintenanceTabVisible(false);
+    if (activeTab === '目标值维护') {
       setActiveTab(lastPrimaryTab);
     }
   };
@@ -14381,6 +14417,8 @@ export default function App() {
               ...(isMessageServiceTabVisible ? (['消息服务'] as MainTab[]) : []),
               ...(isScheduleDisplayTabVisible ? (['排班信息展示'] as MainTab[]) : []),
               ...(isBusinessFieldManagementTabVisible ? (['业务字段管理'] as MainTab[]) : []),
+              ...(isGroupMaintenanceTabVisible ? (['组别维护'] as MainTab[]) : []),
+              ...(isTargetValueMaintenanceTabVisible ? (['目标值维护'] as MainTab[]) : []),
               ...(isBusyAnnouncementManagementTabVisible ? (['繁忙公告管理'] as MainTab[]) : []),
               ...(isPrivacyStatementManagementTabVisible ? (['隐私声明管理'] as MainTab[]) : []),
               ...(isUserSystemManagementTabVisible ? (['用户体系管理'] as MainTab[]) : []),
@@ -14391,6 +14429,8 @@ export default function App() {
               const isMessageServiceTab = tab === '消息服务';
               const isScheduleDisplayTab = tab === '排班信息展示';
               const isBusinessFieldManagementTab = tab === '业务字段管理';
+              const isGroupMaintenanceTab = tab === '组别维护';
+              const isTargetValueMaintenanceTab = tab === '目标值维护';
               const isBusyAnnouncementManagementTab = tab === '繁忙公告管理';
               const isPrivacyStatementManagementTab = tab === '隐私声明管理';
               const isUserSystemManagementTab = tab === '用户体系管理';
@@ -14412,6 +14452,8 @@ export default function App() {
                   isMessageServiceTab ||
                   isScheduleDisplayTab ||
                   isBusinessFieldManagementTab ||
+                  isGroupMaintenanceTab ||
+                  isTargetValueMaintenanceTab ||
                   isBusyAnnouncementManagementTab ||
                   isPrivacyStatementManagementTab ||
                   isUserSystemManagementTab ||
@@ -14428,6 +14470,10 @@ export default function App() {
                               ? '关闭排班信息展示'
                               : isBusinessFieldManagementTab
                                 ? '关闭业务字段管理'
+                                : isGroupMaintenanceTab
+                                  ? '关闭组别维护'
+                                  : isTargetValueMaintenanceTab
+                                    ? '关闭目标值维护'
                                 : isBusyAnnouncementManagementTab
                                   ? '关闭繁忙公告管理'
                                   : isPrivacyStatementManagementTab
@@ -14454,6 +14500,14 @@ export default function App() {
                         }
                         if (isBusinessFieldManagementTab) {
                           handleCloseBusinessFieldManagementTab();
+                          return;
+                        }
+                        if (isGroupMaintenanceTab) {
+                          handleCloseGroupMaintenanceTab();
+                          return;
+                        }
+                        if (isTargetValueMaintenanceTab) {
+                          handleCloseTargetValueMaintenanceTab();
                           return;
                         }
                         if (isBusyAnnouncementManagementTab) {
@@ -14521,7 +14575,7 @@ export default function App() {
           </div>
         </header>
 
-        {activeLegacyModulePage ? <LegacyModulesPanel page={activeLegacyModulePage} onOpenMainTab={handleOpenMainTab} onOpenLegacyModulePage={handleOpenLegacyModulePage} /> : activeTab === '呼叫工作台' ? callWorkbenchContent : activeTab === '在线工作台' ? onlineWorkbenchContent : activeTab === '消息服务' ? messageServiceContent : activeTab === '排班信息展示' ? scheduleDisplayContent : activeTab === '业务字段管理' ? businessFieldManagementContent : activeTab === '繁忙公告管理' ? busyAnnouncementManagementContent : activeTab === '隐私声明管理' ? privacyStatementManagementContent : activeTab === '用户体系管理' ? userSystemManagementContent : activeTab === '网聊维护' ? renderWebchatMaintenanceContent() : activeTab === '部门角色管理' ? renderDeptRoleManagementContent() : (
+        {activeLegacyModulePage ? <LegacyModulesPanel page={activeLegacyModulePage} onOpenMainTab={handleOpenMainTab} onOpenLegacyModulePage={handleOpenLegacyModulePage} /> : activeTab === '呼叫工作台' ? callWorkbenchContent : activeTab === '在线工作台' ? onlineWorkbenchContent : activeTab === '消息服务' ? messageServiceContent : activeTab === '排班信息展示' ? scheduleDisplayContent : activeTab === '业务字段管理' ? businessFieldManagementContent : activeTab === '组别维护' ? <GroupMaintenance /> : activeTab === '目标值维护' ? <TargetValueMaintenance /> : activeTab === '繁忙公告管理' ? busyAnnouncementManagementContent : activeTab === '隐私声明管理' ? privacyStatementManagementContent : activeTab === '用户体系管理' ? userSystemManagementContent : activeTab === '网聊维护' ? renderWebchatMaintenanceContent() : activeTab === '部门角色管理' ? renderDeptRoleManagementContent() : (
         <div className="flex min-h-0 flex-1 overflow-y-auto p-5 custom-scrollbar">
           <div className="flex min-h-0 flex-1 flex-col space-y-5">
           {viewMode === 'manager' && managerPortalPage === 'overview-detail' ? (
