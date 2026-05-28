@@ -136,6 +136,7 @@ type AgentMonitorCard = {
   sessionCount?: number;
   timeoutAt?: string;
   maxServiceCount?: number;
+  firstSignInTime?: string;
 };
 
 const defaultWebchatSupportSessionsByAgent: Record<string, SupportSession[]> = {
@@ -5753,6 +5754,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
           duration: '超过1天',
           extraLabel: '',
           extraValue: '',
+          firstSignInTime: '2026-05-28 08:32:10',
         },
         {
           name: '张文富',
@@ -5768,6 +5770,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
           duration: '00:18:16',
           extraLabel: '',
           extraValue: '',
+          firstSignInTime: '2026-05-28 09:15:03',
         },
         {
           name: 'Kukua',
@@ -5783,6 +5786,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
           duration: '00:06:43',
           extraLabel: '通话时长',
           extraValue: '00:06:43',
+          firstSignInTime: '2026-05-28 07:58:45',
         },
         {
           name: '彭颖测试',
@@ -5796,6 +5800,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
           duration: '00:01:00',
           timeoutAt: '00:01:00',
           maxServiceCount: 2,
+          firstSignInTime: '2026-05-28 11:34:50',
         },
         {
           name: '测试agent',
@@ -5809,6 +5814,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
           duration: '超过1天',
           timeoutAt: '超过1天',
           maxServiceCount: 0,
+          firstSignInTime: '2026-05-27 09:02:17',
         },
         {
           name: 'ADMIN',
@@ -5822,6 +5828,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
           duration: '00:10:10',
           timeoutAt: '',
           maxServiceCount: 0,
+          firstSignInTime: '2026-05-28 11:25:30',
         },
       ];
       const scopedCards = allCards.filter(
@@ -7300,6 +7307,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
               {(monitorDetailTarget.mode === 'phone'
                 ? [
                     ['当前状态', monitorDetailTarget.status === '空闲状态' ? '在线' : monitorDetailTarget.status],
+                    ['首次签入时间', monitorDetailTarget.firstSignInTime ?? '-'],
                     ['持续时间', '1小时17分钟45秒'],
                     ['今日通话数', '23'],
                     ['后处理时长', '0小时0分钟0秒'],
@@ -7316,6 +7324,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                   ]
                 : [
                     ['当前状态', monitorDetailTarget.status === '在线状态' ? '在线' : monitorDetailTarget.status],
+                    ['首次签入时间', monitorDetailTarget.firstSignInTime ?? '-'],
                     ['持续时间', '1小时17分钟45秒'],
                     ['当前服务数', `${monitorDetailTarget.sessionCount ?? 0}人`],
                     ['今日累计服务数', '15人'],
