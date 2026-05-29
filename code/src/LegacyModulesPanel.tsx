@@ -263,6 +263,7 @@ const correctionRecords = [
     afterValue: '问题分类二级：产品故障',
     reason: '根据录音内容修正错误定型。',
     detail: {
+      业务类型: '教育',
       产品分类: '电脑',
       产品名称: '平板',
       呼入类型: '咨询',
@@ -286,6 +287,7 @@ const correctionRecords = [
     afterValue: '投诉分类二级：专项跟进',
     reason: '用户明确提及需要专项回访。',
     detail: {
+      业务类型: '教育',
       产品分类: '电脑',
       产品名称: '笔记本电脑',
       呼入类型: '咨询',
@@ -309,6 +311,7 @@ const correctionRecords = [
     afterValue: '小结类型：热线',
     reason: '按通话来源调整小结类型。',
     detail: {
+      业务类型: '教育',
       产品分类: '电脑',
       产品名称: '笔记本电脑',
       呼入类型: '咨询',
@@ -326,6 +329,7 @@ const correctionRecords = [
 ];
 
 const summaryRecordDetailSelectOptions: Record<string, string[]> = {
+  业务类型: ['教育', '法院', '运营商', '金融'],
   产品分类: ['电脑', '平板', '体系1'],
   产品名称: ['笔记本电脑', '平板', '体系1'],
   呼入类型: ['咨询', '投诉'],
@@ -340,6 +344,7 @@ const summaryRecordDetailSelectOptions: Record<string, string[]> = {
 };
 
 const summaryRecordDetailFields = [
+  '业务类型',
   '产品分类',
   '产品名称',
   '呼入类型',
@@ -524,6 +529,38 @@ const waitingMonitorBaseRows: WaitingMonitorRow[] = [
     skillGroup: '路旭--测试',
     channelName: '测试渠道1',
     productName: '学习机',
+  },
+  {
+    id: 'w-2',
+    nickname: '8c2a90b5-71de-42f7-9a13-0b5e6c4d1aa2',
+    startedAt: '2026-04-21 10:35:02',
+    skillGroup: '学习机一组',
+    channelName: '测试渠道2',
+    productName: '学习平板',
+  },
+  {
+    id: 'w-3',
+    nickname: 'd34f0e91-6b8c-4f25-83a7-2e91c7f5b0d8',
+    startedAt: '2026-04-21 10:35:48',
+    skillGroup: '售后服务组',
+    channelName: '官网渠道',
+    productName: '笔记本电脑',
+  },
+  {
+    id: 'w-4',
+    nickname: '5a7b1c2d-3e4f-4a5b-9c6d-7e8f9a0b1c2d',
+    startedAt: '2026-04-21 10:36:19',
+    skillGroup: 'zzzz测试',
+    channelName: '小程序渠道',
+    productName: '学习机',
+  },
+  {
+    id: 'w-5',
+    nickname: 'b9e8d7c6-5a4b-4c3d-8e2f-1a0b9c8d7e6f',
+    startedAt: '2026-04-21 10:37:05',
+    skillGroup: '路旭--测试',
+    channelName: '测试渠道1',
+    productName: '学习平板',
   },
 ];
 
@@ -960,6 +997,14 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
     if (!summaryCorrectionTarget) {
       return;
     }
+    if (!summaryCorrectionForm['业务类型']?.trim()) {
+      showToast('请选择业务类型');
+      return;
+    }
+    if (!summaryCorrectionForm['产品分类']?.trim()) {
+      showToast('请选择产品分类');
+      return;
+    }
     showToast(`已提交 ${summaryCorrectionTarget.product} 的小结纠错`);
     setSummaryCorrectionTarget(null);
   };
@@ -967,6 +1012,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
   const openSummaryCorrection = (row: (typeof summaryRows)[number]) => {
     setSummaryCorrectionTarget(row);
     setSummaryCorrectionForm({
+      业务类型: row.businessLine,
       产品分类: row.category,
       产品名称: row.product,
       呼入类型: row.type,
@@ -1520,21 +1566,21 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                         setCustomerInfoModalTarget(row);
                         return;
                       }
+                      if (row.summaryType === '热线') {
+                        setSummaryHotlineRow(row);
+                        return;
+                      }
+                      if (row.status === '已完成') {
+                        return;
+                      }
                       if (row.summaryType === '在线') {
                         setCustomerInfoTarget(row);
                         onOpenLegacyModulePage?.('customer-info-edit');
-                        return;
                       }
-                      if (row.summaryType === '热线' && row.status === '已完成') {
-                        setCustomerInfoTarget(row);
-                        onOpenLegacyModulePage?.('customer-info-edit');
-                        return;
-                      }
-                      if (row.summaryType === '热线') setSummaryHotlineRow(row);
                     }}
                     className={cn(
                       index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]',
-                      row.summaryType === '热线' || row.summaryType === '在线' ? 'cursor-pointer transition-colors hover:bg-[#f7fffd]' : '',
+                      row.summaryType === '热线' || (row.summaryType === '在线' && row.status !== '已完成') ? 'cursor-pointer transition-colors hover:bg-[#f7fffd]' : '',
                       summaryHotlineRow?.id === row.id ? 'bg-[#f2fffb]' : ''
                     )}
                   >
@@ -1582,9 +1628,13 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-3 whitespace-nowrap text-[#18bca2]">
-                        <button type="button" onClick={() => openSummaryCorrection(row)}>
-                          小结纠错
-                        </button>
+                        {row.status === '暂存' ? (
+                          <span className="text-slate-300">-</span>
+                        ) : (
+                          <button type="button" onClick={() => openSummaryCorrection(row)}>
+                            小结纠错
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -4295,7 +4345,6 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
   const [monitorDepartmentKeyword, setMonitorDepartmentKeyword] = useState('');
   const monitorDepartmentOptions = ['选择部门1', '系统组'];
   const [queueMonitorScope, setQueueMonitorScope] = useState<'all' | 'phone' | 'webchat'>('all');
-  const [queueMonitorAutoRefresh, setQueueMonitorAutoRefresh] = useState(true);
   const [queueMonitorPhoneSkillGroup, setQueueMonitorPhoneSkillGroup] = useState('');
   const [queueMonitorWebchatQueue, setQueueMonitorWebchatQueue] = useState('');
   const [queueMonitorRefreshSeed, setQueueMonitorRefreshSeed] = useState(0);
@@ -4305,8 +4354,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
   const [waitingMonitorSkillGroup, setWaitingMonitorSkillGroup] = useState('');
   const [waitingMonitorPage, setWaitingMonitorPage] = useState(1);
   const [waitingMonitorPageSize, setWaitingMonitorPageSize] = useState(10);
-  const [waitingMonitorAutoRefresh, setWaitingMonitorAutoRefresh] = useState(true);
-  const [waitingMonitorRefreshSeed, setWaitingMonitorRefreshSeed] = useState(0);
+  const [waitingMonitorRows, setWaitingMonitorRows] = useState<WaitingMonitorRow[]>(waitingMonitorBaseRows);
   const [waitingMonitorRefreshedAt, setWaitingMonitorRefreshedAt] = useState(() =>
     new Date().toLocaleTimeString('zh-CN', { hour12: false })
   );
@@ -4316,7 +4364,6 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
   const [channelMonitorName, setChannelMonitorName] = useState('');
   const [channelMonitorPage, setChannelMonitorPage] = useState(1);
   const [channelMonitorPageSize, setChannelMonitorPageSize] = useState(10);
-  const [channelMonitorAutoRefresh, setChannelMonitorAutoRefresh] = useState(true);
   const [channelMonitorRefreshSeed, setChannelMonitorRefreshSeed] = useState(0);
   const [channelMonitorRefreshedAt, setChannelMonitorRefreshedAt] = useState(() =>
     new Date().toLocaleTimeString('zh-CN', { hour12: false })
@@ -4378,7 +4425,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
   };
 
   const refreshWaitingMonitoring = (showMessage = false) => {
-    setWaitingMonitorRefreshSeed((current) => current + 1);
+    setWaitingMonitorRows(waitingMonitorBaseRows);
     setWaitingMonitorRefreshedAt(new Date().toLocaleTimeString('zh-CN', { hour12: false }));
     if (showMessage) {
       showToast('排队监控已刷新');
@@ -4395,10 +4442,10 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
 
   const waitingMonitorFilteredRows = useMemo(
     () =>
-      waitingMonitorBaseRows.filter(
+      waitingMonitorRows.filter(
         (row) => !waitingMonitorSkillGroup || row.skillGroup === waitingMonitorSkillGroup
       ),
-    [waitingMonitorSkillGroup]
+    [waitingMonitorRows, waitingMonitorSkillGroup]
   );
 
   const openWaitingTransferDialog = (row: WaitingMonitorRow) => {
@@ -4474,7 +4521,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
       : [];
 
   useEffect(() => {
-    if (page !== 'queue-monitoring' || !queueMonitorAutoRefresh) {
+    if (page !== 'queue-monitoring') {
       return undefined;
     }
 
@@ -4484,21 +4531,28 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
     }, 30000);
 
     return () => window.clearInterval(timer);
-  }, [page, queueMonitorAutoRefresh]);
+  }, [page]);
 
   useEffect(() => {
-    if (page !== 'waiting-monitoring' || !waitingMonitorAutoRefresh) {
+    if (page !== 'waiting-monitoring') {
       return undefined;
     }
     const timer = window.setInterval(() => {
-      setWaitingMonitorRefreshSeed((current) => current + 1);
       setWaitingMonitorRefreshedAt(new Date().toLocaleTimeString('zh-CN', { hour12: false }));
-    }, 30000);
+      setWaitingMonitorRows((current) => {
+        if (current.length === 0) {
+          return current;
+        }
+        const [assigned, ...rest] = current;
+        showToast(`访客id ${assigned.nickname} 已分配坐席`);
+        return rest;
+      });
+    }, 3000);
     return () => window.clearInterval(timer);
-  }, [page, waitingMonitorAutoRefresh]);
+  }, [page]);
 
   useEffect(() => {
-    if (page !== 'channel-monitoring' || !channelMonitorAutoRefresh) {
+    if (page !== 'channel-monitoring') {
       return undefined;
     }
     const timer = window.setInterval(() => {
@@ -4506,7 +4560,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
       setChannelMonitorRefreshedAt(new Date().toLocaleTimeString('zh-CN', { hour12: false }));
     }, 30000);
     return () => window.clearInterval(timer);
-  }, [page, channelMonitorAutoRefresh]);
+  }, [page]);
 
   const blacklistRows = [
     { sessionId: '2001', visitorId: '10002', channel: 'APP', channelName: 'APP', userSystem: '体系1', seatNo: '2001', blocker: 'kily', reason: '脏话', blockedAt: '2025-04-29 11:15:14', removedAt: '2025-04-30 11:15:14', auditStatus: '待审核' },
@@ -5511,17 +5565,19 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                 ) : (
                   <>
                 <div className="grid grid-cols-1 gap-4 xl:grid-cols-12">
-                  <Field label="业务类型:" className="xl:col-span-2">
-                    <select
-                      value={appointmentFilters.businessLine}
-                      onChange={(event) => setAppointmentFilters((current) => ({ ...current, businessLine: event.target.value }))}
-                      className={inputClass}
-                    >
-                      <option value="">请选择业务类型</option>
-                      <option value="教育">教育</option>
-                      <option value="法院">法院</option>
-                    </select>
-                  </Field>
+                  {appointmentTab === 'message' ? (
+                    <Field label="组别:" className="xl:col-span-2">
+                      <select
+                        value={appointmentFilters.businessLine}
+                        onChange={(event) => setAppointmentFilters((current) => ({ ...current, businessLine: event.target.value }))}
+                        className={inputClass}
+                      >
+                        <option value="">请选择组别</option>
+                        <option value="教育">教育</option>
+                        <option value="法院">法院</option>
+                      </select>
+                    </Field>
+                  ) : null}
                   <Field label={appointmentTab === 'appointment' ? '回电号码:' : '主叫号码:'} className="xl:col-span-2">
                     <input
                       value={appointmentFilters.caller}
@@ -5634,7 +5690,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                             </span>
                           </td>
                           <td className="px-4 py-4">
-                            <button type="button" onClick={openCallWorkbench} className="text-[#18bca2]">
+                            <button type="button" onClick={() => setAppointmentCallbackConfirm(true)} className="text-[#18bca2]">
                               回电
                             </button>
                           </td>
@@ -5643,12 +5699,12 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                     </tbody>
                   </table>
                 ) : (
-                  <table className={cn('table-fixed text-left text-[13px]', appointmentTab === 'message' ? 'min-w-[1500px]' : 'min-w-[1380px]')}>
+                  <table className={cn('table-fixed text-left text-[13px]', appointmentTab === 'message' ? 'min-w-[1500px]' : 'min-w-[1280px]')}>
                   <thead className="bg-[#fafafa] text-slate-600">
                     <tr>
                       {(appointmentTab === 'message'
-                        ? ['序号', '业务类型', '主叫号码', '被叫号码', '开始留言时间', '结束留言时间', '处理部门', '处理人', '技能组', '调剂人', '调剂时间', '调剂次数', '操作']
-                        : ['序号', '业务类型', '回电号码', '开始通话时间', '结束通话时间', '状态', '处理部门', '处理人', '调剂人', '调剂时间', '调剂次数', '备注', '操作']
+                        ? ['序号', '组别', '主叫号码', '被叫号码', '开始留言时间', '结束留言时间', '处理部门', '处理人', '技能组', '调剂人', '调剂时间', '调剂次数', '操作']
+                        : ['序号', '回电号码', '开始通话时间', '结束通话时间', '状态', '处理部门', '处理人', '调剂人', '调剂时间', '调剂次数', '备注', '操作']
                       ).map((column) => (
                         <th key={column} className="px-4 py-3 font-medium">{column}</th>
                       ))}
@@ -5666,7 +5722,9 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                         )}
                       >
                         <td className="px-4 py-4">{index + 1}</td>
-                        <td className="px-4 py-4">{row.businessLine}</td>
+                        {appointmentTab === 'message' ? (
+                          <td className="px-4 py-4">{row.businessLine}</td>
+                        ) : null}
                         {appointmentTab === 'message' ? (
                           <>
                             <td className="px-4 py-4">{row.caller}</td>
@@ -6063,30 +6121,6 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                         <span>{label}</span>
                       </label>
                     ))}
-                    <button
-                      type="button"
-                      onClick={() => setQueueMonitorAutoRefresh((current) => !current)}
-                      className={cn(
-                        'inline-flex items-center gap-2 rounded-full border px-3 py-1.5 transition-colors',
-                        queueMonitorAutoRefresh ? 'border-[#8fe0d2] bg-[#effbf8] text-[#18bca2]' : 'border-slate-200 bg-white text-slate-500'
-                      )}
-                    >
-                      <span>定时刷新</span>
-                      <span
-                        className={cn(
-                          'relative inline-flex h-5 w-9 rounded-full transition-colors',
-                          queueMonitorAutoRefresh ? 'bg-[#18bca2]' : 'bg-slate-300'
-                        )}
-                      >
-                        <span
-                          className={cn(
-                            'absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-all',
-                            queueMonitorAutoRefresh ? 'translate-x-[18px]' : 'translate-x-[2px]'
-                          )}
-                        />
-                      </span>
-                    </button>
-                    <span className="text-slate-400">上次刷新: {queueMonitorRefreshedAt}</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <button type="button" onClick={() => refreshQueueMonitoring(true)} className={primaryButtonClass}>
@@ -6097,7 +6131,6 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                       onSearch={() => refreshQueueMonitoring(true)}
                       onReset={() => {
                         setQueueMonitorScope('all');
-                        setQueueMonitorAutoRefresh(true);
                         setQueueMonitorPhoneSkillGroup('');
                         setQueueMonitorWebchatQueue('');
                         refreshQueueMonitoring(true);
@@ -6259,22 +6292,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
               <div className="border-b border-slate-100 px-5 py-4">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 text-[13px]">
-                      <button
-                        type="button"
-                        onClick={() => setWaitingMonitorAutoRefresh((current) => !current)}
-                        className={cn(
-                          'inline-flex items-center gap-2 rounded-full border px-3 py-1.5 transition-colors',
-                          waitingMonitorAutoRefresh ? 'border-[#8fe0d2] bg-[#effbf8] text-[#18bca2]' : 'border-slate-200 bg-white text-slate-500'
-                        )}
-                      >
-                        <span>定时刷新</span>
-                        <span className={cn('relative inline-flex h-5 w-9 rounded-full transition-colors', waitingMonitorAutoRefresh ? 'bg-[#18bca2]' : 'bg-slate-300')}>
-                          <span className={cn('absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-all', waitingMonitorAutoRefresh ? 'translate-x-[18px]' : 'translate-x-[2px]')} />
-                        </span>
-                      </button>
-                      <span className="text-slate-400">上次刷新: {waitingMonitorRefreshedAt}</span>
-                    </div>
+                    <div className="flex items-center gap-3 text-[13px]" />
                     <div className="flex items-center gap-3">
                       <button type="button" onClick={() => refreshWaitingMonitoring(true)} className={primaryButtonClass}>
                         <RotateCcw size={14} className="mr-1.5" />
@@ -6419,22 +6437,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
               <div className="border-b border-slate-100 px-5 py-4">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 text-[13px]">
-                      <button
-                        type="button"
-                        onClick={() => setChannelMonitorAutoRefresh((current) => !current)}
-                        className={cn(
-                          'inline-flex items-center gap-2 rounded-full border px-3 py-1.5 transition-colors',
-                          channelMonitorAutoRefresh ? 'border-[#8fe0d2] bg-[#effbf8] text-[#18bca2]' : 'border-slate-200 bg-white text-slate-500'
-                        )}
-                      >
-                        <span>定时刷新</span>
-                        <span className={cn('relative inline-flex h-5 w-9 rounded-full transition-colors', channelMonitorAutoRefresh ? 'bg-[#18bca2]' : 'bg-slate-300')}>
-                          <span className={cn('absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-all', channelMonitorAutoRefresh ? 'translate-x-[18px]' : 'translate-x-[2px]')} />
-                        </span>
-                      </button>
-                      <span className="text-slate-400">上次刷新: {channelMonitorRefreshedAt}</span>
-                    </div>
+                    <div className="flex items-center gap-3 text-[13px]" />
                     <div className="flex items-center gap-3">
                       <button type="button" onClick={() => refreshChannelMonitoring(true)} className={primaryButtonClass}>
                         <RotateCcw size={14} className="mr-1.5" />
@@ -6660,7 +6663,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
         <Modal title="小结纠错" onClose={() => setSummaryCorrectionTarget(null)} widthClass="max-w-5xl">
           <div className="grid grid-cols-1 gap-x-4 gap-y-5 px-6 py-6 md:grid-cols-2 xl:grid-cols-3">
             {summaryRecordDetailFields.map((label) => {
-              const required = label === '产品分类';
+              const required = label === '产品分类' || label === '业务类型';
 
               return (
                 <div key={label} className="min-w-0">
@@ -6749,7 +6752,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                 const currentValue = summaryRecordDetailForm[label] ?? '';
                 const originalValue = summaryRecordDetail ? correctionRecordOriginalDetails[summaryRecordDetail.id]?.[label] : '';
                 const changed = summaryRecordDetail ? correctionRecordChangedFields[summaryRecordDetail.id]?.includes(label) : false;
-                const required = label === '产品分类';
+                const required = label === '产品分类' || label === '业务类型';
 
                 return (
                   <div key={label} className="min-w-0">

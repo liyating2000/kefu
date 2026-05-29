@@ -86,6 +86,8 @@ const primaryButtonClass =
 type DialogState =
   | { kind: 'add-group' }
   | { kind: 'add-skill-group'; groupId: string }
+  | { kind: 'confirm-delete-group'; groupId: string; groupName: string }
+  | { kind: 'confirm-remove-skill-group'; groupId: string; skillGroupId: string; skillGroupName: string }
   | null;
 
 export default function GroupMaintenance() {
@@ -117,6 +119,14 @@ export default function GroupMaintenance() {
     showToast('组别新增成功');
   };
 
+  const handleRequestDeleteGroup = (group: Group) => {
+    if (group.skillGroups.length > 0) {
+      showToast('该组别下存在技能组，无法删除，请先移除所有技能组');
+      return;
+    }
+    setDialog({ kind: 'confirm-delete-group', groupId: group.id, groupName: group.name });
+  };
+
   const handleDeleteGroup = (groupId: string) => {
     setGroups((prev) => {
       const next = prev.filter((g) => g.id !== groupId);
@@ -125,6 +135,7 @@ export default function GroupMaintenance() {
       }
       return next;
     });
+    setDialog(null);
     showToast('组别已删除');
   };
 
@@ -148,6 +159,7 @@ export default function GroupMaintenance() {
         g.id === groupId ? { ...g, skillGroups: g.skillGroups.filter((sg) => sg.id !== skillGroupId) } : g,
       ),
     );
+    setDialog(null);
     showToast('技能组已移除');
   };
 
@@ -205,7 +217,7 @@ export default function GroupMaintenance() {
                   </span>
                   <button
                     type="button"
-                    onClick={(e) => { e.stopPropagation(); handleDeleteGroup(group.id); }}
+                    onClick={(e) => { e.stopPropagation(); handleRequestDeleteGroup(group); }}
                     className="text-slate-300 opacity-0 transition-opacity hover:text-red-400 group-hover:opacity-100"
                   >
                     <Trash2 size={14} />
@@ -263,7 +275,7 @@ export default function GroupMaintenance() {
                           <td className="px-5 py-3.5">
                             <button
                               type="button"
-                              onClick={() => handleRemoveSkillGroup(selectedGroup.id, sg.id)}
+                              onClick={() => setDialog({ kind: 'confirm-remove-skill-group', groupId: selectedGroup.id, skillGroupId: sg.id, skillGroupName: sg.name })}
                               className="text-[#ff8a8a] hover:text-[#ff6e6e]"
                             >
                               移除
@@ -376,6 +388,60 @@ export default function GroupMaintenance() {
                   确定添加
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Dialog: Confirm Delete Group */}
+      {dialog?.kind === 'confirm-delete-group' && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40">
+          <div className="w-[420px] rounded-lg bg-white shadow-xl">
+            <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+              <h3 className="text-[15px] font-semibold text-slate-800">删除组别</h3>
+              <button type="button" onClick={() => setDialog(null)} className="text-slate-400 hover:text-slate-600">
+                <X size={18} />
+              </button>
+            </div>
+            <div className="px-5 py-5 text-[13px] leading-relaxed text-slate-600">
+              确认删除组别「<span className="font-medium text-slate-800">{dialog.groupName}</span>」吗？删除后不可恢复。
+            </div>
+            <div className="flex items-center justify-end gap-2 border-t border-slate-100 px-5 py-3">
+              <button type="button" onClick={() => setDialog(null)} className={secondaryButtonClass}>取消</button>
+              <button
+                type="button"
+                onClick={() => handleDeleteGroup(dialog.groupId)}
+                className="inline-flex h-9 shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-[#ff6e6e] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#f55]"
+              >
+                确认删除
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Dialog: Confirm Remove Skill Group */}
+      {dialog?.kind === 'confirm-remove-skill-group' && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40">
+          <div className="w-[420px] rounded-lg bg-white shadow-xl">
+            <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+              <h3 className="text-[15px] font-semibold text-slate-800">移除技能组</h3>
+              <button type="button" onClick={() => setDialog(null)} className="text-slate-400 hover:text-slate-600">
+                <X size={18} />
+              </button>
+            </div>
+            <div className="px-5 py-5 text-[13px] leading-relaxed text-slate-600">
+              确认将技能组「<span className="font-medium text-slate-800">{dialog.skillGroupName}</span>」从当前组别移除吗？
+            </div>
+            <div className="flex items-center justify-end gap-2 border-t border-slate-100 px-5 py-3">
+              <button type="button" onClick={() => setDialog(null)} className={secondaryButtonClass}>取消</button>
+              <button
+                type="button"
+                onClick={() => handleRemoveSkillGroup(dialog.groupId, dialog.skillGroupId)}
+                className="inline-flex h-9 shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-[#ff6e6e] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#f55]"
+              >
+                确认移除
+              </button>
             </div>
           </div>
         </div>
