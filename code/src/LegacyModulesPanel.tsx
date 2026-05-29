@@ -2814,6 +2814,14 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
     const audioFileName = `${sessionId}.mp3`;
     const videoFileName = `${sessionId}.mp4`;
 
+    // 同一访客的历史咨询记录（按发起时间倒序，最近一次在最前）
+    const visitorConsultations = webchatHistoryRows
+      .filter((row) => row.visitorId === detailRow.visitorId)
+      .slice()
+      .sort((a, b) => (b.chatStartedAt || '').localeCompare(a.chatStartedAt || ''));
+    const consultTotal = visitorConsultations.length;
+    const safeConsultIndex = Math.min(webchatHistoryConsultIndex, Math.max(0, consultTotal - 1));
+
     const workOrderHistoryRows = [
       { id: 'WO20260331001', type: '咨询工单', status: '已办结', priority: '普通', creator: detailRow.employeeName, handler: '李小芳', createdAt: detailRow.chatStartedAt, finishedAt: detailRow.chatEndedAt, title: '访客咨询账户开户流程' },
       { id: 'WO20260330024', type: '投诉工单', status: '处理中', priority: '紧急', creator: '系统', handler: detailRow.employeeName, createdAt: '2026-03-30 16:42:08', finishedAt: '-', title: '访客对短信通知频率不满' },
@@ -2855,6 +2863,31 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
             <div className="grid min-h-0 flex-1 grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
               <div className="flex min-h-0 flex-col border-b border-slate-100 bg-white xl:border-b-0 xl:border-r">
                 <div className="border-b border-slate-100 bg-white px-5 py-3">
+                  <div className="mb-3 flex flex-wrap items-center gap-3 text-[12px] text-slate-500">
+                    <span className="text-[13px] font-medium text-slate-700">
+                      共咨询 <span className="text-[#18bca2]">{consultTotal}</span> 次
+                    </span>
+                    <span className="text-slate-300">|</span>
+                    <span>
+                      当前第 <span className="font-medium text-[#18bca2]">{safeConsultIndex + 1}</span> 次
+                    </span>
+                    <select
+                      value={detailRow.id}
+                      onChange={(event) => {
+                        const nextId = event.target.value;
+                        const nextIndex = visitorConsultations.findIndex((row) => row.id === nextId);
+                        setWebchatHistoryDetail(nextId);
+                        setWebchatHistoryConsultIndex(nextIndex < 0 ? 0 : nextIndex);
+                      }}
+                      className={cn(inputClass, 'h-8 w-[200px] text-[12px]')}
+                    >
+                      {visitorConsultations.map((row) => (
+                        <option key={row.id} value={row.id}>
+                          {row.chatStartedAt}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                   <div className="flex items-center gap-3 text-[12px] text-slate-500">
                     <span className="text-[13px] font-semibold text-slate-800">访客{detailRow.visitorId}</span>
                     <span>{detailRow.channel || 'web'}渠道</span>
@@ -3622,6 +3655,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                               onClick={() => {
                                 setWebchatHistoryDetail(row.id);
                                 setWebchatHistoryDetailTab('summary');
+                                setWebchatHistoryConsultIndex(0);
                               }}
                             >
                               详情
@@ -3660,6 +3694,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                         onDoubleClick={() => {
                           setWebchatHistoryDetail(row.id);
                           setWebchatHistoryDetailTab('summary');
+                          setWebchatHistoryConsultIndex(0);
                         }}
                         className={cn(
                           'cursor-pointer transition-colors hover:bg-[#f1fbf8]',
@@ -4383,6 +4418,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
   const [webchatHistoryMessageModalOpen, setWebchatHistoryMessageModalOpen] = useState(false);
   const [webchatHistoryMessageContent, setWebchatHistoryMessageContent] = useState('');
   const [webchatHistoryMessages, setWebchatHistoryMessages] = useState<{ id: string; content: string; time: string }[]>([]);
+  const [webchatHistoryConsultIndex, setWebchatHistoryConsultIndex] = useState(0);
 
   const handleAddWebchatHistorySummaryTab = () => {
     const maxIndex = webchatHistorySummaryTabs.reduce((result, tab) => {
@@ -5015,8 +5051,8 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
   const [webchatHistoryRows, setWebchatHistoryRows] = useState([
     { id: '1', exampleStatus: '未提交范例', visitorId: '9399', sessionId: '9399', employeeName: '周晓伟', employeeId: '1001', department: '测试', queue: '默认队列 [2025.11.1...', workgroup: '测试', requestAt: '2026-03-31 13:03:12', chatStartedAt: '2026-03-31 13:03:12', chatEndedAt: '2026-03-31 13:58:56', duration: '00:55:43', endReason: '坐席结束', channel: 'web', satisfaction: '', summarized: '未小结', content: '测试聊天记录1', hasAudio: true, hasVideo: true },
     { id: '2', exampleStatus: '未提交范例', visitorId: '9373', sessionId: '9373', employeeName: '周晓伟', employeeId: '1001', department: '测试', queue: '默认队列 [2025.11.1...', workgroup: '测试', requestAt: '2026-03-28 15:16:18', chatStartedAt: '2026-03-28 15:16:18', chatEndedAt: '2026-03-28 15:51:25', duration: '00:35:07', endReason: '坐席超时', channel: 'web', satisfaction: '', summarized: '未小结', content: '测试聊天记录2', hasAudio: true, hasVideo: false },
-    { id: '3', exampleStatus: '未提交范例', visitorId: '9372', sessionId: '9372', employeeName: '周晓伟', employeeId: '1001', department: '测试', queue: '默认队列 [2025.11.1...', workgroup: '测试', requestAt: '2026-03-28 15:04:32', chatStartedAt: '2026-03-28 15:04:32', chatEndedAt: '2026-03-28 15:51:25', duration: '00:46:53', endReason: '访客超时', channel: 'web', satisfaction: '', summarized: '未小结', content: '测试聊天记录3', hasAudio: false, hasVideo: false },
-    { id: '4', exampleStatus: '未提交范例', visitorId: '9371', sessionId: '9371', employeeName: '周晓伟', employeeId: '1001', department: '测试', queue: '默认队列 [2025.11.1...', workgroup: '测试', requestAt: '2026-03-28 14:45:30', chatStartedAt: '2026-03-28 14:45:30', chatEndedAt: '2026-03-28 15:03:45', duration: '00:18:14', endReason: '排队超时', channel: 'web', satisfaction: '', summarized: '未小结', content: '测试聊天记录4', hasAudio: false, hasVideo: true },
+    { id: '3', exampleStatus: '未提交范例', visitorId: '9373', sessionId: '9372', employeeName: '周晓伟', employeeId: '1001', department: '测试', queue: '默认队列 [2025.11.1...', workgroup: '测试', requestAt: '2026-03-28 15:04:32', chatStartedAt: '2026-03-28 15:04:32', chatEndedAt: '2026-03-28 15:51:25', duration: '00:46:53', endReason: '访客超时', channel: 'web', satisfaction: '', summarized: '未小结', content: '测试聊天记录3', hasAudio: false, hasVideo: false },
+    { id: '4', exampleStatus: '未提交范例', visitorId: '9373', sessionId: '9371', employeeName: '周晓伟', employeeId: '1001', department: '测试', queue: '默认队列 [2025.11.1...', workgroup: '测试', requestAt: '2026-03-28 14:45:30', chatStartedAt: '2026-03-28 14:45:30', chatEndedAt: '2026-03-28 15:03:45', duration: '00:18:14', endReason: '排队超时', channel: 'web', satisfaction: '', summarized: '未小结', content: '测试聊天记录4', hasAudio: false, hasVideo: true },
     { id: '5', exampleStatus: '未提交范例', visitorId: '9370', sessionId: '9370', employeeName: '周晓伟', employeeId: '1001', department: '测试', queue: '默认队列 [2025.11.1...', workgroup: '测试', requestAt: '2026-03-28 14:44:42', chatStartedAt: '2026-03-28 14:44:42', chatEndedAt: '2026-03-28 15:03:49', duration: '00:19:07', endReason: '访客结束', channel: 'web', satisfaction: '', summarized: '未小结', content: '测试聊天记录5', hasAudio: false, hasVideo: false },
     { id: '6', exampleStatus: '未提交范例', visitorId: '9369', sessionId: '9369', employeeName: '周晓伟', employeeId: '1001', department: '测试', queue: '默认队列 [2025.11.1...', workgroup: '测试', requestAt: '2026-03-28 14:36:20', chatStartedAt: '2026-03-28 14:36:20', chatEndedAt: '2026-03-28 14:39:25', duration: '00:03:05', endReason: '异常退出', channel: 'web', satisfaction: '好', summarized: '未小结', content: '测试聊天记录6', hasAudio: true, hasVideo: false },
     { id: '7', exampleStatus: '未提交范例', visitorId: '9368', sessionId: '9368', employeeName: '周晓伟', employeeId: '1001', department: '测试', queue: '默认队列 [2025.11.1...', workgroup: '测试', requestAt: '2026-03-28 14:12:55', chatStartedAt: '2026-03-28 14:12:55', chatEndedAt: '2026-03-28 14:32:10', duration: '00:19:15', endReason: '访客超时', channel: 'web', satisfaction: '', summarized: '未小结', content: '测试聊天记录7', hasAudio: false, hasVideo: false },
