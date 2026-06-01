@@ -16,6 +16,9 @@ import LegacyModulesPanel, {
 import { helpDocContent } from './helpDocContent';
 import GroupMaintenance from './GroupMaintenance';
 import TargetValueMaintenance from './TargetValueMaintenance';
+import BrandMaintenance from './BrandMaintenance';
+import AttachmentManagement from './AttachmentManagement';
+import ProductModuleMaintenance from './ProductModuleMaintenance';
 import channelMobileIcon from './assets/channel-icons/移动端.png';
 import channelWebIcon from './assets/channel-icons/Web端.png';
 import channelKuaishouIcon from './assets/channel-icons/快手.png';
@@ -348,7 +351,10 @@ type MainTab =
   | '网聊维护'
   | '部门角色管理'
   | '组别维护'
-  | '目标值维护';
+  | '目标值维护'
+  | '品牌维护'
+  | '附件管理'
+  | '产品模块维护';
 type ManagerPortalPage = 'dashboard' | 'overview-detail';
 
 // 繁忙公告管理类型定义
@@ -3158,12 +3164,18 @@ const systemSettingsSubMenus = [
   { label: '业务字段管理', key: 'business-field-management' },
   { label: '组别维护', key: 'group-maintenance' },
   { label: '目标值维护', key: 'target-value-maintenance' },
+  { label: '品牌维护', key: 'brand-maintenance' },
+  { label: '附件管理', key: 'attachment-management' },
+  { label: '产品模块维护', key: 'product-module-maintenance' },
 ] as const;
 
 const systemSettingsMenuTabMap = {
   'business-field-management': '业务字段管理',
   'group-maintenance': '组别维护',
   'target-value-maintenance': '目标值维护',
+  'brand-maintenance': '品牌维护',
+  'attachment-management': '附件管理',
+  'product-module-maintenance': '产品模块维护',
 } as const satisfies Record<(typeof systemSettingsSubMenus)[number]['key'], MainTab>;
 
 const busyAnnouncementManagementRows: BusyAnnouncement[] = [
@@ -4149,6 +4161,9 @@ export default function App() {
   const [isBusinessFieldManagementTabVisible, setIsBusinessFieldManagementTabVisible] = useState(false);
   const [isGroupMaintenanceTabVisible, setIsGroupMaintenanceTabVisible] = useState(false);
   const [isTargetValueMaintenanceTabVisible, setIsTargetValueMaintenanceTabVisible] = useState(false);
+  const [isBrandMaintenanceTabVisible, setIsBrandMaintenanceTabVisible] = useState(false);
+  const [isAttachmentManagementTabVisible, setIsAttachmentManagementTabVisible] = useState(false);
+  const [isProductModuleMaintenanceTabVisible, setIsProductModuleMaintenanceTabVisible] = useState(false);
   const [isBusyAnnouncementManagementTabVisible, setIsBusyAnnouncementManagementTabVisible] = useState(false);
   const [isPrivacyStatementManagementTabVisible, setIsPrivacyStatementManagementTabVisible] = useState(false);
   const [isUserSystemManagementTabVisible, setIsUserSystemManagementTabVisible] = useState(false);
@@ -4206,7 +4221,7 @@ export default function App() {
     useState<
       Exclude<
         MainTab,
-        '在线工作台' | '消息服务' | '排班信息展示' | '业务字段管理' | '繁忙公告管理' | '隐私声明管理' | '用户体系管理' | '网聊维护'
+        '在线工作台' | '消息服务' | '排班信息展示' | '业务字段管理' | '品牌维护' | '附件管理' | '产品模块维护' | '繁忙公告管理' | '隐私声明管理' | '用户体系管理' | '网聊维护'
       >
     >('个人门户');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -4697,6 +4712,24 @@ export default function App() {
       setActiveTab('目标值维护');
       return;
     }
+    if (tab === '品牌维护') {
+      setIsBrandMaintenanceTabVisible(true);
+      setIsSystemSettingsExpanded(true);
+      setActiveTab('品牌维护');
+      return;
+    }
+    if (tab === '附件管理') {
+      setIsAttachmentManagementTabVisible(true);
+      setIsSystemSettingsExpanded(true);
+      setActiveTab('附件管理');
+      return;
+    }
+    if (tab === '产品模块维护') {
+      setIsProductModuleMaintenanceTabVisible(true);
+      setIsSystemSettingsExpanded(true);
+      setActiveTab('产品模块维护');
+      return;
+    }
     if (tab === '繁忙公告管理') {
       setIsBusyAnnouncementManagementTabVisible(true);
       setIsSystemSettingsExpanded(true);
@@ -4770,6 +4803,27 @@ export default function App() {
     setActiveLegacyModulePage(null);
     setIsTargetValueMaintenanceTabVisible(false);
     if (activeTab === '目标值维护') {
+      setActiveTab(lastPrimaryTab);
+    }
+  };
+  const handleCloseBrandMaintenanceTab = () => {
+    setActiveLegacyModulePage(null);
+    setIsBrandMaintenanceTabVisible(false);
+    if (activeTab === '品牌维护') {
+      setActiveTab(lastPrimaryTab);
+    }
+  };
+  const handleCloseAttachmentManagementTab = () => {
+    setActiveLegacyModulePage(null);
+    setIsAttachmentManagementTabVisible(false);
+    if (activeTab === '附件管理') {
+      setActiveTab(lastPrimaryTab);
+    }
+  };
+  const handleCloseProductModuleMaintenanceTab = () => {
+    setActiveLegacyModulePage(null);
+    setIsProductModuleMaintenanceTabVisible(false);
+    if (activeTab === '产品模块维护') {
       setActiveTab(lastPrimaryTab);
     }
   };
@@ -14419,6 +14473,9 @@ export default function App() {
               ...(isBusinessFieldManagementTabVisible ? (['业务字段管理'] as MainTab[]) : []),
               ...(isGroupMaintenanceTabVisible ? (['组别维护'] as MainTab[]) : []),
               ...(isTargetValueMaintenanceTabVisible ? (['目标值维护'] as MainTab[]) : []),
+              ...(isBrandMaintenanceTabVisible ? (['品牌维护'] as MainTab[]) : []),
+              ...(isAttachmentManagementTabVisible ? (['附件管理'] as MainTab[]) : []),
+              ...(isProductModuleMaintenanceTabVisible ? (['产品模块维护'] as MainTab[]) : []),
               ...(isBusyAnnouncementManagementTabVisible ? (['繁忙公告管理'] as MainTab[]) : []),
               ...(isPrivacyStatementManagementTabVisible ? (['隐私声明管理'] as MainTab[]) : []),
               ...(isUserSystemManagementTabVisible ? (['用户体系管理'] as MainTab[]) : []),
@@ -14431,6 +14488,9 @@ export default function App() {
               const isBusinessFieldManagementTab = tab === '业务字段管理';
               const isGroupMaintenanceTab = tab === '组别维护';
               const isTargetValueMaintenanceTab = tab === '目标值维护';
+              const isBrandMaintenanceTab = tab === '品牌维护';
+              const isAttachmentManagementTab = tab === '附件管理';
+              const isProductModuleMaintenanceTab = tab === '产品模块维护';
               const isBusyAnnouncementManagementTab = tab === '繁忙公告管理';
               const isPrivacyStatementManagementTab = tab === '隐私声明管理';
               const isUserSystemManagementTab = tab === '用户体系管理';
@@ -14454,6 +14514,9 @@ export default function App() {
                   isBusinessFieldManagementTab ||
                   isGroupMaintenanceTab ||
                   isTargetValueMaintenanceTab ||
+                  isBrandMaintenanceTab ||
+                  isAttachmentManagementTab ||
+                  isProductModuleMaintenanceTab ||
                   isBusyAnnouncementManagementTab ||
                   isPrivacyStatementManagementTab ||
                   isUserSystemManagementTab ||
@@ -14474,6 +14537,12 @@ export default function App() {
                                   ? '关闭组别维护'
                                   : isTargetValueMaintenanceTab
                                     ? '关闭目标值维护'
+                                  : isBrandMaintenanceTab
+                                    ? '关闭品牌维护'
+                                  : isAttachmentManagementTab
+                                    ? '关闭附件管理'
+                                  : isProductModuleMaintenanceTab
+                                    ? '关闭产品模块维护'
                                 : isBusyAnnouncementManagementTab
                                   ? '关闭繁忙公告管理'
                                   : isPrivacyStatementManagementTab
@@ -14508,6 +14577,18 @@ export default function App() {
                         }
                         if (isTargetValueMaintenanceTab) {
                           handleCloseTargetValueMaintenanceTab();
+                          return;
+                        }
+                        if (isBrandMaintenanceTab) {
+                          handleCloseBrandMaintenanceTab();
+                          return;
+                        }
+                        if (isAttachmentManagementTab) {
+                          handleCloseAttachmentManagementTab();
+                          return;
+                        }
+                        if (isProductModuleMaintenanceTab) {
+                          handleCloseProductModuleMaintenanceTab();
                           return;
                         }
                         if (isBusyAnnouncementManagementTab) {
@@ -14575,7 +14656,7 @@ export default function App() {
           </div>
         </header>
 
-        {activeLegacyModulePage ? <LegacyModulesPanel page={activeLegacyModulePage} onOpenMainTab={handleOpenMainTab} onOpenLegacyModulePage={handleOpenLegacyModulePage} /> : activeTab === '呼叫工作台' ? callWorkbenchContent : activeTab === '在线工作台' ? onlineWorkbenchContent : activeTab === '消息服务' ? messageServiceContent : activeTab === '排班信息展示' ? scheduleDisplayContent : activeTab === '业务字段管理' ? businessFieldManagementContent : activeTab === '组别维护' ? <GroupMaintenance /> : activeTab === '目标值维护' ? <TargetValueMaintenance /> : activeTab === '繁忙公告管理' ? busyAnnouncementManagementContent : activeTab === '隐私声明管理' ? privacyStatementManagementContent : activeTab === '用户体系管理' ? userSystemManagementContent : activeTab === '网聊维护' ? renderWebchatMaintenanceContent() : activeTab === '部门角色管理' ? renderDeptRoleManagementContent() : (
+        {activeLegacyModulePage ? <LegacyModulesPanel page={activeLegacyModulePage} onOpenMainTab={handleOpenMainTab} onOpenLegacyModulePage={handleOpenLegacyModulePage} /> : activeTab === '呼叫工作台' ? callWorkbenchContent : activeTab === '在线工作台' ? onlineWorkbenchContent : activeTab === '消息服务' ? messageServiceContent : activeTab === '排班信息展示' ? scheduleDisplayContent : activeTab === '业务字段管理' ? businessFieldManagementContent : activeTab === '组别维护' ? <GroupMaintenance /> : activeTab === '目标值维护' ? <TargetValueMaintenance /> : activeTab === '品牌维护' ? <BrandMaintenance /> : activeTab === '附件管理' ? <AttachmentManagement /> : activeTab === '产品模块维护' ? <ProductModuleMaintenance /> : activeTab === '繁忙公告管理' ? busyAnnouncementManagementContent : activeTab === '隐私声明管理' ? privacyStatementManagementContent : activeTab === '用户体系管理' ? userSystemManagementContent : activeTab === '网聊维护' ? renderWebchatMaintenanceContent() : activeTab === '部门角色管理' ? renderDeptRoleManagementContent() : (
         <div className="flex min-h-0 flex-1 overflow-y-auto p-5 custom-scrollbar">
           <div className="flex min-h-0 flex-1 flex-col space-y-5">
           {viewMode === 'manager' && managerPortalPage === 'overview-detail' ? (

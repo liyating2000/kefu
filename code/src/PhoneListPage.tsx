@@ -8,6 +8,7 @@ function cn(...inputs: ClassValue[]) {
 }
 
 type CallType = '呼入电话' | '呼出电话';
+type HangupType = '客户挂机' | '话务员挂机';
 type DetailRow = {
   id: number;
   callType: CallType;
@@ -18,7 +19,7 @@ type DetailRow = {
   callEnd: string;
   serviceClick: string;
   answered: '是' | '否';
-  skillType: string;
+  hangupType: HangupType;
 };
 
 const summaryRows = [
@@ -37,7 +38,7 @@ const initialDetailRows: DetailRow[] = [
     callEnd: '2026-04-08 14:33:30',
     serviceClick: '-',
     answered: '是',
-    skillType: '客户机型',
+    hangupType: '客户挂机',
   },
   {
     id: 2,
@@ -49,7 +50,7 @@ const initialDetailRows: DetailRow[] = [
     callEnd: '2026-04-08 14:33:30',
     serviceClick: '-',
     answered: '是',
-    skillType: '客户机型',
+    hangupType: '话务员挂机',
   },
   {
     id: 3,
@@ -61,7 +62,7 @@ const initialDetailRows: DetailRow[] = [
     callEnd: '2026-04-08 15:05:17',
     serviceClick: '-',
     answered: '是',
-    skillType: '客户机型',
+    hangupType: '客户挂机',
   },
 ];
 
@@ -77,7 +78,7 @@ type FilterForm = {
   endTime: string;
   callStatus: string;
   callType: string;
-  skillType: string;
+  hangupType: string;
   caller: string;
   callee: string;
 };
@@ -90,7 +91,7 @@ const initialFilters: FilterForm = {
   endTime: '2026-05-12 23:59:59',
   callStatus: '全部',
   callType: '全部',
-  skillType: '全部',
+  hangupType: '全部',
   caller: '',
   callee: '',
 };
@@ -311,7 +312,7 @@ export default function PhoneListPage() {
                         <td className="py-2.5 text-slate-600">{row.callStart}</td>
                         <td className="py-2.5 text-slate-600">{row.callEnd}</td>
                         <td className="py-2.5 text-center text-slate-600">{row.answered}</td>
-                        <td className="py-2.5 text-slate-600">{row.skillType}</td>
+                        <td className="py-2.5 text-slate-600">{row.hangupType}</td>
                       </tr>
                     ))
                   )}
