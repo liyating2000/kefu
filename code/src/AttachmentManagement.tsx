@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, RotateCcw, Trash2, ChevronDown } from 'lucide-react';
+import { Search, RotateCcw, Trash2, ChevronDown, X } from 'lucide-react';
 
 interface Attachment {
   id: number;
@@ -9,7 +9,7 @@ interface Attachment {
   domainAccount: string;
   sendTime: string;
   invalidStatus: '有效' | '已失效';
-  uploadStatus: '已上传' | '未上传' | '上传失败';
+  uploadStatus: '已上传' | '未上传' | '上传失败' | '已删除';
   latestUploadTime: string;
 }
 
@@ -19,10 +19,11 @@ const initialAttachments: Attachment[] = [
   { id: 3, link: 'https://oss.example.com/file/contract_v2.docx', receiverNumber: '18700001111', senderName: '王五', domainAccount: 'wangwu', sendTime: '2026-03-20 10:05:00', invalidStatus: '已失效', uploadStatus: '已上传', latestUploadTime: '2026-03-20 10:06:30' },
   { id: 4, link: 'https://oss.example.com/file/log_20260315.txt', receiverNumber: '13912345678', senderName: '赵六', domainAccount: 'zhaoliu', sendTime: '2026-03-15 16:40:20', invalidStatus: '有效', uploadStatus: '上传失败', latestUploadTime: '-' },
   { id: 5, link: 'https://oss.example.com/file/data_export.xlsx', receiverNumber: '15500002222', senderName: '钱七', domainAccount: 'qianqi', sendTime: '2026-03-10 08:30:00', invalidStatus: '已失效', uploadStatus: '未上传', latestUploadTime: '-' },
+  { id: 6, link: 'https://oss.example.com/file/old_backup.zip', receiverNumber: '13800001234', senderName: '孙八', domainAccount: 'sunba', sendTime: '2026-03-05 11:20:00', invalidStatus: '已失效', uploadStatus: '已删除', latestUploadTime: '2026-03-05 11:21:00' },
 ];
 
 const invalidStatusOptions = ['全部', '有效', '已失效'];
-const uploadStatusOptions = ['全部', '已上传', '未上传', '上传失败'];
+const uploadStatusOptions = ['全部', '已上传', '未上传', '上传失败', '已删除'];
 
 const pageWrapperClass = 'flex min-h-0 flex-1 flex-col overflow-hidden bg-[#f7f9fc]';
 const inputClass =
@@ -51,6 +52,7 @@ function SelectField({ label, value, options, onChange, width = 130 }: {
 export default function AttachmentManagement() {
   const [attachments, setAttachments] = useState<Attachment[]>(initialAttachments);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [detailTarget, setDetailTarget] = useState<Attachment | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
   const [filterNumber, setFilterNumber] = useState('');
@@ -138,11 +140,15 @@ export default function AttachmentManagement() {
                 <RotateCcw size={14} />
                 重置
               </button>
-              <button type="button" onClick={handleDeleteSelected} className="inline-flex h-9 items-center gap-1.5 rounded-md bg-[#ff6e6e] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#f55]">
-                <Trash2 size={14} />
-                删除
-              </button>
             </div>
+          </div>
+
+          {/* Action Bar */}
+          <div className="flex items-center gap-3 border-b border-slate-100 px-5 py-3">
+            <button type="button" onClick={handleDeleteSelected} className="inline-flex h-9 items-center gap-1.5 rounded-md bg-[#ff6e6e] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#f55]">
+              <Trash2 size={14} />
+              删除
+            </button>
           </div>
 
           {/* Table */}
@@ -167,7 +173,7 @@ export default function AttachmentManagement() {
                 </thead>
                 <tbody className="text-slate-600">
                   {filtered.map((row, i) => (
-                    <tr key={row.id} className={(i % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]') + ' transition-colors hover:bg-[#f7fffd]'}>
+                    <tr key={row.id} onDoubleClick={() => setDetailTarget(row)} className={(i % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]') + ' cursor-pointer transition-colors hover:bg-[#f7fffd]'}>
                       <td className="px-3 py-3 text-center">
                         <input type="checkbox" checked={selectedIds.has(row.id)} onChange={() => toggleSelect(row.id)} className="h-4 w-4 rounded border-slate-300 accent-[#12b89f]" />
                       </td>
@@ -183,7 +189,7 @@ export default function AttachmentManagement() {
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <span className={'rounded-full px-2 py-0.5 text-[12px] font-medium ' + (row.uploadStatus === '已上传' ? 'bg-[#e8fbf4] text-[#14956f]' : row.uploadStatus === '上传失败' ? 'bg-red-50 text-red-400' : 'bg-amber-50 text-amber-500')}>
+                        <span className={'rounded-full px-2 py-0.5 text-[12px] font-medium ' + (row.uploadStatus === '已上传' ? 'bg-[#e8fbf4] text-[#14956f]' : row.uploadStatus === '上传失败' ? 'bg-red-50 text-red-400' : row.uploadStatus === '已删除' ? 'bg-slate-100 text-slate-400' : 'bg-amber-50 text-amber-500')}>
                           {row.uploadStatus}
                         </span>
                       </td>
@@ -201,6 +207,49 @@ export default function AttachmentManagement() {
           </div>
         </div>
       </div>
+
+      {/* Attachment Detail Modal */}
+      {detailTarget && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/40" onClick={() => setDetailTarget(null)}>
+          <div className="w-[860px] rounded-xl bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3.5">
+              <span className="text-[15px] font-semibold text-slate-700">附件查看</span>
+              <button type="button" onClick={() => setDetailTarget(null)} className="rounded-full p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600">
+                <X size={18} />
+              </button>
+            </div>
+            <div className="overflow-auto px-5 py-4 custom-scrollbar">
+              <table className="w-full text-left text-[13px]">
+                <thead className="bg-[#fafafa] text-slate-600">
+                  <tr>
+                    {['序号', '文件名', '文件备注', '上传时间'].map((col) => (
+                      <th key={col} className="whitespace-nowrap px-4 py-2.5 font-medium">{col}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="text-slate-600">
+                  <tr className="bg-white transition-colors hover:bg-[#f7fffd]">
+                    <td className="px-4 py-3">1</td>
+                    <td className="max-w-[280px] truncate px-4 py-3 text-[#18bca2]" title={detailTarget.link}>
+                      {detailTarget.link.split('/').pop() || detailTarget.link}
+                    </td>
+                    <td className="px-4 py-3">{detailTarget.id % 2 === 0 ? '公众号上传的附件' : '短链接上传的附件'}</td>
+                    <td className="whitespace-nowrap px-4 py-3 text-slate-500">{detailTarget.latestUploadTime}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div className="flex items-center justify-end gap-3 border-t border-slate-100 px-5 py-3">
+              <button type="button" onClick={() => { setDetailTarget(null); showToast('附件下载中...'); }} className="inline-flex h-9 items-center rounded-md bg-[#12b89f] px-5 text-[13px] font-medium text-white transition-colors hover:bg-[#0da88f]">
+                下载
+              </button>
+              <button type="button" onClick={() => setDetailTarget(null)} className="inline-flex h-9 items-center rounded-md border border-slate-200 bg-white px-5 text-[13px] font-medium text-slate-500 transition-colors hover:bg-slate-50">
+                取消
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Toast */}
       {toast && (
