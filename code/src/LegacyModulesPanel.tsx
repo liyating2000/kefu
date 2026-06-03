@@ -4134,7 +4134,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
       });
     };
 
-    return (
+    return (<>
       <div className={pageWrapperClass}>
         <div className={pageScrollClass}>
           <SectionCard>
@@ -4268,7 +4268,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                       '拉黑人',
                       '拉黑原因',
                       '拉黑时间',
-                      ...(isApproval ? ['审核状态', '操作'] : ['移出时间']),
+                      ...(isApproval ? ['审核状态', '操作'] : ['移出时间', '操作']),
                     ].map((column) => (
                       <th key={`${mode}-${column}`} className="px-4 py-3 font-medium">
                         {column}
@@ -4307,7 +4307,16 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                           </td>
                         </>
                       ) : (
-                        <td className="px-4 py-4">{row.removedAt}</td>
+                        <>
+                          <td className="px-4 py-4">{row.removedAt || '-'}</td>
+                          <td className="px-4 py-4">
+                            {!row.removedAt ? (
+                              <button type="button" onClick={() => setBlacklistRemoveConfirm(row.sessionId)} className="text-[13px] font-medium text-[#5a8cff]">移出</button>
+                            ) : (
+                              <span className="text-slate-400">已移出</span>
+                            )}
+                          </td>
+                        </>
                       )}
                     </tr>
                   ))}
@@ -4319,7 +4328,30 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
           </SectionCard>
         </div>
       </div>
-    );
+
+      {/* 移出确认弹窗 */}
+      {blacklistRemoveConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setBlacklistRemoveConfirm(null)} />
+          <div className="relative z-10 w-[400px] overflow-hidden rounded-lg bg-white shadow-xl">
+            <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+              <h3 className="text-[16px] font-semibold text-slate-800">提示</h3>
+              <button type="button" onClick={() => setBlacklistRemoveConfirm(null)} className="text-slate-400 hover:text-slate-600"><X size={20} /></button>
+            </div>
+            <div className="px-6 py-6 text-[14px] text-slate-600">确定要将此用户从黑名单中移出吗？</div>
+            <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
+              <button type="button" onClick={() => setBlacklistRemoveConfirm(null)} className="rounded border border-slate-200 bg-white px-5 py-2 text-[13px] font-medium text-slate-500">取消</button>
+              <button type="button" onClick={() => {
+                const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
+                setBlacklistRows((prev) => prev.map((row) => row.sessionId === blacklistRemoveConfirm ? { ...row, removedAt: now } : row));
+                setBlacklistRemoveConfirm(null);
+                showToast('已将该用户从黑名单中移出');
+              }} className="rounded bg-[#12b89f] px-5 py-2 text-[13px] font-medium text-white">确定</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>);
   };
 
   const [mailDeliveryTab, setMailDeliveryTab] = useState<'mail-sent' | 'mail-received'>('mail-sent');
@@ -4360,7 +4392,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
     department: '',
     agent: '',
     caller: '',
-    status: '',
+    status: '未处理',
   });
   const [appointmentTodoFilterForm, setAppointmentTodoFilterForm] = useState({ ...appointmentTodoFilterDefaults });
   const [appointmentTodoFilters, setAppointmentTodoFilters] = useState({ ...appointmentTodoFilterDefaults });
@@ -4598,11 +4630,12 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
     return () => window.clearInterval(timer);
   }, [page]);
 
-  const blacklistRows = [
-    { sessionId: '2001', visitorId: '10002', channel: 'APP', channelName: 'APP', userSystem: '体系1', seatNo: '2001', blocker: 'kily', reason: '脏话', blockedAt: '2025-04-29 11:15:14', removedAt: '2025-04-30 11:15:14', auditStatus: '待审核' },
-    { sessionId: '2002', visitorId: '10003', channel: 'PC', channelName: 'PC', userSystem: '体系1', seatNo: '2002', blocker: 'mlkj', reason: '脏话', blockedAt: '2025-04-29 11:15:14', removedAt: '2025-04-30 11:15:14', auditStatus: '通过' },
-    { sessionId: '2003', visitorId: '10004', channel: '小程序', channelName: '小程序', userSystem: '体系1', seatNo: '2003', blocker: 'sand', reason: '脏话', blockedAt: '2025-04-29 11:15:14', removedAt: '2025-04-30 11:15:14', auditStatus: '不通过' },
-  ];
+  const [blacklistRows, setBlacklistRows] = useState([
+    { sessionId: '2001', visitorId: '10002', channel: 'APP', channelName: 'APP', userSystem: '体系1', seatNo: '2001', blocker: 'kily', reason: '脏话', blockedAt: '2025-04-29 11:15:14', removedAt: '', auditStatus: '待审核' },
+    { sessionId: '2002', visitorId: '10003', channel: 'PC', channelName: 'PC', userSystem: '体系1', seatNo: '2002', blocker: 'mlkj', reason: '脏话', blockedAt: '2025-04-29 11:15:14', removedAt: '', auditStatus: '通过' },
+    { sessionId: '2003', visitorId: '10004', channel: '小程序', channelName: '小程序', userSystem: '体系1', seatNo: '2003', blocker: 'sand', reason: '脏话', blockedAt: '2025-04-29 11:15:14', removedAt: '', auditStatus: '不通过' },
+  ]);
+  const [blacklistRemoveConfirm, setBlacklistRemoveConfirm] = useState<string | null>(null);
 
   const filteredBlacklistQueryRows = useMemo(
     () =>
@@ -4859,11 +4892,11 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
 
   const appointmentTodoRows = [
     { id: '1', customerName: '张三', callbackNo: '18017682113', callbackAt: '2025-04-29 11:15:14', reason: '客户咨询', status: '未处理' },
-    { id: '2', customerName: '小王', callbackNo: '18017682333', callbackAt: '2025-04-29 11:15:14', reason: '-', status: '未处理' },
-    { id: '3', customerName: '小李', callbackNo: '18017623333', callbackAt: '2025-04-29 11:15:14', reason: '-', status: '已处理' },
-    { id: '4', customerName: '小张', callbackNo: '18017685555', callbackAt: '2025-04-29 13:20:10', reason: '回访处理', status: '已处理' },
-    { id: '5', customerName: '王女士', callbackNo: '18017686666', callbackAt: '2025-04-29 15:08:26', reason: '投诉回复', status: '已处理' },
-    { id: '6', customerName: '赵先生', callbackNo: '18017687777', callbackAt: '2025-04-29 16:32:48', reason: '业务咨询', status: '已处理' },
+    { id: '2', customerName: '小王', callbackNo: '18017682333', callbackAt: '2025-04-29 11:15:14', reason: '-', status: '处理中' },
+    { id: '3', customerName: '小李', callbackNo: '18017623333', callbackAt: '2025-04-29 11:15:14', reason: '-', status: '处理完毕' },
+    { id: '4', customerName: '小张', callbackNo: '18017685555', callbackAt: '2025-04-29 13:20:10', reason: '回访处理', status: '处理完毕' },
+    { id: '5', customerName: '王女士', callbackNo: '18017686666', callbackAt: '2025-04-29 15:08:26', reason: '投诉回复', status: '处理完毕' },
+    { id: '6', customerName: '赵先生', callbackNo: '18017687777', callbackAt: '2025-04-29 16:32:48', reason: '业务咨询', status: '处理完毕' },
   ];
 
   const appointmentTransferHistoryRows = [
@@ -5114,6 +5147,9 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
 
   const filteredAppointmentTodoRows = appointmentTodoRows.filter(
     (row) => !appointmentTodoFilters.status || row.status === appointmentTodoFilters.status
+  );
+  const filteredAppointmentRows = appointmentRows.filter(
+    (row) => !appointmentFilters.status || row.status === appointmentFilters.status
   );
   const queueMonitorPhoneRows = useMemo(
     () =>
@@ -5584,7 +5620,8 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                         >
                           <option value="">全部</option>
                           <option value="未处理">未处理</option>
-                          <option value="已处理">已处理</option>
+                          <option value="处理中">处理中</option>
+                          <option value="处理完毕">处理完毕</option>
                         </select>
                       </Field>
                       <div className="flex items-center justify-end xl:col-span-9">
@@ -5661,7 +5698,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                           department: '',
                           agent: '',
                           caller: '',
-                          status: '',
+                          status: '未处理',
                         })
                       }
                     />
@@ -5719,16 +5756,26 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                             <span
                               className={cn(
                                 'inline-flex rounded-full border px-2.5 py-1 text-xs font-medium leading-none',
-                                row.status === '未处理' ? 'border-[#b7ebd8] bg-[#effcf6] text-[#12a57f]' : 'border-slate-200 bg-slate-50 text-slate-500'
+                                row.status === '未处理' ? 'border-[#b7ebd8] bg-[#effcf6] text-[#12a57f]' :
+                                row.status === '处理中' ? 'border-[#fde68a] bg-[#fffbeb] text-[#d97706]' :
+                                'border-slate-200 bg-slate-50 text-slate-500'
                               )}
                             >
                               {row.status}
                             </span>
                           </td>
                           <td className="px-4 py-4">
-                            <button type="button" onClick={() => setAppointmentCallbackConfirm(true)} className="text-[#18bca2]">
-                              回电
-                            </button>
+                            {row.status === '处理中' ? (
+                              <button type="button" onClick={() => openCallWorkbench()} className="text-[#18bca2]">
+                                小结
+                              </button>
+                            ) : row.status === '处理完毕' ? (
+                              <span className="text-slate-400">-</span>
+                            ) : (
+                              <button type="button" onClick={() => setAppointmentCallbackConfirm(true)} className="text-[#18bca2]">
+                                回电
+                              </button>
+                            )}
                           </td>
                         </tr>
                       ))}
@@ -5739,7 +5786,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                   <thead className="bg-[#fafafa] text-slate-600">
                     <tr>
                       {(appointmentTab === 'message'
-                        ? ['序号', '组别', '主叫号码', '被叫号码', '开始留言时间', '结束留言时间', '处理部门', '处理人', '技能组', '调剂人', '调剂时间', '调剂次数', '操作']
+                        ? ['序号', '组别', '主叫号码', '被叫号码', '开始留言时间', '结束留言时间', '状态', '处理部门', '处理人', '技能组', '调剂人', '调剂时间', '调剂次数', '操作']
                         : ['序号', '回电号码', '开始通话时间', '结束通话时间', '状态', '处理部门', '处理人', '调剂人', '调剂时间', '调剂次数', '备注', '操作']
                       ).map((column) => (
                         <th key={column} className="px-4 py-3 font-medium">{column}</th>
@@ -5747,7 +5794,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                     </tr>
                   </thead>
                   <tbody className="text-slate-600">
-                    {appointmentRows.map((row, index) => (
+                    {filteredAppointmentRows.map((row, index) => (
                       <tr
                         key={`appointment-${index}`}
                         onDoubleClick={() => setAppointmentAudioRowId(row.id)}
@@ -5771,18 +5818,16 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                         )}
                         <td className="px-4 py-4">{row.startAt}</td>
                         <td className="px-4 py-4">{row.endAt}</td>
-                        {appointmentTab === 'appointment' ? (
-                          <td className="px-4 py-4">
-                            <span className={cn(
-                              'inline-flex rounded-full border px-2.5 py-1 text-xs font-medium leading-none',
-                              row.status === '未处理' ? 'border-[#fde68a] bg-[#fffbeb] text-[#d97706]' :
-                              row.status === '处理中' ? 'border-[#b7ebd8] bg-[#effcf6] text-[#12a57f]' :
-                              'border-slate-200 bg-slate-50 text-slate-500'
-                            )}>
-                              {row.status}
-                            </span>
-                          </td>
-                        ) : null}
+                        <td className="px-4 py-4">
+                          <span className={cn(
+                            'inline-flex rounded-full border px-2.5 py-1 text-xs font-medium leading-none',
+                            row.status === '未处理' ? 'border-[#fde68a] bg-[#fffbeb] text-[#d97706]' :
+                            row.status === '处理中' ? 'border-[#b7ebd8] bg-[#effcf6] text-[#12a57f]' :
+                            'border-slate-200 bg-slate-50 text-slate-500'
+                          )}>
+                            {row.status}
+                          </span>
+                        </td>
                         <td className="px-4 py-4">{row.department}</td>
                         <td className="px-4 py-4">{row.agent}</td>
                         {appointmentTab === 'message' ? (
@@ -5806,12 +5851,22 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                         )}
                         <td className="px-4 py-4">
                           <div className="flex gap-3 whitespace-nowrap text-[#18bca2]">
-                            <button type="button" onClick={() => openAppointmentTransfer(row)}>
-                              调剂
-                            </button>
-                            <button type="button" onClick={() => setAppointmentCallbackConfirm(true)}>
-                              回电
-                            </button>
+                            {row.status === '处理中' ? (
+                              <button type="button" onClick={() => openCallWorkbench()}>
+                                小结
+                              </button>
+                            ) : row.status === '处理完毕' ? (
+                              <span className="text-slate-400">-</span>
+                            ) : (
+                              <>
+                                <button type="button" onClick={() => openAppointmentTransfer(row)}>
+                                  调剂
+                                </button>
+                                <button type="button" onClick={() => setAppointmentCallbackConfirm(true)}>
+                                  回电
+                                </button>
+                              </>
+                            )}
                           </div>
                         </td>
                       </tr>
