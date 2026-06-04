@@ -243,7 +243,7 @@ export default function PhoneListPage() {
                 onClick={() => setCollapsed((c) => !c)}
                 className="inline-flex items-center gap-1 text-[12px] text-[#18c2a7] hover:underline"
               >
-                {collapsed ? '展开筛选' : '收起筛选'}
+                {collapsed ? '展开' : '收起'}
                 <ChevronDown size={12} className={cn('transition-transform', collapsed ? '' : 'rotate-180')} />
               </button>
             </div>

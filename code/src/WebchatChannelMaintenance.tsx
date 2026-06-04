@@ -9,7 +9,7 @@ function cn(...inputs: ClassValue[]) {
 }
 
 type Section = '客户端属性' | '高频操作配置' | '满意度' | '转人工设置' | '问卷调研' | '参数设置';
-type Dialog = null | 'add' | 'edit' | 'link' | 'auth' | 'batch-business' | 'batch-auth' | 'batch-working-time' | 'quote' | 'quick-button' | 'content-tag' | 'content-item' | 'unresolved-reason' | 'param';
+type Dialog = null | 'add' | 'edit' | 'link' | 'auth' | 'batch-business' | 'batch-auth' | 'batch-working-time' | 'quote' | 'quick-button' | 'content-tag' | 'content-item' | 'unresolved-reason' | 'param' | 'associate-product';
 type ConnectType = '引用链接' | '引用插件' | '授权链接';
 type AccessType = 'APP' | 'PC' | '小程序' | '公众号';
 type BusinessType = '教育' | '学习机' | '听见' | '医疗';
@@ -209,6 +209,30 @@ const getConnectTypeLabel = (value: ConnectType, accessType: AccessType): string
   if (value === '授权链接' && accessType === '公众号') return '第三方授权';
   return value;
 };
+const allProductCatalog = [
+  { id: 'cat-1', name: '学习机', children: [
+    { id: 'cat-1-1', name: '科大讯飞AI学习机X2 Pro' },
+    { id: 'cat-1-2', name: '科大讯飞AI学习机T10' },
+    { id: 'cat-1-3', name: '科大讯飞AI学习机C10' },
+    { id: 'cat-1-4', name: '科大讯飞AI学习机A10' },
+  ] },
+  { id: 'cat-2', name: '翻译笔', children: [
+    { id: 'cat-2-1', name: '翻译笔T1' },
+    { id: 'cat-2-2', name: '翻译笔P10' },
+    { id: 'cat-2-3', name: '翻译笔S20' },
+  ] },
+  { id: 'cat-3', name: '录音笔', children: [
+    { id: 'cat-3-1', name: '智能录音笔SR502' },
+    { id: 'cat-3-2', name: '智能录音笔SR702' },
+  ] },
+  { id: 'cat-4', name: '办公本', children: [
+    { id: 'cat-4-1', name: '智能办公本X3' },
+    { id: 'cat-4-2', name: '智能办公本Air' },
+  ] },
+  { id: 'cat-5', name: '智能台灯', children: [
+    { id: 'cat-5-1', name: '智能台灯T1' },
+  ] },
+];
 const chatFeatureItems = [
   { label: '转人工', description: '开启将显示转人工按钮，访客可以直接联系客服', defaultChecked: true },
   { label: '超链接', description: '开启访客端将识别超链接', defaultChecked: true },
@@ -547,6 +571,8 @@ export default function WebchatChannelMaintenance() {
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(null);
+  const [associateProductSearch, setAssociateProductSearch] = useState('');
+  const [associateProductChecked, setAssociateProductChecked] = useState<Set<string>>(new Set());
   const [form, setForm] = useState({
     name: '',
     channelId: '',
@@ -3237,7 +3263,16 @@ export default function WebchatChannelMaintenance() {
                     ))}
                   </select>
                   {active.config.transferMode === '按产品配置' ? (
-                    <button type="button" className="ml-2 flex items-center gap-1 rounded-full border border-[#8fe0d2] bg-[#effbf8] px-4 py-1.5 text-[13px] font-medium text-[#18bca2]">
+                    <button type="button" onClick={() => {
+                      setAssociateProductSearch('');
+                      const existing = new Set<string>();
+                      for (const p of active.config.transferProducts) {
+                        existing.add(p.name);
+                        for (const c of p.children) existing.add(c.name);
+                      }
+                      setAssociateProductChecked(existing);
+                      setDialog('associate-product');
+                    }} className="ml-2 flex items-center gap-1 rounded-full border border-[#8fe0d2] bg-[#effbf8] px-4 py-1.5 text-[13px] font-medium text-[#18bca2]">
                       <ArrowUpRight size={14} /> 关联产品
                     </button>
                   ) : null}
@@ -3658,7 +3693,7 @@ export default function WebchatChannelMaintenance() {
                     : dialog === 'edit'
                       ? '编辑渠道'
                       : dialog === 'link'
-                        ? '引用链接'
+                        ? (target?.connectType === '引用插件' ? '引用插件' : '引用链接')
                         : dialog === 'auth'
                           ? '授权链接'
                           : dialog === 'batch-business'
@@ -3677,7 +3712,9 @@ export default function WebchatChannelMaintenance() {
                                       ? (editingUnresolvedReasonId ? '编辑原因条目' : '添加原因条目')
                                       : dialog === 'param'
                                         ? '新增参数'
-                                        : '一键引用'}
+                                        : dialog === 'associate-product'
+                                          ? '关联产品'
+                                          : '一键引用'}
                 </div>
                 <button type="button" onClick={closeDialog} className="text-slate-400">
                   <X size={24} />
@@ -3802,7 +3839,7 @@ export default function WebchatChannelMaintenance() {
               {dialog === 'link' || dialog === 'auth' ? (
                 <div className="space-y-5 px-10 py-8">
                   <div className="grid grid-cols-[72px_1fr] items-center gap-4 text-[14px] text-slate-600">
-                    <span className="text-right font-medium">{dialog === 'auth' ? '授权链接:' : '引用链接:'}</span>
+                    <span className="text-right font-medium">{dialog === 'auth' ? '授权链接:' : (target?.connectType === '引用插件' ? '引用插件:' : '引用链接:')}</span>
                     <input readOnly value={dialog === 'auth' ? target?.authUrl ?? '' : target?.linkUrl ?? ''} className="h-12 w-full rounded border border-slate-200 bg-[#fafafa] px-3 outline-none" />
                   </div>
                   <button type="button" onClick={() => copyLink(dialog === 'auth' ? target?.authUrl ?? '' : target?.linkUrl ?? '')} className="rounded bg-[#12b89f] px-6 py-2 text-[13px] font-medium text-white">复制</button>
@@ -4043,6 +4080,109 @@ export default function WebchatChannelMaintenance() {
                   <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
                     <button type="button" onClick={closeDialog} className="rounded border border-slate-200 bg-white px-5 py-2 text-[13px] font-medium text-slate-500">取消</button>
                     <button type="button" onClick={saveParam} className="rounded bg-[#12b89f] px-5 py-2 text-[13px] font-medium text-white">确定</button>
+                  </div>
+                </>
+              ) : null}
+              {dialog === 'associate-product' ? (
+                <>
+                  <div className="px-6 py-5">
+                    <input
+                      value={associateProductSearch}
+                      onChange={(e) => setAssociateProductSearch(e.target.value)}
+                      placeholder="搜索产品"
+                      className="mb-4 h-9 w-full rounded border border-slate-200 px-3 text-[13px] outline-none focus:border-[#18c2a7]"
+                    />
+                    <div className="max-h-[380px] overflow-auto custom-scrollbar">
+                      {allProductCatalog
+                        .filter((cat) => {
+                          const kw = associateProductSearch.trim();
+                          if (!kw) return true;
+                          return cat.name.includes(kw) || cat.children.some((c) => c.name.includes(kw));
+                        })
+                        .map((cat) => {
+                          const filteredChildren = associateProductSearch.trim()
+                            ? cat.children.filter((c) => c.name.includes(associateProductSearch.trim()) || cat.name.includes(associateProductSearch.trim()))
+                            : cat.children;
+                          const allChildrenChecked = filteredChildren.length > 0 && filteredChildren.every((c) => associateProductChecked.has(c.name));
+                          const someChildrenChecked = filteredChildren.some((c) => associateProductChecked.has(c.name));
+                          return (
+                            <div key={cat.id} className="mb-1">
+                              <label className="flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-slate-50">
+                                <input
+                                  type="checkbox"
+                                  checked={allChildrenChecked}
+                                  ref={(el) => { if (el) el.indeterminate = someChildrenChecked && !allChildrenChecked; }}
+                                  onChange={() => {
+                                    setAssociateProductChecked((prev) => {
+                                      const next = new Set(prev);
+                                      if (allChildrenChecked) {
+                                        next.delete(cat.name);
+                                        filteredChildren.forEach((c) => next.delete(c.name));
+                                      } else {
+                                        next.add(cat.name);
+                                        filteredChildren.forEach((c) => next.add(c.name));
+                                      }
+                                      return next;
+                                    });
+                                  }}
+                                  className="h-4 w-4 accent-[#12b89f]"
+                                />
+                                <span className="text-[14px] font-medium text-slate-700">{cat.name}</span>
+                              </label>
+                              <div className="pl-6">
+                                {filteredChildren.map((child) => (
+                                  <label key={child.id} className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 hover:bg-slate-50">
+                                    <input
+                                      type="checkbox"
+                                      checked={associateProductChecked.has(child.name)}
+                                      onChange={() => {
+                                        setAssociateProductChecked((prev) => {
+                                          const next = new Set(prev);
+                                          if (next.has(child.name)) {
+                                            next.delete(child.name);
+                                            const siblingsAllUnchecked = cat.children.every((c) => !next.has(c.name));
+                                            if (siblingsAllUnchecked) next.delete(cat.name);
+                                          } else {
+                                            next.add(child.name);
+                                            next.add(cat.name);
+                                          }
+                                          return next;
+                                        });
+                                      }}
+                                      className="h-4 w-4 accent-[#12b89f]"
+                                    />
+                                    <span className="text-[13px] text-slate-600">{child.name}</span>
+                                  </label>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  </div>
+                  <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
+                    <button type="button" onClick={closeDialog} className="rounded border border-slate-200 bg-white px-5 py-2 text-[13px] font-medium text-slate-500">取消</button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const products: TransferProduct[] = allProductCatalog
+                          .filter((cat) => associateProductChecked.has(cat.name))
+                          .map((cat) => ({
+                            id: createId('transfer-product'),
+                            name: cat.name,
+                            expanded: true,
+                            children: cat.children
+                              .filter((c) => associateProductChecked.has(c.name))
+                              .map((c) => ({ id: createId('transfer-product-child'), name: c.name })),
+                          }));
+                        updateActive((row) => ({ ...row, config: { ...row.config, transferProducts: products } }));
+                        closeDialog();
+                        setToast('关联产品已保存');
+                      }}
+                      className="rounded bg-[#12b89f] px-5 py-2 text-[13px] font-medium text-white"
+                    >
+                      确定
+                    </button>
                   </div>
                 </>
               ) : null}

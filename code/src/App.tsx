@@ -188,7 +188,7 @@ type WebchatMaintenanceSection =
   | '访问地址'
   | '终端'
   | '操作日志';
-type WebchatProductConfigTab = '高频操作配置' | '其它配置';
+type WebchatProductConfigTab = '高频操作配置';
 type WebchatQuickButtonType = '高频词' | '跳转链接';
 type WebchatProductRow = {
   id: string;
@@ -379,6 +379,7 @@ type PrivacyStatement = {
   id: string;
   title: string;
   contentType: 'detail' | 'link';
+  privacyType: string;
   content: string;
   detailContent: string;
   createdAt: string;
@@ -3012,10 +3013,6 @@ const webchatMaintenanceActions = [
   '刷新属性配置缓存',
   '刷新员工状态',
   '刷新渠道缓存',
-  '刷新产品缓存',
-  '刷新繁忙公告缓存',
-  '刷新隐私声明缓存',
-  '刷新用户体系缓存',
 ] as const;
 
 const webchatMaintenanceSections = [
@@ -3165,7 +3162,6 @@ const systemSettingsSubMenus = [
   { label: '组别维护', key: 'group-maintenance' },
   { label: '目标值维护', key: 'target-value-maintenance' },
   { label: '品牌维护', key: 'brand-maintenance' },
-  { label: '附件管理', key: 'attachment-management' },
   { label: '产品模块维护', key: 'product-module-maintenance' },
 ] as const;
 
@@ -3174,7 +3170,6 @@ const systemSettingsMenuTabMap = {
   'group-maintenance': '组别维护',
   'target-value-maintenance': '目标值维护',
   'brand-maintenance': '品牌维护',
-  'attachment-management': '附件管理',
   'product-module-maintenance': '产品模块维护',
 } as const satisfies Record<(typeof systemSettingsSubMenus)[number]['key'], MainTab>;
 
@@ -3239,6 +3234,7 @@ const privacyStatementManagementRows: PrivacyStatement[] = [
     id: '1',
     title: '隐私声明',
     contentType: 'detail',
+    privacyType: '隐私政策',
     content: '隐私声明',
     detailContent: '<p>隐私政策内容</p>',
     createdAt: '2025-04-29 11:15:14',
@@ -3252,6 +3248,7 @@ const privacyStatementManagementRows: PrivacyStatement[] = [
     id: '2',
     title: '用户协议',
     contentType: 'link',
+    privacyType: '用户服务协议',
     content: 'https://example.com/agreement',
     detailContent: '',
     createdAt: '2025-04-28 09:30:00',
@@ -3263,15 +3260,29 @@ const privacyStatementManagementRows: PrivacyStatement[] = [
   },
 ];
 
-const userSystemManagementRows = [
+const userSystemManagementInitialRows = [
   {
     id: '1',
-    name: '声明1',
+    name: '体系1',
     blacklistDays: '30',
     createdAt: '2025-04-29 11:15:14',
     updatedAt: '2025-04-29 11:15:14',
   },
-] as const;
+  {
+    id: '2',
+    name: '体系2',
+    blacklistDays: '60',
+    createdAt: '2025-04-28 09:30:00',
+    updatedAt: '2025-04-28 09:30:00',
+  },
+  {
+    id: '3',
+    name: '体系3',
+    blacklistDays: '90',
+    createdAt: '2025-04-27 14:20:00',
+    updatedAt: '2025-04-27 14:20:00',
+  },
+];
 
 const messageServiceMailboxes = ['我的公告箱', '我发布的', '已失效公告'] as const;
 const onlineStatusOptions = ['在线状态', '马上回来', '电话在线', '忙碌状态', '离开状态', '午餐状态', '隐身状态'] as const;
@@ -4167,6 +4178,15 @@ export default function App() {
   const [isBusyAnnouncementManagementTabVisible, setIsBusyAnnouncementManagementTabVisible] = useState(false);
   const [isPrivacyStatementManagementTabVisible, setIsPrivacyStatementManagementTabVisible] = useState(false);
   const [isUserSystemManagementTabVisible, setIsUserSystemManagementTabVisible] = useState(false);
+  // 用户体系管理 state
+  const [userSystems, setUserSystems] = useState(userSystemManagementInitialRows);
+  const [userSystemDialog, setUserSystemDialog] = useState<'add' | 'edit' | null>(null);
+  const [editingUserSystemId, setEditingUserSystemId] = useState<string | null>(null);
+  const [userSystemForm, setUserSystemForm] = useState({ name: '', blacklistDays: '' });
+  const [userSystemFormErrors, setUserSystemFormErrors] = useState<Record<string, string>>({});
+  const [userSystemSearchKeyword, setUserSystemSearchKeyword] = useState('');
+  const [userSystemConfirm, setUserSystemConfirm] = useState<{ type: 'delete'; id: string; message: string } | null>(null);
+  const usedUserSystems = useMemo(() => new Set(['体系1', '体系2']), []);
   const [isWebchatMaintenanceTabVisible, setIsWebchatMaintenanceTabVisible] = useState(false);
   const [isDeptRoleManagementTabVisible, setIsDeptRoleManagementTabVisible] = useState(false);
 
@@ -4203,11 +4223,13 @@ export default function App() {
   const [privacyStatementApplyTab, setPrivacyStatementApplyTab] = useState<PrivacyStatementApplyTab>('channel');
   const [privacyStatementForm, setPrivacyStatementForm] = useState({
     title: '',
-    contentType: 'detail' as 'detail' | 'link',
+    contentType: 'link' as 'detail' | 'link',
+    privacyType: '',
     content: '',
     detailContent: '',
   });
   const [privacyStatementSearchKeyword, setPrivacyStatementSearchKeyword] = useState('');
+  const [privacyStatementFormErrors, setPrivacyStatementFormErrors] = useState<Record<string, string>>({});
   const [privacyStatementSearchDateRange, setPrivacyStatementSearchDateRange] = useState<[string, string]>(['', '']);
   const [selectedPrivacyStatementIds, setSelectedPrivacyStatementIds] = useState<string[]>([]);
   const [selectedPrivacyChannels, setSelectedPrivacyChannels] = useState<string[]>([]);
@@ -10783,20 +10805,6 @@ export default function App() {
                   >
                     批量高频操作配置
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (selectedWebchatProductIds.length === 0) {
-                        showWebchatToastMessage('error', '请先勾选要操作的产品');
-                        setShowWebchatBatchActionMenu(false);
-                        return;
-                      }
-                      openWebchatConfigView(selectedWebchatProductIds, '其它配置');
-                    }}
-                    className="flex w-full rounded px-3 py-2 text-left text-[13px] text-slate-600 transition-colors hover:bg-slate-50"
-                  >
-                    批量其它配置
-                  </button>
 
                 </div>
               )}
@@ -10948,30 +10956,9 @@ export default function App() {
             </div>
           ))}
         </div>
-      ) : (
-        <div className="flex w-[220px] shrink-0 flex-col border-r border-slate-100 bg-white">
-          <div className="px-3 py-3">
-            {(['高频操作配置', '其它配置'] as WebchatProductConfigTab[]).map((tab) => (
-              <button
-                key={tab}
-                type="button"
-                onClick={() => setActiveWebchatConfigTab(tab)}
-                className={cn(
-                  "flex w-full items-center border-r-[3px] px-4 py-3 text-left text-[14px] transition-colors",
-                  activeWebchatConfigTab === tab
-                    ? "border-[#0fc1a5] bg-[#e8f6ff] font-medium text-[#1c9dfa]"
-                    : "border-transparent text-slate-600 hover:bg-slate-50"
-                )}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+      ) : null}
 
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-        {activeWebchatConfigTab === '高频操作配置' ? (
           <>
             <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4">
               <div className="text-[14px] font-semibold text-slate-700">快捷按钮</div>
@@ -11242,79 +11229,6 @@ export default function App() {
               </div>
             </div>
           </>
-        ) : (
-          <div className="flex min-h-0 flex-1 flex-col overflow-auto px-6 py-8 custom-scrollbar">
-            <div className="max-w-[630px] rounded-[14px] border border-slate-200 bg-white p-8 shadow-sm">
-              <div className="rounded-[8px] bg-[#fafcff] p-6">
-                <div className="flex items-center justify-between gap-6">
-                  <div>
-                    <div className="text-[22px] font-semibold text-slate-700">推送智能质检系统开关</div>
-                    <p className="mt-2 text-[13px] text-slate-400">开启后将推送至智能质检系统</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      updateWebchatProductsByIds(webchatConfigTargetIds, (product) => ({
-                        ...product,
-                        config: {
-                          ...product.config,
-                          pushVirtualHuman: !product.config.pushVirtualHuman,
-                        },
-                      }))
-                    }
-                    className={cn(
-                      "relative h-8 w-14 rounded-full transition-colors",
-                      activeWebchatConfig.pushVirtualHuman ? "bg-[#3d7fff]" : "bg-slate-300"
-                    )}
-                  >
-                    <span
-                      className={cn(
-                        "absolute top-1 h-6 w-6 rounded-full bg-white shadow-sm transition-all",
-                        activeWebchatConfig.pushVirtualHuman ? "left-7" : "left-1"
-                      )}
-                    />
-                  </button>
-                </div>
-              </div>
-
-              {isWebchatBatchConfigView ? (
-                <div className="mt-10 flex items-center justify-center gap-4">
-                  <button
-                    type="button"
-                    onClick={resetWebchatListView}
-                    className="rounded border border-slate-200 bg-white px-5 py-2 text-[13px] font-medium text-slate-500 transition-colors hover:bg-slate-50"
-                  >
-                    返回
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleSaveWebchatConfig}
-                    className="rounded bg-[#12b89f] px-5 py-2 text-[13px] font-medium text-white transition-colors hover:bg-[#08aa91]"
-                  >
-                    保存
-                  </button>
-                </div>
-              ) : (
-                <div className="mt-10 flex items-center justify-center gap-4">
-                  <button
-                    type="button"
-                    onClick={resetWebchatListView}
-                    className="rounded border border-slate-200 bg-white px-5 py-2 text-[13px] font-medium text-slate-500 transition-colors hover:bg-slate-50"
-                  >
-                    返回
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleSaveWebchatConfig}
-                    className="rounded bg-[#12b89f] px-5 py-2 text-[13px] font-medium text-white transition-colors hover:bg-[#08aa91]"
-                  >
-                    保存
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
@@ -12450,8 +12364,9 @@ export default function App() {
 
   // 隐私声明管理事件处理函数
   const handleOpenPrivacyStatementAdd = () => {
-    setPrivacyStatementForm({ title: '', contentType: 'detail', content: '', detailContent: '' });
+    setPrivacyStatementForm({ title: '', contentType: 'link', privacyType: '', content: '', detailContent: '' });
     setEditingPrivacyStatementId(null);
+    setPrivacyStatementFormErrors({});
     setPrivacyStatementDialog('add');
   };
 
@@ -12461,10 +12376,12 @@ export default function App() {
       setPrivacyStatementForm({
         title: item.title,
         contentType: item.contentType,
+        privacyType: item.privacyType || '',
         content: item.content,
         detailContent: item.detailContent,
       });
       setEditingPrivacyStatementId(id);
+      setPrivacyStatementFormErrors({});
       setPrivacyStatementDialog('edit');
     }
   };
@@ -12486,7 +12403,30 @@ export default function App() {
   };
 
   const handleSavePrivacyStatement = () => {
+    const errors: Record<string, string> = {};
     if (!privacyStatementForm.title.trim()) {
+      errors.title = '隐私声明标题不可为空';
+    } else {
+      const duplicate = privacyStatements.find(
+        (item) => item.title === privacyStatementForm.title.trim() && item.id !== editingPrivacyStatementId
+      );
+      if (duplicate) errors.title = '隐私声明标题已存在，请修改';
+    }
+    if (!privacyStatementForm.privacyType.trim()) {
+      errors.privacyType = '隐私类型文本不可为空';
+    }
+    if (privacyStatementForm.contentType === 'link') {
+      if (!privacyStatementForm.content.trim()) {
+        errors.content = '链接内容不可为空';
+      } else if (!/^https?:\/\/.+/.test(privacyStatementForm.content.trim())) {
+        errors.content = '隐私声明链接格式不正确';
+      }
+    }
+    if (privacyStatementForm.contentType === 'detail' && !privacyStatementForm.detailContent.trim()) {
+      errors.detailContent = '详情内容不可为空';
+    }
+    if (Object.keys(errors).length > 0) {
+      setPrivacyStatementFormErrors(errors);
       return;
     }
 
@@ -12496,6 +12436,7 @@ export default function App() {
         id: newId,
         title: privacyStatementForm.title,
         contentType: privacyStatementForm.contentType,
+        privacyType: privacyStatementForm.privacyType,
         content: privacyStatementForm.content,
         detailContent: privacyStatementForm.detailContent,
         createdAt: new Date().toISOString().slice(0, 19).replace('T', ' '),
@@ -12514,6 +12455,7 @@ export default function App() {
                 ...item,
                 title: privacyStatementForm.title,
                 contentType: privacyStatementForm.contentType,
+                privacyType: privacyStatementForm.privacyType,
                 content: privacyStatementForm.content,
                 detailContent: privacyStatementForm.detailContent,
                 updatedAt: new Date().toISOString().slice(0, 19).replace('T', ' '),
@@ -12524,6 +12466,7 @@ export default function App() {
     }
     setPrivacyStatementDialog(null);
     setEditingPrivacyStatementId(null);
+    setPrivacyStatementFormErrors({});
   };
 
   const handleApplyPrivacyStatement = () => {
@@ -12792,20 +12735,151 @@ export default function App() {
     </div>
   );
 
-  const userSystemManagementContent = renderSimpleSystemSettingsPage({
-    title: 'user-system',
-    searchLabel: '用户体系名称:',
-    searchPlaceholder: '请输入用户体系名称',
-    columns: ['序号', '用户体系名称', '黑名单天数', '创建时间', '更新时间', '操作'],
-    rows: userSystemManagementRows.map((item) => [
-      item.id,
-      item.name,
-      item.blacklistDays,
-      item.createdAt,
-      item.updatedAt,
-      '编辑 删除',
-    ]),
-  });
+  const filteredUserSystems = userSystems.filter((item) => item.name.includes(userSystemSearchKeyword));
+
+  const handleSaveUserSystem = () => {
+    const errors: Record<string, string> = {};
+    if (!userSystemForm.name.trim()) errors.name = '用户体系名称不可为空';
+    else {
+      const dup = userSystems.find((item) => item.name === userSystemForm.name.trim() && item.id !== editingUserSystemId);
+      if (dup) errors.name = '用户体系名称已存在，请修改';
+    }
+    if (!userSystemForm.blacklistDays.trim()) errors.blacklistDays = '黑名单天数不可为空';
+    if (Object.keys(errors).length > 0) { setUserSystemFormErrors(errors); return; }
+    const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    if (userSystemDialog === 'add') {
+      setUserSystems((prev) => [...prev, { id: String(Date.now()), name: userSystemForm.name.trim(), blacklistDays: userSystemForm.blacklistDays.trim(), createdAt: now, updatedAt: now }]);
+    } else if (editingUserSystemId) {
+      setUserSystems((prev) => prev.map((item) => item.id === editingUserSystemId ? { ...item, name: userSystemForm.name.trim(), blacklistDays: userSystemForm.blacklistDays.trim(), updatedAt: now } : item));
+    }
+    setUserSystemDialog(null);
+    setEditingUserSystemId(null);
+    setUserSystemFormErrors({});
+  };
+
+  const handleDeleteUserSystem = (id: string) => {
+    const item = userSystems.find((s) => s.id === id);
+    if (!item) return;
+    if (usedUserSystems.has(item.name)) {
+      setUserSystemConfirm({ type: 'delete', id, message: '该用户体系已被渠道选择，无法删除' });
+    } else {
+      setUserSystemConfirm({ type: 'delete', id, message: '确定要删除此用户体系吗？' });
+    }
+  };
+
+  const userSystemManagementContent = (
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[#f7f9fc]">
+      <div className="flex min-h-0 flex-1 flex-col overflow-auto px-4 pb-4 pt-3 custom-scrollbar">
+        <div className="mt-0 overflow-hidden rounded-[18px] border border-slate-200 bg-white shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 px-5 py-4">
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-2 text-[13px] text-slate-500">
+                <span>用户体系名称:</span>
+                <div className="flex h-10 w-[260px] items-center rounded-md border border-slate-200 bg-white pl-3 pr-2 text-[13px] text-slate-500">
+                  <input type="text" value={userSystemSearchKeyword} onChange={(e) => setUserSystemSearchKeyword(e.target.value)} placeholder="请输入用户体系名称" className="flex-1 border-none bg-transparent outline-none placeholder:text-slate-400" />
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <button type="button" className="rounded-md border border-[#8fe0d2] bg-[#effbf8] px-4 py-2 text-[13px] font-medium text-[#18bca2]">查询</button>
+              <button type="button" onClick={() => setUserSystemSearchKeyword('')} className="rounded-md border border-slate-200 bg-white px-4 py-2 text-[13px] font-medium text-slate-500">重置</button>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-3 border-b border-slate-100 px-5 py-4">
+            <button type="button" onClick={() => { setUserSystemForm({ name: '', blacklistDays: '' }); setEditingUserSystemId(null); setUserSystemFormErrors({}); setUserSystemDialog('add'); }} className="rounded-md bg-[#12b89f] px-4 py-2 text-[13px] font-medium text-white">新增</button>
+          </div>
+          <div className="min-h-0 overflow-auto px-5 pb-4 pt-3 custom-scrollbar">
+            <table className="min-w-full table-fixed text-left">
+              <thead className="bg-[#fafafa] text-[13px] text-slate-600">
+                <tr>
+                  <th className="px-4 py-3 font-medium">序号</th>
+                  <th className="px-4 py-3 font-medium">用户体系名称</th>
+                  <th className="px-4 py-3 font-medium">黑名单天数</th>
+                  <th className="px-4 py-3 font-medium">创建时间</th>
+                  <th className="px-4 py-3 font-medium">更新时间</th>
+                  <th className="px-4 py-3 font-medium">操作</th>
+                </tr>
+              </thead>
+              <tbody className="text-[13px] text-slate-600">
+                {filteredUserSystems.map((item, index) => (
+                  <tr key={item.id} className={cn(index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]')}>
+                    <td className="px-4 py-4">{index + 1}</td>
+                    <td className="px-4 py-4 font-medium text-slate-700">{item.name}</td>
+                    <td className="px-4 py-4">{item.blacklistDays}</td>
+                    <td className="px-4 py-4">{item.createdAt}</td>
+                    <td className="px-4 py-4">{item.updatedAt}</td>
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-4 text-[13px] font-medium text-[#5a8cff]">
+                        <button type="button" onClick={() => { setUserSystemForm({ name: item.name, blacklistDays: item.blacklistDays }); setEditingUserSystemId(item.id); setUserSystemFormErrors({}); setUserSystemDialog('edit'); }}>编辑</button>
+                        <button type="button" onClick={() => handleDeleteUserSystem(item.id)} className="text-[#ff8a8a]">删除</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      {/* 新增/编辑弹窗 */}
+      {userSystemDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/40" onClick={() => { setUserSystemDialog(null); setUserSystemFormErrors({}); }} />
+          <div className="relative z-10 w-[500px] overflow-hidden rounded-lg bg-white shadow-xl">
+            <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+              <h3 className="text-[16px] font-semibold text-slate-800">{userSystemDialog === 'add' ? '新增用户体系' : '编辑用户体系'}</h3>
+              <button type="button" onClick={() => { setUserSystemDialog(null); setUserSystemFormErrors({}); }} className="text-slate-400 hover:text-slate-600"><X size={20} /></button>
+            </div>
+            <div className="space-y-5 px-6 py-5">
+              <div className="grid grid-cols-[110px_1fr] items-start gap-4 text-[14px] text-slate-600">
+                <span className="pt-2 text-right font-medium"><span className="mr-1 text-[#ff6f6f]">*</span>用户体系名称:</span>
+                <div>
+                  <input type="text" value={userSystemForm.name} onChange={(e) => { setUserSystemForm((prev) => ({ ...prev, name: e.target.value })); setUserSystemFormErrors((prev) => { const n = { ...prev }; delete n.name; return n; }); }} placeholder="请输入用户体系名称" className={cn('h-9 w-full rounded border px-3 text-[13px] outline-none', userSystemFormErrors.name ? 'border-[#ff8b8b]' : 'border-slate-200 focus:border-[#12b89f]')} />
+                  {userSystemFormErrors.name && <div className="mt-1 text-[12px] text-[#ff6f6f]">{userSystemFormErrors.name}</div>}
+                </div>
+              </div>
+              <div className="grid grid-cols-[110px_1fr] items-start gap-4 text-[14px] text-slate-600">
+                <span className="pt-2 text-right font-medium"><span className="mr-1 text-[#ff6f6f]">*</span>黑名单天数:</span>
+                <div>
+                  <input type="text" value={userSystemForm.blacklistDays} onChange={(e) => { setUserSystemForm((prev) => ({ ...prev, blacklistDays: e.target.value })); setUserSystemFormErrors((prev) => { const n = { ...prev }; delete n.blacklistDays; return n; }); }} placeholder="请输入黑名单天数" className={cn('h-9 w-full rounded border px-3 text-[13px] outline-none', userSystemFormErrors.blacklistDays ? 'border-[#ff8b8b]' : 'border-slate-200 focus:border-[#12b89f]')} />
+                  {userSystemFormErrors.blacklistDays && <div className="mt-1 text-[12px] text-[#ff6f6f]">{userSystemFormErrors.blacklistDays}</div>}
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
+              <button type="button" onClick={() => { setUserSystemDialog(null); setUserSystemFormErrors({}); }} className="rounded border border-slate-200 bg-white px-5 py-2 text-[13px] font-medium text-slate-500">取消</button>
+              <button type="button" onClick={handleSaveUserSystem} className="rounded bg-[#12b89f] px-5 py-2 text-[13px] font-medium text-white">确定</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 确认弹窗 */}
+      {userSystemConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setUserSystemConfirm(null)} />
+          <div className="relative z-10 w-[400px] overflow-hidden rounded-lg bg-white shadow-xl">
+            <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+              <h3 className="text-[16px] font-semibold text-slate-800">提示</h3>
+              <button type="button" onClick={() => setUserSystemConfirm(null)} className="text-slate-400 hover:text-slate-600"><X size={20} /></button>
+            </div>
+            <div className="px-6 py-6 text-[14px] text-slate-600">{userSystemConfirm.message}</div>
+            <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
+              {usedUserSystems.has(userSystems.find((s) => s.id === userSystemConfirm.id)?.name ?? '') ? (
+                <button type="button" onClick={() => setUserSystemConfirm(null)} className="rounded bg-[#12b89f] px-5 py-2 text-[13px] font-medium text-white">知道了</button>
+              ) : (
+                <>
+                  <button type="button" onClick={() => setUserSystemConfirm(null)} className="rounded border border-slate-200 bg-white px-5 py-2 text-[13px] font-medium text-slate-500">取消</button>
+                  <button type="button" onClick={() => { setUserSystems((prev) => prev.filter((item) => item.id !== userSystemConfirm.id)); setUserSystemConfirm(null); }} className="rounded bg-[#ff6e6e] px-5 py-2 text-[13px] font-medium text-white">确定</button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 
   const agentRankingDetailContent = (
     <div className="flex min-h-0 flex-1 flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -13427,194 +13501,133 @@ export default function App() {
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div
             className="absolute inset-0 bg-black/40"
-            onClick={() => setPrivacyStatementDialog(null)}
+            onClick={() => { setPrivacyStatementDialog(null); setPrivacyStatementFormErrors({}); }}
           />
-          <div className="relative z-10 w-[700px] rounded-lg bg-white p-6 shadow-xl">
-            <div className="mb-5 flex items-center justify-between">
-              <h3 className="text-lg font-medium text-slate-800">
+          <div className="relative z-10 w-[700px] overflow-hidden rounded-lg bg-white shadow-xl">
+            <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+              <h3 className="text-[16px] font-semibold text-slate-800">
                 {privacyStatementDialog === 'add' ? '新增隐私声明' : '编辑隐私声明'}
               </h3>
               <button
                 type="button"
-                onClick={() => setPrivacyStatementDialog(null)}
+                onClick={() => { setPrivacyStatementDialog(null); setPrivacyStatementFormErrors({}); }}
                 className="text-slate-400 hover:text-slate-600"
               >
                 <X size={20} />
               </button>
             </div>
 
-            <div className="space-y-5">
-              <div>
-                <label className="mb-2 flex items-center text-[13px] text-slate-600">
-                  <span className="text-red-500 mr-1">*</span>
-                  隐私声明标题:
-                </label>
-                <input
-                  type="text"
-                  value={privacyStatementForm.title}
-                  onChange={(e) => setPrivacyStatementForm((prev) => ({ ...prev, title: e.target.value }))}
-                  placeholder="请输入隐私声明标题"
-                  className="w-full rounded-md border border-slate-200 px-3 py-2 text-[13px] outline-none focus:border-[#12b89f]"
-                />
+            <div className="space-y-5 px-6 py-5">
+              <div className="grid grid-cols-[120px_1fr] items-start gap-4 text-[14px] text-slate-600">
+                <span className="pt-2 text-right font-medium"><span className="mr-1 text-[#ff6f6f]">*</span>隐私声明标题:</span>
+                <div>
+                  <input
+                    type="text"
+                    value={privacyStatementForm.title}
+                    onChange={(e) => { setPrivacyStatementForm((prev) => ({ ...prev, title: e.target.value })); setPrivacyStatementFormErrors((prev) => { const next = { ...prev }; delete next.title; return next; }); }}
+                    placeholder="请输入隐私声明标题"
+                    className={cn("h-9 w-full rounded border px-3 text-[13px] outline-none", privacyStatementFormErrors.title ? "border-[#ff8b8b]" : "border-slate-200 focus:border-[#12b89f]")}
+                  />
+                  {privacyStatementFormErrors.title && <div className="mt-1 text-[12px] text-[#ff6f6f]">{privacyStatementFormErrors.title}</div>}
+                </div>
               </div>
 
-              <div>
-                <label className="mb-2 flex items-center text-[13px] text-slate-600">
-                  <span className="text-red-500 mr-1">*</span>
-                  隐私声明内容:
-                </label>
-                <div className="rounded-md border border-slate-200 p-3">
-                  <div className="flex items-center gap-4 mb-3">
-                    <label className="flex items-center gap-2 text-[13px] text-slate-600 cursor-pointer">
-                      <input
-                        type="radio"
-                        checked={privacyStatementForm.contentType === 'detail'}
-                        onChange={() => setPrivacyStatementForm((prev) => ({ ...prev, contentType: 'detail' }))}
-                        className="h-4 w-4 text-[#12b89f]"
-                      />
-                      主要链接
-                    </label>
-                  </div>
-                  {privacyStatementForm.contentType === 'detail' && (
-                    <input
-                      type="text"
-                      value={privacyStatementForm.content}
-                      onChange={(e) => setPrivacyStatementForm((prev) => ({ ...prev, content: e.target.value }))}
-                      placeholder="请输入链接地址"
-                      className="w-full rounded-md border border-slate-200 px-3 py-2 text-[13px] outline-none focus:border-[#12b89f]"
-                    />
+              <div className="grid grid-cols-[120px_1fr] items-start gap-4 text-[14px] text-slate-600">
+                <span className="pt-2 text-right font-medium"><span className="mr-1 text-[#ff6f6f]">*</span>声明类型:</span>
+                <select
+                  value={privacyStatementForm.contentType}
+                  onChange={(e) => { setPrivacyStatementForm((prev) => ({ ...prev, contentType: e.target.value as 'link' | 'detail' })); setPrivacyStatementFormErrors((prev) => { const next = { ...prev }; delete next.content; delete next.detailContent; return next; }); }}
+                  className="h-9 w-full rounded border border-slate-200 px-3 text-[13px] outline-none focus:border-[#12b89f]"
+                >
+                  <option value="link">链接类型</option>
+                  <option value="detail">详情类型</option>
+                </select>
+              </div>
+
+              <div className="grid grid-cols-[120px_1fr] items-start gap-4 text-[14px] text-slate-600">
+                <span className="pt-2 text-right font-medium"><span className="mr-1 text-[#ff6f6f]">*</span>隐私类型文本:</span>
+                <div>
+                  <input
+                    type="text"
+                    value={privacyStatementForm.privacyType}
+                    onChange={(e) => { setPrivacyStatementForm((prev) => ({ ...prev, privacyType: e.target.value })); setPrivacyStatementFormErrors((prev) => { const next = { ...prev }; delete next.privacyType; return next; }); }}
+                    placeholder="请输入隐私类型"
+                    className={cn("h-9 w-full rounded border px-3 text-[13px] outline-none", privacyStatementFormErrors.privacyType ? "border-[#ff8b8b]" : "border-slate-200 focus:border-[#12b89f]")}
+                  />
+                  {privacyStatementFormErrors.privacyType && <div className="mt-1 text-[12px] text-[#ff6f6f]">{privacyStatementFormErrors.privacyType}</div>}
+                  {privacyStatementForm.privacyType && (
+                    <div className="mt-2 text-[13px] text-[#3399ff] underline">{privacyStatementForm.privacyType}</div>
                   )}
                 </div>
               </div>
 
-              <div>
-                <label className="mb-2 flex items-center text-[13px] text-slate-600">
-                  <span className="text-red-500 mr-1">*</span>
-                  详情内容:
-                </label>
-                <div className="rounded-md border border-slate-200">
-                  {/* 富文本工具栏 */}
-                  <div className="flex items-center gap-1 border-b border-slate-200 bg-slate-50 px-3 py-2">
-                    <select className="mr-2 rounded border border-slate-200 bg-white px-2 py-1 text-[12px] outline-none">
-                      <option>段落</option>
-                      <option>标题1</option>
-                      <option>标题2</option>
-                    </select>
-                    <div className="h-4 w-px bg-slate-300 mx-1" />
-                    <button
-                      type="button"
-                      onClick={() => formatRichText('bold')}
-                      className="rounded p-1 hover:bg-slate-200"
-                      title="加粗"
-                    >
-                      <span className="text-[13px] font-bold">B</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => formatRichText('italic')}
-                      className="rounded p-1 hover:bg-slate-200"
-                      title="斜体"
-                    >
-                      <span className="text-[13px] italic">I</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => formatRichText('underline')}
-                      className="rounded p-1 hover:bg-slate-200"
-                      title="下划线"
-                    >
-                      <span className="text-[13px] underline">U</span>
-                    </button>
-                    <div className="h-4 w-px bg-slate-300 mx-1" />
-                    <button
-                      type="button"
-                      onClick={() => formatRichText('justifyLeft')}
-                      className="rounded p-1 hover:bg-slate-200"
-                      title="左对齐"
-                    >
-                      <AlignLeft size={14} />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => formatRichText('justifyCenter')}
-                      className="rounded p-1 hover:bg-slate-200"
-                      title="居中"
-                    >
-                      <AlignCenter size={14} />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => formatRichText('justifyRight')}
-                      className="rounded p-1 hover:bg-slate-200"
-                      title="右对齐"
-                    >
-                      <AlignRight size={14} />
-                    </button>
-                    <div className="h-4 w-px bg-slate-300 mx-1" />
-                    <button
-                      type="button"
-                      onClick={() => formatRichText('insertUnorderedList')}
-                      className="rounded p-1 hover:bg-slate-200"
-                      title="无序列表"
-                    >
-                      <ListIcon size={14} />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => formatRichText('insertOrderedList')}
-                      className="rounded p-1 hover:bg-slate-200"
-                      title="有序列表"
-                    >
-                      <ListOrdered size={14} />
-                    </button>
-                    <div className="h-4 w-px bg-slate-300 mx-1" />
-                    <button
-                      type="button"
-                      onClick={() => formatRichText('createLink')}
-                      className="rounded p-1 hover:bg-slate-200"
-                      title="插入链接"
-                    >
-                      <LinkIcon size={14} />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => formatRichText('insertImage')}
-                      className="rounded p-1 hover:bg-slate-200"
-                      title="插入图片"
-                    >
-                      <ImageIcon size={14} />
-                    </button>
+              {privacyStatementForm.contentType === 'link' && (
+                <div className="grid grid-cols-[120px_1fr] items-start gap-4 text-[14px] text-slate-600">
+                  <span className="pt-2 text-right font-medium"><span className="mr-1 text-[#ff6f6f]">*</span>链接内容:</span>
+                  <div>
+                    <input
+                      type="text"
+                      value={privacyStatementForm.content}
+                      onChange={(e) => { setPrivacyStatementForm((prev) => ({ ...prev, content: e.target.value })); setPrivacyStatementFormErrors((prev) => { const next = { ...prev }; delete next.content; return next; }); }}
+                      placeholder="请输入链接地址，如 https://example.com"
+                      className={cn("h-9 w-full rounded border px-3 text-[13px] outline-none", privacyStatementFormErrors.content ? "border-[#ff8b8b]" : "border-slate-200 focus:border-[#12b89f]")}
+                    />
+                    {privacyStatementFormErrors.content && <div className="mt-1 text-[12px] text-[#ff6f6f]">{privacyStatementFormErrors.content}</div>}
                   </div>
-                  {/* 富文本编辑区域 */}
-                  <div
-                    contentEditable
-                    dangerouslySetInnerHTML={{ __html: privacyStatementForm.detailContent }}
-                    onBlur={(e) => setPrivacyStatementForm((prev) => ({ ...prev, detailContent: e.currentTarget.innerHTML }))}
-                    className="min-h-[200px] p-3 text-[13px] outline-none"
-                    style={{ minHeight: '200px' }}
-                  />
                 </div>
-              </div>
+              )}
+
+              {privacyStatementForm.contentType === 'detail' && (
+                <div className="grid grid-cols-[120px_1fr] items-start gap-4 text-[14px] text-slate-600">
+                  <span className="pt-2 text-right font-medium"><span className="mr-1 text-[#ff6f6f]">*</span>详情内容:</span>
+                  <div>
+                    <div className={cn("rounded border", privacyStatementFormErrors.detailContent ? "border-[#ff8b8b]" : "border-slate-200")}>
+                      <div className="flex items-center gap-1 border-b border-slate-200 bg-slate-50 px-3 py-2">
+                        <select className="mr-2 rounded border border-slate-200 bg-white px-2 py-1 text-[12px] outline-none">
+                          <option>段落</option>
+                          <option>标题1</option>
+                          <option>标题2</option>
+                        </select>
+                        <div className="h-4 w-px bg-slate-300 mx-1" />
+                        <button type="button" onClick={() => formatRichText('bold')} className="rounded p-1 hover:bg-slate-200" title="加粗"><span className="text-[13px] font-bold">B</span></button>
+                        <button type="button" onClick={() => formatRichText('italic')} className="rounded p-1 hover:bg-slate-200" title="斜体"><span className="text-[13px] italic">I</span></button>
+                        <button type="button" onClick={() => formatRichText('underline')} className="rounded p-1 hover:bg-slate-200" title="下划线"><span className="text-[13px] underline">U</span></button>
+                        <div className="h-4 w-px bg-slate-300 mx-1" />
+                        <button type="button" onClick={() => formatRichText('justifyLeft')} className="rounded p-1 hover:bg-slate-200" title="左对齐"><AlignLeft size={14} /></button>
+                        <button type="button" onClick={() => formatRichText('justifyCenter')} className="rounded p-1 hover:bg-slate-200" title="居中"><AlignCenter size={14} /></button>
+                        <button type="button" onClick={() => formatRichText('justifyRight')} className="rounded p-1 hover:bg-slate-200" title="右对齐"><AlignRight size={14} /></button>
+                        <div className="h-4 w-px bg-slate-300 mx-1" />
+                        <button type="button" onClick={() => formatRichText('insertUnorderedList')} className="rounded p-1 hover:bg-slate-200" title="无序列表"><ListIcon size={14} /></button>
+                        <button type="button" onClick={() => formatRichText('insertOrderedList')} className="rounded p-1 hover:bg-slate-200" title="有序列表"><ListOrdered size={14} /></button>
+                        <div className="h-4 w-px bg-slate-300 mx-1" />
+                        <button type="button" onClick={() => formatRichText('createLink')} className="rounded p-1 hover:bg-slate-200" title="插入链接"><LinkIcon size={14} /></button>
+                        <button type="button" onClick={() => formatRichText('insertImage')} className="rounded p-1 hover:bg-slate-200" title="插入图片"><ImageIcon size={14} /></button>
+                      </div>
+                      <div
+                        contentEditable
+                        dangerouslySetInnerHTML={{ __html: privacyStatementForm.detailContent }}
+                        onBlur={(e) => { setPrivacyStatementForm((prev) => ({ ...prev, detailContent: e.currentTarget.innerHTML })); setPrivacyStatementFormErrors((prev) => { const next = { ...prev }; delete next.detailContent; return next; }); }}
+                        className="min-h-[200px] p-3 text-[13px] outline-none"
+                      />
+                    </div>
+                    {privacyStatementFormErrors.detailContent && <div className="mt-1 text-[12px] text-[#ff6f6f]">{privacyStatementFormErrors.detailContent}</div>}
+                  </div>
+                </div>
+              )}
             </div>
 
-            <div className="mt-6 flex justify-end gap-3">
+            <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
               <button
                 type="button"
-                onClick={() => setPrivacyStatementDialog(null)}
-                className="rounded-md border border-slate-200 bg-white px-5 py-2 text-[13px] text-slate-600 hover:bg-slate-50"
+                onClick={() => { setPrivacyStatementDialog(null); setPrivacyStatementFormErrors({}); }}
+                className="rounded border border-slate-200 bg-white px-5 py-2 text-[13px] font-medium text-slate-500 hover:bg-slate-50"
               >
                 取消
               </button>
               <button
                 type="button"
                 onClick={handleSavePrivacyStatement}
-                disabled={!privacyStatementForm.title.trim()}
-                className={cn(
-                  "rounded-md px-5 py-2 text-[13px] font-medium",
-                  privacyStatementForm.title.trim()
-                    ? "bg-[#12b89f] text-white hover:bg-[#10a08a]"
-                    : "bg-slate-300 text-white cursor-not-allowed"
-                )}
+                className="rounded bg-[#12b89f] px-5 py-2 text-[13px] font-medium text-white hover:bg-[#10a08a]"
               >
                 确定
               </button>
@@ -13633,9 +13646,9 @@ export default function App() {
               setViewingPrivacyStatementId(null);
             }}
           />
-          <div className="relative z-10 w-[700px] rounded-lg bg-white p-6 shadow-xl">
-            <div className="mb-5 flex items-center justify-between">
-              <h3 className="text-lg font-medium text-slate-800">查看隐私声明</h3>
+          <div className="relative z-10 w-[700px] overflow-hidden rounded-lg bg-white shadow-xl">
+            <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+              <h3 className="text-[16px] font-semibold text-slate-800">查看隐私声明</h3>
               <button
                 type="button"
                 onClick={() => {
@@ -13648,34 +13661,50 @@ export default function App() {
               </button>
             </div>
 
-            <div className="space-y-5">
-              <div>
-                <label className="mb-2 block text-[13px] text-slate-600">隐私声明标题:</label>
-                <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-[13px] text-slate-700">
+            <div className="space-y-5 px-6 py-5">
+              <div className="grid grid-cols-[120px_1fr] items-start gap-4 text-[14px] text-slate-600">
+                <span className="pt-2 text-right font-medium">隐私声明标题:</span>
+                <div className="h-9 rounded border border-slate-200 bg-slate-50 px-3 py-2 text-[13px] text-slate-700">
                   {viewingPrivacyStatement.title}
                 </div>
               </div>
 
-              <div>
-                <label className="mb-2 block text-[13px] text-slate-600">隐私声明内容:</label>
-                <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-[13px] text-slate-700">
-                  {viewingPrivacyStatement.contentType === 'link'
-                    ? viewingPrivacyStatement.content
-                    : viewingPrivacyStatement.content}
+              <div className="grid grid-cols-[120px_1fr] items-start gap-4 text-[14px] text-slate-600">
+                <span className="pt-2 text-right font-medium">声明类型:</span>
+                <div className="h-9 rounded border border-slate-200 bg-slate-50 px-3 py-2 text-[13px] text-slate-700">
+                  {viewingPrivacyStatement.contentType === 'link' ? '链接类型' : '详情类型'}
                 </div>
               </div>
 
-              <div>
-                <label className="mb-2 block text-[13px] text-slate-600">详情内容:</label>
-                <div
-                  className="min-h-[200px] rounded-md border border-slate-200 bg-slate-50 p-3 text-[13px] text-slate-700"
-                  dangerouslySetInnerHTML={{ __html: viewingPrivacyStatement.detailContent || '<p>暂无内容</p>' }}
-                />
+              <div className="grid grid-cols-[120px_1fr] items-start gap-4 text-[14px] text-slate-600">
+                <span className="pt-2 text-right font-medium">隐私类型文本:</span>
+                <div className="h-9 rounded border border-slate-200 bg-slate-50 px-3 py-2 text-[13px]">
+                  <span className="text-[#3399ff] underline">{viewingPrivacyStatement.privacyType}</span>
+                </div>
               </div>
 
-              <div>
-                <label className="mb-2 block text-[13px] text-slate-600">生效范围:</label>
-                <div className="text-[13px] text-slate-600">
+              {viewingPrivacyStatement.contentType === 'link' && (
+                <div className="grid grid-cols-[120px_1fr] items-start gap-4 text-[14px] text-slate-600">
+                  <span className="pt-2 text-right font-medium">链接内容:</span>
+                  <div className="h-9 rounded border border-slate-200 bg-slate-50 px-3 py-2 text-[13px] text-slate-700">
+                    {viewingPrivacyStatement.content}
+                  </div>
+                </div>
+              )}
+
+              {viewingPrivacyStatement.contentType === 'detail' && (
+                <div className="grid grid-cols-[120px_1fr] items-start gap-4 text-[14px] text-slate-600">
+                  <span className="pt-2 text-right font-medium">详情内容:</span>
+                  <div
+                    className="min-h-[200px] rounded border border-slate-200 bg-slate-50 p-3 text-[13px] text-slate-700"
+                    dangerouslySetInnerHTML={{ __html: viewingPrivacyStatement.detailContent || '<p>暂无内容</p>' }}
+                  />
+                </div>
+              )}
+
+              <div className="grid grid-cols-[120px_1fr] items-start gap-4 text-[14px] text-slate-600">
+                <span className="pt-2 text-right font-medium">生效范围:</span>
+                <div className="h-9 rounded border border-slate-200 bg-slate-50 px-3 py-2 text-[13px] text-slate-700">
                   {viewingPrivacyStatement.scopeChannels.length > 0
                     ? viewingPrivacyStatement.scopeChannels.join('、')
                     : viewingPrivacyStatement.scopeProducts.length > 0
@@ -14051,6 +14080,14 @@ export default function App() {
           />
 
           <SidebarItem
+            icon={MessageSquare}
+            label="在线工作台"
+            active={activeTab === '在线工作台'}
+            collapsed={isSidebarCollapsed}
+            onClick={() => handleOpenMainTab('在线工作台')}
+          />
+
+          <SidebarItem
             icon={Phone}
             label="呼叫工作台"
             active={activeTab === '呼叫工作台'}
@@ -14137,7 +14174,7 @@ export default function App() {
               icon={FileText}
               label="辅助工具"
               hasSub
-              active={utilityToolsLegacyMenus.some((item) => item.key === activeLegacyModulePage)}
+              active={utilityToolsLegacyMenus.some((item) => item.key === activeLegacyModulePage) || activeTab === '附件管理'}
               expanded={isUtilityToolsExpanded}
               collapsed={isSidebarCollapsed}
               onClick={() => setIsUtilityToolsExpanded((expanded) => !expanded)}
@@ -14157,6 +14194,17 @@ export default function App() {
                     {item.label}
                   </button>
                 ))}
+                <button
+                  key="attachment-management"
+                  type="button"
+                  onClick={() => handleOpenMainTab('附件管理')}
+                  className={cn(
+                    sidebarSubMenuButtonClass,
+                    activeTab === '附件管理' ? "bg-[#1f5a67] text-[#18d1b3]" : ""
+                  )}
+                >
+                  附件管理
+                </button>
               </div>
             )}
           </div>
@@ -14442,13 +14490,6 @@ export default function App() {
             </div>
 
             <div className="flex items-center gap-4">
-              <button
-                type="button"
-                onClick={() => handleOpenMainTab('在线工作台')}
-                className="rounded-full bg-orange-400 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-orange-500"
-              >
-                在线工作台
-              </button>
               <div className="relative cursor-pointer text-slate-500 hover:text-slate-700">
                 <Bell size={20} />
               </div>
@@ -16100,7 +16141,7 @@ export default function App() {
                             onChange={(event) => setWebchatQuoteProductId(event.target.value)}
                             className={cn("h-9 w-full rounded border px-3 outline-none", webchatFormErrors.quoteProductId ? "border-[#ff8b8b]" : "border-slate-200")}
                           >
-                            <option value="">请选择产品</option>
+                            <option value="">请选择要引用的产品</option>
                             {webchatProducts
                               .filter((item) => !webchatConfigTargetIds.includes(item.id))
                               .map((item) => (

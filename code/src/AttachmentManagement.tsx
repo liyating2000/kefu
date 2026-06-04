@@ -78,6 +78,7 @@ export default function AttachmentManagement() {
 
   const handleDeleteSelected = () => {
     if (selectedIds.size === 0) { showToast('请先选择要删除的附件'); return; }
+    if (!window.confirm(`确认删除选中的 ${selectedIds.size} 条附件吗？`)) return;
     setAttachments((prev) => prev.filter((a) => !selectedIds.has(a.id)));
     setSelectedIds(new Set());
     showToast(`已删除 ${selectedIds.size} 条附件`);
@@ -122,11 +123,9 @@ export default function AttachmentManagement() {
               <input value={filterDomain} onChange={(e) => setFilterDomain(e.target.value)} placeholder="请输入域账号" className={inputClass + ' w-[140px]'} />
             </div>
             <div className="flex items-center gap-2">
-              <span className="shrink-0 text-[13px] text-slate-500">发送开始时间</span>
+              <span className="shrink-0 text-[13px] text-slate-500">发送时间</span>
               <input type="datetime-local" value={filterStartTime} onChange={(e) => setFilterStartTime(e.target.value)} className={inputClass + ' w-[190px]'} />
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="shrink-0 text-[13px] text-slate-500">发送结束时间</span>
+              <span className="text-[13px] text-slate-400">~</span>
               <input type="datetime-local" value={filterEndTime} onChange={(e) => setFilterEndTime(e.target.value)} className={inputClass + ' w-[190px]'} />
             </div>
             <SelectField label="失效状态" value={filterInvalidStatus} options={invalidStatusOptions} onChange={setFilterInvalidStatus} />
@@ -160,7 +159,7 @@ export default function AttachmentManagement() {
                     <th className="w-[44px] px-3 py-3 text-center font-medium">
                       <input type="checkbox" checked={selectedIds.size === attachments.length && attachments.length > 0} onChange={toggleSelectAll} className="h-4 w-4 rounded border-slate-300 accent-[#12b89f]" />
                     </th>
-                    <th className="w-[50px] whitespace-nowrap px-4 py-3 font-medium">#</th>
+                    <th className="w-[50px] whitespace-nowrap px-4 py-3 font-medium">序号</th>
                     <th className="whitespace-nowrap px-4 py-3 font-medium">链接</th>
                     <th className="whitespace-nowrap px-4 py-3 font-medium">接受号码</th>
                     <th className="whitespace-nowrap px-4 py-3 font-medium">发送人姓名</th>

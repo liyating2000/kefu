@@ -431,7 +431,7 @@ const defaultSmsSentFilterForm = {
   receiverNo: '',
 };
 
-const smsSendStatusOptions = ['待发送', '请求中', '提交成功', '发送中', '已送达', '发送失败'] as const;
+const smsSendStatusOptions = ['提交成功', '已送达', '发送失败'] as const;
 
 const defaultMailSentFilterForm = {
   receiverEmail: '',
@@ -4693,7 +4693,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
       senderDept: '演示组',
       sender: 'ranou2',
       senderEmployeeId: '10002',
-      status: '发送中',
+      status: '提交成功',
       sentAt: '2026-03-11 18:29:00',
       receiverNo: '18035359865',
     },
@@ -4703,7 +4703,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
       senderDept: '系统组',
       sender: '周晓伟',
       senderEmployeeId: '10001',
-      status: '待发送',
+      status: '已送达',
       sentAt: '2026-03-25 08:10:00',
       receiverNo: '13900001111',
     },
@@ -4713,7 +4713,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
       senderDept: '系统组',
       sender: '周晓伟',
       senderEmployeeId: '10001',
-      status: '请求中',
+      status: '发送失败',
       sentAt: '2026-03-25 08:12:00',
       receiverNo: '13900002222',
     },
