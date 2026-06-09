@@ -783,6 +783,8 @@ function SummaryHotlinePlayer() {
 
 export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyModulePage }: { page: LegacyModulePage; onOpenMainTab?: (tab: string) => void; onOpenLegacyModulePage?: (page: LegacyModulePage) => void }) {
   const currentSummaryAgent = '坐席A';
+  const currentProcessorId = '3001';
+  const currentProcessorName = '张小花';
   const [toast, setToast] = useState<string | null>(null);
   const [userSystems, setUserSystems] = useState(userSystemRows);
   const [userSystemKeyword, setUserSystemKeyword] = useState('');
@@ -3995,21 +3997,6 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
               <button type="button" className={solidButtonClass}>
                 导出
               </button>
-              <button
-                type="button"
-                onClick={() => {
-                  const targetId = selectedWebchatMessageIds[0];
-                  if (!targetId) {
-                    showToast('请先选择留言');
-                    return;
-                  }
-                  setWebchatTransferDepartment('');
-                  setWebchatTransferTarget(targetId);
-                }}
-                className={secondaryButtonClass}
-              >
-                调剂
-              </button>
             </div>
 
             <div className="overflow-auto px-5 py-4 custom-scrollbar">
@@ -4051,24 +4038,68 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                       <td className="px-4 py-4">{index + 1}</td>
                       <td className="px-4 py-4">
                         <div className="flex gap-3 whitespace-nowrap text-[#18bca2]">
-                          <button type="button" onClick={() => setWebchatMessageDetailTarget(row.id)}>
-                            {row.primaryActionLabel}
-                          </button>
-                          {row.status === '处理完成' ? null : (
+                          {row.status === '待处理' && (
                             <button
                               type="button"
                               onClick={() => {
                                 setWebchatMessageItems((current) =>
                                   current.map((item) =>
                                     item.id === row.id
-                                      ? { ...item, status: '处理完成', primaryActionLabel: '查看' }
+                                      ? { ...item, status: '处理中', processor: currentProcessorName, processorId: currentProcessorId, primaryActionLabel: '处理' }
                                       : item
                                   )
                                 );
-                                showToast('留言已完成');
+                                showToast('留言已认领');
                               }}
                             >
-                              完成
+                              认领
+                            </button>
+                          )}
+                          {row.status === '处理中' && row.processorId === currentProcessorId && (
+                            <>
+                              <button type="button" onClick={() => setWebchatMessageDetailTarget(row.id)}>
+                                处理
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setWebchatMessageItems((current) =>
+                                    current.map((item) =>
+                                      item.id === row.id
+                                        ? { ...item, status: '处理完成', primaryActionLabel: '查看' }
+                                        : item
+                                    )
+                                  );
+                                  showToast('留言已完成');
+                                }}
+                              >
+                                完成
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setWebchatTransferDepartment('');
+                                  setWebchatTransferTarget(row.id);
+                                }}
+                              >
+                                调剂
+                              </button>
+                            </>
+                          )}
+                          {row.status === '处理中' && row.processorId !== currentProcessorId && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setWebchatTransferDepartment('');
+                                setWebchatTransferTarget(row.id);
+                              }}
+                            >
+                              调剂
+                            </button>
+                          )}
+                          {row.status === '处理完成' && (
+                            <button type="button" onClick={() => setWebchatMessageDetailTarget(row.id)}>
+                              查看
                             </button>
                           )}
                         </div>
@@ -4518,7 +4549,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
 
   const openWaitingTransferDialog = (row: WaitingMonitorRow) => {
     setWaitingTransferTarget(row);
-    setWaitingTransferSkillGroup(row.skillGroup);
+    setWaitingTransferSkillGroup(waitingMonitorSkillGroupOptions[0]);
     setWaitingTransferSelectedAgentId(null);
   };
 
@@ -4925,8 +4956,8 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
       transferAt: '-',
       transferCount: 0,
       department: '系统组',
-      processor: '刘梦玲2',
-      processorId: '2001',
+      processor: '张小花',
+      processorId: '3001',
       primaryActionLabel: '处理',
       replyMethod: '邮件',
       repliedAt: '2026-02-26 14:35:20',
@@ -5889,7 +5920,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
     if (page === 'agent-monitoring') {
       const allCards: AgentMonitorCard[] = [
         {
-          name: '宋方义',
+          name: '李明辉',
           status: '空闲状态' as AgentMonitorStatus,
           department: '选择部门1',
           seatNo: '000698',
@@ -5905,7 +5936,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
           firstSignInTime: '2026-05-28 08:32:10',
         },
         {
-          name: '张文富',
+          name: '赵雨萱',
           status: '忙碌状态' as AgentMonitorStatus,
           department: '系统组',
           seatNo: '000745',
@@ -5921,7 +5952,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
           firstSignInTime: '2026-05-28 09:15:03',
         },
         {
-          name: 'Kukua',
+          name: '王大锤',
           status: '通话状态' as AgentMonitorStatus,
           department: '系统组',
           seatNo: '000731',
@@ -5937,7 +5968,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
           firstSignInTime: '2026-05-28 07:58:45',
         },
         {
-          name: '彭颖测试',
+          name: '陈思远',
           status: '离线状态' as AgentMonitorStatus,
           department: '选择部门1',
           seatNo: '000745',
@@ -5951,7 +5982,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
           firstSignInTime: '2026-05-28 11:34:50',
         },
         {
-          name: '测试agent',
+          name: '周晓婷',
           status: '离线状态' as AgentMonitorStatus,
           department: '系统组',
           seatNo: '000755',
@@ -5965,7 +5996,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
           firstSignInTime: '2026-05-27 09:02:17',
         },
         {
-          name: 'ADMIN',
+          name: '孙浩然',
           status: '在线状态' as AgentMonitorStatus,
           department: '系统组',
           seatNo: '1006',
@@ -6675,7 +6706,6 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                 }}
                 className="h-10 w-[260px] rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-600 outline-none focus:border-[#12b89f]"
               >
-                <option value="">请选择队列</option>
                 {waitingMonitorSkillGroupOptions.map((option) => (
                   <option key={option} value={option}>
                     {option}

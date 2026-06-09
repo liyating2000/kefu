@@ -227,21 +227,32 @@ export default function AttachmentManagement() {
                   </tr>
                 </thead>
                 <tbody className="text-slate-600">
-                  <tr className="bg-white transition-colors hover:bg-[#f7fffd]">
-                    <td className="px-4 py-3">1</td>
-                    <td className="max-w-[280px] truncate px-4 py-3 text-[#18bca2]" title={detailTarget.link}>
-                      {detailTarget.link.split('/').pop() || detailTarget.link}
-                    </td>
-                    <td className="px-4 py-3">{detailTarget.id % 2 === 0 ? '公众号上传的附件' : '短链接上传的附件'}</td>
-                    <td className="whitespace-nowrap px-4 py-3 text-slate-500">{detailTarget.latestUploadTime}</td>
-                  </tr>
+                  {detailTarget.uploadStatus === '已上传' ? (
+                    <tr className="bg-white transition-colors hover:bg-[#f7fffd]">
+                      <td className="px-4 py-3">1</td>
+                      <td className="max-w-[280px] truncate px-4 py-3 text-[#18bca2]" title={detailTarget.link}>
+                        {detailTarget.link.split('/').pop() || detailTarget.link}
+                      </td>
+                      <td className="px-4 py-3">{detailTarget.id % 2 === 0 ? '公众号上传的附件' : '短链接上传的附件'}</td>
+                      <td className="whitespace-nowrap px-4 py-3 text-slate-500">{detailTarget.latestUploadTime}</td>
+                    </tr>
+                  ) : (
+                    <tr>
+                      <td colSpan={4} className="py-10 text-center text-slate-400">
+                        <div className="mb-1 text-[28px]">📄</div>
+                        <p className="text-[13px]">暂无文件</p>
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
             <div className="flex items-center justify-end gap-3 border-t border-slate-100 px-5 py-3">
-              <button type="button" onClick={() => { setDetailTarget(null); showToast('附件下载中...'); }} className="inline-flex h-9 items-center rounded-md bg-[#12b89f] px-5 text-[13px] font-medium text-white transition-colors hover:bg-[#0da88f]">
-                下载
-              </button>
+              {detailTarget.uploadStatus === '已上传' && (
+                <button type="button" onClick={() => { setDetailTarget(null); showToast('附件下载中...'); }} className="inline-flex h-9 items-center rounded-md bg-[#12b89f] px-5 text-[13px] font-medium text-white transition-colors hover:bg-[#0da88f]">
+                  下载
+                </button>
+              )}
               <button type="button" onClick={() => setDetailTarget(null)} className="inline-flex h-9 items-center rounded-md border border-slate-200 bg-white px-5 text-[13px] font-medium text-slate-500 transition-colors hover:bg-slate-50">
                 取消
               </button>

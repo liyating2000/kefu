@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import logoImage from './logo.png';
 import LegacyModulesPanel, {
   legacyModuleLabels,
@@ -133,7 +133,11 @@ import {
   Smartphone,
   Rows3,
   Edit2,
-  Trash2
+  Trash2,
+  Headset,
+  Wrench,
+  Activity,
+  Shield,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -151,12 +155,41 @@ import {
   ReferenceLine
 } from 'recharts';
 import { createPortal } from 'react-dom';
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import { cn } from './lib/cn';
+import { useRoleRouting } from './hooks/useRoleRouting';
+import { getViewModeForRole, getAllowedWorkbenchesForRole, userRoleLabels, type UserRole } from './features/layout/roles';
+import PortalViewHeader from './features/portal/PortalViewHeader';
+import {
+  createShuffledStarEmployees,
+  type ManagerBusinessPeriodOption,
+  type ManagerGroupFilter,
+  type ManagerOnlineFilter,
+  type ManagerPersonnelDateOption,
+  type PersonnelFocusMetric,
+  type ShiftScheduleDay,
+  type StarEmployee,
+  type StarEmployeeMetric,
+} from './features/portal/data';
+import {
+  initialDirectorMessages,
+  type DirectorExpressMessage,
+  type DirectorExpressView,
+} from './features/portal/directorExpress';
+import CallWorkbenchContentView from './features/call-workbench/CallWorkbenchContent';
+import OnlineWorkbenchContentView from './features/online-workbench/OnlineWorkbenchContent';
+import CallWorkbenchPage from './features/call-workbench/CallWorkbenchPage';
+import OnlineWorkbenchPage from './features/online-workbench/OnlineWorkbenchPage';
+import MainHeader from './features/layout/MainHeader';
 
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+const ManagerPortalDashboardContent = lazy(
+  () => import('./features/portal/ManagerPortalDashboardContent')
+);
+const AgentPortalDashboardContent = lazy(
+  () => import('./features/portal/AgentPortalDashboardContent')
+);
+const DirectorExpressModal = lazy(
+  () => import('./features/portal/DirectorExpressModal')
+);
 
 type ErrorTabKey = 'critical' | 'non-critical';
 type WorkbenchHistoryTab = '会话历史' | '通话历史' | '短信历史' | '邮件历史';
@@ -354,7 +387,8 @@ type MainTab =
   | '目标值维护'
   | '品牌维护'
   | '附件管理'
-  | '产品模块维护';
+  | '产品模块维护'
+  | '小结管理';
 type ManagerPortalPage = 'dashboard' | 'overview-detail';
 
 // 繁忙公告管理类型定义
@@ -2733,20 +2767,6 @@ const starEmployees = [
   },
 ];
 
-const createShuffledStarEmployees = () => {
-  const shuffledNames = starEmployees.map((employee) => employee.name);
-
-  for (let index = shuffledNames.length - 1; index > 0; index -= 1) {
-    const randomIndex = Math.floor(Math.random() * (index + 1));
-    [shuffledNames[index], shuffledNames[randomIndex]] = [shuffledNames[randomIndex], shuffledNames[index]];
-  }
-
-  return starEmployees.map((employee, index) => ({
-    ...employee,
-    name: shuffledNames[index],
-  }));
-};
-
 const starEmployeeSatisfactionRankingRows: AgentRankingRow[] = [
   { rank: 1, workgroup: '学习机组', employeeId: '1001', name: '张三', value: '50%', averageValue: '30%' },
   { rank: 2, workgroup: '学习机组', employeeId: '1002', name: '张三', value: '30%', averageValue: '30%' },
@@ -3003,6 +3023,66 @@ const webchatSubMenus = [
   '网聊范例聊天审批',
   '网聊范例聊天查询',
   '网聊黑名单管理',
+];
+
+type SubMenuItem = { label: string; action: { type: 'legacy'; key: LegacyModulePage } | { type: 'tab'; tab: MainTab } | { type: 'none' } };
+
+const customerServiceMenus: SubMenuItem[] = [
+  { label: '电话清单', action: { type: 'legacy', key: 'phone-list' } },
+  { label: '录音查询', action: { type: 'legacy', key: 'recording-query' } },
+  { label: '短信发送历史', action: { type: 'legacy', key: 'sms-delivery-query' } },
+  { label: '邮件收发查询', action: { type: 'legacy', key: 'mail-delivery-query' } },
+  { label: '网聊历史查询', action: { type: 'legacy', key: 'webchat-history-query' } },
+  { label: '网聊留言管理', action: { type: 'legacy', key: 'webchat-message-management' } },
+  { label: '预约回电/留言管理', action: { type: 'legacy', key: 'appointment-message-management' } },
+  { label: '附件管理', action: { type: 'tab', tab: '附件管理' } },
+  { label: '小结管理', action: { type: 'legacy', key: 'summary-management' } },
+];
+
+const toolDeskMenus: SubMenuItem[] = [
+  { label: '范例录音查询', action: { type: 'legacy', key: 'sample-recording-query' } },
+  { label: '网聊范例聊天查询', action: { type: 'none' } },
+  { label: '消息服务', action: { type: 'tab', tab: '消息服务' } },
+  { label: '范例录音审核', action: { type: 'legacy', key: 'sample-recording-audit' } },
+  { label: '网聊范例聊天审批', action: { type: 'none' } },
+  { label: '网聊黑名单管理', action: { type: 'legacy', key: 'webchat-blacklist-management' } },
+  { label: '呼入黑名单维护', action: { type: 'none' } },
+  { label: '呼出黑名单维护', action: { type: 'none' } },
+  { label: '预存话术', action: { type: 'none' } },
+  { label: '工具设置', action: { type: 'legacy', key: 'third-party-website-settings' } },
+];
+
+const operationDeskMenus: SubMenuItem[] = [
+  { label: '组别维护', action: { type: 'tab', tab: '组别维护' } },
+  { label: '目标值维护', action: { type: 'tab', tab: '目标值维护' } },
+  { label: '品牌维护', action: { type: 'tab', tab: '品牌维护' } },
+  { label: '产品模块维护', action: { type: 'tab', tab: '产品模块维护' } },
+  { label: '敏感词维护', action: { type: 'none' } },
+  { label: '系统标签维护', action: { type: 'none' } },
+  { label: '繁忙公告管理', action: { type: 'tab', tab: '繁忙公告管理' } },
+  { label: '隐私声明管理', action: { type: 'tab', tab: '隐私声明管理' } },
+  { label: '网聊维护', action: { type: 'tab', tab: '网聊维护' } },
+  { label: '用户体系管理', action: { type: 'tab', tab: '用户体系管理' } },
+  { label: '业务字段管理', action: { type: 'tab', tab: '业务字段管理' } },
+  { label: '业务字段上线审核', action: { type: 'none' } },
+  { label: '发件人邮箱配置', action: { type: 'none' } },
+  { label: '消息维护', action: { type: 'none' } },
+  { label: '短信/邮件模板管理', action: { type: 'none' } },
+  { label: '坐席状态管理', action: { type: 'none' } },
+];
+
+const monitorDeskMenus: SubMenuItem[] = [
+  { label: '话务员监控', action: { type: 'legacy', key: 'agent-monitoring' } },
+  { label: '队列监控', action: { type: 'legacy', key: 'queue-monitoring' } },
+  { label: '排队监控', action: { type: 'legacy', key: 'waiting-monitoring' } },
+  { label: '渠道监控', action: { type: 'legacy', key: 'channel-monitoring' } },
+];
+
+const systemManagementMenus: SubMenuItem[] = [
+  { label: '账号管理', action: { type: 'none' } },
+  { label: '部门/角色管理', action: { type: 'tab', tab: '部门角色管理' } },
+  { label: '操作权限管理', action: { type: 'none' } },
+  { label: '菜单权限管理', action: { type: 'none' } },
 ];
 
 const webchatMaintenanceActions = [
@@ -3913,7 +3993,6 @@ function HelpSidebarContent({ onClose }: { onClose: () => void }) {
     const allTextNodes: Text[] = [];
     while (treeWalker.nextNode()) allTextNodes.push(treeWalker.currentNode as Text);
 
-    // Remove old highlights
     container.querySelectorAll('mark[data-help-search]').forEach((mark) => {
       const parent = mark.parentNode;
       if (parent) {
@@ -3932,7 +4011,6 @@ function HelpSidebarContent({ onClose }: { onClose: () => void }) {
     let matchCount = 0;
     const marks: HTMLElement[] = [];
 
-    // Re-walk after cleanup since DOM changed
     const walker2 = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
     const textNodes: Text[] = [];
     while (walker2.nextNode()) textNodes.push(walker2.currentNode as Text);
@@ -4045,7 +4123,6 @@ function HelpSidebarContent({ onClose }: { onClose: () => void }) {
         className="absolute flex flex-col rounded-xl shadow-2xl overflow-hidden"
         style={{ left: windowPos.x, top: windowPos.y, width: windowSize.w, height: windowSize.h }}
       >
-        {/* Title bar - draggable */}
         <div
           className="flex items-center justify-between border-b border-slate-200 bg-slate-100 px-5 py-2 cursor-move select-none gap-3"
           onMouseDown={(e) => {
@@ -4088,9 +4165,7 @@ function HelpSidebarContent({ onClose }: { onClose: () => void }) {
           </div>
           <button type="button" onClick={onClose} className="shrink-0 text-slate-400 hover:text-slate-600" onMouseDown={(e) => e.stopPropagation()}><X size={18} /></button>
         </div>
-        {/* Body: left TOC + right content */}
         <div className="flex flex-1 overflow-hidden">
-          {/* Left TOC menu */}
           <div className="flex w-[260px] shrink-0 flex-col border-r border-slate-200 bg-slate-50">
             <div className="flex-1 overflow-y-auto custom-scrollbar px-2 py-2">
               <div className="flex flex-col gap-0.5">
@@ -4117,7 +4192,6 @@ function HelpSidebarContent({ onClose }: { onClose: () => void }) {
               </div>
             </div>
           </div>
-          {/* Right content panel */}
           <div className="flex flex-1 flex-col bg-white overflow-hidden">
             <div ref={contentRef} className="flex-1 overflow-y-auto px-6 py-5 custom-scrollbar">
               <div className="max-w-none text-[15px] leading-8 text-slate-600">
@@ -4126,7 +4200,6 @@ function HelpSidebarContent({ onClose }: { onClose: () => void }) {
             </div>
           </div>
         </div>
-        {/* Resize handle */}
         <div
           className="absolute bottom-0 right-0 h-4 w-4 cursor-nwse-resize"
           onMouseDown={(e) => {
@@ -4243,15 +4316,30 @@ export default function App() {
     useState<
       Exclude<
         MainTab,
-        '在线工作台' | '消息服务' | '排班信息展示' | '业务字段管理' | '品牌维护' | '附件管理' | '产品模块维护' | '繁忙公告管理' | '隐私声明管理' | '用户体系管理' | '网聊维护'
+        '在线工作台' | '消息服务' | '排班信息展示' | '业务字段管理' | '品牌维护' | '附件管理' | '产品模块维护' | '繁忙公告管理' | '隐私声明管理' | '用户体系管理' | '网聊维护' | '小结管理'
       >
     >('个人门户');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [viewMode, setViewMode] = useState<'manager' | 'agent'>('manager');
+  const { userRole, setUserRole, initialUserRole } = useRoleRouting();
+  const [viewMode, setViewMode] = useState<'manager' | 'agent'>(() => getViewModeForRole(initialUserRole));
   const [managerPortalPage, setManagerPortalPage] = useState<ManagerPortalPage>('dashboard');
   const [agentPortalPage, setAgentPortalPage] = useState<AgentPortalPage>('dashboard');
   const [agentSubTab, setAgentSubTab] = useState<'online' | 'hotline'>('hotline');
-  
+  const [isRoleMenuOpen, setIsRoleMenuOpen] = useState(false);
+
+  const isFirstRoleChangeRef = useRef(true);
+  useEffect(() => {
+    if (isFirstRoleChangeRef.current) {
+      isFirstRoleChangeRef.current = false;
+      return;
+    }
+    const nextViewMode = getViewModeForRole(userRole);
+    setViewMode(nextViewMode);
+    setManagerPortalPage('dashboard');
+    setAgentPortalPage('dashboard');
+    setActiveTab('个人门户');
+  }, [userRole]);
+
   // Modal states
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [showBadRecordingModal, setShowBadRecordingModal] = useState(false);
@@ -4322,14 +4410,12 @@ export default function App() {
   const [onlineSummaryOpenSelect, setOnlineSummaryOpenSelect] = useState<string | null>(null);
   const [onlineCustomerRegionSelection, setOnlineCustomerRegionSelection] =
     useState<RegionSelection>(getDefaultRegionSelection);
-  const [isWebchatExpanded, setIsWebchatExpanded] = useState(false);
-  const [isTelephoneServiceExpanded, setIsTelephoneServiceExpanded] = useState(false);
-  const [isUtilityToolsExpanded, setIsUtilityToolsExpanded] = useState(false);
-  const [isMonitoringExpanded, setIsMonitoringExpanded] = useState(false);
+  const [isCustomerServiceExpanded, setIsCustomerServiceExpanded] = useState(false);
+  const [isToolDeskExpanded, setIsToolDeskExpanded] = useState(false);
   const [isScheduleManagementExpanded, setIsScheduleManagementExpanded] = useState(false);
-  const [isMessageNoticeExpanded, setIsMessageNoticeExpanded] = useState(false);
-  const [isSystemSettingsExpanded, setIsSystemSettingsExpanded] = useState(false);
-  const [isOrgStructureExpanded, setIsOrgStructureExpanded] = useState(false);
+  const [isOperationDeskExpanded, setIsOperationDeskExpanded] = useState(false);
+  const [isMonitorDeskExpanded, setIsMonitorDeskExpanded] = useState(false);
+  const [isSystemManagementExpanded, setIsSystemManagementExpanded] = useState(false);
   const [isHelpSidebarOpen, setIsHelpSidebarOpen] = useState(false);
 
   const [deptRoleMainTab, setDeptRoleMainTab] = useState<'department' | 'role'>('role');
@@ -4501,86 +4587,88 @@ export default function App() {
   
   // Director's Express states
   const [showDirectorModal, setShowDirectorModal] = useState(false);
-  const [directorView, setDirectorView] = useState<'list' | 'new' | 'detail'>('list');
-  const [selectedMessage, setSelectedMessage] = useState<any>(null);
-  const [messages, setMessages] = useState<any[]>([
-    { 
-      id: '9089000', 
-      title: '意见投诉', 
-      sender: 'Ranou',
-      recipient: 'zongjian',
-      isAnonymous: true, 
-      isReplied: true, 
-      createdAt: '2026-01-09 18:00', 
-      updatedAt: '2026-01-09 18:00', 
-      hasNew: true,
-      content: '尊敬的总监：\n\n您好！为提升客服接待效率、优化用户体验，减少用户重复表述问题，结合一线服务实际，现提出简要建议：\n\n建议系统规范历史会话小结、本次转接小结展示逻辑，同时统一坐席开口衔接话术，让人工转接更顺畅、服务更专业。\n\n望您参考，感谢关注！',
-      replies: [
-        {
-          sender: 'zongjian',
-          content: '已收到你的建议，内容务实、贴合一线服务实际，对提升接待效率与用户体验很有参考价值。我会安排相关同事尽快推进落地，也感谢你用心观察、积极反馈，后续可继续提出优化建议。',
-          timestamp: '2026-01-09 18:00'
-        }
-      ]
-    },
-    { id: '9089001', title: '系统优化建议', sender: 'Ranou', recipient: 'zongjian', isAnonymous: false, isReplied: false, createdAt: '2026-01-10 10:00', updatedAt: '2026-01-10 10:00', hasNew: false, content: '建议增加自动回复功能。', replies: [] },
-    { id: '9089002', title: '关于排班的反馈', sender: 'Ranou', recipient: 'zongjian', isAnonymous: true, isReplied: true, createdAt: '2026-01-11 14:30', updatedAt: '2026-01-11 15:00', hasNew: false, content: '排班时间太紧凑了。', replies: [{ sender: 'zongjian', content: '我们会考虑调整。', timestamp: '2026-01-11 15:00' }] },
-  ]);
-  const [newMessageContent, setNewMessageContent] = useState('');
-  const [isAnonymous, setIsAnonymous] = useState(true);
-  const [replyText, setReplyText] = useState('');
-  const handleSendMessage = () => {
-    if (!newMessageContent.trim()) return;
-    const newMsg = {
-      id: Math.floor(Math.random() * 10000000).toString(),
-      title: '新信件',
-      sender: 'Ranou',
-      recipient: 'zongjian',
-      isAnonymous,
-      isReplied: false,
-      createdAt: new Date().toLocaleString(),
-      updatedAt: new Date().toLocaleString(),
-      hasNew: false,
-      content: newMessageContent,
-      replies: []
+  const [shouldRenderDirectorModal, setShouldRenderDirectorModal] = useState(false);
+  const [directorView, setDirectorView] = useState<DirectorExpressView>('list');
+  const [selectedDirectorMessage, setSelectedDirectorMessage] = useState<DirectorExpressMessage | null>(null);
+  const [directorMessages, setDirectorMessages] = useState<DirectorExpressMessage[]>(() => {
+    return initialDirectorMessages ?? [];
+  });
+  const [newDirectorMessageContent, setNewDirectorMessageContent] = useState('');
+  const [newDirectorMessageTitle, setNewDirectorMessageTitle] = useState('');
+  const [isDirectorMessageAnonymous, setIsDirectorMessageAnonymous] = useState(true);
+  const [directorReplyText, setDirectorReplyText] = useState('');
+  const [directorReplyImage, setDirectorReplyImage] = useState<string | null>(null);
+  const unreadDirectorMessageCount = directorMessages.filter((m) => m.hasNew).length;
+  useEffect(() => {
+    if (showDirectorModal) setShouldRenderDirectorModal(true);
+  }, [showDirectorModal]);
+
+  const handleSelectDirectorMessage = (message: DirectorExpressMessage) => {
+    const next = message.hasNew ? { ...message, hasNew: false } : message;
+    setSelectedDirectorMessage(next);
+    setDirectorMessages(prev => prev.map(m => m.id === message.id ? next : m));
+  };
+
+  const handleSendDirectorReply = () => {
+    const trimmed = directorReplyText.trim();
+    if (!trimmed && !directorReplyImage) return;
+    if (!selectedDirectorMessage) return;
+    const timestamp = new Date().toLocaleString();
+    const replySender = viewMode === 'manager' ? 'zongjian' : 'Ranou';
+    const updated: DirectorExpressMessage = {
+      ...selectedDirectorMessage,
+      isReplied: viewMode === 'manager' ? true : selectedDirectorMessage.isReplied,
+      updatedAt: timestamp,
+      replies: [...selectedDirectorMessage.replies, { sender: replySender, content: trimmed, timestamp, image: directorReplyImage ?? undefined }],
     };
-    setMessages([newMsg, ...messages]);
-    setNewMessageContent('');
+    setDirectorMessages(prev => prev.map(m => m.id === selectedDirectorMessage.id ? updated : m));
+    setSelectedDirectorMessage(updated);
+    setDirectorReplyText('');
+    setDirectorReplyImage(null);
+  };
+
+  const handleSendDirectorMessage = () => {
+    const trimmedTitle = newDirectorMessageTitle.trim();
+    const trimmedContent = newDirectorMessageContent.trim();
+    if (!trimmedTitle || !trimmedContent) return;
+    const timestamp = new Date().toLocaleString();
+    const newMsg: DirectorExpressMessage = {
+      id: `msg-${Date.now()}`,
+      title: trimmedTitle,
+      sender: 'Ranou',
+      recipient: 'zongjian',
+      isAnonymous: isDirectorMessageAnonymous,
+      isReplied: false,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+      hasNew: false,
+      content: trimmedContent,
+      replies: [],
+    };
+    setDirectorMessages(prev => [newMsg, ...prev]);
+    setNewDirectorMessageContent('');
+    setNewDirectorMessageTitle('');
     setDirectorView('list');
   };
 
-  const handleSendReply = () => {
-    if (!replyText.trim() || !selectedMessage) return;
-    const updatedMessages = messages.map(msg => {
-      if (msg.id === selectedMessage.id) {
-        return {
-          ...msg,
-          updatedAt: new Date().toLocaleString(),
-          replies: [...msg.replies, { sender: 'Ranou', content: replyText, timestamp: new Date().toLocaleString() }]
-        };
-      }
-      return msg;
-    });
-    setMessages(updatedMessages);
-    setSelectedMessage(updatedMessages.find(m => m.id === selectedMessage.id));
-    setReplyText('');
-  };
-  
   // Dropdown states
-  const [allFilter, setAllFilter] = useState('全部');
+  const [allFilter, setAllFilter] = useState<ManagerGroupFilter>('全部');
   const [isAllOpen, setIsAllOpen] = useState(false);
   
-  const [onlineFilter, setOnlineFilter] = useState('在线');
+  const [onlineFilter, setOnlineFilter] = useState<ManagerOnlineFilter>('热线');
 
-  const [trendMonth, setTrendMonth] = useState('2026年10月');
+  const [trendMonth, setTrendMonth] = useState('2026年6月');
   const [isTrendMonthOpen, setIsTrendMonthOpen] = useState(false);
 
-  const [personnelDate, setPersonnelDate] = useState('昨日');
+  const [personnelDate, setPersonnelDate] = useState<ManagerPersonnelDateOption>('昨日');
   const [isPersonnelDateOpen, setIsPersonnelDateOpen] = useState(false);
-  const [starEmployeeMetric, setStarEmployeeMetric] = useState<'communication' | 'satisfaction'>('communication');
-  const [satisfactionStarEmployees] = useState(() => createShuffledStarEmployees());
+  const [starEmployeeMetric, setStarEmployeeMetric] = useState<StarEmployeeMetric>('communication');
+  const [satisfactionStarEmployees] = useState<StarEmployee[]>(() => createShuffledStarEmployees());
+  const [portalGreeting, setPortalGreeting] = useState('');
+  const [personnelFocusMetric, setPersonnelFocusMetric] = useState<PersonnelFocusMetric>('satisfaction');
+  const [activeShiftDay, setActiveShiftDay] = useState<ShiftScheduleDay>('今天');
 
-  const [businessPeriod, setBusinessPeriod] = useState<BusinessPeriod>('日');
+  const [businessPeriod, setBusinessPeriod] = useState<ManagerBusinessPeriodOption>('日');
   const [isBusinessPeriodOpen, setIsBusinessPeriodOpen] = useState(false);
 
   const months = Array.from({ length: 12 }, (_, i) => `2026年${i + 1}月`);
@@ -4606,7 +4694,7 @@ export default function App() {
       };
     })
     .sort((a, b) => b.maxGap - a.maxGap);
-  const directorUnreadCount = messages.filter((message) => message.hasNew).length;
+  const directorUnreadCount = directorMessages.filter((message) => message.hasNew).length;
   const activeBusinessTrendConfig = businessTrendDataByPeriod[businessPeriod];
   const activeBusinessTrendAnnotationMap = activeBusinessTrendConfig.annotations.reduce<Record<string, BusinessTrendAnnotation>>(
     (result, item) => {
@@ -4665,27 +4753,22 @@ export default function App() {
     setActiveLegacyModulePage(page);
     setOpenLegacyModulePages((current) => (current.includes(page) ? current : [...current, page]));
 
-    if (telephoneServiceLegacyMenus.some((item) => item.key === page)) {
-      setIsTelephoneServiceExpanded(true);
+    if (customerServiceMenus.some((item) => item.action.type === 'legacy' && item.action.key === page)) {
+      setIsCustomerServiceExpanded(true);
       return;
     }
-    if (utilityToolsLegacyMenus.some((item) => item.key === page)) {
-      setIsUtilityToolsExpanded(true);
+    if (toolDeskMenus.some((item) => item.action.type === 'legacy' && item.action.key === page)) {
+      setIsToolDeskExpanded(true);
       return;
     }
-    if (monitoringLegacyMenus.some((item) => item.key === page)) {
-      setIsMonitoringExpanded(true);
-      return;
-    }
-    if (webchatLegacyMenus.some((item) => item.key === page)) {
-      setIsWebchatExpanded(true);
+    if (monitorDeskMenus.some((item) => item.action.type === 'legacy' && item.action.key === page)) {
+      setIsMonitorDeskExpanded(true);
       return;
     }
     if (page === 'customer-info-edit' || page === 'customer-info-view') {
-      setIsUtilityToolsExpanded(true);
+      setIsCustomerServiceExpanded(true);
       return;
     }
-    setIsSystemSettingsExpanded(true);
   };
   const handleCloseLegacyModulePage = (page: LegacyModulePage) => {
     setOpenLegacyModulePages((current) => {
@@ -4706,7 +4789,7 @@ export default function App() {
     }
     if (tab === '消息服务') {
       setIsMessageServiceTabVisible(true);
-      setIsMessageNoticeExpanded(true);
+      setIsToolDeskExpanded(true);
       setActiveTab('消息服务');
       return;
     }
@@ -4718,67 +4801,67 @@ export default function App() {
     }
     if (tab === '业务字段管理') {
       setIsBusinessFieldManagementTabVisible(true);
-      setIsSystemSettingsExpanded(true);
+      setIsOperationDeskExpanded(true);
       setActiveTab('业务字段管理');
       return;
     }
     if (tab === '组别维护') {
       setIsGroupMaintenanceTabVisible(true);
-      setIsSystemSettingsExpanded(true);
+      setIsOperationDeskExpanded(true);
       setActiveTab('组别维护');
       return;
     }
     if (tab === '目标值维护') {
       setIsTargetValueMaintenanceTabVisible(true);
-      setIsSystemSettingsExpanded(true);
+      setIsOperationDeskExpanded(true);
       setActiveTab('目标值维护');
       return;
     }
     if (tab === '品牌维护') {
       setIsBrandMaintenanceTabVisible(true);
-      setIsSystemSettingsExpanded(true);
+      setIsOperationDeskExpanded(true);
       setActiveTab('品牌维护');
       return;
     }
     if (tab === '附件管理') {
       setIsAttachmentManagementTabVisible(true);
-      setIsSystemSettingsExpanded(true);
+      setIsCustomerServiceExpanded(true);
       setActiveTab('附件管理');
       return;
     }
     if (tab === '产品模块维护') {
       setIsProductModuleMaintenanceTabVisible(true);
-      setIsSystemSettingsExpanded(true);
+      setIsOperationDeskExpanded(true);
       setActiveTab('产品模块维护');
       return;
     }
     if (tab === '繁忙公告管理') {
       setIsBusyAnnouncementManagementTabVisible(true);
-      setIsSystemSettingsExpanded(true);
+      setIsOperationDeskExpanded(true);
       setActiveTab('繁忙公告管理');
       return;
     }
     if (tab === '隐私声明管理') {
       setIsPrivacyStatementManagementTabVisible(true);
-      setIsSystemSettingsExpanded(true);
+      setIsOperationDeskExpanded(true);
       setActiveTab('隐私声明管理');
       return;
     }
     if (tab === '用户体系管理') {
       setIsUserSystemManagementTabVisible(true);
-      setIsSystemSettingsExpanded(true);
+      setIsOperationDeskExpanded(true);
       setActiveTab('用户体系管理');
       return;
     }
     if (tab === '网聊维护') {
       setIsWebchatMaintenanceTabVisible(true);
-      setIsWebchatExpanded(true);
+      setIsOperationDeskExpanded(true);
       setActiveTab('网聊维护');
       return;
     }
     if (tab === '部门角色管理') {
       setIsDeptRoleManagementTabVisible(true);
-      setIsOrgStructureExpanded(true);
+      setIsSystemManagementExpanded(true);
       setActiveTab('部门角色管理');
       return;
     }
@@ -7714,2106 +7797,536 @@ export default function App() {
     </div>
   );
 
-  const callWorkbenchContent = (
-    <div className="relative flex min-h-0 flex-1 overflow-hidden bg-[#f5f7fb] px-3 pb-3 pt-2">
-      <div ref={callWorkbenchLayoutRef} className="flex h-full min-h-0 w-full flex-col gap-3 xl:flex-row xl:gap-0">
-        <div
-          className="flex min-h-0 xl:shrink-0"
-          style={{
-            width:
-              typeof window !== 'undefined' && window.innerWidth >= 1280
-                ? `${callLeftPanelWidth}px`
-                : undefined,
-          }}
-        >
-          <div ref={callLeftPanelStackRef} className="flex min-h-0 flex-1 flex-col gap-3 xl:gap-0">
-          <section
-            className="flex min-h-0 flex-1 flex-col rounded-[14px] border border-slate-200 bg-white px-4 py-3.5 shadow-[0_8px_24px_rgba(15,23,42,0.04)] xl:flex-none"
-            style={
-              typeof window !== 'undefined' && window.innerWidth >= 1280
-                ? { height: `${callLeftTopPanelHeight}px` }
-                : undefined
-            }
-          >
-            <h2 className="shrink-0 text-[14px] font-bold text-slate-800">呼入信息</h2>
-            <div className="mt-4 flex-1 overflow-y-auto custom-scrollbar">
-            <div className="grid grid-cols-3 gap-x-3 gap-y-2 text-[11px] text-slate-500">
-              {callWorkbenchInboundProfile.inboundInfoItems.map((item) => (
-                <div key={item.label} className="space-x-1">
-                  <span>{item.label}:</span>
-                  <span className="font-medium text-slate-700">{item.value}</span>
+  const callWorkbenchContent = <CallWorkbenchPage />;
+  const onlineWorkbenchContent = <OnlineWorkbenchPage />;
+
+  void (
+    <CallWorkbenchContentView
+      layoutRef={callWorkbenchLayoutRef}
+      leftPanelStackRef={callLeftPanelStackRef}
+      centerPanelRef={callCenterPanelRef}
+      centerPanelStackRef={callCenterPanelStackRef}
+      rightPanelStackRef={callRightPanelStackRef}
+      leftPanelWidth={callLeftPanelWidth}
+      leftTopPanelHeight={callLeftTopPanelHeight}
+      centerPanelWidth={callCenterPanelWidth}
+      centerTopPanelHeight={callCenterTopPanelHeight}
+      rightTopPanelHeight={callRightTopPanelHeight}
+      isLeftTopResizing={isCallLeftTopResizing}
+      isLeftResizing={isCallLeftResizing}
+      isCenterTopResizing={isCallCenterTopResizing}
+      isCenterResizing={isCallCenterResizing}
+      isRightTopResizing={isCallRightTopResizing}
+      onStartLeftTopResize={() => setIsCallLeftTopResizing(true)}
+      onResetLeftTopPanelHeight={() => {
+        if (!callLeftPanelStackRef.current) return;
+        const stackHeight = callLeftPanelStackRef.current.getBoundingClientRect().height;
+        setIsCallLeftTopPanelCustomized(false);
+        setCallLeftTopPanelHeight(stackHeight * 0.45);
+      }}
+      onStartLeftResize={() => setIsCallLeftResizing(true)}
+      onResetLeftPanelWidth={() => {
+        if (!callWorkbenchLayoutRef.current) return;
+        setIsCallLeftPanelCustomized(false);
+        setCallLeftPanelWidth(callWorkbenchLayoutRef.current.getBoundingClientRect().width / 3);
+      }}
+      onStartCenterTopResize={() => setIsCallCenterTopResizing(true)}
+      onResetCenterTopPanelHeight={() => {
+        if (!callCenterPanelStackRef.current) return;
+        const stackHeight = callCenterPanelStackRef.current.getBoundingClientRect().height;
+        setIsCallCenterTopPanelCustomized(false);
+        setCallCenterTopPanelHeight(stackHeight * 0.45);
+      }}
+      onStartCenterResize={() => setIsCallCenterResizing(true)}
+      onResetCenterPanelWidth={() => {
+        if (!callWorkbenchLayoutRef.current) return;
+        setIsCallCenterPanelCustomized(false);
+        setCallCenterPanelWidth(callWorkbenchLayoutRef.current.getBoundingClientRect().width / 3);
+      }}
+      onStartRightTopResize={() => setIsCallRightTopResizing(true)}
+      onResetRightTopPanelHeight={() => {
+        if (!callRightPanelStackRef.current) return;
+        setIsCallRightTopPanelCustomized(false);
+        setCallRightTopPanelHeight(callRightPanelStackRef.current.getBoundingClientRect().height * 0.45);
+      }}
+      leftTopContent={
+        <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-hairline bg-white shadow-card">
+          <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+            <h2 className="text-[14px] font-bold text-slate-800">客户信息</h2>
+            <div className="flex items-center gap-2">
+              <input type="text" placeholder="输入手机号查询" className="h-8 w-[132px] rounded-full border border-slate-200 bg-[#fcfcfd] px-3 text-[12px] text-slate-400 outline-none focus:border-emerald-400" />
+              <button type="button" className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-50 hover:text-slate-600"><Search size={14} /></button>
+              <button type="button" className="flex h-7 items-center gap-1 rounded-md bg-emerald-500 px-2.5 text-[11px] text-white hover:bg-emerald-600"><span>新建客户</span></button>
+            </div>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+            <div className="grid grid-cols-3 gap-x-4 gap-y-3">
+              <div className="flex flex-col gap-1">
+                <span className="text-[11px] font-medium text-slate-400">姓名</span>
+                <span className="text-[13px] text-slate-700">张伟</span>
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="text-[11px] font-medium text-slate-400">电话</span>
+                <span className="text-[13px] text-slate-700">176****2305</span>
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="text-[11px] font-medium text-slate-400">性别</span>
+                <span className="text-[13px] text-slate-700">男</span>
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="text-[11px] font-medium text-slate-400">会员等级</span>
+                <span className="inline-flex w-fit items-center rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-600">金牌会员</span>
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="text-[11px] font-medium text-slate-400">证件号</span>
+                <span className="text-[13px] text-slate-700">3101**********1234</span>
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="text-[11px] font-medium text-slate-400">邮箱</span>
+                <span className="text-[13px] text-slate-700">zhangwei@example.com</span>
+              </div>
+              <div className="col-span-3 flex flex-col gap-1">
+                <span className="text-[11px] font-medium text-slate-400">地址</span>
+                <span className="text-[13px] text-slate-700">北京市海淀区中关村南大街5号</span>
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="text-[11px] font-medium text-slate-400">客户来源</span>
+                <span className="text-[13px] text-slate-700">官网注册</span>
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="text-[11px] font-medium text-slate-400">注册日期</span>
+                <span className="text-[13px] text-slate-700">2024-03-15</span>
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="text-[11px] font-medium text-slate-400">客户标签</span>
+                <div className="flex flex-wrap gap-1">
+                  <span className="inline-flex items-center rounded-full border border-indigo-200 bg-indigo-50 px-2 py-0.5 text-[10px] font-medium text-indigo-500">VIP客户</span>
+                  <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-500">高净值</span>
+                </div>
+              </div>
+              <div className="col-span-3 mt-1 border-t border-dashed border-slate-100 pt-3">
+                <span className="text-[11px] font-medium text-slate-400">备注</span>
+                <p className="mt-1 text-[12px] leading-relaxed text-slate-500">该客户为长期合作伙伴，多次购买旗舰产品，需优先处理售后问题。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      }
+      leftBottomContent={
+        <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-hairline bg-white shadow-card">
+          <div className="flex items-center border-b border-slate-100">
+            {['通话历史', '短信历史', '邮件历史'].map((tab, idx) => (
+              <button key={tab} type="button" className={cn("relative px-4 py-3 text-[13px] font-medium transition-colors", idx === 0 ? "text-emerald-600" : "text-slate-400 hover:text-slate-600")}>
+                {tab}
+                {idx === 0 && <span className="absolute bottom-0 left-4 right-4 h-[2px] rounded-full bg-emerald-500" />}
+              </button>
+            ))}
+            <div className="ml-auto flex items-center gap-1 pr-3">
+              <span className="text-[11px] text-slate-400">近30天</span>
+              <ChevronDown size={12} className="text-slate-300" />
+            </div>
+          </div>
+          <div className="flex-1 overflow-y-auto custom-scrollbar">
+            <table className="w-full text-left text-[12px]">
+              <thead className="sticky top-0 z-[1] bg-slate-50/90 backdrop-blur-sm">
+                <tr className="text-[11px] font-medium text-slate-400">
+                  <th className="px-4 py-2.5">时间</th>
+                  <th className="px-2 py-2.5">类型</th>
+                  <th className="px-2 py-2.5">时长</th>
+                  <th className="px-2 py-2.5">坐席</th>
+                  <th className="px-2 py-2.5">状态</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {[
+                  { time: '2025-06-07 14:32', type: '呼入', duration: '05:23', agent: '李明', status: '已完成', statusCls: 'text-emerald-500' },
+                  { time: '2025-06-05 09:15', type: '呼出', duration: '03:41', agent: '王芳', status: '已完成', statusCls: 'text-emerald-500' },
+                  { time: '2025-06-02 16:48', type: '呼入', duration: '08:12', agent: '刘洋', status: '已转接', statusCls: 'text-amber-500' },
+                  { time: '2025-05-28 11:03', type: '呼入', duration: '02:15', agent: '赵倩', status: '未接通', statusCls: 'text-red-400' },
+                  { time: '2025-05-25 10:20', type: '呼出', duration: '06:33', agent: '李明', status: '已完成', statusCls: 'text-emerald-500' },
+                  { time: '2025-05-20 15:47', type: '呼入', duration: '04:50', agent: '王芳', status: '已完成', statusCls: 'text-emerald-500' },
+                ].map((row, idx) => (
+                  <tr key={idx} className="transition-colors hover:bg-slate-50/60">
+                    <td className="px-4 py-2.5 text-slate-500">{row.time}</td>
+                    <td className="px-2 py-2.5">
+                      <span className={cn("inline-flex items-center gap-1 text-[11px]", row.type === '呼入' ? "text-blue-500" : "text-orange-500")}>
+                        {row.type === '呼入' ? <LogIn size={11} /> : <LogOut size={11} />}
+                        {row.type}
+                      </span>
+                    </td>
+                    <td className="px-2 py-2.5 text-slate-600">{row.duration}</td>
+                    <td className="px-2 py-2.5 text-slate-600">{row.agent}</td>
+                    <td className={cn("px-2 py-2.5 text-[11px] font-medium", row.statusCls)}>{row.status}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      }
+      centerTopContent={
+        <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-hairline bg-white shadow-card">
+          <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+            <h2 className="text-[14px] font-bold text-slate-800">呼入信息</h2>
+            <div className="flex items-center gap-1.5">
+              <button type="button" className="flex h-7 items-center gap-1 rounded-md border border-slate-200 bg-white px-2 text-[11px] text-slate-500 hover:bg-slate-50"><Calendar size={12} />预约回访</button>
+              <button type="button" className="flex h-7 items-center gap-1 rounded-md border border-slate-200 bg-white px-2 text-[11px] text-slate-500 hover:bg-slate-50"><Shield size={12} />加黑名单</button>
+              <button type="button" className="flex h-7 items-center gap-1 rounded-md border border-slate-200 bg-white px-2 text-[11px] text-slate-500 hover:bg-slate-50"><FileSearch size={12} />附件查询</button>
+            </div>
+          </div>
+          <div className="flex-1 overflow-y-auto custom-scrollbar">
+            {/* Call info grid */}
+            <div className="grid grid-cols-3 gap-x-4 gap-y-3 border-b border-dashed border-slate-100 px-4 py-3">
+              {[
+                { label: '电话', value: '17601672305' },
+                { label: '持续时间', value: '05:00' },
+                { label: '排队', value: '10' },
+                { label: '电话归属', value: '北京海淀' },
+                { label: '来电次数', value: '第20次' },
+                { label: '运营商', value: '电信' },
+              ].map((item) => (
+                <div key={item.label} className="flex flex-col gap-0.5">
+                  <span className="text-[11px] text-slate-400">{item.label}</span>
+                  <span className="text-[13px] font-medium text-slate-700">{item.value}</span>
                 </div>
               ))}
             </div>
-            <div className="mt-4 flex flex-wrap gap-2">
-              {callWorkbenchInboundProfile.tags.map((tag) => (
-                <span key={tag.label} className={cn("rounded-full border px-2.5 py-[5px] text-[11px] font-medium leading-none", tag.cls)}>
-                  {tag.label}
-                </span>
-              ))}
-            </div>
-            <div className="mt-5 border-t border-slate-100 pt-4">
-              <div className="text-[12px] font-semibold text-slate-700">历史总结：</div>
-              <p className="mt-2 text-[11px] leading-5 text-slate-500">
-                {callWorkbenchInboundProfile.ivrPath}
-              </p>
-            </div>
-            <div className="mt-4">
-              <div className="text-[12px] font-semibold text-slate-700">本次转接：</div>
-              <p className="mt-2 text-[11px] leading-5 text-slate-500">
-                {callWorkbenchInboundProfile.transferSummary}
-              </p>
-            </div>
-            </div>
-          </section>
-
-          <button
-            type="button"
-            aria-label="调整呼叫工作台左侧区域高度"
-            onMouseDown={(event) => {
-              event.preventDefault();
-              setIsCallLeftTopResizing(true);
-            }}
-            onDoubleClick={() => {
-              if (!callLeftPanelStackRef.current) {
-                return;
-              }
-
-              const stackHeight = callLeftPanelStackRef.current.getBoundingClientRect().height;
-              setIsCallLeftTopPanelCustomized(false);
-              setCallLeftTopPanelHeight(getCallVerticalPanelDefaultHeight(stackHeight, CALL_VERTICAL_RESIZER_HEIGHT));
-            }}
-            className={cn(
-              "group hidden h-3 shrink-0 cursor-row-resize items-center justify-center rounded-full transition-colors xl:flex",
-              isCallLeftTopResizing ? "bg-emerald-50" : "hover:bg-slate-100"
-            )}
-          >
-            <span className={cn("flex h-[3px] w-20 items-center justify-center gap-1 rounded-full bg-transparent transition-colors", isCallLeftTopResizing && "bg-emerald-50")}>
-              <span className={cn("h-[2px] w-7 rounded-full bg-slate-200 transition-colors group-hover:bg-slate-300", isCallLeftTopResizing && "bg-emerald-300")} />
-              <span className={cn("h-[2px] w-7 rounded-full bg-slate-200 transition-colors group-hover:bg-slate-300", isCallLeftTopResizing && "bg-emerald-300")} />
-            </span>
-          </button>
-
-          <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[14px] border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
-            <div className="flex shrink-0 items-center gap-5 border-b border-slate-100 px-4">
-              {(['通话历史', '会话历史', '短信历史', '邮件历史'] as WorkbenchHistoryTab[]).map((tab) => (
-                <button
-                  key={tab}
-                  type="button"
-                  onClick={() => setCallHistoryTab(tab)}
-                  className={cn(
-                    "relative py-3 text-[12px] font-semibold transition-colors",
-                    callHistoryTab === tab ? "text-emerald-500" : "text-slate-500 hover:text-slate-700"
-                  )}
-                >
-                  {tab}
-                  {callHistoryTab === tab && <span className="absolute inset-x-0 bottom-0 h-0.5 bg-emerald-500" />}
-                </button>
-              ))}
-            </div>
-            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
-              <div className="space-y-4">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[11px] text-slate-400">{activeHistoryMeta.total}</span>
-                <div className="relative min-w-[88px] flex-1">
-                  <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-300" />
-                  <input
-                    type="text"
-                    placeholder={activeHistoryMeta.filterPlaceholder}
-                    className="h-[30px] w-full rounded-md border border-slate-200 bg-[#fcfcfd] pl-8 pr-3 text-[12px] text-slate-500 outline-none"
-                  />
-                </div>
-                <button className="flex h-[30px] items-center gap-2 rounded-md border border-slate-200 bg-[#fcfcfd] px-3 text-[12px] text-slate-500">
-                  25.09.09 18:16:10
-                  <ChevronDown size={12} className="text-slate-300" />
-                </button>
-                <button className="flex h-[30px] w-[30px] items-center justify-center rounded-md border border-slate-200 bg-[#fcfcfd] text-slate-400">
-                  <MoreVertical size={14} />
-                </button>
-              </div>
-              <div className="grid grid-cols-3 gap-x-3 gap-y-2 text-[11px] text-slate-500">
-                {activeHistoryMeta.details.map((detail) => (
-                  <div key={detail.label}>
-                    <span>{detail.label}:</span>
-                    <span className="ml-1 text-slate-700">{detail.value}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="min-h-[228px] space-y-4 border-t border-slate-100 pt-4">
-                {activeHistoryMeta.messages.map((message, index) => (
-                  <div key={index} className={cn("flex", message.align === 'right' ? "justify-end" : "justify-start")}>
-                    <div className={cn("max-w-[235px]", message.align === 'right' && "items-end")}>
-                      <div className={cn("mb-1 text-[11px] text-slate-400", message.align === 'right' ? "text-right" : "text-left")}>
-                        10-28 09:10:20
-                      </div>
-                      <div className={cn("flex items-center gap-2", message.align === 'right' && "flex-row-reverse")}>
-                        <div className={cn(
-                          "flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-white",
-                          message.align === 'right' ? "bg-orange-400" : "bg-emerald-500"
-                        )}>
-                          <MessageSquare size={14} />
-                        </div>
-                        <div className="space-y-1">
-                          {message.badge && (
-                            <div className="text-right">
-                              <span className="rounded-md bg-emerald-50 px-2 py-1 text-[10px] font-medium text-emerald-500">
-                                {message.badge}
-                              </span>
-                            </div>
-                          )}
-                          <div className={cn(
-                            "rounded-2xl px-4 py-2 text-[12px] leading-5 shadow-[0_2px_6px_rgba(15,23,42,0.03)]",
-                            message.align === 'right'
-                              ? "rounded-tr-md bg-[#e9f9f4] text-slate-700"
-                              : "rounded-tl-md bg-slate-50 text-slate-700"
-                          )}>
-                            {message.text}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              </div>
-            </div>
-          </section>
-        </div>
-        </div>
-
-        <button
-          type="button"
-          aria-label="调整呼叫工作台左侧宽度"
-          onMouseDown={(event) => {
-            event.preventDefault();
-            setIsCallLeftResizing(true);
-          }}
-          onDoubleClick={() => {
-            if (!callWorkbenchLayoutRef.current) {
-              return;
-            }
-
-            const layoutWidth = callWorkbenchLayoutRef.current.getBoundingClientRect().width;
-            setIsCallLeftPanelCustomized(false);
-            setCallLeftPanelWidth(getCallLeftPanelDefaultWidth(layoutWidth, window.innerWidth));
-          }}
-          className={cn(
-            "group hidden w-3 shrink-0 cursor-col-resize items-center justify-center rounded-full transition-colors xl:flex",
-            isCallLeftResizing ? "bg-emerald-50" : "hover:bg-slate-100"
-          )}
-        >
-          <span className={cn("flex h-20 w-[3px] flex-col items-center justify-center gap-1 rounded-full bg-transparent transition-colors", isCallLeftResizing && "bg-emerald-50")}>
-            <span className={cn("h-7 w-[2px] rounded-full bg-slate-200 transition-colors group-hover:bg-slate-300", isCallLeftResizing && "bg-emerald-300")} />
-            <span className={cn("h-7 w-[2px] rounded-full bg-slate-200 transition-colors group-hover:bg-slate-300", isCallLeftResizing && "bg-emerald-300")} />
-          </span>
-        </button>
-
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 xl:flex-row xl:gap-0">
-        <div
-          ref={callCenterPanelRef}
-          className="flex min-h-0 xl:shrink-0"
-          style={{
-            width:
-              typeof window !== 'undefined' && window.innerWidth >= 1280
-                ? `${callCenterPanelWidth}px`
-                : undefined,
-          }}
-        >
-          <div ref={callCenterPanelStackRef} className="flex min-h-0 flex-1 flex-col gap-3 xl:gap-0">
-          <section
-            className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[14px] border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,0.04)] xl:flex-none"
-            style={
-              typeof window !== 'undefined' && window.innerWidth >= 1280
-                ? { height: `${callCenterTopPanelHeight}px` }
-                : undefined
-            }
-          >
-            <div className="flex shrink-0 items-center justify-between border-b border-slate-100 px-4 py-3">
-              <h2 className="text-[14px] font-bold text-slate-800">客户信息</h2>
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={callCustomerQueryPhone}
-                  onChange={(e) => setCallCustomerQueryPhone(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleQueryCallCustomerByPhone(); } }}
-                  placeholder="输入手机号查询"
-                  className="h-[30px] w-[150px] rounded-full border border-slate-200 bg-[#fcfcfd] px-3 text-[12px] text-slate-600 outline-none placeholder:text-slate-400"
-                />
-                <button
-                  type="button"
-                  aria-label="按呼入信息重置客户信息"
-                  title="按呼入信息重置客户信息"
-                  onClick={handleResetCallCustomerFields}
-                  className="flex h-[30px] w-[30px] items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-50 hover:text-slate-600"
-                >
-                  <RotateCw size={14} />
-                </button>
-              </div>
-            </div>
-            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-              {workbenchCustomerFields.map((field) =>
-                renderEditableWorkbenchField(
-                  field,
-                  callCustomerFieldValues,
-                  setCallCustomerFieldValues,
-                  callCustomerOpenSelect,
-                  setCallCustomerOpenSelect,
-                  'call-customer',
-                  callCustomerRegionSelection,
-                  setCallCustomerRegionSelection
-                )
-              )}
-            </div>
-            </div>
-            <div className="flex justify-end gap-3 border-t border-slate-100 px-4 py-3">
-              <button
-                type="button"
-                className="rounded-full border border-[#7ee0d3] bg-[#f1fdfa] px-6 py-1.5 text-[12px] font-medium text-[#18a058]"
-              >
-                保存
-              </button>
-              <button
-                type="button"
-                onClick={handleResetCallCustomerFields}
-                className="rounded-full border border-[#7ee0d3] bg-[#f1fdfa] px-6 py-1.5 text-[12px] font-medium text-[#18a058]"
-              >
-                重置
+            {/* Tags */}
+            <div className="flex flex-wrap items-center gap-1.5 border-b border-dashed border-slate-100 px-4 py-3">
+              <span className="text-[11px] text-slate-400 mr-1">标签</span>
+              <span className="inline-flex items-center rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-0.5 text-[11px] font-medium text-indigo-500">VIP客户</span>
+              <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[11px] font-medium text-amber-500">高净值</span>
+              <span className="inline-flex items-center rounded-full border border-sky-200 bg-sky-50 px-2.5 py-0.5 text-[11px] font-medium text-sky-500">售后咨询</span>
+              <button type="button" className="ml-1 flex h-5 w-5 items-center justify-center rounded-full border border-dashed border-slate-300 text-slate-400 hover:border-emerald-400 hover:text-emerald-500">
+                <span className="text-[13px] leading-none">+</span>
               </button>
             </div>
-          </section>
-
-          <button
-            type="button"
-            aria-label="调整呼叫工作台中间区域高度"
-            onMouseDown={(event) => {
-              event.preventDefault();
-              setIsCallCenterTopResizing(true);
-            }}
-            onDoubleClick={() => {
-              if (!callCenterPanelStackRef.current) {
-                return;
-              }
-
-              const stackHeight = callCenterPanelStackRef.current.getBoundingClientRect().height;
-              setIsCallCenterTopPanelCustomized(false);
-              setCallCenterTopPanelHeight(getCallVerticalPanelDefaultHeight(stackHeight, CALL_VERTICAL_RESIZER_HEIGHT));
-            }}
-            className={cn(
-              "group hidden h-3 shrink-0 cursor-row-resize items-center justify-center rounded-full transition-colors xl:flex",
-              isCallCenterTopResizing ? "bg-emerald-50" : "hover:bg-slate-100"
-            )}
-          >
-            <span className={cn("flex h-[3px] w-20 items-center justify-center gap-1 rounded-full bg-transparent transition-colors", isCallCenterTopResizing && "bg-emerald-50")}>
-              <span className={cn("h-[2px] w-7 rounded-full bg-slate-200 transition-colors group-hover:bg-slate-300", isCallCenterTopResizing && "bg-emerald-300")} />
-              <span className={cn("h-[2px] w-7 rounded-full bg-slate-200 transition-colors group-hover:bg-slate-300", isCallCenterTopResizing && "bg-emerald-300")} />
-            </span>
-          </button>
-
-          <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[14px] border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
-            <div className="flex shrink-0 items-center justify-between border-b border-slate-100 px-4 py-3">
-              <div className="flex items-center gap-4">
-                <h2 className="text-[14px] font-bold text-slate-800">会话小结</h2>
-                <div className="flex items-center gap-2">
-                  {callSummaryTabs.map((tab) => (
-                    <button
-                      key={tab}
-                      type="button"
-                      onClick={() => setCallSummaryTab(tab)}
-                      className={cn(
-                        "rounded-md border px-2.5 py-1 text-[12px] transition-colors",
-                        callSummaryTab === tab
-                          ? "border-emerald-200 bg-emerald-50 text-emerald-500"
-                          : "border-transparent text-slate-400 hover:bg-slate-50 hover:text-slate-600"
-                      )}
-                    >
-                      {tab}
-                    </button>
+            {/* IVR Path */}
+            <div className="flex items-center gap-2 border-b border-dashed border-slate-100 px-4 py-3">
+              <span className="text-[11px] text-slate-400">IVR路径</span>
+              <div className="flex items-center gap-1 text-[12px] text-slate-600">
+                <span className="rounded bg-slate-100 px-1.5 py-0.5">1</span>
+                <span className="text-slate-300">→</span>
+                <span className="rounded bg-slate-100 px-1.5 py-0.5">3</span>
+                <span className="text-slate-300">→</span>
+                <span className="rounded bg-emerald-50 px-1.5 py-0.5 text-emerald-600">人工服务</span>
+              </div>
+            </div>
+            {/* Queue Table */}
+            <div className="px-4 py-3">
+              <h3 className="mb-2 text-[12px] font-semibold text-slate-600">当前排队情况</h3>
+              <table className="w-full text-left text-[11px]">
+                <thead>
+                  <tr className="text-slate-400">
+                    <th className="pb-2 pr-3 font-medium">队列名称</th>
+                    <th className="pb-2 pr-3 font-medium">等待数</th>
+                    <th className="pb-2 pr-3 font-medium">在线坐席</th>
+                    <th className="pb-2 font-medium">预计等待</th>
+                  </tr>
+                </thead>
+                <tbody className="text-slate-600">
+                  {[
+                    { name: 'VIP专线', waiting: 3, agents: 8, eta: '约1分钟' },
+                    { name: '售后服务', waiting: 12, agents: 15, eta: '约3分钟' },
+                    { name: '技术支持', waiting: 6, agents: 5, eta: '约5分钟' },
+                    { name: '投诉建议', waiting: 2, agents: 4, eta: '约1分钟' },
+                  ].map((q) => (
+                    <tr key={q.name} className="border-t border-slate-50">
+                      <td className="py-2 pr-3 font-medium">{q.name}</td>
+                      <td className="py-2 pr-3">
+                        <span className={cn("inline-flex min-w-[20px] items-center justify-center rounded-full px-1.5 py-0.5 text-[10px] font-bold text-white", q.waiting > 8 ? "bg-red-400" : q.waiting > 4 ? "bg-amber-400" : "bg-emerald-400")}>{q.waiting}</span>
+                      </td>
+                      <td className="py-2 pr-3">{q.agents}</td>
+                      <td className="py-2 text-slate-400">{q.eta}</td>
+                    </tr>
                   ))}
-                  <button
-                    type="button"
-                    onClick={handleAddCallSummaryTab}
-                    className="flex h-5 w-5 items-center justify-center rounded-full border border-slate-300 text-[12px] text-slate-400 transition-colors hover:border-slate-400 hover:text-slate-600"
-                  >
-                    +
-                  </button>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      }
+      rightSidebar={<div />}
+      rightLayoutMode="single"
+      rightSingleContent={
+        <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-hairline bg-white shadow-card">
+          <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+            <h2 className="text-[14px] font-bold text-slate-800">业务小结</h2>
+            <button type="button" className="flex h-7 items-center gap-1 rounded-md bg-emerald-500 px-2.5 text-[11px] text-white hover:bg-emerald-600">保存小结</button>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+            <div className="space-y-3">
+              <div className="flex flex-col gap-1">
+                <label className="text-[11px] font-medium text-slate-400">业务类型</label>
+                <div className="flex h-8 items-center rounded-lg border border-slate-200 bg-[#fcfcfd] px-3 text-[12px] text-slate-600">售后咨询</div>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-[11px] font-medium text-slate-400">问题分类</label>
+                <div className="flex h-8 items-center rounded-lg border border-slate-200 bg-[#fcfcfd] px-3 text-[12px] text-slate-600">产品维修</div>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-[11px] font-medium text-slate-400">紧急程度</label>
+                <div className="flex items-center gap-2">
+                  {['低', '中', '高', '紧急'].map((level, idx) => (
+                    <span key={level} className={cn("inline-flex h-7 items-center rounded-md border px-3 text-[11px] font-medium", idx === 2 ? "border-red-200 bg-red-50 text-red-500" : "border-slate-200 bg-white text-slate-400")}>{level}</span>
+                  ))}
+                </div>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-[11px] font-medium text-slate-400">处理状态</label>
+                <div className="flex h-8 items-center rounded-lg border border-slate-200 bg-[#fcfcfd] px-3 text-[12px] text-slate-600">处理中</div>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-[11px] font-medium text-slate-400">关联工单</label>
+                <div className="flex h-8 items-center gap-1 rounded-lg border border-slate-200 bg-[#fcfcfd] px-3 text-[12px] text-blue-500">
+                  <FileText size={12} />
+                  <span>WO-2025-06-0847</span>
+                </div>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-[11px] font-medium text-slate-400">通话小结</label>
+                <textarea rows={4} className="w-full resize-none rounded-lg border border-slate-200 bg-[#fcfcfd] px-3 py-2 text-[12px] leading-relaxed text-slate-600 outline-none focus:border-emerald-400" defaultValue="客户张伟来电咨询其购买的XX系列产品出现异常故障，产品仍在保修期内。已确认故障情况，安排技术人员48小时内上门检修。客户对处理方案表示满意。" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-[11px] font-medium text-slate-400">后续跟进</label>
+                <div className="flex items-center gap-2 rounded-lg border border-emerald-100 bg-emerald-50/50 px-3 py-2">
+                  <Calendar size={13} className="text-emerald-500" />
+                  <span className="text-[12px] text-emerald-700">2025-06-10 回访确认维修结果</span>
                 </div>
               </div>
             </div>
-            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
-              <div className="space-y-4">
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-                {workbenchSummaryFields.map((field) =>
-                  renderEditableWorkbenchField(
-                    field,
-                    activeCallSummaryFieldValues,
-                    updateCallSummaryFieldValues,
-                    callSummaryOpenSelect,
-                    setCallSummaryOpenSelect,
-                    'call-summary'
-                  )
-                )}
-              </div>
-              <div className="space-y-1.5">
-                <div className="text-[12px] font-medium text-slate-600">来电描述</div>
-                <textarea
-                  value={activeCallSummaryText}
-                  onChange={(event) =>
-                    setCallSummaryTextByTab((prev) => ({
-                      ...prev,
-                      [callSummaryTab]: event.target.value,
-                    }))
-                  }
-                  placeholder="请输入"
-                  className="h-[68px] w-full resize-none rounded-md border border-slate-200 bg-[#fcfcfd] px-3 py-2 text-[12px] text-slate-500 outline-none"
-                />
-              </div>
-              <div className="flex justify-end gap-3">
-                <button className="rounded-full border border-emerald-300 px-5 py-[7px] text-[12px] font-medium text-emerald-500 transition-colors hover:bg-emerald-50">
-                  升级工单
-                </button>
-                <button className="rounded-full border border-emerald-300 px-5 py-[7px] text-[12px] font-medium text-emerald-500 transition-colors hover:bg-emerald-50">
-                  暂存
-                </button>
-                <button className="rounded-full border border-emerald-300 px-5 py-[7px] text-[12px] font-medium text-emerald-500 transition-colors hover:bg-emerald-50">
-                  提交
-                </button>
-              </div>
+          </div>
+        </section>
+      }
+    />
+  );
+
+  void (
+    <OnlineWorkbenchContentView
+      layoutRef={onlineWorkbenchLayoutRef}
+      leftPanelWidth={onlineLeftPanelWidth}
+      isLeftResizing={isOnlineLeftResizing}
+      onStartLeftResize={() => setIsOnlineLeftResizing(true)}
+      onResetLeftPanelWidth={() => {
+        if (!onlineWorkbenchLayoutRef.current) return;
+        const layoutWidth = onlineWorkbenchLayoutRef.current.getBoundingClientRect().width;
+        setIsOnlineLeftPanelCustomized(false);
+        setOnlineLeftPanelWidth(Math.min(340, layoutWidth * 0.25));
+      }}
+      leftContent={
+        <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-hairline bg-white shadow-card">
+          {/* Presence & Status bar */}
+          <div className="flex items-center justify-between border-b border-slate-100 px-3 py-2.5">
+            <div className="flex items-center gap-2">
+              <span className="relative flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 text-[12px] font-bold text-emerald-600">
+                坐
+                <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-400" />
+              </span>
+              <div className="flex flex-col">
+                <span className="text-[12px] font-medium text-slate-700">在线</span>
+                <span className="text-[10px] text-slate-400">空闲 · 可接入</span>
               </div>
             </div>
-          </section>
-        </div>
-        </div>
-
-        <button
-          type="button"
-          aria-label="调整呼叫工作台中间区域宽度"
-          onMouseDown={(event) => {
-            event.preventDefault();
-            setIsCallCenterResizing(true);
-          }}
-          onDoubleClick={() => {
-            if (!callWorkbenchLayoutRef.current) {
-              return;
-            }
-
-            const layoutWidth = callWorkbenchLayoutRef.current.getBoundingClientRect().width;
-            setIsCallCenterPanelCustomized(false);
-            setCallCenterPanelWidth(getCallCenterPanelDefaultWidth(layoutWidth, callLeftPanelWidth));
-          }}
-          className={cn(
-            "group hidden w-3 shrink-0 cursor-col-resize items-center justify-center rounded-full transition-colors xl:flex",
-            isCallCenterResizing ? "bg-emerald-50" : "hover:bg-slate-100"
-          )}
-        >
-          <span className={cn("flex h-20 w-[3px] flex-col items-center justify-center gap-1 rounded-full bg-transparent transition-colors", isCallCenterResizing && "bg-emerald-50")}>
-            <span className={cn("h-7 w-[2px] rounded-full bg-slate-200 transition-colors group-hover:bg-slate-300", isCallCenterResizing && "bg-emerald-300")} />
-            <span className={cn("h-7 w-[2px] rounded-full bg-slate-200 transition-colors group-hover:bg-slate-300", isCallCenterResizing && "bg-emerald-300")} />
-          </span>
-        </button>
-
-        <div className="flex min-h-0 min-w-0 flex-1">
-        <div className="grid min-h-0 min-w-0 flex-1 grid-cols-[minmax(0,1fr)_50px] gap-2.5">
-          <div
-            ref={callRightPanelStackRef}
-            className={cn(
-              "min-h-0",
-              callRightPanel === 'toolsite'
-                ? "flex flex-col gap-4 xl:gap-0"
-                : "grid grid-rows-[minmax(0,1fr)] gap-4"
-            )}
-          >
-            {callRightPanel === 'agent' ? callRobotPanelContent : null}
-            {callRightPanel === 'workorder' ? renderCallWorkbenchToolSection(['工单管理'], '工单管理') : null}
-            {callRightPanel === 'knowledge' ? renderCallWorkbenchToolSection(['知识库'], '知识库') : null}
-            {callRightPanel === 'toolsite' ? (
+            <div className="flex items-center gap-2">
+              <span className="flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-600">
+                <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+                排队: 10
+              </span>
+            </div>
+          </div>
+          {/* Session tabs */}
+          <div className="flex border-b border-slate-100">
+            <button type="button" className="relative flex-1 py-2.5 text-center text-[12px] font-medium text-emerald-600">
+              活动会话
+              <span className="ml-1 inline-flex min-w-[18px] items-center justify-center rounded-full bg-emerald-500 px-1 py-0.5 text-[10px] font-bold leading-none text-white">6</span>
+              <span className="absolute bottom-0 left-3 right-3 h-[2px] rounded-full bg-emerald-500" />
+            </button>
+            <button type="button" className="flex-1 py-2.5 text-center text-[12px] font-medium text-slate-400 hover:text-slate-600">
+              历史会话
+            </button>
+          </div>
+          {/* Session list */}
+          <div className="flex-1 overflow-y-auto custom-scrollbar">
+            {[
+              { name: '王小明', channel: '微信', channelCls: 'bg-green-100 text-green-600', lastMsg: '请问我的订单什么时候发货？', time: '14:32', unread: 2, status: 'active' },
+              { name: '李婷婷', channel: 'Web', channelCls: 'bg-blue-100 text-blue-600', lastMsg: '产品使用过程中遇到了一些问题...', time: '14:28', unread: 0, status: 'active' },
+              { name: '赵强', channel: '抖音', channelCls: 'bg-pink-100 text-pink-600', lastMsg: '这个能便宜点吗？', time: '14:15', unread: 5, status: 'active' },
+              { name: '陈丽华', channel: '快手', channelCls: 'bg-orange-100 text-orange-600', lastMsg: '收到了，谢谢客服', time: '13:50', unread: 0, status: 'active' },
+              { name: '刘志远', channel: '小程序', channelCls: 'bg-purple-100 text-purple-600', lastMsg: '我想退货，如何操作？', time: '13:42', unread: 1, status: 'active' },
+              { name: '周雪梅', channel: '移动端', channelCls: 'bg-teal-100 text-teal-600', lastMsg: '[图片]', time: '13:30', unread: 0, status: 'waiting' },
+            ].map((session, idx) => (
               <div
-                className="flex min-h-0 flex-1 xl:flex-none"
-                style={
-                  typeof window !== 'undefined' && window.innerWidth >= 1280
-                    ? { height: `${callRightTopPanelHeight}px` }
-                    : undefined
-                }
-              >
-                {renderCallWorkbenchToolSection(['第三方网站'], '第三方网站')}
-              </div>
-            ) : null}
-            {callRightPanel === 'toolsite' ? (
-              <button
-                type="button"
-                aria-label="调整呼叫工作台右侧区域高度"
-                onMouseDown={(event) => {
-                  event.preventDefault();
-                  setIsCallRightTopResizing(true);
-                }}
-                onDoubleClick={() => {
-                  if (!callRightPanelStackRef.current) {
-                    return;
-                  }
-
-                  const stackHeight = callRightPanelStackRef.current.getBoundingClientRect().height;
-                  setIsCallRightTopPanelCustomized(false);
-                  setCallRightTopPanelHeight(
-                    getCallVerticalPanelDefaultHeight(stackHeight, CALL_RIGHT_VERTICAL_RESIZER_HEIGHT)
-                  );
-                }}
+                key={idx}
                 className={cn(
-                  "group hidden h-4 shrink-0 cursor-row-resize items-center justify-center rounded-full transition-colors xl:flex",
-                  isCallRightTopResizing ? "bg-emerald-50" : "hover:bg-slate-100"
+                  "group flex cursor-pointer items-start gap-2.5 border-b border-slate-50 px-3 py-3 transition-colors hover:bg-slate-50/80",
+                  idx === 0 && "bg-emerald-50/40"
                 )}
               >
-                <span className={cn("flex h-[3px] w-20 items-center justify-center gap-1 rounded-full bg-transparent transition-colors", isCallRightTopResizing && "bg-emerald-50")}>
-                  <span className={cn("h-[2px] w-7 rounded-full bg-slate-200 transition-colors group-hover:bg-slate-300", isCallRightTopResizing && "bg-emerald-300")} />
-                  <span className={cn("h-[2px] w-7 rounded-full bg-slate-200 transition-colors group-hover:bg-slate-300", isCallRightTopResizing && "bg-emerald-300")} />
-                </span>
-              </button>
-            ) : null}
-            {callRightPanel === 'toolsite' ? (
-              <div className="flex min-h-0 flex-1">
-                {renderCallWorkbenchToolSection(['常用工具'], '常用工具')}
-              </div>
-            ) : null}
-            {callRightPanel === 'transcript' ? renderCallTranscriptSection() : null}
-          </div>
-
-          <div className="flex w-full flex-col items-center gap-[21px] rounded-2xl border border-slate-200 bg-white py-3 text-slate-400 shadow-sm">
-            {visibleCallSidebarButtons.map((item) => {
-              const isSettingsButton = item.key === 'settings';
-              const isActive = isSettingsButton ? isCallFeatureSettingsOpen : item.panel === callRightPanel;
-
-              return (
-                <button
-                  key={item.key}
-                  ref={isSettingsButton ? callFeatureSettingsTriggerRef : undefined}
-                  type="button"
-                  aria-label={item.title}
-                  title={item.title}
-                  data-dropdown-root={isSettingsButton ? 'true' : undefined}
-                  onClick={() => {
-                    if (item.panel) {
-                      handleOpenCallRightPanel(item.panel);
-                      return;
-                    }
-
-                    if (isSettingsButton) {
-                      handleToggleCallFeatureSettings();
-                    }
-                  }}
-                  className={cn(
-                    "rounded-md p-1.5 transition-colors",
-                    isActive
-                      ? "border border-[#8adccd] bg-[#d9f5ee] text-emerald-700"
-                      : "hover:bg-slate-50 hover:text-slate-500"
+                <div className="relative flex-shrink-0">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-[13px] font-bold text-slate-500">
+                    {session.name.slice(-2)}
+                  </div>
+                  {session.status === 'active' && (
+                    <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-400" />
                   )}
-                >
-                  {item.imageSrc ? (
-                    <img src={item.imageSrc} alt="" className="h-[25px] w-[25px] object-contain" />
-                  ) : item.icon ? (
-                    <item.icon size={24} strokeWidth={1.9} />
-                  ) : null}
-                </button>
-              );
-            })}
-            {isCallFeatureSettingsOpen
-              ? renderFloatingMenu(
-                  callFeatureSettingsTriggerRef.current,
-                  <div className="overflow-hidden rounded-[12px] border border-[#e6ebf2] bg-white shadow-[0_18px_40px_rgba(15,23,42,0.14)]">
-                    <div className="border-b border-slate-100 px-4 py-3 text-[14px] font-semibold text-slate-700">
-                      功能设置
-                    </div>
-                    <div className="px-3 py-2">
-                      {orderedCallSidebarFeatures.map((item) => {
-                        const isVisible = item.key === 'settings' ? true : callSidebarVisibility[item.key];
-                        const hasDropIndicator = callSidebarDropIndicator?.key === item.key;
-
-                        return (
-                          <button
-                            key={`call-feature-setting-${item.key}`}
-                            type="button"
-                            draggable={!item.locked}
-                            onClick={() => {
-                              if (!item.locked) {
-                                handleToggleCallSidebarVisibility(item.key);
-                              }
-                            }}
-                            onDragStart={(event) => handleCallSidebarFeatureDragStart(event, item.key)}
-                            onDragOver={(event) => handleCallSidebarFeatureDragOver(event, item.key)}
-                            onDrop={(event) => handleCallSidebarFeatureDrop(event, item.key)}
-                            onDragEnd={handleCallSidebarFeatureDragEnd}
-                            className={cn(
-                              "relative flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors",
-                              item.locked ? "cursor-default" : "cursor-pointer hover:bg-slate-50",
-                              draggingCallSidebarFeatureKey === item.key && "opacity-55",
-                              hasDropIndicator &&
-                                callSidebarDropIndicator?.position === 'before' &&
-                                "before:absolute before:left-2 before:right-2 before:top-0 before:h-[2px] before:rounded-full before:bg-[#18c5aa]",
-                              hasDropIndicator &&
-                                callSidebarDropIndicator?.position === 'after' &&
-                                "after:absolute after:left-2 after:right-2 after:bottom-0 after:h-[2px] after:rounded-full after:bg-[#18c5aa]"
-                            )}
-                          >
-                            {item.imageSrc ? (
-                              <img src={item.imageSrc} alt="" className="h-[18px] w-[18px] shrink-0 object-contain" />
-                            ) : item.icon ? (
-                              <item.icon size={18} strokeWidth={1.9} className="shrink-0" />
-                            ) : null}
-                            <span className="min-w-0 flex-1 text-[13px] font-medium text-slate-700">{item.label}</span>
-                            <span
-                              className={cn(
-                                "flex h-4 w-4 shrink-0 items-center justify-center rounded-[4px] border transition-colors",
-                                isVisible
-                                  ? "border-[#18c5aa] bg-[#18c5aa] text-white"
-                                  : "border-slate-300 bg-white text-transparent",
-                                item.locked && "cursor-not-allowed"
-                              )}
-                            >
-                              {isVisible ? <Check size={11} strokeWidth={3} /> : null}
-                            </span>
-                            <Rows3
-                              size={14}
-                              className={cn(
-                                "shrink-0",
-                                item.locked ? "text-slate-200" : "cursor-grab text-slate-300 active:cursor-grabbing"
-                              )}
-                            />
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>,
-                  { align: 'right', marginTop: 14, width: 220, placement: 'top' }
-                )
-              : null}
-        </div>
-      </div>
-	    </div>
-	    </div>
-	    </div>
-	    </div>
-	  );
-
-  const onlineWorkbenchContent = (
-    <div className="relative flex min-h-0 flex-1 overflow-hidden bg-[#f5f7fb] px-3 pb-3 pt-2">
-      <div ref={onlineWorkbenchLayoutRef} className="flex h-full min-h-0 w-full flex-col gap-3 xl:gap-1 xl:flex-row">
-        <div
-          className="flex min-h-0 xl:shrink-0"
-          style={{
-            width:
-              typeof window !== 'undefined' && window.innerWidth >= 1280
-                ? `${onlineLeftPanelWidth}px`
-                : undefined,
-          }}
-        >
-        <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[10px] border border-[#eceff3] bg-white shadow-none">
-          <div className="px-[10px] pt-[14px] pb-[12px]">
-            <div className="relative flex items-center gap-[6px]">
-              <button
-                type="button"
-                onClick={toggleOnlineLeftPresence}
-                className={cn(
-                  "inline-flex h-[32px] items-center gap-[5px] rounded-full px-[10px] text-[13px] font-medium tracking-[0.01em] transition-all",
-                  onlineLeftPresenceMeta.sideActionButtonCls
-                )}
-              >
-                <span
-                  className={cn(
-                    "flex h-[16px] w-[16px] items-center justify-center rounded-full border bg-transparent",
-                    onlineLeftPresenceMeta.sideActionIconWrapCls
+                  {session.status === 'waiting' && (
+                    <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-amber-400" />
                   )}
-                >
-                  <onlineLeftPresenceMeta.sideActionIcon size={10} strokeWidth={2.5} />
-                </span>
-                {onlineLeftPresenceMeta.sideActionLabel}
-              </button>
-              {onlineLeftPresenceMeta.showOnlineStatusSelector ? (
-                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" data-dropdown-root="true">
-                  <button
-                    type="button"
-                    onClick={() => setIsOnlineStatusMenuOpen((open) => !open)}
-                    className="relative inline-flex h-[32px] min-w-[108px] items-center justify-center rounded-full bg-[#f7f7f7] px-[11px] text-[13px] font-medium text-[#404040] transition-colors hover:bg-[#f1f1f1]"
-                  >
-                    <span className="block w-full text-center">{selectedOnlineStatus}</span>
-                    <ChevronDown
-                      size={14}
-                      strokeWidth={2.2}
-                      className={cn("absolute right-[11px] text-[#8f8f8f] transition-transform", isOnlineStatusMenuOpen && "rotate-180")}
-                    />
-                  </button>
-                  {isOnlineStatusMenuOpen ? (
-                    <div className="absolute left-1/2 top-full z-20 mt-2 w-[116px] -translate-x-1/2 overflow-hidden rounded-[10px] border border-slate-200 bg-white py-1 shadow-[0_10px_24px_rgba(15,23,42,0.12)]">
-                      {onlineStatusOptions.map((option) => (
-                        <button
-                          key={option}
-                          type="button"
-                          onClick={() => {
-                            setSelectedOnlineStatus(option);
-                            setIsOnlineStatusMenuOpen(false);
-                          }}
-                          className={cn(
-                            "flex w-full items-center px-3 py-2 text-left text-[13px] transition-colors",
-                            selectedOnlineStatus === option
-                              ? "bg-emerald-50 text-emerald-600"
-                              : "text-slate-600 hover:bg-slate-50"
-                          )}
-                        >
-                          {option}
-                        </button>
-                      ))}
-                    </div>
-                  ) : null}
                 </div>
-              ) : null}
-              <div className="ml-auto flex items-center gap-[4px] text-[13px] font-medium leading-none text-[#333333]">
-                <span>排队</span>
-                <span className="font-medium text-[#f59a23]">10</span>
-              </div>
-              <button
-                type="button"
-                className="flex h-[20px] w-[20px] items-center justify-center rounded-full text-[#7c7c7c] transition-colors hover:bg-slate-100 hover:text-slate-500"
-              >
-                <Settings size={16} strokeWidth={2} />
-              </button>
-            </div>
-            <div className="mt-[14px] border-t border-[#e7edf4]" />
-            <div className="mt-[16px] grid grid-cols-2 overflow-hidden rounded-[10px] border border-[#d8dee6] bg-white">
-              {(['活动会话', '结束会话'] as OnlineSessionListTab[]).map((tab, index) => {
-                return (
-                  <button
-                    key={tab}
-                    type="button"
-                    onClick={() => {
-                      setOnlineSessionListTab(tab);
-                      const nextSessions = onlineSessions.filter((session) =>
-                        tab === '活动会话' ? !session.finished : session.finished
-                      );
-                      if (nextSessions.length > 0 && !nextSessions.some((session) => session.id === activeOnlineSessionId)) {
-                        setActiveOnlineSessionId(nextSessions[0].id);
-                      }
-                    }}
-                    className={cn(
-                      "flex h-[34px] items-center justify-center px-3 text-[14px] font-medium transition-colors",
-                      onlineSessionListTab === tab
-                        ? cn(
-                            "bg-[#e5f7f4] text-[#06b99a]",
-                            index === 0 ? "border-r border-[#09c8a7]" : "border-l border-[#09c8a7]"
-                          )
-                        : "text-[#707070] hover:bg-slate-50 hover:text-slate-700"
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[13px] font-medium text-slate-700">{session.name}</span>
+                      <span className={cn("rounded px-1 py-0.5 text-[9px] font-medium", session.channelCls)}>{session.channel}</span>
+                    </div>
+                    <span className="text-[10px] text-slate-300">{session.time}</span>
+                  </div>
+                  <div className="mt-1 flex items-center justify-between">
+                    <p className="truncate text-[11px] text-slate-400">{session.lastMsg}</p>
+                    {session.unread > 0 && (
+                      <span className="ml-1 flex h-4 min-w-[16px] flex-shrink-0 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white">{session.unread}</span>
                     )}
-                  >
-                    <span>{tab}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-          <div className="flex-1 space-y-1 overflow-y-auto bg-white px-[8px] py-[8px] custom-scrollbar">
-            {visibleOnlineSessions.map((session) => (
-              (() => {
-                const channelIconSrc = onlineSessionChannelIcons[session.channel] ?? channelWebIcon;
-                const previewIconSrc = getOnlineSessionPreviewIcon(session.id);
-
-                return (
-              <button
-                key={session.id}
-                type="button"
-                onClick={() => {
-                  setActiveOnlineSessionId(session.id);
-                  setOnlineSessionContextMenu(null);
-                }}
-                onContextMenu={(event) => handleOpenOnlineSessionContextMenu(event, session.id)}
-                className={cn(
-                  "w-full min-h-[72px] rounded-[12px] border px-[10px] py-[9px] text-left transition-colors",
-                  activeOnlineSessionId === session.id
-                    ? "border-[#59d8c0] bg-white shadow-none"
-                    : "border-transparent bg-white hover:border-[#edf1f5] hover:bg-[#fafbfc]"
-                )}
-              >
-                <div className="grid grid-cols-[30px_minmax(0,1fr)] items-center gap-x-[8px] gap-y-[4px]">
-                  <div className="flex h-[30px] w-[30px] shrink-0 items-center justify-center">
-                    <img src={channelIconSrc} alt={session.channel} className="h-[30px] w-[30px] object-contain" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="truncate text-[15px] font-medium leading-[18px] tracking-[0.01em] text-[#4f5968]">{session.customer}</span>
-                      <div className="shrink-0 pt-[1px] text-[11px] leading-none text-[#c6ccd5]">{session.waiting}</div>
-                    </div>
-                  </div>
-                  <div className="flex justify-center">
-                    <img src={previewIconSrc} alt="" aria-hidden="true" className="h-[20px] w-[20px] shrink-0 object-contain" />
-                  </div>
-                  <div className="flex min-w-0 items-center justify-between gap-2">
-                    <div className="min-w-0">
-                    <p className="truncate text-[13px] leading-[18px] text-[#a3acb7]">{session.summary}</p>
-                    </div>
-                    {session.statusText ? (
-                      <span className={cn("shrink-0 pl-2 text-[12px] font-medium leading-[18px] tracking-[0.01em]", session.statusCls)}>{session.statusText}</span>
-                    ) : null}
                   </div>
                 </div>
-              </button>
-                );
-              })()
+              </div>
             ))}
           </div>
-          {onlineSessionContextMenu
-            ? createPortal(
-                <div
-                  data-dropdown-root="true"
-                  className="fixed z-[80] w-[112px] overflow-hidden rounded-[10px] border border-slate-200 bg-white py-1 shadow-[0_12px_24px_rgba(15,23,42,0.14)]"
-                  style={{ left: onlineSessionContextMenu.x, top: onlineSessionContextMenu.y }}
-                >
-                  <button
-                    type="button"
-                    onClick={() =>
-                      pinnedOnlineSessionIds.includes(onlineSessionContextMenu.sessionId)
-                        ? handleUnpinOnlineSession(onlineSessionContextMenu.sessionId)
-                        : handlePinOnlineSession(onlineSessionContextMenu.sessionId)
-                    }
-                    className="flex w-full items-center px-3 py-2 text-left text-[12px] text-slate-600 transition-colors hover:bg-slate-50"
-                  >
-                    {pinnedOnlineSessionIds.includes(onlineSessionContextMenu.sessionId) ? '取消置顶' : '置顶'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleOpenOnlineBlockConfirm(onlineSessionContextMenu.sessionId)}
-                    className="flex w-full items-center px-3 py-2 text-left text-[12px] text-rose-500 transition-colors hover:bg-rose-50"
-                  >
-                    拉黑
-                  </button>
-                </div>,
-                document.body
-              )
-            : null}
         </section>
-        <button
-          type="button"
-          aria-label="调整在线工作台左侧宽度"
-          onMouseDown={(event) => {
-            event.preventDefault();
-            setIsOnlineLeftResizing(true);
-          }}
-          onDoubleClick={() => {
-            if (!onlineWorkbenchLayoutRef.current) {
-              return;
-            }
-
-            const layoutWidth = onlineWorkbenchLayoutRef.current.getBoundingClientRect().width;
-            setIsOnlineLeftPanelCustomized(false);
-            setOnlineLeftPanelWidth(getOnlineLeftPanelDefaultWidth(layoutWidth, window.innerWidth));
-          }}
-          className={cn(
-            "group hidden w-2 shrink-0 cursor-col-resize items-center justify-center rounded-full transition-colors xl:flex",
-            isOnlineLeftResizing ? "bg-emerald-50" : "hover:bg-slate-100"
-          )}
-        >
-          <span className={cn("flex h-20 w-[3px] flex-col items-center justify-center gap-1 rounded-full bg-transparent transition-colors", isOnlineLeftResizing && "bg-emerald-50")}>
-            <span className={cn("h-7 w-[2px] rounded-full bg-slate-200 transition-colors group-hover:bg-slate-300", isOnlineLeftResizing && "bg-emerald-300")} />
-            <span className={cn("h-7 w-[2px] rounded-full bg-slate-200 transition-colors group-hover:bg-slate-300", isOnlineLeftResizing && "bg-emerald-300")} />
-          </span>
-        </button>
-        </div>
-
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 xl:flex-row xl:gap-0">
-
-        <div
-          ref={onlineCenterPanelRef}
-          className="flex min-h-0 min-w-0 xl:shrink-0"
-          style={{
-            width:
-              typeof window !== 'undefined' && window.innerWidth >= 1280
-                ? `${onlineCenterPanelWidth}px`
-                : undefined,
-          }}
-        >
-        <section className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-100 px-4 py-3">
-            <div className="flex items-center justify-between">
-              <button
-                type="button"
-                aria-expanded={isOnlineVisitorExpanded}
-                onClick={() => setIsOnlineVisitorExpanded((expanded) => !expanded)}
-                className="flex items-center gap-3 text-[12px] text-slate-500 transition-colors hover:text-slate-700"
-              >
-                <ChevronDown
-                  size={15}
-                  className={cn("text-slate-400 transition-transform", isOnlineVisitorExpanded && "rotate-180")}
-                />
-                <span className="text-[13px] font-semibold text-slate-800">{activeOnlineSession.customer}</span>
-                <span className="text-[12px] text-slate-500">A渠道</span>
-                <span className="text-[12px] text-slate-500">05:07</span>
-              </button>
-              {!isActiveOnlineSessionFinished ? (
-                <div className="flex items-center gap-[18px] text-[#6f6f6f]">
-                  <button
-                    type="button"
-                    aria-label="转坐席"
-                    title="转坐席"
-                    className="rounded-md p-1 transition-colors hover:bg-slate-50 hover:text-slate-800"
-                  >
-                    <img src={onlineTransferAgentIcon} alt="" className="h-[23px] w-[23px] object-contain" />
-                  </button>
-                  <button
-                    type="button"
-                    aria-label="转队列"
-                    title="转队列"
-                    className="rounded-md p-1 transition-colors hover:bg-slate-50 hover:text-slate-800"
-                  >
-                    <img src={onlineTransferQueueIcon} alt="" className="h-[23px] w-[23px] object-contain" />
-                  </button>
-                  <button
-                    type="button"
-                    aria-label="三方会议"
-                    title="三方会议"
-                    className="rounded-md p-1 transition-colors hover:bg-slate-50 hover:text-slate-800"
-                  >
-                    <img src={onlineConferenceIcon} alt="" className="h-[23px] w-[23px] object-contain" />
-                  </button>
-                  <button
-                    type="button"
-                    aria-label="结束会话"
-                    title="结束会话"
-                    aria-pressed={!isOnlineSessionConnected}
-                    onClick={handleOnlineSessionConnectionToggle}
-                    className={cn(
-                      "rounded-md p-1 transition-colors hover:bg-slate-50",
-                      !isOnlineSessionConnected && "bg-slate-100 opacity-70"
-                    )}
-                  >
-                    <img src={onlineEndSessionIcon} alt="" className="h-[23px] w-[23px] object-contain" />
-                  </button>
-                </div>
-              ) : null}
-            </div>
-            {isOnlineVisitorExpanded ? (
-              <>
-                <div className="mt-4 flex flex-wrap items-center gap-x-8 gap-y-2 text-[12px] text-slate-500">
-                  {activeOnlineSessionDetail.visitorMeta.map((item) => (
-                    <div key={`online-visitor-meta-${activeOnlineSession.id}-${item.label}`}>
-                      {item.label}: {item.value}
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {activeOnlineSessionDetail.tags.map((tag) => (
-                    <span key={tag.label} className={cn("rounded-full border px-2.5 py-1 text-[11px] font-medium", tag.cls)}>
-                      {tag.label}
-                    </span>
-                  ))}
-                </div>
-              </>
-            ) : null}
-          </div>
-          <div className="flex-1 space-y-4 overflow-y-auto bg-white px-4 py-3 custom-scrollbar">
-            <div className="space-y-2.5">
-              {activeOnlineSessionDetail.summaryCards.map((card) => {
-                const isOpeningQuestionCard = card.title === '开口问';
-
-                return (
-                  <div key={card.title} className={cn("rounded-none px-3 py-2.5 text-[11px] leading-5 text-slate-600", card.cls)}>
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="font-semibold text-slate-700">{card.title}</div>
-                      {isOpeningQuestionCard ? (
-                        <button
-                          type="button"
-                          onClick={() => handleQuoteOnlineOpeningQuestion(card.body)}
-                          className="shrink-0 rounded-[8px] border border-[#4e88ff] bg-white px-4 py-1.5 text-[12px] font-medium text-[#3b72ff] transition-colors hover:bg-[#f5f9ff]"
-                        >
-                          引用
-                        </button>
-                      ) : null}
-                    </div>
-                    <p className="mt-0.5">{card.body}</p>
-                  </div>
-                );
-              })}
-            </div>
-            <div className="flex justify-center py-1">
-              <div className="rounded-full bg-[#f2f3f5] px-3 py-1 text-[10px] text-slate-400">
-                {activeOnlineSession.customer}接入机器人
-              </div>
-            </div>
-            {activeOnlineConversationMessages.map((message) => {
-              const translationLanguage = onlineMessageTranslationLanguageById[message.id];
-              const translatedMessageText = translationLanguage
-                ? getOnlineMessageTranslationText(message, translationLanguage)
-                : null;
-              const canTranslate = message.role === 'customer';
-              const canWithdraw = message.role === 'agent';
-
-              return (
-                <div
-                  key={message.id}
-                  className={cn(
-                    "flex",
-                    message.role === 'agent' ? "justify-end" : "justify-start"
-                  )}
-                >
-                  <div className={cn("group/message flex max-w-[82%] items-start gap-2.5", message.role === 'agent' && "flex-row-reverse")}>
-                    <div
-                      className={cn(
-                        "flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white shadow-sm",
-                        message.role === 'agent' ? "bg-[#ffb24d]" : "bg-[#18a058]"
-                      )}
-                    >
-                      {message.role === 'agent' ? <MessageSquare size={15} /> : <Monitor size={15} />}
-                    </div>
-                    <div className={cn("min-w-0 flex-1", message.role === 'agent' && "text-right")}>
-                      <div className="mb-1 text-[10px] text-slate-400">{message.time}</div>
-                      <div className="relative inline-block">
-                        <div
-                          className={cn(
-                            "inline-block rounded-2xl px-4 py-2.5 text-[12px] leading-5 shadow-[0_2px_6px_rgba(15,23,42,0.03)] whitespace-pre-line",
-                            message.role === 'agent'
-                              ? "rounded-tr-md bg-[#e9f9f4] text-slate-700"
-                              : "rounded-tl-md bg-[#f7f7f8] text-slate-700"
-                          )}
-                        >
-                          {message.text}
-                        </div>
-                        {canTranslate ? (
-                          <div
-                            className="absolute right-[-34px] top-1/2 -translate-y-1/2"
-                            data-dropdown-root="true"
-                          >
-                            <button
-                              ref={(node) => {
-                                onlineMessageTranslateTriggerRefs.current[message.id] = node;
-                              }}
-                              type="button"
-                              aria-label="翻译消息"
-                              onClick={() => handleOpenOnlineMessageTranslateMenu(message.id)}
-                              className={cn(
-                                "flex h-7 w-7 items-center justify-center rounded-full border border-transparent bg-white/95 text-slate-400 opacity-0 shadow-[0_4px_12px_rgba(15,23,42,0.08)] transition-all duration-150 group-hover/message:opacity-100 hover:border-[#d7e7e2] hover:text-[#18a058]",
-                                activeOnlineMessageTranslateMenuId === message.id && "border-[#d7e7e2] text-[#18a058] opacity-100"
-                              )}
-                            >
-                              <img src={chatTranslateIcon} alt="" className="h-[16px] w-[16px] object-contain" />
-                            </button>
-                          </div>
-                        ) : null}
-                        {canWithdraw ? (
-                          <div className="absolute bottom-1 right-[-30px]">
-                            <button
-                              type="button"
-                              aria-label="撤回消息"
-                              onClick={() => handleRequestWithdrawOnlineMessage(message.id)}
-                              className="flex h-6 w-6 items-center justify-center rounded-full text-slate-400 opacity-0 transition-all duration-150 group-hover/message:opacity-100 hover:bg-white hover:text-slate-500"
-                            >
-                              <Undo2 size={16} strokeWidth={2.1} />
-                            </button>
-                          </div>
-                        ) : null}
-                      </div>
-                      {translatedMessageText ? (
-                        <div className="mt-1.5 inline-flex rounded-full bg-[#f5f6f8] px-3 py-1 text-[10px] text-slate-500">
-                          {translationLanguage === 'zh' ? `译文：${translatedMessageText}` : `英文：${translatedMessageText}`}
-                        </div>
-                      ) : null}
-                    </div>
-                  </div>
-                  {activeOnlineMessageTranslateMenuId === message.id
-                    ? renderFloatingMenu(
-                        onlineMessageTranslateTriggerRefs.current[message.id],
-                        <div className="overflow-hidden rounded-[12px] border border-[#e6edf2] bg-white py-1 shadow-[0_18px_36px_rgba(15,23,42,0.12)]">
-                          {([
-                            { label: '中文', language: 'zh' as const },
-                            { label: '英文', language: 'en' as const },
-                          ]).map((item) => (
-                            <button
-                              key={item.language}
-                              type="button"
-                              onClick={() => handleSelectOnlineMessageTranslationLanguage(message, item.language)}
-                              className={cn(
-                                "flex h-14 w-full items-center justify-center px-6 text-[14px] transition-colors",
-                                translationLanguage === item.language
-                                  ? "bg-[#e4f7f3] text-[#11b89d]"
-                                  : "text-slate-700 hover:bg-slate-50"
-                              )}
-                            >
-                              {item.label}
-                            </button>
-                          ))}
-                        </div>,
-                        { align: 'center', marginTop: 10, width: 120, placement: 'bottom' }
-                      )
-                    : null}
-                </div>
-              );
-            })}
-            {activeOnlineWithdrawNotice ? (
-              <div className="flex justify-center pt-10">
-                <div className="text-[11px] font-semibold tracking-[0.01em] text-[#b2b7bf]">
-                  <span>你撤回了一条消息</span>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      handleReEditWithdrawnOnlineMessage(activeOnlineSession.id, activeOnlineWithdrawNotice.text)
-                    }
-                    className="ml-3 text-[#0fbe61] transition-colors hover:text-[#0ca955]"
-                  >
-                    重新编辑
-                  </button>
-                </div>
-              </div>
-            ) : null}
-          </div>
-          <div className="border-t border-slate-100 bg-white px-4 py-2.5">
-            <div className="mb-2.5 flex items-center justify-between">
-              <div className="flex items-center gap-[11px] text-[#a3a3a3]">
-                {onlineComposerPrimaryTools
-                  .filter(
-                    ({ label }) =>
-                      !isActiveOnlineSessionFinished || !['表单', '语音', '视频', '远程控制'].includes(label)
-                  )
-                  .map(({ label, icon: Icon, imageSrc }) => (
-                  <button
-                    key={`online-composer-primary-${label}`}
-                    type="button"
-                    onClick={() => handleOnlineComposerPrimaryToolClick(label)}
-                    className={cn(
-                      "group relative rounded-md p-0.5 transition-colors hover:bg-slate-50 hover:text-slate-600",
-                      ((label === '语音' && activeOnlineCallOverlay === 'audio') ||
-                        (label === '视频' && activeOnlineCallOverlay === 'video')) &&
-                        "bg-slate-50 text-slate-600"
-                    )}
-                  >
-                    <span className="pointer-events-none absolute bottom-[calc(100%+8px)] left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-800 px-2 py-1 text-[10px] text-white opacity-0 shadow-sm transition-opacity duration-150 group-hover:opacity-100">
-                      {label}
-                    </span>
-                    {imageSrc ? (
-                      <img src={imageSrc} alt="" className="h-[18px] w-[18px] object-contain" />
-                    ) : Icon ? (
-                      <Icon size={18} strokeWidth={1.9} />
-                    ) : null}
-                  </button>
-                ))}
-              </div>
-              <div className="flex items-center gap-[12px] text-[#a3a3a3]">
-                {onlineComposerSecondaryTools.map(({ label, icon: Icon, imageSrc }) => {
-                  const isTranslateTool = label === '翻译';
-                  const isSuggestionTool = label === '推荐语';
-
-                  return (
-                    <div
-                      key={`online-composer-secondary-${label}`}
-                      className="relative"
-                      data-dropdown-root={isTranslateTool || isSuggestionTool ? 'true' : undefined}
-                    >
-                      <button
-                        ref={isSuggestionTool ? onlineSuggestionTriggerRef : undefined}
-                        type="button"
-                        aria-expanded={
-                          isTranslateTool
-                            ? isOnlineComposerTranslateMenuOpen
-                            : isSuggestionTool
-                              ? isOnlineSuggestionMenuOpen
-                              : undefined
-                        }
-                        onClick={isTranslateTool ? handleToggleOnlineComposerTranslateMenu : isSuggestionTool ? handleToggleOnlineSuggestionMenu : undefined}
-                        className={cn(
-                          "group relative rounded-md p-0.5 transition-colors hover:bg-slate-50 hover:text-slate-600",
-                          isTranslateTool && isOnlineComposerTranslateMenuOpen && "bg-slate-50 text-slate-600",
-                          isSuggestionTool && isOnlineSuggestionMenuOpen && "bg-slate-50 text-slate-600"
-                        )}
-                      >
-                        <span className="pointer-events-none absolute bottom-[calc(100%+8px)] left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-800 px-2 py-1 text-[10px] text-white opacity-0 shadow-sm transition-opacity duration-150 group-hover:opacity-100">
-                          {label}
-                        </span>
-                        {imageSrc ? (
-                          <img src={imageSrc} alt="" className="h-[18px] w-[18px] object-contain" />
-                        ) : Icon ? (
-                          <Icon size={18} strokeWidth={1.9} />
-                        ) : null}
-                      </button>
-                      {isTranslateTool && isOnlineComposerTranslateMenuOpen ? (
-                        <div className="absolute right-[calc(100%+8px)] top-1/2 z-20 w-[96px] -translate-y-1/2 overflow-hidden rounded-[12px] border border-[#e6edf2] bg-white py-1 shadow-[0_18px_36px_rgba(15,23,42,0.12)]">
-                          {([
-                            { label: '中文', language: 'zh' as const },
-                            { label: '英文', language: 'en' as const },
-                          ]).map((item) => (
-                            <button
-                              key={`online-composer-translate-${item.language}`}
-                              type="button"
-                              onClick={() => handleSelectOnlineComposerTranslateLanguage(item.language)}
-                              className={cn(
-                                "flex h-11 w-full items-center justify-center px-4 text-[13px] transition-colors",
-                                onlineComposerTranslateLanguage === item.language
-                                  ? "bg-[#e4f7f3] text-[#11b89d]"
-                                  : "text-slate-700 hover:bg-slate-50"
-                              )}
-                            >
-                              {item.label}
-                            </button>
-                          ))}
-                        </div>
-                      ) : null}
-                    </div>
-                  );
-                })}
-                {isOnlineSuggestionMenuOpen
-                  ? renderFloatingMenu(
-                      onlineSuggestionTriggerRef.current,
-                      <div className="overflow-hidden rounded-[14px] border border-[#e8edf3] bg-white shadow-[0_18px_40px_rgba(15,23,42,0.14)]">
-                        <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
-                          <div className="text-[14px] font-semibold text-slate-700">推荐语</div>
-                          <button
-                            type="button"
-                            aria-label="关闭推荐语窗口"
-                            onClick={handleCloseOnlineSuggestionMenu}
-                            className="rounded-md p-1 text-slate-400 transition-colors hover:bg-slate-50 hover:text-slate-600"
-                          >
-                            <X size={16} strokeWidth={2.2} />
-                          </button>
-                        </div>
-                        <div className="max-h-[420px] overflow-y-auto px-4 py-3 custom-scrollbar" style={{ maxHeight: 'min(420px, calc(100vh - 120px))' }}>
-                          <div className="relative">
-                            <Search
-                              size={14}
-                              strokeWidth={2.2}
-                              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-300"
-                            />
-                            <input
-                              value={onlineSuggestionKeyword}
-                              onChange={(event) => setOnlineSuggestionKeyword(event.target.value)}
-                              placeholder="搜索"
-                              className="h-9 w-full rounded-full border border-[#e6ebf2] bg-[#fbfcfd] pl-9 pr-3 text-[12px] text-slate-600 outline-none transition-colors placeholder:text-slate-300 focus:border-[#7fd8c9]"
-                            />
-                          </div>
-                          <div className="mt-4 text-[12px] font-semibold text-slate-700">系统自动提示语</div>
-                          <div className="mt-3 space-y-2.5">
-                            {visibleOnlineSuggestionGroups.length ? (
-                              visibleOnlineSuggestionGroups.map((group) => {
-                                const isExpanded = isOnlineSuggestionSearching || expandedOnlineSuggestionGroups[group.label];
-
-                                return (
-                                  <div key={group.label}>
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        if (!isOnlineSuggestionSearching) {
-                                          handleToggleOnlineSuggestionGroup(group.label);
-                                        }
-                                      }}
-                                      className="flex w-full items-center gap-1 text-left text-[12px] font-medium text-slate-600"
-                                    >
-                                      {isExpanded ? (
-                                        <ChevronDown size={14} className="text-slate-400" />
-                                      ) : (
-                                        <ChevronRight size={14} className="text-slate-400" />
-                                      )}
-                                      <span>{group.label}</span>
-                                    </button>
-                                    {isExpanded ? (
-                                      <div className={cn("mt-2 rounded-[10px] border px-3 py-3", group.panelCls)}>
-                                        <div className="space-y-1.5">
-                                          {group.items.map((item, index) => (
-                                            <button
-                                              key={`${group.label}-${item}`}
-                                              type="button"
-                                              onClick={() => handleApplyOnlineSuggestion(item)}
-                                              className="flex w-full items-start gap-1.5 rounded-md px-1 py-1 text-left text-[12px] leading-5 text-slate-600 transition-colors hover:bg-white/70"
-                                            >
-                                              <span className="shrink-0 text-slate-400">{index + 1}.</span>
-                                              <span>{item}</span>
-                                            </button>
-                                          ))}
-                                        </div>
-                                      </div>
-                                    ) : null}
-                                  </div>
-                                );
-                              })
-                            ) : (
-                              <div className="rounded-[10px] border border-dashed border-[#dfe6ee] bg-[#fafbfd] px-3 py-6 text-center text-[12px] text-slate-400">
-                                未找到相关推荐语
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>,
-                      { align: 'center', marginTop: 12, width: 340, placement: 'top' }
-                    )
-                  : null}
-              </div>
-            </div>
-            <div
-              className={cn(
-                "relative rounded-[16px] border border-[#d9e3ef] bg-white px-4 py-3 shadow-[inset_0_0_0_1px_rgba(228,236,245,0.75)]",
-                isOnlineComposerDisabled && "bg-slate-50"
-              )}
-            >
-              <textarea
-                ref={onlineComposerTextareaRef}
-                value={activeOnlineComposerText}
-                onChange={(event) => updateActiveOnlineComposerText(event.target.value)}
-                disabled={isOnlineComposerDisabled}
-                placeholder={isActiveOnlineSessionFinished ? '请输入留言内容' : isOnlineSessionConnected ? '' : '当前会话已断开'}
-                className="h-[96px] w-full resize-none bg-transparent text-[13px] leading-5 text-slate-600 outline-none disabled:cursor-not-allowed disabled:text-slate-400"
-              />
-              <button
-                type="button"
-                aria-label={onlineComposerActionLabel}
-                disabled={isOnlineComposerDisabled}
-                onClick={handleSubmitOnlineComposer}
-                className="group absolute bottom-4 right-4 flex h-8 w-8 items-center justify-center rounded-full bg-[#0faa87] text-white transition-colors hover:bg-[#0b9d7b] disabled:cursor-not-allowed disabled:bg-slate-300"
-              >
-                <span className="pointer-events-none absolute bottom-[calc(100%+8px)] left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-800 px-2 py-1 text-[10px] text-white opacity-0 shadow-sm transition-opacity duration-150 group-hover:opacity-100">
-                  {onlineComposerActionLabel}
-                </span>
-                {isActiveOnlineSessionFinished ? (
-                  <img src={chatMessageIcon} alt="" className="h-[18px] w-[18px] object-contain" />
-                ) : (
-                  <Send size={15} strokeWidth={2.35} className="translate-x-[1px] -translate-y-[1px]" />
-                )}
-              </button>
-            </div>
-          </div>
-        </section>
-        </div>
-
-        <button
-          type="button"
-          aria-label="调整在线工作台中间区域宽度"
-          onMouseDown={(event) => {
-            event.preventDefault();
-            setIsOnlineCenterResizing(true);
-          }}
-          onDoubleClick={() => {
-            if (!onlineWorkbenchLayoutRef.current) {
-              return;
-            }
-
-            const layoutWidth = onlineWorkbenchLayoutRef.current.getBoundingClientRect().width;
-            setIsOnlineCenterPanelCustomized(false);
-            setOnlineCenterPanelWidth(getOnlineCenterPanelDefaultWidth(layoutWidth, onlineLeftPanelWidth));
-          }}
-          className={cn(
-            "group hidden w-2 shrink-0 cursor-col-resize items-center justify-center rounded-full transition-colors xl:flex",
-            isOnlineCenterResizing ? "bg-emerald-50" : "hover:bg-slate-100"
-          )}
-        >
-          <span className={cn("flex h-20 w-[3px] flex-col items-center justify-center gap-1 rounded-full bg-transparent transition-colors", isOnlineCenterResizing && "bg-emerald-50")}>
-            <span className={cn("h-7 w-[2px] rounded-full bg-slate-200 transition-colors group-hover:bg-slate-300", isOnlineCenterResizing && "bg-emerald-300")} />
-            <span className={cn("h-7 w-[2px] rounded-full bg-slate-200 transition-colors group-hover:bg-slate-300", isOnlineCenterResizing && "bg-emerald-300")} />
-          </span>
-        </button>
-
-        <div className="grid min-h-0 min-w-0 flex-1 grid-cols-[minmax(0,1fr)_50px] gap-2.5">
-          <div
-            ref={onlineRightPanelStackRef}
-            className={cn(
-              "min-h-0 gap-[10px] xl:gap-0",
-              onlineRightPanel === 'robot' ? "grid grid-rows-[minmax(0,1fr)]" : "flex flex-col"
-            )}
-          >
-            {onlineRightPanel === 'robot' && (
-              <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                <div className="border-b border-slate-100 px-5 py-4">
-                  <h2 className="text-[14px] font-bold text-slate-800">Agent</h2>
-                </div>
-                <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
-                  <div className="space-y-4">
-                    <div className="rounded-xl border border-[#eef1f5] bg-[#fafbfc] p-3.5">
-                      <div className="space-y-3">
-                        {activeOnlineRobotPanel.insights.map((entry) => (
-                          <div key={entry.id} className="flex gap-3 rounded-xl border border-[#f0f2f5] bg-white px-3 py-3">
-                            <div className="pt-0.5 text-[13px] font-semibold text-slate-400">{entry.id}</div>
-                            <div className="min-w-0 flex-1">
-                              <p className="text-[12px] leading-5 text-slate-600">{entry.content}</p>
-                            </div>
-                            <div className="shrink-0 text-right text-[11px] text-slate-400">
-                              <div>{entry.duration}</div>
-                              <div className="mt-1">{entry.time}</div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-3">
-                      {activeOnlineRobotPanel.capabilities.map((card) => (
-                        <div
-                          key={card.title}
-                          className={cn(
-                            "rounded-xl border px-3 py-3",
-                            card.emphasized
-                              ? "border-[#8adccd] bg-[#f1fbf8]"
-                              : "border-[#eef1f5] bg-[#fafbfc]"
-                          )}
-                        >
-                          <div className="flex items-center gap-2 text-[12px] font-medium text-slate-700">
-                            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-slate-100 text-slate-500">
-                              <Check size={10} strokeWidth={2.4} />
-                            </span>
-                            <span>{card.title}</span>
-                          </div>
-                          <div className="mt-2 pl-6 text-[11px] text-slate-400">{card.status}</div>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div>
-                      <div className="mb-3 text-[13px] font-semibold text-slate-700">{activeOnlineRobotPanel.topicTitle}</div>
-                      <div className="space-y-2.5">
-                        {activeOnlineRobotPanel.steps.map((step) => (
-                          <div key={step} className="flex items-center gap-2 text-[12px] text-slate-600">
-                            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-50 text-emerald-500">
-                              <Check size={12} strokeWidth={2.6} />
-                            </span>
-                            <span>{step}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="rounded-xl border border-[#8adccd] bg-[#f4fbf8] p-4">
-                      <div className="mb-3 flex items-center gap-2 text-[13px] font-semibold text-[#18a058]">
-                        <Check size={15} strokeWidth={2.6} />
-                        <span>{activeOnlineRobotPanel.resultTitle}</span>
-                      </div>
-                      <div className="rounded-lg border border-[#e6ecef] bg-white px-4 py-3">
-                        <div className="text-[12px] text-slate-400">推荐话术：</div>
-                        <p className="mt-2 text-[12px] leading-5 text-slate-700">{activeOnlineRobotPanel.suggestedReply}</p>
-                      </div>
-                      <div className="mt-4 flex justify-end gap-2">
-                        <button className="rounded-full border border-[#8adccd] bg-[#e1f7f1] px-4 py-1.5 text-[12px] font-medium text-[#17b89c] transition-colors hover:bg-[#d5f3eb]">
-                          采纳发送
-                        </button>
-                        <button className="rounded-full border border-slate-200 bg-white px-4 py-1.5 text-[12px] text-slate-500 transition-colors hover:bg-slate-50">
-                          修改后发送
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </section>
-            )}
-
-            {onlineRightPanel === 'customer' && (
-              <section
-                className="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
-                style={
-                  onlineRightPanel !== 'robot'
-                    ? { height: `${onlineRightTopPanelHeight}px` }
-                    : undefined
-                }
-              >
-                <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
-                  <h2 className="text-[14px] font-bold text-slate-800">客户信息</h2>
-                  <div className="flex items-center gap-2">
-                    <input type="text" value={onlineCustomerQueryPhone} onChange={(e) => setOnlineCustomerQueryPhone(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleQueryOnlineCustomerByPhone(); } }} placeholder="输入手机号查询" className="h-8 w-[132px] rounded-full border border-slate-200 bg-[#fcfcfd] px-3 text-[12px] text-slate-600 outline-none placeholder:text-slate-400" />
-                    <button type="button" className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-50 hover:text-slate-600">
-                      <RotateCw size={14} />
-                    </button>
-                  </div>
-                </div>
-                <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
-                  <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="text-[11px] font-medium text-slate-600">匿名</div>
-                    <button
-                      type="button"
-                      aria-pressed={activeOnlineCustomerAnonymous}
-                      onClick={handleToggleActiveOnlineCustomerAnonymous}
-                      className={cn(
-                        "relative h-5 w-9 rounded-full transition-colors",
-                        activeOnlineCustomerAnonymous ? "bg-[#34d399]" : "bg-slate-300"
-                      )}
-                    >
-                      <span
-                        className={cn(
-                          "absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-all",
-                          activeOnlineCustomerAnonymous ? "right-0.5" : "left-0.5"
-                        )}
-                      />
-                    </button>
-                    <div className="text-[11px] font-medium text-slate-600">业务类型</div>
-                    <div className="relative" data-dropdown-root="true">
-                      <button
-                        ref={onlineBusinessTypeTriggerRef}
-                        type="button"
-                        onClick={() => setIsOnlineBusinessTypeMenuOpen((open) => !open)}
-                        className="flex h-[30px] min-w-[94px] items-center justify-between rounded-md border border-slate-200 bg-[#fcfcfd] px-3 text-[12px] text-slate-600"
-                      >
-                        <span>{activeOnlineBusinessType}</span>
-                        <ChevronDown
-                          size={13}
-                          className={cn("text-slate-300 transition-transform", isOnlineBusinessTypeMenuOpen && "rotate-180")}
-                        />
-                      </button>
-                      {isOnlineBusinessTypeMenuOpen
-                        ? renderFloatingMenu(
-                            onlineBusinessTypeTriggerRef.current,
-                            <div className="overflow-hidden rounded-md border border-slate-200 bg-white py-1 shadow-[0_10px_24px_rgba(15,23,42,0.12)]">
-                              {onlineBusinessTypeOptions.map((option) => (
-                                <button
-                                  key={option}
-                                  type="button"
-                                  onClick={() => handleSelectActiveOnlineBusinessType(option)}
-                                  className={cn(
-                                    "flex w-full items-center px-3 py-2 text-left text-[12px] transition-colors",
-                                    activeOnlineBusinessType === option
-                                      ? "bg-emerald-50 text-emerald-600"
-                                      : "text-slate-600 hover:bg-slate-50"
-                                  )}
-                                >
-                                  {option}
-                                </button>
-                              ))}
-                            </div>,
-                            { marginTop: 4, width: 120 }
-                          )
-                        : null}
-                  </div>
-                  </div>
-                  <div className="grid grid-cols-3 gap-3">
-                    {onlineCustomerFields.map((field) =>
-                      renderEditableWorkbenchField(
-                        field,
-                        activeOnlineCustomerFieldValues,
-                        updateActiveOnlineCustomerFieldValues,
-                        onlineCustomerOpenSelect,
-                        setOnlineCustomerOpenSelect,
-                        'online-customer',
-                        onlineCustomerRegionSelection,
-                        setOnlineCustomerRegionSelection
-                      )
-                    )}
-                  </div>
-                  </div>
-                </div>
-                <div className="flex justify-end gap-3 border-t border-slate-100 px-4 py-3">
-                  <button type="button" className="rounded-full border border-[#7ee0d3] bg-[#f1fdfa] px-6 py-1.5 text-[12px] font-medium text-[#18a058]">保存</button>
-                  <button
-                    type="button"
-                    onClick={handleResetActiveOnlineCustomerProfile}
-                    className="rounded-full border border-[#7ee0d3] bg-[#f1fdfa] px-6 py-1.5 text-[12px] font-medium text-[#18a058]"
-                  >
-                    重置
-                  </button>
-                </div>
-              </section>
-            )}
-
-            {onlineRightPanel === 'history' && (
-              <section
-                className="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
-                style={{
-                  height: `${onlineRightTopPanelHeight}px`,
-                }}
-              >
-                <div className="flex items-center gap-6 border-b border-slate-100 px-4">
-                  {(['会话历史', '通话历史', '短信历史', '邮件历史'] as WorkbenchHistoryTab[]).map((tab) => (
-                    <button
-                      key={tab}
-                      type="button"
-                      onClick={() => setOnlineWorkbenchHistoryTab(tab)}
-                      className={cn(
-                        "relative py-3 text-[12px] font-semibold transition-colors",
-                        onlineWorkbenchHistoryTab === tab ? "text-emerald-500" : "text-slate-500 hover:text-slate-700"
-                      )}
-                    >
-                      {tab}
-                      {onlineWorkbenchHistoryTab === tab && <span className="absolute inset-x-0 bottom-0 h-0.5 bg-emerald-500" />}
-                    </button>
-                  ))}
-                </div>
-                <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
-                  <div className="mb-3 flex items-center justify-between gap-2">
-                    <div className="text-[12px] text-slate-500">
-                      <span className="text-[#18a058]">{activeOnlineHistoryPanelMeta.total.split('，')[0]}</span>
-                      <span>，{activeOnlineHistoryPanelMeta.total.split('，')[1]}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="relative">
-                        <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" />
-                        <input
-                          type="text"
-                          placeholder={activeOnlineHistoryPanelMeta.filterPlaceholder}
-                          className="h-8 w-[120px] rounded-md border border-slate-200 bg-[#fcfcfd] pl-9 pr-3 text-[12px] text-slate-400 outline-none"
-                        />
-                      </div>
-                      <button className="flex h-8 items-center gap-1 rounded-md border border-slate-200 bg-[#fcfcfd] px-3 text-[12px] text-slate-500">
-                        2025.09.09 18:16:10
-                        <ChevronDown size={12} className="text-slate-300" />
-                      </button>
-                      <button className="flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 bg-[#fcfcfd] text-slate-400">
-                        <MoreVertical size={14} />
-                      </button>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-3 gap-x-3 gap-y-2 text-[11px] text-slate-500">
-                    {activeOnlineHistoryPanelMeta.details.map((detail) => (
-                      <div key={`${onlineWorkbenchHistoryTab}-${detail.label}`}>
-                        <span>{detail.label}: </span>
-                        <span className="text-slate-700">{detail.value}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mt-4 min-h-[212px] space-y-4 border-t border-slate-100 pt-4">
-                    {activeOnlineHistoryPanelMeta.messages.map((message, index) => (
-                      <div key={`${onlineWorkbenchHistoryTab}-message-${index}`} className={cn("flex", message.align === 'right' ? "justify-end" : "justify-start")}>
-                        <div className={cn("max-w-[240px]", message.align === 'right' && "items-end")}>
-                          <div className={cn("mb-1 text-[11px] text-slate-400", message.align === 'right' ? "text-right" : "text-left")}>
-                            10-28 09:10:20
-                          </div>
-                          <div className={cn("flex items-start gap-2", message.align === 'right' && "flex-row-reverse")}>
-                            <div className={cn(
-                              "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-white",
-                              message.align === 'right' ? "bg-orange-400" : "bg-emerald-500"
-                            )}>
-                              <MessageSquare size={14} />
-                            </div>
-                            <div className="space-y-1">
-                              {message.badge && (
-                                <div className="text-left">
-                                  <span className="rounded-md bg-emerald-50 px-2 py-1 text-[10px] font-medium text-emerald-500">
-                                    {message.badge}
-                                  </span>
-                                </div>
-                              )}
-                              <div className={cn(
-                                "rounded-2xl px-4 py-2 text-[12px] leading-5 shadow-[0_2px_6px_rgba(15,23,42,0.03)]",
-                                message.align === 'right'
-                                  ? "rounded-tr-md bg-[#e9f9f4] text-slate-700"
-                                  : "rounded-tl-md bg-slate-50 text-slate-700"
-                              )}>
-                                {message.text}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </section>
-            )}
-
-            {onlineRightPanel === 'tools' && (
-              <section
-                className="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
-                style={{
-                  height: `${onlineRightTopPanelHeight}px`,
-                }}
-              >
-                <div className="border-b border-slate-100 px-4 py-3">
-                  <h2 className="text-[14px] font-bold text-slate-800">常用工具</h2>
-                </div>
-                <div className="grid flex-1 grid-cols-3 grid-rows-3 content-start gap-3 overflow-y-auto p-4 custom-scrollbar">
-                  {onlineUtilityItems['常用工具'].map((item) => {
-                    return (
-                      <button
-                        key={item.label}
-                        type="button"
-                        className="rounded-lg border border-[#f0f2f5] bg-[#f7f8fb] px-2 py-3.5 text-center transition-colors hover:border-slate-200 hover:bg-white"
-                      >
-                        <div className="mx-auto flex h-[35px] w-[35px] items-center justify-center">
-                          <img src={item.imageSrc} alt="" className="h-[35px] w-[35px] object-contain" />
-                        </div>
-                        <div className="mt-2 text-[12px] font-medium text-slate-600">{item.label}</div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </section>
-            )}
-
-            {onlineRightPanel === 'third-party' && (
-              <section
-                className="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
-                style={{
-                  height: `${onlineRightTopPanelHeight}px`,
-                }}
-              >
-                {renderThirdPartySystemPanelContent(
-                  '第三方网站',
-                  onlineThirdPartySettingsTriggerRef,
-                  '打开第三方网站默认设置'
-                )}
-              </section>
-            )}
-
-            {onlineRightPanel !== 'robot' && (
-            <>
-            <button
-              type="button"
-              aria-label="调整在线工作台右侧上方区域高度"
-              onMouseDown={(event) => {
-                event.preventDefault();
-                setIsOnlineRightTopResizing(true);
-              }}
-              onDoubleClick={() => {
-                if (!onlineRightPanelStackRef.current) {
-                  return;
-                }
-
-                const stackHeight = onlineRightPanelStackRef.current.getBoundingClientRect().height;
-                setIsOnlineRightTopPanelCustomized(false);
-                setOnlineRightTopPanelHeight(getOnlineRightTopPanelDefaultHeight(stackHeight));
-              }}
-              className={cn(
-                "group hidden h-[10px] shrink-0 cursor-row-resize items-center justify-center rounded-full transition-colors xl:flex",
-                isOnlineRightTopResizing ? "bg-emerald-50" : "hover:bg-slate-100"
-              )}
-            >
-              <span className={cn("flex h-[3px] w-20 items-center justify-center gap-1 rounded-full bg-transparent transition-colors", isOnlineRightTopResizing && "bg-emerald-50")}>
-                <span className={cn("h-[2px] w-7 rounded-full bg-slate-200 transition-colors group-hover:bg-slate-300", isOnlineRightTopResizing && "bg-emerald-300")} />
-                <span className={cn("h-[2px] w-7 rounded-full bg-slate-200 transition-colors group-hover:bg-slate-300", isOnlineRightTopResizing && "bg-emerald-300")} />
-              </span>
-            </button>
-            <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-              <div className="flex items-center gap-4 border-b border-slate-100 px-4 py-3">
-                <h2 className="text-[14px] font-bold text-slate-800">会话小结</h2>
+      }
+    >
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 xl:flex-row xl:gap-0">
+        <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-hairline bg-white shadow-card">
+          {/* Conversation header */}
+          <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-100 text-[12px] font-bold text-emerald-600">小明</div>
+              <div>
                 <div className="flex items-center gap-2">
-                  {onlineSummaryTabs.map((tab) => (
-                    <button
-                      key={tab}
-                      type="button"
-                      onClick={() => setOnlineSummaryTab(tab)}
-                      className={cn(
-                        "rounded-md border px-2.5 py-1 text-[12px] transition-colors",
-                        onlineSummaryTab === tab
-                          ? "border-[#7ee0d3] bg-[#f1fdfa] text-emerald-500"
-                          : "border-transparent text-slate-400 hover:bg-slate-50 hover:text-slate-600"
-                      )}
-                    >
-                      {tab}
-                    </button>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={handleAddOnlineSummaryTab}
-                    className="flex h-5 w-5 items-center justify-center rounded-full border border-slate-300 text-[12px] text-slate-400 transition-colors hover:border-slate-400 hover:text-slate-600"
-                  >
-                    +
-                  </button>
+                  <span className="text-[14px] font-bold text-slate-800">王小明</span>
+                  <span className="rounded bg-green-100 px-1.5 py-0.5 text-[9px] font-medium text-green-600">微信</span>
+                  <span className="text-[11px] text-slate-400">首次进线</span>
+                </div>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span className="inline-flex items-center rounded-full border border-indigo-200 bg-indigo-50 px-1.5 py-0.5 text-[9px] font-medium text-indigo-500">VIP客户</span>
+                  <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[9px] font-medium text-amber-500">高净值</span>
+                  <button type="button" className="flex h-4 w-4 items-center justify-center rounded-full border border-dashed border-slate-300 text-[10px] text-slate-400 hover:border-emerald-400 hover:text-emerald-500">+</button>
                 </div>
               </div>
-              <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
-                <div className="space-y-4">
-                <div className="grid grid-cols-3 gap-x-3 gap-y-2.5">
-                  {workbenchSummaryFields.map((field) =>
-                    renderEditableWorkbenchField(
-                      field,
-                      activeOnlineSummaryFieldValues,
-                      updateOnlineSummaryFieldValues,
-                      onlineSummaryOpenSelect,
-                      setOnlineSummaryOpenSelect,
-                      'online-summary'
-                    )
-                  )}
-                  <div className="space-y-1.5 md:col-span-3">
-                    <div className="text-[11px] font-medium text-slate-600">来电描述</div>
-                    <textarea
-                      value={activeOnlineSummaryText}
-                      onChange={(event) =>
-                        setOnlineSummaryTextByTab((prev) => ({
-                          ...prev,
-                          [onlineSummaryTab]: event.target.value,
-                        }))
-                      }
-                      className="h-[76px] w-full resize-none rounded-md border border-slate-200 bg-[#fcfcfd] px-3 py-2 text-[12px] text-slate-500 outline-none"
-                      placeholder="请输入"
-                    />
-                  </div>
-                </div>
-                <div className="flex justify-end gap-3">
-                  <button className="rounded-full border border-[#7ee0d3] bg-[#f1fdfa] px-5 py-1.5 text-[12px] font-medium text-[#18a058]">升级工单</button>
-                  <button className="rounded-full border border-[#7ee0d3] bg-[#f1fdfa] px-5 py-1.5 text-[12px] font-medium text-[#18a058]">提交</button>
-                </div>
-                </div>
-              </div>
-            </section>
-            </>
-            )}
+            </div>
+            <div className="flex items-center gap-1">
+              <button type="button" className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-50 hover:text-slate-600" title="转坐席"><img src={onlineTransferAgentIcon} alt="" className="h-4 w-4" /></button>
+              <button type="button" className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-50 hover:text-slate-600" title="转队列"><img src={onlineTransferQueueIcon} alt="" className="h-4 w-4" /></button>
+              <button type="button" className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-50 hover:text-slate-600" title="三方会议"><img src={onlineConferenceIcon} alt="" className="h-4 w-4" /></button>
+              <button type="button" className="flex h-8 w-8 items-center justify-center rounded-lg text-red-400 hover:bg-red-50 hover:text-red-500" title="结束会话"><img src={onlineEndSessionIcon} alt="" className="h-4 w-4" /></button>
+            </div>
           </div>
-
-          <div className="flex w-full flex-col items-center gap-[21px] rounded-2xl border border-slate-200 bg-white py-3 text-slate-400 shadow-sm">
-            {visibleOnlineSidebarButtons.map((item) => {
-              const isPanelActive = item.panel ? onlineRightPanel === item.panel : false;
-              const isSettingsButton = item.key === 'settings';
-              const isActive = isSettingsButton ? isOnlineFeatureSettingsOpen : isPanelActive;
-
-              return (
-                <button
-                  key={item.key}
-                  ref={isSettingsButton ? onlineFeatureSettingsTriggerRef : undefined}
-                  type="button"
-                  aria-label={item.title}
-                  title={item.title}
-                  data-dropdown-root={isSettingsButton ? 'true' : undefined}
-                  onClick={() => {
-                    if (item.panel) {
-                      setOnlineRightPanel(item.panel);
-                      return;
-                    }
-
-                    if (isSettingsButton) {
-                      handleToggleOnlineFeatureSettings();
-                    }
-                  }}
-                  className={cn(
-                    "rounded-md p-1.5 transition-colors",
-                    isActive
-                      ? "border border-[#8adccd] bg-[#d9f5ee] text-emerald-700"
-                      : "hover:bg-slate-50 hover:text-slate-500"
-                  )}
-                >
-                  <img src={item.imageSrc} alt="" className="h-[25px] w-[25px] object-contain" />
-                </button>
-              );
-            })}
-            {isOnlineFeatureSettingsOpen
-              ? renderFloatingMenu(
-                  onlineFeatureSettingsTriggerRef.current,
-                  <div className="overflow-hidden rounded-[12px] border border-[#e6ebf2] bg-white shadow-[0_18px_40px_rgba(15,23,42,0.14)]">
-                    <div className="border-b border-slate-100 px-4 py-3 text-[14px] font-semibold text-slate-700">
-                      功能设置
-                    </div>
-                    <div className="px-3 py-2">
-                      {orderedOnlineSidebarFeatures.map((item) => {
-                        const isVisible = item.key === 'settings' ? true : onlineSidebarVisibility[item.key];
-                        const hasDropIndicator = onlineSidebarDropIndicator?.key === item.key;
-
-                        return (
-                          <button
-                            key={`feature-setting-${item.key}`}
-                            type="button"
-                            draggable={!item.locked}
-                            onClick={() => {
-                              if (!item.locked) {
-                                handleToggleOnlineSidebarVisibility(item.key);
-                              }
-                            }}
-                            onDragStart={(event) => handleOnlineSidebarFeatureDragStart(event, item.key)}
-                            onDragOver={(event) => handleOnlineSidebarFeatureDragOver(event, item.key)}
-                            onDrop={(event) => handleOnlineSidebarFeatureDrop(event, item.key)}
-                            onDragEnd={handleOnlineSidebarFeatureDragEnd}
-                            className={cn(
-                              "relative flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors",
-                              item.locked ? "cursor-default" : "cursor-pointer hover:bg-slate-50",
-                              draggingOnlineSidebarFeatureKey === item.key && "opacity-55",
-                              hasDropIndicator &&
-                                onlineSidebarDropIndicator?.position === 'before' &&
-                                "before:absolute before:left-2 before:right-2 before:top-0 before:h-[2px] before:rounded-full before:bg-[#18c5aa]",
-                              hasDropIndicator &&
-                                onlineSidebarDropIndicator?.position === 'after' &&
-                                "after:absolute after:left-2 after:right-2 after:bottom-0 after:h-[2px] after:rounded-full after:bg-[#18c5aa]"
-                            )}
-                          >
-                            <img src={item.imageSrc} alt="" className="h-[18px] w-[18px] shrink-0 object-contain" />
-                            <span className="min-w-0 flex-1 text-[13px] font-medium text-slate-700">{item.label}</span>
-                            <span
-                              className={cn(
-                                "flex h-4 w-4 shrink-0 items-center justify-center rounded-[4px] border transition-colors",
-                                isVisible
-                                  ? "border-[#18c5aa] bg-[#18c5aa] text-white"
-                                  : "border-slate-300 bg-white text-transparent",
-                                item.locked && "cursor-not-allowed"
-                              )}
-                            >
-                              {isVisible ? <Check size={11} strokeWidth={3} /> : null}
-                            </span>
-                            <Rows3
-                              size={14}
-                              className={cn(
-                                "shrink-0",
-                                item.locked ? "text-slate-200" : "cursor-grab text-slate-300 active:cursor-grabbing"
-                              )}
-                            />
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>,
-                  { align: 'right', marginTop: 14, width: 208, placement: 'top' }
-                )
-              : null}
+          {/* Visitor summary cards */}
+          <div className="flex items-center gap-3 border-b border-slate-100 px-4 py-2">
+            <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
+              <Smartphone size={12} className="text-slate-400" />
+              <span>iPhone 15 Pro · iOS 18</span>
+            </div>
+            <span className="h-3 w-px bg-slate-200" />
+            <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
+              <Activity size={12} className="text-slate-400" />
+              <span>北京市海淀区</span>
+            </div>
+            <span className="h-3 w-px bg-slate-200" />
+            <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
+              <Clock size={12} className="text-slate-400" />
+              <span>会话 04:32</span>
+            </div>
           </div>
-        </div>
-        </div>
-
-        {activeOnlineCallOverlay && (
-          <>
-            <div aria-hidden="true" className="absolute inset-0 z-40 bg-[rgba(15,23,42,0.16)] backdrop-blur-[1px]" />
-            <div className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center p-6">
-              {activeOnlineCallOverlay === 'audio' ? (
-                <div className="pointer-events-auto w-[258px] overflow-hidden rounded-[18px] border border-[#e7edf3] bg-white shadow-[0_24px_50px_rgba(15,23,42,0.16)]">
-                  <div className="flex items-center gap-2 border-b border-[#e4f3ef] bg-[#f2fbf8] px-4 py-[11px] text-[13px] font-semibold text-[#12b89d]">
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#dff8f2] text-[#14c4a6]">
-                      <Phone size={11} strokeWidth={2.2} />
-                    </span>
-                    <span>语音通话进行中</span>
-                  </div>
-                  <div className="flex flex-col items-center px-5 pb-6 pt-7">
-                    <img
-                      src={onlineAudioCallAvatar}
-                      alt={`${onlineCallContactName}头像`}
-                      className="h-[84px] w-[84px] rounded-full object-cover shadow-[0_12px_24px_rgba(125,144,255,0.2)]"
-                    />
-                    <div className="mt-3.5 text-[18px] font-semibold tracking-[0.02em] text-slate-700">{onlineCallContactName}</div>
-                    <div className="mt-1 text-[18px] font-semibold tracking-[0.08em] text-[#1cc9af]">{onlineAudioCallDuration}</div>
-                    <div className="mt-7 grid w-full grid-cols-3 gap-2.5 text-center">
-                      {onlineAudioCallControls.map(({ label, iconSrc, onClick }) => (
-                        <div key={`online-audio-call-control-${label}`} className="flex flex-col items-center gap-2">
-                          <button
-                            type="button"
-                            aria-label={label}
-                            onClick={onClick}
-                            className="flex h-9 w-9 items-center justify-center rounded-full border border-[#e4e8ef] bg-white shadow-[0_4px_10px_rgba(15,23,42,0.04)] transition-colors hover:border-[#cfd8e3]"
-                          >
-                            <img
-                              src={iconSrc}
-                              alt=""
-                              className={cn(
-                                "object-contain opacity-70",
-                                label === '外放' ? "h-[14px] w-[18px]" : "h-[18px] w-[18px]"
-                              )}
-                            />
-                          </button>
-                          <span className="text-[11px] text-slate-400">{label}</span>
-                        </div>
-                      ))}
-                    </div>
-                    <button
-                      type="button"
-                      aria-label="挂断语音通话"
-                      onClick={handleCloseOnlineCallOverlay}
-                      className="mt-6 transition-transform hover:scale-[1.02]"
-                    >
-                      <img src={onlineCallHangupIcon} alt="" className="h-[42px] w-[42px] object-contain" />
-                    </button>
-                  </div>
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto px-4 py-4 custom-scrollbar">
+            <div className="space-y-4">
+              {/* System message */}
+              <div className="flex justify-center">
+                <span className="rounded-full bg-slate-100 px-3 py-1 text-[10px] text-slate-400">2025-06-07 14:28 会话开始</span>
+              </div>
+              {/* Visitor message 1 */}
+              <div className="flex items-start gap-2.5">
+                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-[11px] font-bold text-blue-500">客</div>
+                <div className="max-w-[70%]">
+                  <div className="rounded-2xl rounded-tl-md bg-slate-100 px-3.5 py-2.5 text-[13px] leading-relaxed text-slate-700">您好，我上周在你们官网购买了一台XX系列产品，订单号是 ORD-20250601-8847，请问什么时候可以发货？</div>
+                  <span className="mt-1 block text-[10px] text-slate-300">14:28</span>
                 </div>
-              ) : (
-                <div className="pointer-events-auto w-[500px] max-w-[calc(100%-48px)] overflow-hidden rounded-[14px] bg-[#23252b] shadow-[0_28px_60px_rgba(15,23,42,0.28)]">
-                  <div className="flex items-center bg-[rgba(12,14,18,0.9)] px-4 py-2.5 text-white">
-                    <div className="flex items-center gap-2 text-[13px] font-medium">
-                      <span className="flex h-4 w-4 items-center justify-center rounded-full bg-white/10">
-                        <Phone size={10} strokeWidth={2.4} />
-                      </span>
-                      <span>正在与{onlineCallContactName}视频通话</span>
-                      <span className="text-white/70">{onlineVideoCallDuration}</span>
-                    </div>
-                  </div>
-                  <div className="relative h-[332px] overflow-hidden bg-[#3f4145]">
-                    <img
-                      src={onlineVideoMainPhoto}
-                      alt={`${onlineCallContactName}视频画面`}
-                      className="h-full w-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.02),rgba(0,0,0,0.08))]" />
-                    <div className="absolute right-4 top-4 h-[102px] w-[102px] overflow-hidden rounded-[10px] border border-white/10 shadow-[0_14px_22px_rgba(15,23,42,0.24)]">
-                      <img
-                        src={onlineVideoPreviewPhoto}
-                        alt="本地视频预览"
-                        className="h-full w-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(0,0,0,0.08))]" />
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[rgba(0,0,0,0.18)] text-white shadow-[0_6px_12px_rgba(0,0,0,0.18)]">
-                          <Video size={15} strokeWidth={2.1} />
-                        </div>
-                      </div>
-                    </div>
-                    <div className="absolute inset-x-0 bottom-[14px] flex justify-center">
-                      <div className="relative h-[58px] w-[252px]">
-                        <img
-                          src={onlineVideoToolbarBackground}
-                          alt=""
-                          className="absolute inset-0 h-full w-full object-cover"
-                        />
-                        <div className="relative z-10 flex h-full items-center justify-center gap-3.5 px-5">
-                          {onlineVideoCallControls.map(({ label, iconSrc }) => (
-                            <button
-                              key={`online-video-call-control-${label}`}
-                              type="button"
-                              aria-label={label}
-                              className="flex h-9 w-9 items-center justify-center rounded-full bg-white/5 transition-colors hover:bg-white/10"
-                            >
-                              <img
-                                src={iconSrc}
-                                alt=""
-                                className={cn(
-                                  "object-contain invert",
-                                  label === '外放' ? "h-[14px] w-[18px]" : "h-[16px] w-[16px]"
-                                )}
-                              />
-                            </button>
-                          ))}
-                          <button
-                            type="button"
-                            aria-label="挂断视频通话"
-                            onClick={handleCloseOnlineCallOverlay}
-                            className="transition-transform hover:scale-[1.02]"
-                          >
-                            <img src={onlineVideoHangupIcon} alt="" className="h-10 w-10 object-contain" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+              </div>
+              {/* Agent message 1 */}
+              <div className="flex items-start justify-end gap-2.5">
+                <div className="max-w-[70%]">
+                  <div className="rounded-2xl rounded-tr-md bg-emerald-500 px-3.5 py-2.5 text-[13px] leading-relaxed text-white">您好王先生，感谢您的来电！我帮您查询一下订单 ORD-20250601-8847 的物流状态，请稍等。</div>
+                  <span className="mt-1 block text-right text-[10px] text-slate-300">14:29</span>
                 </div>
-              )}
-            </div>
-          </>
-        )}
-
-        {showOnlineEndSessionConfirm && (
-          <>
-            <button
-              type="button"
-              aria-label="关闭结束会话弹窗"
-              onClick={() => setShowOnlineEndSessionConfirm(false)}
-              className="absolute inset-0 z-20 bg-[rgba(245,247,251,0.58)]"
-            />
-            <div className="absolute left-1/2 top-[58px] z-30 w-[230px] -translate-x-1/2 rounded-[10px] bg-white px-[20px] py-[16px] text-left shadow-[0_12px_28px_rgba(15,23,42,0.16)] xl:left-[67.4%] xl:top-[64px] xl:-translate-x-1/2">
-              <div className="text-[14px] font-semibold leading-none text-[#3f434a]">结束会话</div>
-              <div className="mt-[18px] text-[12px] leading-[18px] text-[#5c6570]">是否立即结束会话?</div>
-              <div className="mt-[18px] flex items-center justify-end gap-[10px]">
-                <button
-                  type="button"
-                  onClick={() => setShowOnlineEndSessionConfirm(false)}
-                  className="flex h-[30px] min-w-[66px] items-center justify-center rounded-full border border-[#e4e8ef] bg-white px-[18px] text-[12px] text-[#6f7782] transition-colors hover:bg-slate-50"
-                >
-                  取消
-                </button>
-                <button
-                  type="button"
-                  onClick={handleOnlineSessionDisconnectConfirm}
-                  className="flex h-[30px] min-w-[74px] items-center justify-center rounded-full border border-[#8ee8db] bg-[#ecfbf8] px-[18px] text-[12px] font-medium text-[#11c5ab] transition-colors hover:bg-[#dff8f3]"
-                >
-                  确定
-                </button>
+                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[11px] font-bold text-emerald-600">客服</div>
+              </div>
+              {/* Agent message 2 */}
+              <div className="flex items-start justify-end gap-2.5">
+                <div className="max-w-[70%]">
+                  <div className="rounded-2xl rounded-tr-md bg-emerald-500 px-3.5 py-2.5 text-[13px] leading-relaxed text-white">已为您查询到，您的订单已于今天上午出库，预计明天下午送达。快递单号为 SF1234567890，您可以在官网或顺丰APP中实时追踪。</div>
+                  <span className="mt-1 block text-right text-[10px] text-slate-300">14:30</span>
+                </div>
+                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[11px] font-bold text-emerald-600">客服</div>
+              </div>
+              {/* Visitor message 2 */}
+              <div className="flex items-start gap-2.5">
+                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-[11px] font-bold text-blue-500">客</div>
+                <div className="max-w-[70%]">
+                  <div className="rounded-2xl rounded-tl-md bg-slate-100 px-3.5 py-2.5 text-[13px] leading-relaxed text-slate-700">好的谢谢！另外想问一下，如果收到后有质量问题可以退换吗？</div>
+                  <span className="mt-1 block text-[10px] text-slate-300">14:31</span>
+                </div>
+              </div>
+              {/* Agent message 3 */}
+              <div className="flex items-start justify-end gap-2.5">
+                <div className="max-w-[70%]">
+                  <div className="rounded-2xl rounded-tr-md bg-emerald-500 px-3.5 py-2.5 text-[13px] leading-relaxed text-white">当然可以！我们支持7天无理由退换和15天质量问题换新。如有问题您可以直接联系我们，我们会优先为VIP客户处理。😊</div>
+                  <span className="mt-1 block text-right text-[10px] text-slate-300">14:32</span>
+                </div>
+                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[11px] font-bold text-emerald-600">客服</div>
+              </div>
+              {/* Visitor message 3 */}
+              <div className="flex items-start gap-2.5">
+                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-[11px] font-bold text-blue-500">客</div>
+                <div className="max-w-[70%]">
+                  <div className="rounded-2xl rounded-tl-md bg-slate-100 px-3.5 py-2.5 text-[13px] leading-relaxed text-slate-700">请问我的订单什么时候发货？</div>
+                  <span className="mt-1 block text-[10px] text-slate-300">14:32</span>
+                </div>
               </div>
             </div>
-          </>
-        )}
-        {isOnlineFormSelectModalOpen && (
-          <>
-            <button
-              type="button"
-              aria-label="关闭表单选择弹窗"
-              onClick={handleCloseOnlineFormSelectModal}
-              className="absolute inset-0 z-20 bg-[rgba(245,247,251,0.58)]"
-            />
-            <div className="absolute left-1/2 top-[73%] z-30 w-[376px] -translate-x-1/2 -translate-y-1/2 rounded-[10px] bg-white px-[20px] py-[16px] text-left shadow-[0_12px_28px_rgba(15,23,42,0.16)]">
-              <div className="text-[14px] font-semibold leading-none text-[#3f434a]">表单选择</div>
-              <div className="mt-[16px] flex flex-wrap items-center gap-x-[22px] gap-y-[10px] text-[12px] text-[#3f434a]">
-                {onlineFormFieldOptions.map((field) => {
-                  const isSelected = selectedOnlineFormFields.includes(field);
-
-                  return (
-                    <button
-                      key={field}
-                      type="button"
-                      onClick={() => handleToggleOnlineFormField(field)}
-                      className="inline-flex items-center gap-[6px] transition-colors hover:text-[#18a058]"
-                    >
-                      <span>{field}</span>
-                      <span
-                        className={cn(
-                          "flex h-[13px] w-[13px] items-center justify-center rounded-[3px] border transition-colors",
-                          isSelected ? "border-[#17c6aa] bg-[#17c6aa]" : "border-[#d6dee7] bg-white"
-                        )}
-                      >
-                        {isSelected ? <Check size={10} strokeWidth={2.8} className="text-white" /> : null}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-              <div className="mt-[22px] flex items-center justify-end gap-[10px]">
-                <button
-                  type="button"
-                  onClick={handleCloseOnlineFormSelectModal}
-                  className="flex h-[30px] min-w-[66px] items-center justify-center rounded-full border border-[#e4e8ef] bg-white px-[18px] text-[12px] text-[#6f7782] transition-colors hover:bg-slate-50"
-                >
-                  取消
-                </button>
-                <button
-                  type="button"
-                  onClick={handleConfirmOnlineFormSelect}
-                  className="flex h-[30px] min-w-[74px] items-center justify-center rounded-full border border-[#8ee8db] bg-[#ecfbf8] px-[18px] text-[12px] font-medium text-[#11c5ab] transition-colors hover:bg-[#dff8f3]"
-                >
-                  确定
-                </button>
-              </div>
+          </div>
+          {/* Composer area */}
+          <div className="border-t border-slate-100">
+            {/* Rich text toolbar */}
+            <div className="flex items-center gap-0.5 border-b border-slate-50 px-3 py-1.5">
+              <button type="button" className="flex h-7 w-7 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-600"><Bold size={14} /></button>
+              <button type="button" className="flex h-7 w-7 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-600"><Italic size={14} /></button>
+              <button type="button" className="flex h-7 w-7 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-600"><Underline size={14} /></button>
+              <span className="mx-1 h-4 w-px bg-slate-200" />
+              <button type="button" className="flex h-7 w-7 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-600"><Smile size={14} /></button>
+              <button type="button" className="flex h-7 w-7 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-600"><ImageIcon size={14} /></button>
+              <button type="button" className="flex h-7 w-7 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-600"><LinkIcon size={14} /></button>
+              <button type="button" className="flex h-7 w-7 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-600"><img src={chatScreenshotIcon} alt="截图" className="h-3.5 w-3.5 opacity-50" /></button>
+              <span className="mx-1 h-4 w-px bg-slate-200" />
+              <button type="button" className="flex h-7 items-center gap-1 rounded px-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600"><img src={chatSuggestionIcon} alt="推荐语" className="h-3.5 w-3.5 opacity-50" /><span className="text-[10px]">推荐语</span></button>
+              <button type="button" className="flex h-7 items-center gap-1 rounded px-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600"><img src={chatTranslateIcon} alt="翻译" className="h-3.5 w-3.5 opacity-50" /><span className="text-[10px]">翻译</span></button>
             </div>
-          </>
-        )}
-        {pendingOnlineWithdrawMessage && (
-          <>
-            <button
-              type="button"
-              aria-label="关闭撤回消息弹窗"
-              onClick={handleCloseOnlineWithdrawConfirm}
-              className="absolute inset-0 z-20 bg-[rgba(245,247,251,0.58)]"
-            />
-            <div className="absolute left-1/2 top-1/2 z-30 w-[230px] -translate-x-1/2 -translate-y-1/2 rounded-[10px] bg-white px-[20px] py-[16px] text-left shadow-[0_12px_28px_rgba(15,23,42,0.16)]">
-              <div className="text-[14px] font-semibold leading-none text-[#3f434a]">撤回消息</div>
-              <div className="mt-[18px] text-[12px] leading-[18px] text-[#5c6570]">是否立即撤回消息?</div>
-              <div className="mt-[18px] flex items-center justify-end gap-[10px]">
-                <button
-                  type="button"
-                  onClick={handleCloseOnlineWithdrawConfirm}
-                  className="flex h-[30px] min-w-[66px] items-center justify-center rounded-full border border-[#e4e8ef] bg-white px-[18px] text-[12px] text-[#6f7782] transition-colors hover:bg-slate-50"
-                >
-                  取消
-                </button>
-                <button
-                  type="button"
-                  onClick={handleConfirmWithdrawOnlineMessage}
-                  className="flex h-[30px] min-w-[74px] items-center justify-center rounded-full border border-[#8ee8db] bg-[#ecfbf8] px-[18px] text-[12px] font-medium text-[#11c5ab] transition-colors hover:bg-[#dff8f3]"
-                >
-                  确定
-                </button>
-              </div>
-            </div>
-          </>
-        )}
-        {pendingBlockedOnlineSession && (
-          <>
-            <button
-              type="button"
-              aria-label="关闭拉黑弹窗"
-              onClick={handleCloseOnlineBlockConfirm}
-              className="absolute inset-0 z-20 bg-transparent"
-            />
-            <div
-              data-dropdown-root="true"
-              className="fixed z-[81] w-[280px] rounded-[10px] border border-[#e8edf3] bg-white px-[16px] py-[14px] text-left shadow-[0_12px_28px_rgba(15,23,42,0.16)]"
-              style={{ left: pendingBlockedOnlineSession.x, top: pendingBlockedOnlineSession.y }}
-            >
-              <div className="text-[14px] font-semibold leading-none text-[#3f434a]">拉黑原因</div>
+            {/* Text input area */}
+            <div className="flex items-end gap-2 px-3 py-2.5">
               <textarea
-                value={onlineBlockReason}
-                onChange={(event) => setOnlineBlockReason(event.target.value)}
-                placeholder="请输入拉黑原因"
-                className="mt-[18px] h-[70px] w-full resize-none rounded-[4px] border border-[#e8edf3] px-[10px] py-[8px] text-[12px] leading-[18px] text-[#3f434a] outline-none transition-colors placeholder:text-[#c3cad5] focus:border-[#8ee8db]"
+                rows={2}
+                className="flex-1 resize-none text-[13px] leading-relaxed text-slate-700 outline-none placeholder:text-slate-300"
+                placeholder="输入消息内容，Enter发送..."
+                defaultValue=""
               />
-              <div className="mt-[12px] flex items-center justify-end gap-[10px]">
-                <button
-                  type="button"
-                  onClick={handleCloseOnlineBlockConfirm}
-                  className="flex h-[30px] min-w-[66px] items-center justify-center rounded-full border border-[#e4e8ef] bg-white px-[18px] text-[12px] text-[#6f7782] transition-colors hover:bg-slate-50"
-                >
-                  取消
-                </button>
-                <button
-                  type="button"
-                  onClick={handleBlockOnlineSession}
-                  className="flex h-[30px] min-w-[74px] items-center justify-center rounded-full border border-[#8ee8db] bg-[#ecfbf8] px-[18px] text-[12px] font-medium text-[#11c5ab] transition-colors hover:bg-[#dff8f3]"
-                >
-                  确定
-                </button>
-              </div>
+              <button type="button" className="flex h-8 items-center gap-1 rounded-lg bg-emerald-500 px-3 text-[12px] font-medium text-white hover:bg-emerald-600">
+                <Send size={13} />
+                发送
+              </button>
             </div>
-          </>
-        )}
+          </div>
+        </section>
       </div>
-    </div>
+    </OnlineWorkbenchContentView>
   );
 
   const visibleWebchatProductRows = webchatProducts.filter(
@@ -14032,6 +12545,8 @@ export default function App() {
     </>
   );
 
+  const allowedWorkbenches = getAllowedWorkbenchesForRole(userRole);
+
   const activeLegacyTabLabel = activeLegacyModulePage ? legacyModuleLabels[activeLegacyModulePage] : null;
 
   return (
@@ -14079,288 +12594,78 @@ export default function App() {
             }}
           />
 
-          <SidebarItem
-            icon={MessageSquare}
-            label="在线工作台"
-            active={activeTab === '在线工作台'}
-            collapsed={isSidebarCollapsed}
-            onClick={() => handleOpenMainTab('在线工作台')}
-          />
-
-          <SidebarItem
-            icon={Phone}
-            label="呼叫工作台"
-            active={activeTab === '呼叫工作台'}
-            collapsed={isSidebarCollapsed}
-            onClick={() => handleOpenMainTab('呼叫工作台')}
-          />
-
-          <div>
-            <SidebarItem
-              icon={Phone}
-              label="电话客服"
-              hasSub
-              active={telephoneServiceLegacyMenus.some((item) => item.key === activeLegacyModulePage)}
-              expanded={isTelephoneServiceExpanded}
-              collapsed={isSidebarCollapsed}
-              onClick={() => setIsTelephoneServiceExpanded((expanded) => !expanded)}
-            />
-            {isTelephoneServiceExpanded && !isSidebarCollapsed && (
-              <div className="pb-2">
-                {telephoneServiceLegacyMenus.map((item) => (
-                  <button
-                    key={item.key}
-                    type="button"
-                    onClick={() => handleOpenLegacyModulePage(item.key)}
-                    className={cn(
-                      sidebarSubMenuButtonClass,
-                      activeLegacyModulePage === item.key ? "bg-[#1f5a67] text-[#18d1b3]" : ""
-                    )}
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div>
+          {allowedWorkbenches.online && (
             <SidebarItem
               icon={MessageSquare}
-              label="网聊客服"
-              hasSub
-              active={
-                activeTab === '网聊维护' ||
-                webchatLegacyMenus.some((item) => item.key === activeLegacyModulePage)
-              }
-              expanded={isWebchatExpanded}
+              label="在线工作台"
+              active={activeTab === '在线工作台'}
               collapsed={isSidebarCollapsed}
-              onClick={() => setIsWebchatExpanded((expanded) => !expanded)}
+              onClick={() => handleOpenMainTab('在线工作台')}
             />
-            {isWebchatExpanded && !isSidebarCollapsed && (
-            <div className="pb-2">
-              {webchatSubMenus.map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  onClick={() => {
-                    if (item === '网聊维护') {
-                      setActiveWebchatMaintenanceSection('渠道管理');
-                      handleOpenMainTab('网聊维护');
-                      return;
-                    }
-                    const matchedLegacyPage = webchatLegacyMenus.find((menuItem) => menuItem.label === item);
-                    if (matchedLegacyPage) {
-                      handleOpenLegacyModulePage(matchedLegacyPage.key);
-                    }
-                  }}
-                  className={cn(
-                    sidebarSubMenuButtonClass,
-                    (activeTab === '网聊维护' && item === '网聊维护') ||
-                      webchatLegacyMenus.some((menuItem) => menuItem.label === item && menuItem.key === activeLegacyModulePage)
-                      ? "bg-[#1f5a67] text-[#18d1b3]"
-                      : ""
-                  )}
-                >
-                  {item}
-                </button>
-              ))}
+          )}
+
+          {allowedWorkbenches.call && (
+            <SidebarItem
+              icon={Phone}
+              label="呼叫工作台"
+              active={activeTab === '呼叫工作台'}
+              collapsed={isSidebarCollapsed}
+              onClick={() => handleOpenMainTab('呼叫工作台')}
+            />
+          )}
+
+          {[
+            { icon: Headset, label: '客户服务台', items: customerServiceMenus, expanded: isCustomerServiceExpanded, setExpanded: setIsCustomerServiceExpanded },
+            { icon: Wrench, label: '工具台', items: toolDeskMenus, expanded: isToolDeskExpanded, setExpanded: setIsToolDeskExpanded },
+            { icon: Calendar, label: '排班管理', items: scheduleManagementSubMenus.map((s): SubMenuItem => ({ label: s, action: s === '排班信息展示' ? { type: 'tab', tab: '排班信息展示' } : { type: 'none' } })), expanded: isScheduleManagementExpanded, setExpanded: setIsScheduleManagementExpanded },
+            { icon: Activity, label: '运营台', items: operationDeskMenus, expanded: isOperationDeskExpanded, setExpanded: setIsOperationDeskExpanded },
+            { icon: Monitor, label: '监控台', items: monitorDeskMenus, expanded: isMonitorDeskExpanded, setExpanded: setIsMonitorDeskExpanded },
+            { icon: Shield, label: '系统管理', items: systemManagementMenus, expanded: isSystemManagementExpanded, setExpanded: setIsSystemManagementExpanded },
+          ].map((menu) => (
+            <div key={menu.label}>
+              <SidebarItem
+                icon={menu.icon}
+                label={menu.label}
+                hasSub
+                active={menu.items.some((item) =>
+                  (item.action.type === 'legacy' && item.action.key === activeLegacyModulePage) ||
+                  (item.action.type === 'tab' && item.action.tab === activeTab)
+                )}
+                expanded={menu.expanded}
+                collapsed={isSidebarCollapsed}
+                onClick={() => menu.setExpanded((v: boolean) => !v)}
+              />
+              {menu.expanded && !isSidebarCollapsed && (
+                <div className="pb-2">
+                  {menu.items.map((item) => (
+                    <button
+                      key={item.label}
+                      type="button"
+                      onClick={() => {
+                        if (item.action.type === 'legacy') {
+                          handleOpenLegacyModulePage(item.action.key);
+                        } else if (item.action.type === 'tab') {
+                          if (item.action.tab === '网聊维护') {
+                            setActiveWebchatMaintenanceSection('渠道管理');
+                          }
+                          handleOpenMainTab(item.action.tab);
+                        }
+                      }}
+                      className={cn(
+                        sidebarSubMenuButtonClass,
+                        (item.action.type === 'legacy' && item.action.key === activeLegacyModulePage) ||
+                          (item.action.type === 'tab' && item.action.tab === activeTab)
+                          ? "bg-[#1f5a67] text-[#18d1b3]"
+                          : ""
+                      )}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
-            )}
-          </div>
-
-          <div>
-            <SidebarItem
-              icon={FileText}
-              label="辅助工具"
-              hasSub
-              active={utilityToolsLegacyMenus.some((item) => item.key === activeLegacyModulePage) || activeTab === '附件管理'}
-              expanded={isUtilityToolsExpanded}
-              collapsed={isSidebarCollapsed}
-              onClick={() => setIsUtilityToolsExpanded((expanded) => !expanded)}
-            />
-            {isUtilityToolsExpanded && !isSidebarCollapsed && (
-              <div className="pb-2">
-                {utilityToolsLegacyMenus.map((item) => (
-                  <button
-                    key={item.key}
-                    type="button"
-                    onClick={() => handleOpenLegacyModulePage(item.key)}
-                    className={cn(
-                      sidebarSubMenuButtonClass,
-                      activeLegacyModulePage === item.key ? "bg-[#1f5a67] text-[#18d1b3]" : ""
-                    )}
-                  >
-                    {item.label}
-                  </button>
-                ))}
-                <button
-                  key="attachment-management"
-                  type="button"
-                  onClick={() => handleOpenMainTab('附件管理')}
-                  className={cn(
-                    sidebarSubMenuButtonClass,
-                    activeTab === '附件管理' ? "bg-[#1f5a67] text-[#18d1b3]" : ""
-                  )}
-                >
-                  附件管理
-                </button>
-              </div>
-            )}
-          </div>
-
-          <div>
-            <SidebarItem
-              icon={Calendar}
-              label="排班管理"
-              hasSub
-              expanded={isScheduleManagementExpanded}
-              collapsed={isSidebarCollapsed}
-              onClick={() => setIsScheduleManagementExpanded((expanded) => !expanded)}
-            />
-            {isScheduleManagementExpanded && !isSidebarCollapsed && (
-              <div className="pb-2">
-                {scheduleManagementSubMenus.map((item) => (
-                  <button
-                    key={item}
-                    type="button"
-                    onClick={() => {
-                      if (item === '排班信息展示') {
-                        handleOpenMainTab('排班信息展示');
-                      }
-                    }}
-                    className={cn(
-                      "flex w-full items-center pl-[58px] pr-2 py-3.5 text-left text-[15px] font-medium leading-5 transition-colors whitespace-normal break-words focus-visible:outline-none",
-                      activeTab === '排班信息展示' && item === '排班信息展示'
-                        ? "bg-[#1f5a67] text-[#18d1b3]"
-                        : "text-slate-400 hover:bg-[#1f5a67] hover:text-white active:bg-[#244854] active:text-white focus-visible:bg-[#1f5a67] focus-visible:text-white"
-                    )}
-                  >
-                    {item}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-          <div>
-            <SidebarItem
-              icon={Monitor}
-              label="监控管理"
-              hasSub
-              active={monitoringLegacyMenus.some((item) => item.key === activeLegacyModulePage)}
-              expanded={isMonitoringExpanded}
-              collapsed={isSidebarCollapsed}
-              onClick={() => setIsMonitoringExpanded((expanded) => !expanded)}
-            />
-            {isMonitoringExpanded && !isSidebarCollapsed && (
-              <div className="pb-2">
-                {monitoringLegacyMenus.map((item) => (
-                  <button
-                    key={item.key}
-                    type="button"
-                    onClick={() => handleOpenLegacyModulePage(item.key)}
-                    className={cn(
-                      sidebarSubMenuButtonClass,
-                      activeLegacyModulePage === item.key ? "bg-[#1f5a67] text-[#18d1b3]" : ""
-                    )}
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-          <div>
-            <SidebarItem
-              icon={Bell}
-              label="消息通知"
-              hasSub
-              expanded={isMessageNoticeExpanded}
-              collapsed={isSidebarCollapsed}
-              onClick={() => setIsMessageNoticeExpanded((expanded) => !expanded)}
-            />
-            {isMessageNoticeExpanded && !isSidebarCollapsed && (
-              <div className="pb-2">
-                {messageNoticeSubMenus.map((item) => (
-                  <button
-                    key={item.key}
-                    type="button"
-                    onClick={() => {
-                      if (item.key === 'message-service') {
-                        handleOpenMainTab('消息服务');
-                      }
-                    }}
-                    className={cn(
-                      "flex w-full items-center pl-[58px] pr-2 py-3.5 text-left text-[15px] font-medium leading-5 transition-colors whitespace-normal break-words focus-visible:outline-none",
-                      activeTab === '消息服务' && item.key === 'message-service'
-                        ? "bg-[#1f5a67] text-[#18d1b3]"
-                        : "text-slate-400 hover:bg-[#1f5a67] hover:text-white active:bg-[#244854] active:text-white focus-visible:bg-[#1f5a67] focus-visible:text-white"
-                    )}
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-          <div>
-            <SidebarItem
-              icon={LayoutGrid}
-              label="组织架构"
-              hasSub
-              expanded={isOrgStructureExpanded}
-              collapsed={isSidebarCollapsed}
-              onClick={() => setIsOrgStructureExpanded((v) => !v)}
-            />
-            {isOrgStructureExpanded && !isSidebarCollapsed && (
-              <div className="pb-2">
-                <button
-                  type="button"
-                  onClick={() => handleOpenMainTab('部门角色管理')}
-                  className={cn(
-                    "flex w-full items-center pl-[58px] pr-2 py-3.5 text-left text-[15px] font-medium leading-5 transition-colors whitespace-normal break-words focus-visible:outline-none",
-                    activeTab === '部门角色管理'
-                      ? "bg-[#1f5a67] text-[#18d1b3]"
-                      : "text-slate-400 hover:bg-[#1f5a67] hover:text-white active:bg-[#244854] active:text-white focus-visible:bg-[#1f5a67] focus-visible:text-white"
-                  )}
-                >
-                  部门/角色管理
-                </button>
-              </div>
-            )}
-          </div>
-          <SidebarItem icon={User} label="权限管理" hasSub collapsed={isSidebarCollapsed} />
-          <div>
-            <SidebarItem
-              icon={Settings}
-              label="系统设置"
-              hasSub
-              expanded={isSystemSettingsExpanded}
-              collapsed={isSidebarCollapsed}
-              onClick={() => setIsSystemSettingsExpanded((expanded) => !expanded)}
-            />
-            {isSystemSettingsExpanded && !isSidebarCollapsed && (
-              <div className="pb-2">
-                {systemSettingsSubMenus.map((item) => (
-                  <button
-                    key={item.key}
-                    type="button"
-                    onClick={() => {
-                      handleOpenMainTab(systemSettingsMenuTabMap[item.key]);
-                    }}
-                    className={cn(
-                      "flex w-full items-center pl-[58px] pr-2 py-3.5 text-left text-[15px] font-medium leading-5 transition-colors whitespace-normal break-words focus-visible:outline-none",
-                      activeTab === systemSettingsMenuTabMap[item.key]
-                        ? "bg-[#1f5a67] text-[#18d1b3]"
-                        : "text-slate-400 hover:bg-[#1f5a67] hover:text-white active:bg-[#244854] active:text-white focus-visible:bg-[#1f5a67] focus-visible:text-white"
-                    )}
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          ))}
         </nav>
 
         <div className={cn("shrink-0 pb-4", isSidebarCollapsed ? "px-0" : "px-4")}>
@@ -14382,1410 +12687,166 @@ export default function App() {
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0">
         {/* Top Header */}
-        <header className="bg-white border-b border-slate-200 shrink-0">
-          <div className="flex items-center justify-between px-6 py-3">
-            <div className="flex items-center gap-6">
-              <div className="flex items-center gap-2">
-                <input 
-                  type="text" 
-                  placeholder="号码" 
-                  className="w-40 rounded-md border-none bg-slate-100 px-3 py-1.5 text-sm outline-none"
-                />
-                <div className="flex h-8 w-8 cursor-pointer items-center justify-center rounded bg-emerald-500 text-white">
-                  <LayoutGrid size={16} />
-                </div>
-              </div>
+        <MainHeader
+          isTopHeaderSignedIn={isTopHeaderSignedIn}
+          topHeaderPresenceMeta={{
+            statusText: topHeaderPresenceMeta.statusText,
+            statusCls: topHeaderPresenceMeta.statusCls,
+            callDuration: topHeaderPresenceMeta.callDuration,
+            statusDuration: topHeaderPresenceMeta.statusDuration,
+            incomingNumber: topHeaderPresenceMeta.incomingNumber,
+            extensionNumber: '8788001006',
+            agentNumber: '001006',
+          }}
+          visibleMainTabs={([
+            '个人门户' as MainTab,
+            ...(allowedWorkbenches.call ? (['呼叫工作台'] as MainTab[]) : []),
+            ...(allowedWorkbenches.online && isOnlineWorkbenchTabVisible ? (['在线工作台'] as MainTab[]) : []),
+            ...(isMessageServiceTabVisible ? (['消息服务'] as MainTab[]) : []),
+            ...(isScheduleDisplayTabVisible ? (['排班信息展示'] as MainTab[]) : []),
+            ...(isBusinessFieldManagementTabVisible ? (['业务字段管理'] as MainTab[]) : []),
+            ...(isGroupMaintenanceTabVisible ? (['组别维护'] as MainTab[]) : []),
+            ...(isTargetValueMaintenanceTabVisible ? (['目标值维护'] as MainTab[]) : []),
+            ...(isBrandMaintenanceTabVisible ? (['品牌维护'] as MainTab[]) : []),
+            ...(isAttachmentManagementTabVisible ? (['附件管理'] as MainTab[]) : []),
+            ...(isProductModuleMaintenanceTabVisible ? (['产品模块维护'] as MainTab[]) : []),
+            ...(isBusyAnnouncementManagementTabVisible ? (['繁忙公告管理'] as MainTab[]) : []),
+            ...(isPrivacyStatementManagementTabVisible ? (['隐私声明管理'] as MainTab[]) : []),
+            ...(isUserSystemManagementTabVisible ? (['用户体系管理'] as MainTab[]) : []),
+            ...(isWebchatMaintenanceTabVisible ? (['网聊维护'] as MainTab[]) : []),
+            ...(isDeptRoleManagementTabVisible ? (['部门角色管理'] as MainTab[]) : []),
+            ...openLegacyModulePages.map(p => (legacyModuleLabels[p] ?? p) as MainTab),
+          ])}
+          activeTab={(activeLegacyModulePage ? (legacyModuleLabels[activeLegacyModulePage] ?? activeLegacyModulePage) : activeTab) as MainTab}
+          secondaryMainTabCloseLabels={Object.fromEntries([
+            ...([
+              '消息服务', '排班信息展示', '业务字段管理', '组别维护', '目标值维护',
+              '品牌维护', '附件管理', '产品模块维护', '繁忙公告管理', '隐私声明管理',
+              '用户体系管理', '网聊维护', '部门角色管理', '在线工作台',
+            ] as const).map(tab => [tab, `关闭${tab}`]),
+            ...openLegacyModulePages.map(p => {
+              const label = legacyModuleLabels[p] ?? p;
+              return [label, `关闭${label}`];
+            }),
+          ]) as any}
+          onTogglePresence={toggleTopHeaderPresence}
+          onOpenMainTab={(tab) => {
+            const legacyMatch = openLegacyModulePages.find(p => (legacyModuleLabels[p] ?? p) === tab);
+            if (legacyMatch) {
+              setActiveLegacyModulePage(legacyMatch);
+              return;
+            }
+            setActiveLegacyModulePage(null);
+            handleOpenMainTab(tab);
+          }}
+          onCloseSecondaryMainTab={(tab) => {
+            const legacyMatch = openLegacyModulePages.find(p => (legacyModuleLabels[p] ?? p) === tab);
+            if (legacyMatch) {
+              handleCloseLegacyModulePage(legacyMatch);
+              return;
+            }
+            if (tab === '在线工作台') handleCloseOnlineWorkbenchTab();
+            else if (tab === '消息服务') handleCloseMessageServiceTab();
+            else if (tab === '排班信息展示') handleCloseScheduleDisplayTab();
+            else if (tab === '业务字段管理') handleCloseBusinessFieldManagementTab();
+            else if (tab === '组别维护') handleCloseGroupMaintenanceTab();
+            else if (tab === '目标值维护') handleCloseTargetValueMaintenanceTab();
+            else if (tab === '品牌维护') handleCloseBrandMaintenanceTab();
+            else if (tab === '附件管理') handleCloseAttachmentManagementTab();
+            else if (tab === '产品模块维护') handleCloseProductModuleMaintenanceTab();
+            else if (tab === '繁忙公告管理') handleCloseBusyAnnouncementManagementTab();
+            else if (tab === '隐私声明管理') handleClosePrivacyStatementManagementTab();
+            else if (tab === '用户体系管理') handleCloseUserSystemManagementTab();
+            else if (tab === '网聊维护') handleCloseWebchatMaintenanceTab();
+            else if (tab === '部门角色管理') handleCloseDeptRoleManagementTab();
+          }}
+          onOpenPortal={() => {
+            setManagerPortalPage('dashboard');
+            setAgentPortalPage('dashboard');
+            handleOpenMainTab('个人门户');
+          }}
+          userName={userRoleLabels[userRole]}
+          avatarSrc="https://picsum.photos/seed/user/100/100"
+          currentRole={userRole}
+          onRoleChange={setUserRole}
+        />
 
-              <div className="flex items-center gap-1">
-                <button
-                  disabled={!isTopHeaderSignedIn}
-                  className={cn(
-                    "flex h-12 w-12 flex-col items-center justify-center rounded transition-colors",
-                    isTopHeaderSignedIn
-                      ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
-                      : "cursor-not-allowed bg-slate-100 text-slate-300"
-                  )}
-                >
-                  <Phone size={18} />
-                  <span className="mt-0.5 text-[10px]">呼出</span>
-                </button>
-                <button
-                  disabled={!isTopHeaderSignedIn}
-                  className={cn(
-                    "flex h-12 w-12 flex-col items-center justify-center rounded transition-colors",
-                    isTopHeaderSignedIn
-                      ? "bg-rose-50 text-rose-600 hover:bg-rose-100"
-                      : "cursor-not-allowed bg-slate-100 text-slate-300"
-                  )}
-                >
-                  <PhoneOff size={18} />
-                  <span className="mt-0.5 text-[10px]">挂断</span>
-                </button>
-                <button
-                  disabled={!isTopHeaderSignedIn}
-                  className={cn(
-                    "flex h-12 w-12 flex-col items-center justify-center rounded transition-colors",
-                    isTopHeaderSignedIn
-                      ? "bg-teal-50 text-teal-600 hover:bg-teal-100"
-                      : "cursor-not-allowed bg-slate-100 text-slate-300"
-                  )}
-                >
-                  <PhoneForwarded size={18} />
-                  <span className="mt-0.5 text-[10px]">接听</span>
-                </button>
-                <button
-                  disabled={!isTopHeaderSignedIn}
-                  className={cn(
-                    "flex h-12 w-12 flex-col items-center justify-center rounded transition-colors",
-                    isTopHeaderSignedIn
-                      ? "bg-orange-50 text-orange-600 hover:bg-orange-100"
-                      : "cursor-not-allowed bg-slate-100 text-slate-300"
-                  )}
-                >
-                  <Pause size={18} />
-                  <span className="mt-0.5 text-[10px]">保持</span>
-                </button>
-                <button
-                  disabled={!isTopHeaderSignedIn}
-                  className={cn(
-                    "flex h-12 w-12 flex-col items-center justify-center rounded transition-colors",
-                    isTopHeaderSignedIn
-                      ? "bg-blue-50 text-blue-500 hover:bg-blue-100"
-                      : "cursor-not-allowed bg-slate-100 text-slate-300"
-                  )}
-                >
-                  <Volume2 size={18} />
-                  <span className="mt-0.5 text-[10px]">静音</span>
-                </button>
-                <button
-                  onClick={toggleTopHeaderPresence}
-                  className={cn(
-                    "flex h-12 w-12 flex-col items-center justify-center rounded transition-colors",
-                    topHeaderPresenceMeta.toolbarActionCls
-                  )}
-                >
-                  <topHeaderPresenceMeta.toolbarActionIcon size={18} />
-                  <span className="mt-0.5 text-[10px]">{topHeaderPresenceMeta.toolbarActionLabel}</span>
-                </button>
-              </div>
-
-              <div className="flex items-center gap-6 border-l border-slate-200 pl-6">
-                <div className="flex flex-col">
-                  <span className="text-slate-400 text-[10px]">状态</span>
-                  <span className={cn("text-xs font-medium", topHeaderPresenceMeta.statusCls)}>{topHeaderPresenceMeta.statusText}</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-slate-400 text-[10px]">通话时长</span>
-                  <span className="text-xs font-medium text-slate-700">{topHeaderPresenceMeta.callDuration}</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-slate-400 text-[10px]">状态时长</span>
-                  <span className="text-xs font-medium text-slate-700">{topHeaderPresenceMeta.statusDuration}</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-slate-400 text-[10px]">来电号码</span>
-                  <span className="text-xs font-medium text-slate-700">{topHeaderPresenceMeta.incomingNumber}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <div className="relative cursor-pointer text-slate-500 hover:text-slate-700">
-                <Bell size={20} />
-              </div>
-              <div className="flex cursor-pointer items-center gap-2">
-                <div className="relative flex h-9 w-9 items-center justify-center rounded-full bg-[radial-gradient(circle_at_30%_30%,#fde68a_0%,#fb7185_42%,#38bdf8_100%)] text-white shadow-[0_8px_18px_rgba(15,23,42,0.12)] ring-2 ring-white">
-                  <span className="text-sm font-semibold">花</span>
-                  <span className="absolute bottom-0.5 right-0.5 h-2.5 w-2.5 rounded-full border border-white bg-emerald-400" />
-                </div>
-                <span className="text-sm font-medium text-slate-700">张小花</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Tabs */}
-          <div className="flex items-center gap-8 border-t border-slate-100 px-6">
-            {([
-              '个人门户',
-              '呼叫工作台',
-              ...(isOnlineWorkbenchTabVisible ? (['在线工作台'] as MainTab[]) : []),
-              ...(isMessageServiceTabVisible ? (['消息服务'] as MainTab[]) : []),
-              ...(isScheduleDisplayTabVisible ? (['排班信息展示'] as MainTab[]) : []),
-              ...(isBusinessFieldManagementTabVisible ? (['业务字段管理'] as MainTab[]) : []),
-              ...(isGroupMaintenanceTabVisible ? (['组别维护'] as MainTab[]) : []),
-              ...(isTargetValueMaintenanceTabVisible ? (['目标值维护'] as MainTab[]) : []),
-              ...(isBrandMaintenanceTabVisible ? (['品牌维护'] as MainTab[]) : []),
-              ...(isAttachmentManagementTabVisible ? (['附件管理'] as MainTab[]) : []),
-              ...(isProductModuleMaintenanceTabVisible ? (['产品模块维护'] as MainTab[]) : []),
-              ...(isBusyAnnouncementManagementTabVisible ? (['繁忙公告管理'] as MainTab[]) : []),
-              ...(isPrivacyStatementManagementTabVisible ? (['隐私声明管理'] as MainTab[]) : []),
-              ...(isUserSystemManagementTabVisible ? (['用户体系管理'] as MainTab[]) : []),
-              ...(isWebchatMaintenanceTabVisible ? (['网聊维护'] as MainTab[]) : []),
-              ...(isDeptRoleManagementTabVisible ? (['部门角色管理'] as MainTab[]) : []),
-            ] as MainTab[]).map((tab) => {
-              const isOnlineTab = tab === '在线工作台';
-              const isMessageServiceTab = tab === '消息服务';
-              const isScheduleDisplayTab = tab === '排班信息展示';
-              const isBusinessFieldManagementTab = tab === '业务字段管理';
-              const isGroupMaintenanceTab = tab === '组别维护';
-              const isTargetValueMaintenanceTab = tab === '目标值维护';
-              const isBrandMaintenanceTab = tab === '品牌维护';
-              const isAttachmentManagementTab = tab === '附件管理';
-              const isProductModuleMaintenanceTab = tab === '产品模块维护';
-              const isBusyAnnouncementManagementTab = tab === '繁忙公告管理';
-              const isPrivacyStatementManagementTab = tab === '隐私声明管理';
-              const isUserSystemManagementTab = tab === '用户体系管理';
-              const isWebchatMaintenanceTab = tab === '网聊维护';
-              const isDeptRoleManagementTab = tab === '部门角色管理';
-              const isActive = activeTab === tab && !activeLegacyModulePage;
-              return (
-                <div
-                  key={tab}
-                  className={cn(
-                    "group relative flex items-center py-3 text-sm font-medium",
-                    isActive ? "text-emerald-500" : "text-slate-500 hover:text-slate-700"
-                  )}
-                >
-                  <button type="button" onClick={() => handleOpenMainTab(tab)} className="cursor-pointer">
-                    {tab}
-                  </button>
-                  {isOnlineTab ||
-                  isMessageServiceTab ||
-                  isScheduleDisplayTab ||
-                  isBusinessFieldManagementTab ||
-                  isGroupMaintenanceTab ||
-                  isTargetValueMaintenanceTab ||
-                  isBrandMaintenanceTab ||
-                  isAttachmentManagementTab ||
-                  isProductModuleMaintenanceTab ||
-                  isBusyAnnouncementManagementTab ||
-                  isPrivacyStatementManagementTab ||
-                  isUserSystemManagementTab ||
-                  isWebchatMaintenanceTab ||
-                  isDeptRoleManagementTab ? (
-                    <button
-                      type="button"
-                      aria-label={
-                        isOnlineTab
-                          ? '关闭在线工作台'
-                          : isMessageServiceTab
-                            ? '关闭消息服务'
-                            : isScheduleDisplayTab
-                              ? '关闭排班信息展示'
-                              : isBusinessFieldManagementTab
-                                ? '关闭业务字段管理'
-                                : isGroupMaintenanceTab
-                                  ? '关闭组别维护'
-                                  : isTargetValueMaintenanceTab
-                                    ? '关闭目标值维护'
-                                  : isBrandMaintenanceTab
-                                    ? '关闭品牌维护'
-                                  : isAttachmentManagementTab
-                                    ? '关闭附件管理'
-                                  : isProductModuleMaintenanceTab
-                                    ? '关闭产品模块维护'
-                                : isBusyAnnouncementManagementTab
-                                  ? '关闭繁忙公告管理'
-                                  : isPrivacyStatementManagementTab
-                                    ? '关闭隐私声明管理'
-                                    : isUserSystemManagementTab
-                                      ? '关闭用户体系管理'
-                                      : isDeptRoleManagementTab
-                                        ? '关闭部门角色管理'
-                                : '关闭网聊维护'
-                      }
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        if (isOnlineTab) {
-                          handleCloseOnlineWorkbenchTab();
-                          return;
-                        }
-                        if (isMessageServiceTab) {
-                          handleCloseMessageServiceTab();
-                          return;
-                        }
-                        if (isScheduleDisplayTab) {
-                          handleCloseScheduleDisplayTab();
-                          return;
-                        }
-                        if (isBusinessFieldManagementTab) {
-                          handleCloseBusinessFieldManagementTab();
-                          return;
-                        }
-                        if (isGroupMaintenanceTab) {
-                          handleCloseGroupMaintenanceTab();
-                          return;
-                        }
-                        if (isTargetValueMaintenanceTab) {
-                          handleCloseTargetValueMaintenanceTab();
-                          return;
-                        }
-                        if (isBrandMaintenanceTab) {
-                          handleCloseBrandMaintenanceTab();
-                          return;
-                        }
-                        if (isAttachmentManagementTab) {
-                          handleCloseAttachmentManagementTab();
-                          return;
-                        }
-                        if (isProductModuleMaintenanceTab) {
-                          handleCloseProductModuleMaintenanceTab();
-                          return;
-                        }
-                        if (isBusyAnnouncementManagementTab) {
-                          handleCloseBusyAnnouncementManagementTab();
-                          return;
-                        }
-                        if (isPrivacyStatementManagementTab) {
-                          handleClosePrivacyStatementManagementTab();
-                          return;
-                        }
-                        if (isUserSystemManagementTab) {
-                          handleCloseUserSystemManagementTab();
-                          return;
-                        }
-                        if (isDeptRoleManagementTab) {
-                          handleCloseDeptRoleManagementTab();
-                          return;
-                        }
-                        handleCloseWebchatMaintenanceTab();
-                      }}
-                      className={cn(
-                        "ml-1 flex h-4 w-4 items-center justify-center rounded-sm text-slate-400 transition-all hover:bg-slate-100 hover:text-slate-600",
-                        isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-                      )}
-                    >
-                      <X size={12} strokeWidth={2.2} />
-                    </button>
-                  ) : null}
-                  {isActive && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-500" />}
-                </div>
-              );
-            })}
-            {openLegacyModulePages.map((legacyPage) => {
-              const isActive = activeLegacyModulePage === legacyPage;
-              const label = legacyModuleLabels[legacyPage];
-              return (
-                <div
-                  key={legacyPage}
-                  className={cn(
-                    "group relative flex items-center py-3 text-sm font-medium",
-                    isActive ? "text-emerald-500" : "text-slate-500 hover:text-slate-700"
-                  )}
-                >
-                  <button type="button" onClick={() => setActiveLegacyModulePage(legacyPage)} className="cursor-pointer">
-                    {label}
-                  </button>
-                  <button
-                    type="button"
-                    aria-label={`关闭${label}`}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      handleCloseLegacyModulePage(legacyPage);
-                    }}
-                    className={cn(
-                      "ml-1 flex h-4 w-4 items-center justify-center rounded-sm text-slate-400 transition-all hover:bg-slate-100 hover:text-slate-600",
-                      isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-                    )}
-                  >
-                    <X size={12} strokeWidth={2.2} />
-                  </button>
-                  {isActive ? <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-500" /> : null}
-                </div>
-              );
-            })}
-          </div>
-        </header>
+        {/* old header removed - now using MainHeader */}
 
         {activeLegacyModulePage ? <LegacyModulesPanel page={activeLegacyModulePage} onOpenMainTab={handleOpenMainTab} onOpenLegacyModulePage={handleOpenLegacyModulePage} /> : activeTab === '呼叫工作台' ? callWorkbenchContent : activeTab === '在线工作台' ? onlineWorkbenchContent : activeTab === '消息服务' ? messageServiceContent : activeTab === '排班信息展示' ? scheduleDisplayContent : activeTab === '业务字段管理' ? businessFieldManagementContent : activeTab === '组别维护' ? <GroupMaintenance /> : activeTab === '目标值维护' ? <TargetValueMaintenance /> : activeTab === '品牌维护' ? <BrandMaintenance /> : activeTab === '附件管理' ? <AttachmentManagement /> : activeTab === '产品模块维护' ? <ProductModuleMaintenance /> : activeTab === '繁忙公告管理' ? busyAnnouncementManagementContent : activeTab === '隐私声明管理' ? privacyStatementManagementContent : activeTab === '用户体系管理' ? userSystemManagementContent : activeTab === '网聊维护' ? renderWebchatMaintenanceContent() : activeTab === '部门角色管理' ? renderDeptRoleManagementContent() : (
-        <div className="flex min-h-0 flex-1 overflow-y-auto p-5 custom-scrollbar">
-          <div className="flex min-h-0 flex-1 flex-col space-y-5">
+        <>
           {viewMode === 'manager' && managerPortalPage === 'overview-detail' ? (
-            <div className="flex min-h-0 flex-1 flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <div className="mb-4 flex items-center justify-between">
-                <button
-                  type="button"
-                  onClick={() => setManagerPortalPage('dashboard')}
-                  className="flex items-center gap-1 text-[14px] font-medium text-slate-700 transition-colors hover:text-slate-900"
-                >
-                  <ArrowLeft size={16} />
-                  返回
-                </button>
-                <button
-                  type="button"
-                  className="flex items-center gap-1 rounded-md border border-[#8fd6c8] bg-[#f0fbf8] px-3 py-1.5 text-[13px] font-medium text-[#26aa8e] transition-colors hover:bg-[#e5f8f3]"
-                >
-                  <Download size={14} />
-                  导出
-                </button>
-              </div>
-              <div className="min-h-0 flex-1 overflow-hidden rounded-2xl border border-slate-100 bg-white">
-                <div className="h-full overflow-auto custom-scrollbar">
-                  <table className="min-w-full table-auto text-left">
-                    <thead className="sticky top-0 z-10 bg-[#eef9f6] text-[14px] text-slate-700">
-                      <tr>
-                        <th className="px-4 py-4 font-medium">员工名称</th>
-                        <th className="px-4 py-4 font-medium">工作组</th>
-                        <th className="px-4 py-4 font-medium">呼入接起量</th>
-                        <th className="px-4 py-4 font-medium">呼出量</th>
-                        <th className="px-4 py-4 font-medium">呼出接起量</th>
-                        <th className="px-4 py-4 font-medium">问题参评率</th>
-                        <th className="px-4 py-4 font-medium">客户满意度</th>
-                        <th className="px-4 py-4 font-medium">问题解决率</th>
-                      </tr>
-                    </thead>
-                    <tbody className="text-[14px] text-slate-600">
-                      {managerOverviewTableRows.map((row, index) => (
-                        <tr key={`${row.employeeName}-${row.workgroup}-${index}`} className={cn(index % 2 === 0 ? "bg-white" : "bg-[#fbfdfd]")}>
-                          <td className="px-4 py-5">{row.employeeName}</td>
-                          <td className="px-4 py-5">{row.workgroup}</td>
-                          <td className="px-4 py-5">{row.inboundAnswered}</td>
-                          <td className="px-4 py-5">{row.outboundVolume}</td>
-                          <td className="px-4 py-5">{row.outboundAnswered}</td>
-                          <td className="px-4 py-5">{row.issueParticipationRate}</td>
-                          <td className="px-4 py-5">{row.customerSatisfaction}</td>
-                          <td className="px-4 py-5">{row.issueResolutionRate}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
+            <div className="flex-1 p-6 text-slate-500">概览详情页面（开发中）</div>
+          ) : viewMode === 'manager' && managerPortalPage === 'ranking-detail' ? (
+            <div className="flex-1 p-6 text-slate-500">排名详情页面（开发中）</div>
           ) : viewMode === 'agent' && agentPortalPage === 'ranking-detail' ? (
-            agentRankingDetailContent
+            <div className="flex-1 p-6 text-slate-500">排名详情页面（开发中）</div>
           ) : (
-          <>
-          {viewMode === 'manager' ? (
-            <motion.section
-              initial={{ opacity: 0, y: 18 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.38, delay: 0.06, ease: [0.22, 1, 0.36, 1] }}
-              className="portal-surface flex min-h-0 flex-1 flex-col rounded-[28px] p-4 sm:p-6"
-            >
-              <div className="flex flex-col gap-4 border-b border-slate-200/70 pb-6 lg:flex-row lg:items-center lg:justify-between">
-                <div className="space-y-2">
-                  <div className="text-[12px] font-medium uppercase tracking-[0.18em] text-slate-400">Overview Workspace</div>
-                  <div className="text-[26px] font-semibold tracking-[-0.035em] text-slate-950">欢迎查看今日运营概览</div>
-                  <p className="max-w-2xl text-[14px] leading-6 text-slate-600">
-                    把关键指标、趋势洞察和关注人员做成更清晰的管理驾驶舱，筛选器、表格与图表的视觉权重更加统一。
-                  </p>
-                </div>
-                <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
-                  <div className="portal-segmented-control sm:min-w-[260px]">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setViewMode('agent');
-                        setManagerPortalPage('dashboard');
-                        setAgentPortalPage('dashboard');
-                      }}
-                      className={cn("portal-segment-button", viewMode === 'agent' && "portal-segment-button-active")}
-                    >
-                      坐席视图
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setViewMode('manager');
-                        setManagerPortalPage('dashboard');
-                        setAgentPortalPage('dashboard');
-                      }}
-                      className={cn("portal-segment-button", viewMode === 'manager' && "portal-segment-button-active")}
-                    >
-                      管理员视图
-                    </button>
-                  </div>
-                  <div className="relative" data-dropdown-root="true">
-                    <div 
-                      onClick={() => setIsAllOpen(!isAllOpen)}
-                      className="portal-filter-trigger min-w-[150px]"
-                    >
-                      <span>{allFilter}</span>
-                      <ChevronDown size={14} className={cn("ml-auto text-slate-400 transition-transform", isAllOpen && "rotate-180")} />
-                    </div>
-                    {isAllOpen && (
-                      <div className="portal-filter-menu absolute top-full left-0 z-50 mt-2 w-full overflow-hidden">
-                        {['全部', '学习机组', '智能硬件组', '平板组'].map(option => (
-                          <div 
-                            key={option}
-                            onClick={() => {
-                              setAllFilter(option);
-                              setIsAllOpen(false);
-                            }}
-                            className={cn(
-                              "px-3 py-2 text-sm cursor-pointer transition-colors",
-                              allFilter === option ? "bg-emerald-50 text-emerald-600 font-medium" : "text-slate-600 hover:bg-slate-50"
-                            )}
-                          >
-                            {option}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  <div className="inline-flex rounded-full border border-slate-200 bg-slate-100/90 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]">
-                    <button
-                      type="button"
-                      onClick={() => setOnlineFilter('热线')}
-                      className={cn(
-                        "rounded-full px-4 py-2 text-[14px] font-medium transition-all",
-                        onlineFilter === '热线'
-                          ? "bg-white text-slate-900 shadow-[0_10px_24px_rgba(15,23,42,0.08)]"
-                          : "text-slate-500 hover:text-slate-700"
-                      )}
-                    >
-                      热线
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setOnlineFilter('在线')}
-                      className={cn(
-                        "rounded-full px-4 py-2 text-[14px] font-medium transition-all",
-                        onlineFilter === '在线'
-                          ? "bg-white text-slate-900 shadow-[0_10px_24px_rgba(15,23,42,0.08)]"
-                          : "text-slate-500 hover:text-slate-700"
-                      )}
-                    >
-                      在线
-                    </button>
-                  </div>
-                  <DirectorExpressButton
-                    onClick={handleOpenDirectorExpress}
-                    unreadCount={directorUnreadCount}
-                    description="异常、建议与改进意见可直达总监"
+            <>
+              <PortalViewHeader greeting={portalGreeting || `你好，${userRoleLabels[userRole]}`} />
+              {viewMode === 'manager' ? (
+                <Suspense fallback={<div className="flex-1" />}>
+                  <ManagerPortalDashboardContent
+                    isJuneVariant={false}
+                    allFilter={allFilter}
+                    onlineFilter={onlineFilter}
+                    trendMonth={trendMonth}
+                    personnelDate={personnelDate}
+                    personnelFocusMetric={personnelFocusMetric}
+                    businessPeriod={businessPeriod}
+                    unreadDirectorMessageCount={unreadDirectorMessageCount}
+                    isChannelLocked={false}
+                    onAllFilterChange={setAllFilter}
+                    onOnlineFilterChange={setOnlineFilter}
+                    onTrendMonthChange={setTrendMonth}
+                    onPersonnelDateChange={setPersonnelDate}
+                    onPersonnelFocusMetricChange={setPersonnelFocusMetric}
+                    onBusinessPeriodChange={setBusinessPeriod}
+                    onOpenDirectorModal={() => setShowDirectorModal(true)}
+                    onOpenOverviewDetail={() => setManagerPortalPage('overview-detail')}
+                    onOpenBadRecordingModal={() => {}}
+                    onOpenCriticalErrorModal={() => {}}
+                    onOpenMessageService={() => handleOpenMainTab('消息服务')}
+                    onOpenRankingDetail={() => setManagerPortalPage('ranking-detail')}
+                    onOpenScheduleDisplay={() => handleOpenMainTab('排班信息展示')}
+                    onOpenWorkOrder={() => {}}
+                    onOpenCustomerFollow={() => {}}
+                    onOpenCourseList={() => {}}
+                    onOpenSummaryManagement={() => handleOpenMainTab('小结管理')}
+                    isDirector={userRole === 'director'}
                   />
-                </div>
-              </div>
-
-              <div className="mt-6 grid min-h-0 flex-1 grid-cols-1 gap-5">
-                <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.72fr)_minmax(340px,0.88fr)]">
-                  <div className="portal-card overflow-hidden p-5">
-                    <div className="flex flex-col gap-4 border-b border-slate-100 pb-5 lg:flex-row lg:items-start lg:justify-between">
-                      <div className="space-y-2">
-                        <div className="text-[12px] font-medium uppercase tracking-[0.18em] text-slate-400">Layered Overview</div>
-                        <h2 className="text-[22px] font-semibold tracking-[-0.03em] text-slate-900">总览判断区</h2>
-                        <p className="max-w-2xl text-[14px] leading-6 text-slate-500">
-                          先按主题判断服务质量、接待效率和运营产能，再决定是否进入趋势、人员或详情页继续下钻。
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setManagerPortalPage('overview-detail')}
-                        className="portal-inline-action"
-                      >
-                        查看明细 <ArrowUpRight size={14} />
-                      </button>
-                    </div>
-                    <div className="mt-5 grid grid-cols-1 gap-4 xl:grid-cols-3">
-                      {managerOverviewMetricGroups.map((group) => (
-                        <div
-                          key={group.title}
-                          className={cn(
-                            "rounded-[24px] border p-4 shadow-[0_14px_30px_rgba(15,23,42,0.04)]",
-                            group.accent === 'emerald'
-                              ? "border-emerald-100 bg-[linear-gradient(180deg,rgba(16,185,129,0.08)_0%,rgba(255,255,255,0.96)_36%)]"
-                              : group.accent === 'sky'
-                                ? "border-sky-100 bg-[linear-gradient(180deg,rgba(14,165,233,0.08)_0%,rgba(255,255,255,0.96)_36%)]"
-                                : "border-violet-100 bg-[linear-gradient(180deg,rgba(139,92,246,0.08)_0%,rgba(255,255,255,0.96)_36%)]"
-                          )}
-                        >
-                          <div className="flex items-start gap-3 border-b border-slate-100 pb-4">
-                            <div
-                              className={cn(
-                                "flex h-10 w-10 items-center justify-center rounded-2xl text-white",
-                                group.accent === 'emerald'
-                                  ? "bg-emerald-500"
-                                  : group.accent === 'sky'
-                                    ? "bg-sky-500"
-                                    : "bg-violet-500"
-                              )}
-                            >
-                              <group.icon size={18} />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <div className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-400">{group.eyebrow}</div>
-                              <h3 className="mt-1 text-[18px] font-semibold tracking-[-0.03em] text-slate-900">{group.title}</h3>
-                              <p className="mt-1 text-[13px] leading-6 text-slate-500">{group.description}</p>
-                            </div>
-                          </div>
-                          <div className="mt-4 space-y-3">
-                            {group.items.map((item) => (
-                              <div key={item.label} className="rounded-[18px] border border-slate-200/80 bg-white/92 p-4">
-                                <div className="flex items-center gap-3">
-                                  <div
-                                    className={cn(
-                                      "text-[13px] font-medium",
-                                      item.highlightLabel ? "text-rose-600" : "text-slate-500"
-                                    )}
-                                  >
-                                    {item.label}
-                                  </div>
-                                </div>
-                                <div className="mt-3">
-                                  <div
-                                    className={cn(
-                                      "text-[28px] font-semibold tracking-[-0.05em]",
-                                      item.highlightLabel ? "text-rose-500" : "text-slate-900"
-                                    )}
-                                  >
-                                    {item.day}
-                                  </div>
-                                  <div className="mt-3 flex flex-wrap items-center gap-2">
-                                    <OverviewDeltaInline
-                                      label="月同比"
-                                      value={item.monthYoy}
-                                      tone={item.comparisonTone ?? 'good'}
-                                    />
-                                    <OverviewDeltaInline
-                                      label="月环比"
-                                      value={item.monthMom}
-                                      tone={item.comparisonTone ?? 'good'}
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="portal-card p-5">
-                    <div className="border-b border-slate-100 pb-5">
-                      <div className="text-[12px] font-medium uppercase tracking-[0.18em] text-slate-400">Manager Focus</div>
-                      <h2 className="mt-1 text-[22px] font-semibold tracking-[-0.03em] text-slate-900">管理判断</h2>
-                      <p className="mt-2 text-[14px] leading-6 text-slate-500">
-                        把当前筛选范围内最值得管理者处理的判断结论先收拢，再引导进入相应模块。
-                      </p>
-                    </div>
-                    <div className="mt-5 grid grid-cols-3 gap-3">
-                      {[
-                        { label: '当前视角', value: `${allFilter} · ${onlineFilter}` },
-                        { label: '高风险指标', value: onlineFilter === '在线' ? '2 项' : '1 项' },
-                        { label: '建议优先级', value: onlineFilter === '在线' ? '响应优先' : '接待优先' },
-                      ].map((item) => (
-                        <div key={item.label} className="rounded-[18px] border border-slate-100 bg-slate-50/80 px-3 py-3">
-                          <div className="text-[11px] text-slate-400">{item.label}</div>
-                          <div className="mt-2 text-[15px] font-semibold text-slate-800">{item.value}</div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="mt-5 space-y-3">
-                      {managerDecisionInsights.map((item) => (
-                        <div key={item.title} className="rounded-[20px] border border-slate-100 bg-white p-4 shadow-[0_10px_24px_rgba(15,23,42,0.04)]">
-                          <div className="flex items-center gap-2">
-                            <span
-                              className={cn(
-                                "inline-flex h-2.5 w-2.5 rounded-full",
-                                item.tone === 'emerald'
-                                  ? "bg-emerald-500"
-                                  : item.tone === 'amber'
-                                    ? "bg-amber-500"
-                                    : "bg-sky-500"
-                              )}
-                            />
-                            <div className="text-[14px] font-semibold text-slate-800">{item.title}</div>
-                          </div>
-                          <p className="mt-2 text-[13px] leading-6 text-slate-500">{item.detail}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.34fr)_minmax(0,0.66fr)]">
-                  {/* Trend Chart Card */}
-                  <div className="portal-card">
-                    <div className="flex items-center justify-between border-b border-slate-100/90 p-4 sm:p-5">
-                      <div>
-                        <div className="text-[12px] font-medium uppercase tracking-[0.18em] text-slate-400">Trend Insight</div>
-                        <h2 className="mt-1 text-[20px] font-semibold tracking-[-0.03em] text-slate-900">趋势判断</h2>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="hidden items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50/80 px-3 py-2 text-[12px] font-medium text-emerald-700 lg:inline-flex">
-                          <AlertCircle size={14} strokeWidth={2.1} />
-                          已识别 {serviceTrendAnnotations.length + activeBusinessTrendConfig.annotations.length} 个关键节点
-                        </div>
-                        <div className="relative" data-dropdown-root="true">
-                          <div 
-                            onClick={() => setIsTrendMonthOpen(!isTrendMonthOpen)}
-                            className="portal-filter-trigger min-w-[126px]"
-                          >
-                            <span>{trendMonth}</span>
-                            <ChevronDown size={12} className={cn("transition-transform", isTrendMonthOpen && "rotate-180")} />
-                          </div>
-                          {isTrendMonthOpen && (
-                            <div className="portal-filter-menu absolute top-full right-0 z-50 mt-2 max-h-48 w-32 overflow-y-auto custom-scrollbar">
-                              {months.map(option => (
-                                <div 
-                                  key={option}
-                                  onClick={() => {
-                                    setTrendMonth(option);
-                                    setIsTrendMonthOpen(false);
-                                  }}
-                                  className={cn(
-                                    "px-3 py-1.5 text-xs cursor-pointer transition-colors",
-                                    trendMonth === option ? "bg-emerald-50 text-emerald-600 font-medium" : "text-slate-600 hover:bg-slate-50"
-                                  )}
-                                >
-                                  {option}
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="grid gap-4 p-4 sm:p-5">
-                      <div className="rounded-[20px] border border-slate-100 bg-white p-4 shadow-[0_10px_24px_rgba(15,23,42,0.04)]">
-                        <div className="mb-4 flex flex-col gap-3">
-                          <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                            <div>
-                              <div className="text-[13px] font-semibold text-slate-800">服务趋势</div>
-                              <div className="mt-1 text-[12px] text-slate-400">用于判断满意度、解决率与通话平均时长的阶段性波动。</div>
-                            </div>
-                            <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50/90 px-3 py-2 text-[12px] font-medium text-slate-600">
-                              <Clock size={14} strokeWidth={2.1} className="text-slate-400" />
-                              重点关注 10 日、17 日、19 日
-                            </div>
-                          </div>
-                          <div className="grid gap-2 lg:grid-cols-3">
-                            {serviceTrendAnnotations.map((annotation) => {
-                              const toneStyle = trendAnnotationToneStyles[annotation.tone];
-                              return (
-                                <div
-                                  key={`${annotation.day}-${annotation.metric}`}
-                                  className={cn("rounded-[16px] border px-3 py-3", toneStyle.card)}
-                                >
-                                  <div className="flex items-center justify-between gap-2">
-                                    <span className={cn("inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold", toneStyle.badge)}>
-                                      {annotation.label}
-                                    </span>
-                                    <span className="text-[11px] font-medium text-slate-500">{annotation.day} 日</span>
-                                  </div>
-                                  <div className="mt-2 text-[13px] font-semibold text-slate-800">{annotation.title}</div>
-                                  <p className="mt-1 text-[11px] leading-5 text-slate-500">{annotation.detail}</p>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-                        <div className="h-[220px] sm:h-[250px]">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={trendData}>
-                              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                              <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#94a3b8'}} />
-                              <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#94a3b8'}} />
-                              <Tooltip
-                                content={({ active, payload, label }) => (
-                                  <TrendTooltipCard
-                                    active={active}
-                                    payload={payload as Array<{ color?: string; name?: string; value?: number | string; dataKey?: string | number }>}
-                                    label={label}
-                                    sectionLabel="服务趋势"
-                                    annotation={serviceTrendAnnotationMap[String(label)]}
-                                    labelFormatter={(value) => formatTrendLabel(value, '日')}
-                                    valueFormatter={(item) => {
-                                      if (item.dataKey === 'duration') {
-                                        return formatDurationValue(item.value);
-                                      }
-
-                                      return `${item.value}%`;
-                                    }}
-                                  />
-                                )}
-                              />
-                              <Legend iconType="circle" wrapperStyle={{fontSize: 12, paddingTop: 16}} />
-                              {serviceTrendAnnotations.map((annotation) => {
-                                const toneStyle = trendAnnotationToneStyles[annotation.tone];
-                                return (
-                                  <React.Fragment key={`${annotation.day}-${annotation.metric}`}>
-                                    <ReferenceLine
-                                      x={annotation.day}
-                                      stroke={toneStyle.lineStroke}
-                                      strokeDasharray="4 4"
-                                      strokeOpacity={0.9}
-                                    />
-                                    <ReferenceDot
-                                      x={annotation.day}
-                                      y={annotation.value}
-                                      r={6}
-                                      fill={toneStyle.dotFill}
-                                      stroke={toneStyle.dotStroke}
-                                      strokeWidth={3}
-                                      label={{
-                                        value: annotation.label,
-                                        position: 'top',
-                                        fill: toneStyle.dotFill,
-                                        fontSize: 11,
-                                        fontWeight: 600,
-                                      }}
-                                    />
-                                  </React.Fragment>
-                                );
-                              })}
-                              <Line
-                                type="monotone"
-                                dataKey="satisfaction"
-                                name="服务满意度"
-                                stroke="#10b981"
-                                strokeWidth={2.5}
-                                strokeLinecap="round"
-                                dot={false}
-                                activeDot={{ r: 5, strokeWidth: 0 }}
-                              />
-                              <Line
-                                type="monotone"
-                                dataKey="resolution"
-                                name="解决率"
-                                stroke="#f59e0b"
-                                strokeWidth={2.5}
-                                strokeLinecap="round"
-                                dot={false}
-                                activeDot={{ r: 5, strokeWidth: 0 }}
-                              />
-                              <Line
-                                type="monotone"
-                                dataKey="duration"
-                                name="通话平均时长"
-                                stroke="#3b82f6"
-                                strokeWidth={2.5}
-                                strokeLinecap="round"
-                                dot={false}
-                                activeDot={{ r: 5, strokeWidth: 0 }}
-                              />
-                            </LineChart>
-                          </ResponsiveContainer>
-                        </div>
-                        <div className="mt-4 rounded-[16px] border border-slate-100 bg-slate-50/80 px-3 py-3 text-[12px] leading-5 text-slate-500">
-                          <span className="font-semibold text-slate-700">管理提示：</span>
-                          10 日高峰后，17 至 19 日出现“效率上扬但体验下探”的错位波动，适合联动复杂工单、班次排布和质检结果一起复盘。
-                        </div>
-                      </div>
-                      <div className="rounded-[20px] border border-slate-100 bg-white p-4 shadow-[0_10px_24px_rgba(15,23,42,0.04)]">
-                        <div className="mb-4 flex flex-col gap-3">
-                          <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                            <div>
-                              <div className="text-[13px] font-semibold text-slate-800">业务量趋势</div>
-                              <div className="mt-1 text-[12px] text-slate-400">同一区域对照人力与业务量，辅助管理判断。</div>
-                            </div>
-                            <div className="flex items-center gap-3">
-                              <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50/90 px-3 py-2 text-[12px] font-medium text-slate-600">
-                                <ArrowUpRight size={14} strokeWidth={2.1} className="text-slate-400" />
-                                {activeBusinessTrendConfig.summaryBadge}
-                              </div>
-                              <div className="relative" data-dropdown-root="true">
-                                <div 
-                                  onClick={() => setIsBusinessPeriodOpen(!isBusinessPeriodOpen)}
-                                  className="portal-filter-trigger min-w-[92px]"
-                                >
-                                  <span>{businessPeriod}</span>
-                                  <ChevronDown size={12} className={cn("transition-transform", isBusinessPeriodOpen && "rotate-180")} />
-                                </div>
-                                {isBusinessPeriodOpen && (
-                                  <div className="portal-filter-menu absolute top-full right-0 z-50 mt-2 w-24 overflow-hidden">
-                                    {(['日', '周', '月'] as BusinessPeriod[]).map(option => (
-                                      <div 
-                                        key={option}
-                                        onClick={() => {
-                                          setBusinessPeriod(option);
-                                          setIsBusinessPeriodOpen(false);
-                                        }}
-                                        className={cn(
-                                          "px-3 py-1.5 text-xs cursor-pointer transition-colors",
-                                          businessPeriod === option ? "bg-emerald-50 text-emerald-600 font-medium" : "text-slate-600 hover:bg-slate-50"
-                                        )}
-                                      >
-                                        {option}
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="grid gap-2 lg:grid-cols-3">
-                            {activeBusinessTrendConfig.annotations.map((annotation) => {
-                              const toneStyle = trendAnnotationToneStyles[annotation.tone];
-                              return (
-                                <div
-                                  key={`${annotation.day}-${annotation.metric}`}
-                                  className={cn("rounded-[16px] border px-3 py-3", toneStyle.card)}
-                                >
-                                  <div className="flex items-center justify-between gap-2">
-                                    <span className={cn("inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold", toneStyle.badge)}>
-                                      {annotation.label}
-                                    </span>
-                                    <span className="text-[11px] font-medium text-slate-500">
-                                      {activeBusinessTrendConfig.labelFormatter(annotation.displayLabel ?? annotation.day)}
-                                    </span>
-                                  </div>
-                                  <div className="mt-2 text-[13px] font-semibold text-slate-800">{annotation.title}</div>
-                                  <p className="mt-1 text-[11px] leading-5 text-slate-500">{annotation.detail}</p>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-                        <div className="h-[220px] sm:h-[250px]">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={activeBusinessTrendConfig.data}>
-                              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                              <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#94a3b8'}} />
-                              <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#94a3b8'}} />
-                              <Tooltip
-                                content={({ active, payload, label }) => (
-                                  <TrendTooltipCard
-                                    active={active}
-                                    payload={payload as Array<{ color?: string; name?: string; value?: number | string }>}
-                                    label={label}
-                                    sectionLabel="业务量趋势"
-                                    annotation={activeBusinessTrendAnnotationMap[String(label)]}
-                                    labelFormatter={activeBusinessTrendConfig.labelFormatter}
-                                  />
-                                )}
-                              />
-                              <Legend iconType="circle" wrapperStyle={{fontSize: 12, paddingTop: 16}} />
-                              {activeBusinessTrendConfig.annotations.map((annotation) => {
-                                const toneStyle = trendAnnotationToneStyles[annotation.tone];
-                                return (
-                                  <React.Fragment key={`${annotation.day}-${annotation.metric}`}>
-                                    <ReferenceLine
-                                      x={annotation.day}
-                                      stroke={toneStyle.lineStroke}
-                                      strokeDasharray="4 4"
-                                      strokeOpacity={0.9}
-                                    />
-                                    <ReferenceDot
-                                      x={annotation.day}
-                                      y={annotation.value}
-                                      r={6}
-                                      fill={toneStyle.dotFill}
-                                      stroke={toneStyle.dotStroke}
-                                      strokeWidth={3}
-                                      label={{
-                                        value: annotation.label,
-                                        position: 'top',
-                                        fill: toneStyle.dotFill,
-                                        fontSize: 11,
-                                        fontWeight: 600,
-                                      }}
-                                    />
-                                  </React.Fragment>
-                                );
-                              })}
-                              <Bar dataKey="manpower" name="人力" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={10} />
-                              <Line
-                                type="monotone"
-                                dataKey="volume"
-                                name="业务量"
-                                stroke="#10b981"
-                                strokeWidth={2.5}
-                                strokeLinecap="round"
-                                dot={false}
-                                activeDot={{ r: 5, strokeWidth: 0 }}
-                              />
-                            </BarChart>
-                          </ResponsiveContainer>
-                        </div>
-                        <div className="mt-4 rounded-[16px] border border-slate-100 bg-slate-50/80 px-3 py-3 text-[12px] leading-5 text-slate-500">
-                          <span className="font-semibold text-slate-700">管理提示：</span>
-                          {activeBusinessTrendConfig.managerTip}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Personnel Card */}
-                  <div className="portal-card">
-                  <div className="flex flex-col gap-3 border-b border-slate-100/90 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
-                    <div className="flex items-center gap-4">
-                      <div>
-                        <div className="text-[12px] font-medium uppercase tracking-[0.18em] text-slate-400">People Watchlist</div>
-                        <h2 className="mt-1 text-[20px] font-semibold tracking-[-0.03em] text-slate-900">重点关注人员</h2>
-                      </div>
-                      <div className="relative" data-dropdown-root="true">
-                        <div 
-                          onClick={() => setIsPersonnelDateOpen(!isPersonnelDateOpen)}
-                          className="portal-filter-trigger min-w-[108px]"
-                        >
-                          <span>{personnelDate}</span>
-                          <ChevronDown size={12} className={cn("transition-transform", isPersonnelDateOpen && "rotate-180")} />
-                        </div>
-                        {isPersonnelDateOpen && (
-                          <div className="portal-filter-menu absolute top-full left-0 z-50 mt-2 w-32 overflow-hidden">
-                            {dates.map(option => (
-                              <div 
-                                key={option}
-                                onClick={() => {
-                                  setPersonnelDate(option);
-                                  setIsPersonnelDateOpen(false);
-                                }}
-                                className={cn(
-                                  "px-3 py-1.5 text-xs cursor-pointer transition-colors",
-                                  personnelDate === option ? "bg-emerald-50 text-emerald-600 font-medium" : "text-slate-600 hover:bg-slate-50"
-                                )}
-                              >
-                                {option}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <button className="portal-inline-action">
-                      查看更多 <ChevronRight size={14} />
-                    </button>
-                    </div>
-                    <div className="flex flex-col gap-4 p-4 md:flex-row md:items-start md:gap-5 sm:p-5">
-                    <div className="min-w-0 flex-1 space-y-4">
-                      <div className="grid grid-cols-1 gap-3">
-                        {sortedManagerPersonnelRecords.slice(0, 5).map((person, i) => {
-                          const primaryGap =
-                            Math.abs(person.satisfactionGap) >= Math.abs(person.resolutionGap)
-                              ? person.satisfactionGap
-                              : person.resolutionGap;
-                          const isRisk = primaryGap < 0;
-                          return (
-                            <div
-                              key={`${person.name}-${i}`}
-                              className="rounded-[20px] border border-slate-100 bg-white p-4 shadow-[0_10px_24px_rgba(15,23,42,0.04)]"
-                            >
-                              <div className="flex items-start justify-between gap-3">
-                                <div className="flex items-center gap-3">
-                                  <div className={cn(
-                                    "flex h-11 w-11 items-center justify-center rounded-2xl text-[14px] font-semibold",
-                                    isRisk ? "bg-rose-50 text-rose-600" : "bg-emerald-50 text-emerald-600"
-                                  )}>
-                                    {String(i + 1).padStart(2, '0')}
-                                  </div>
-                                  <div className="text-[15px] font-semibold text-slate-800">{person.name}</div>
-                                </div>
-                                <span
-                                  className={cn(
-                                    "rounded-full px-2.5 py-1 text-[11px] font-medium",
-                                    isRisk ? "bg-rose-50 text-rose-600" : "bg-emerald-50 text-emerald-600"
-                                  )}
-                                >
-                                  {isRisk ? `${primaryGap}%` : `+${primaryGap}%`}
-                                </span>
-                              </div>
-                              <div className="mt-4 grid grid-cols-3 gap-3">
-                                <div className="rounded-[16px] bg-slate-50 px-3 py-3">
-                                  <div className="text-[11px] text-slate-400">满意度</div>
-                                  <div className={cn("mt-2 text-[16px] font-semibold", person.satisfactionGap < 0 ? "text-rose-500" : "text-slate-800")}>
-                                    {person.satisfactionPersonal}%
-                                  </div>
-                                  <div className="mt-1 text-[11px] text-slate-400">组均 {person.satisfactionGroup}%</div>
-                                </div>
-                                <div className="rounded-[16px] bg-slate-50 px-3 py-3">
-                                  <div className="text-[11px] text-slate-400">解决率</div>
-                                  <div className={cn("mt-2 text-[16px] font-semibold", person.resolutionGap < 0 ? "text-rose-500" : "text-slate-800")}>
-                                    {person.resolutionPersonal}%
-                                  </div>
-                                  <div className="mt-1 text-[11px] text-slate-400">组均 {person.resolutionGroup}%</div>
-                                </div>
-                                <div className="rounded-[16px] bg-slate-50 px-3 py-3">
-                                  <div className="text-[11px] text-slate-400">最大偏差</div>
-                                  <div className={cn("mt-2 text-[16px] font-semibold", isRisk ? "text-rose-500" : "text-emerald-600")}>
-                                    {person.maxGap}%
-                                  </div>
-                                  <div className="mt-1 text-[11px] text-slate-400">按绝对值排序</div>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                  </div>
-                </div>
-              </div>
-            </motion.section>
-          ) : (
-            <motion.section
-              initial={{ opacity: 0, y: 18 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.38, delay: 0.06, ease: [0.22, 1, 0.36, 1] }}
-              className="portal-surface space-y-6 rounded-[28px] p-4 sm:p-6"
-            >
-              <div className="flex flex-col gap-4 border-b border-slate-200/70 pb-6 lg:flex-row lg:items-center lg:justify-between">
-                <div className="space-y-2">
-                  <div className="text-[12px] font-medium uppercase tracking-[0.18em] text-slate-400">Personal Performance Hub</div>
-                  <div className="text-[26px] font-semibold tracking-[-0.035em] text-slate-950">张小花，欢迎开始今天的服务工作</div>
-                  <p className="max-w-2xl text-[14px] leading-6 text-slate-600">
-                    让坐席首屏同时承担数据反馈、排班提醒和行动入口，减少视觉重复，把高频信息放到最短阅读路径上。
-                  </p>
-                </div>
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                  <div className="portal-segmented-control sm:min-w-[260px]">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setViewMode('agent');
-                        setManagerPortalPage('dashboard');
-                        setAgentPortalPage('dashboard');
-                      }}
-                      className={cn("portal-segment-button", viewMode === 'agent' && "portal-segment-button-active")}
-                    >
-                      坐席视图
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setViewMode('manager');
-                        setManagerPortalPage('dashboard');
-                        setAgentPortalPage('dashboard');
-                      }}
-                      className={cn("portal-segment-button", viewMode === 'manager' && "portal-segment-button-active")}
-                    >
-                      管理员视图
-                    </button>
-                  </div>
-                  <div className="inline-flex rounded-full border border-slate-200 bg-slate-100/90 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]">
-                    <button
-                      onClick={() => setAgentSubTab('hotline')}
-                      className={cn(
-                        "rounded-full px-4 py-2 text-[14px] font-medium transition-all",
-                        agentSubTab === 'hotline'
-                          ? "bg-white text-slate-900 shadow-[0_10px_24px_rgba(15,23,42,0.08)]"
-                          : "text-slate-500 hover:text-slate-700"
-                      )}
-                    >
-                      热线
-                    </button>
-                    <button
-                      onClick={() => setAgentSubTab('online')}
-                      className={cn(
-                        "rounded-full px-4 py-2 text-[14px] font-medium transition-all",
-                        agentSubTab === 'online'
-                          ? "bg-white text-slate-900 shadow-[0_10px_24px_rgba(15,23,42,0.08)]"
-                          : "text-slate-500 hover:text-slate-700"
-                      )}
-                    >
-                      在线
-                    </button>
-                  </div>
-                  <DirectorExpressButton
-                    onClick={handleOpenDirectorExpress}
-                    unreadCount={directorUnreadCount}
-                    description="服务建议、风险反馈可直接提交给总监"
+                </Suspense>
+              ) : (
+                <Suspense fallback={<div className="flex-1" />}>
+                  <AgentPortalDashboardContent
+                    isJuneVariant={false}
+                    agentSubTab={agentSubTab}
+                    starEmployeeMetric={starEmployeeMetric}
+                    satisfactionStarEmployees={satisfactionStarEmployees}
+                    activeShiftDay={activeShiftDay}
+                    unreadDirectorMessageCount={unreadDirectorMessageCount}
+                    isChannelLocked={false}
+                    showTodayTodo={userRole === 'agent'}
+                    onAgentSubTabChange={setAgentSubTab}
+                    onStarEmployeeMetricChange={setStarEmployeeMetric}
+                    onActiveShiftDayChange={setActiveShiftDay}
+                    onOpenDirectorModal={() => setShowDirectorModal(true)}
+                    onOpenBadRecordingModal={() => {}}
+                    onOpenCriticalErrorModal={() => {}}
+                    onOpenMessageService={() => handleOpenMainTab('消息服务')}
+                    onOpenRankingDetail={() => setAgentPortalPage('ranking-detail')}
+                    onOpenScheduleDisplay={() => handleOpenMainTab('排班信息展示')}
+                    onOpenOnlineWorkbench={() => handleOpenMainTab('在线工作台')}
+                    onOpenWorkOrder={() => {}}
+                    onOpenCustomerFollow={() => {}}
+                    onOpenCourseList={() => {}}
+                    onOpenSummaryManagement={() => {}}
                   />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,2.18fr)_minmax(260px,0.68fr)]">
-                <div className="flex h-full flex-col gap-4">
-                  <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-                    {agentPortalMetricGroups.map((group) => (
-                      <div
-                        key={group.title}
-                        className={cn(
-                          "portal-card overflow-hidden rounded-[24px] border p-5",
-                          group.accent === 'emerald'
-                            ? "border-emerald-100 bg-[linear-gradient(180deg,rgba(16,185,129,0.08)_0%,rgba(255,255,255,0.96)_38%)]"
-                            : group.accent === 'amber'
-                              ? "border-amber-100 bg-[linear-gradient(180deg,rgba(245,158,11,0.08)_0%,rgba(255,255,255,0.96)_38%)]"
-                              : "border-indigo-100 bg-[linear-gradient(180deg,rgba(79,124,255,0.08)_0%,rgba(255,255,255,0.96)_38%)]"
-                        )}
-                      >
-                        <div className="flex items-start gap-3 border-b border-slate-100 pb-4">
-                          <div
-                            className={cn(
-                              "flex h-11 w-11 items-center justify-center rounded-2xl text-white shadow-[0_12px_24px_rgba(15,23,42,0.10)]",
-                              group.accent === 'emerald'
-                                ? "bg-emerald-500"
-                                : group.accent === 'amber'
-                                  ? "bg-amber-500"
-                                  : "bg-indigo-500"
-                            )}
-                          >
-                            {group.icon === 'phone' ? <Phone size={18} /> : null}
-                            {group.icon === 'message' ? <MessageSquare size={18} /> : null}
-                            {group.icon === 'shield' ? <ShieldCheck size={18} /> : null}
-                            {group.icon === 'clock' ? <Clock size={18} /> : null}
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <div className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-400">{group.eyebrow}</div>
-                            <h3 className="mt-1 text-[18px] font-semibold tracking-[-0.03em] text-slate-900">{group.title}</h3>
-                            <p className="mt-1 text-[13px] leading-6 text-slate-500">{group.description}</p>
-                          </div>
-                        </div>
-                        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
-                          {group.items.map((metric) => {
-                            const action = getAgentMetricClickHandler(metric.action);
-                            const content = (
-                              <>
-                                <div className="flex items-start justify-between gap-3">
-                                  <div className="flex items-center gap-1.5 text-[13px] text-slate-500">
-                                    <span>{metric.label}</span>
-                                    {metric.action ? <FileSearch size={12} className="text-slate-400" /> : null}
-                                  </div>
-                                  <span
-                                    className={cn(
-                                      "rounded-full px-2 py-1 text-[11px] font-medium",
-                                      metric.tone === 'danger'
-                                        ? "bg-rose-50 text-rose-600"
-                                        : group.accent === 'emerald'
-                                          ? "bg-emerald-50 text-emerald-600"
-                                          : group.accent === 'amber'
-                                            ? "bg-amber-50 text-amber-600"
-                                            : "bg-indigo-50 text-indigo-600"
-                                    )}
-                                  >
-                                    {metric.trend}
-                                  </span>
-                                </div>
-                                <div className={cn("mt-3 text-[24px] font-semibold tracking-[-0.04em]", metric.tone === 'danger' ? "text-rose-500" : "text-slate-900")}>
-                                  {metric.value}
-                                </div>
-                                <div className="mt-1 text-[12px] leading-5 text-slate-500">{metric.meta}</div>
-                              </>
-                            );
-
-                            return action ? (
-                              <button
-                                key={metric.label}
-                                type="button"
-                                onClick={action}
-                                className="rounded-[20px] border border-slate-200/80 bg-white/90 p-4 text-left shadow-[0_10px_24px_rgba(15,23,42,0.04)] transition-all hover:-translate-y-0.5 hover:border-slate-300 hover:bg-white"
-                              >
-                                {content}
-                              </button>
-                            ) : (
-                              <div
-                                key={metric.label}
-                                className="rounded-[20px] border border-slate-200/80 bg-white/90 p-4 shadow-[0_10px_24px_rgba(15,23,42,0.04)]"
-                              >
-                                {content}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="mt-auto grid grid-cols-1 items-stretch gap-4 xl:grid-cols-2">
-                    <div className="portal-card flex h-full flex-col rounded-[24px] border border-slate-200 p-5">
-                      <div className="mb-4 flex items-center justify-between">
-                        <div>
-                          <div className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-400">Workorder Board</div>
-                          <h3 className="mt-1 text-[18px] font-semibold tracking-[-0.03em] text-slate-900">工单协同</h3>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => handleAgentWorkbenchShortcut('工单管理')}
-                          className="portal-inline-action"
-                        >
-                          进入工单 <ChevronRight size={14} />
-                        </button>
-                      </div>
-                      <div className="flex flex-1 flex-col gap-3">
-                        {agentPortalWorkItems.map((item) => (
-                          <div key={item.id} className="rounded-[20px] border border-slate-100 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-4 shadow-[0_10px_24px_rgba(15,23,42,0.04)]">
-                            <div className="flex items-start justify-between gap-3">
-                              <div className="min-w-0 flex-1">
-                                <div className="text-[15px] font-semibold text-slate-800">{item.title}</div>
-                                <div className="mt-2 flex flex-wrap gap-2">
-                                  <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-600">{item.status}</span>
-                                  <span className="rounded-full bg-rose-50 px-2.5 py-1 text-[11px] font-medium text-rose-600">{item.priority}</span>
-                                  <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-600">{item.owner}</span>
-                                </div>
-                              </div>
-                              <span className="rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-medium text-amber-600">{item.due}</span>
-                            </div>
-                            <p className="mt-3 text-[13px] leading-6 text-slate-500">{item.summary}</p>
-                            <div className="mt-3 flex items-center justify-between text-[12px] text-slate-400">
-                              <span>工单号 {item.id}</span>
-                              <button type="button" onClick={() => handleAgentWorkbenchShortcut('工单管理')} className="font-medium text-slate-600 transition-colors hover:text-slate-900">
-                                继续处理
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="portal-card flex h-full flex-col rounded-[24px] border border-slate-200 p-5">
-                      <div className="mb-4 flex items-center justify-between">
-                        <div>
-                          <div className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-400">Knowledge Suggestion</div>
-                          <h3 className="mt-1 text-[18px] font-semibold tracking-[-0.03em] text-slate-900">知识库推荐</h3>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => handleAgentWorkbenchShortcut('知识库')}
-                          className="portal-inline-action"
-                        >
-                          打开知识库 <ChevronRight size={14} />
-                        </button>
-                      </div>
-                      <div className="flex flex-1 flex-col gap-3">
-                        {agentPortalKnowledgeItems.map((item) => (
-                          <div key={item.id} className="rounded-[20px] border border-slate-100 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-4 shadow-[0_10px_24px_rgba(15,23,42,0.04)]">
-                            <div className="flex items-start justify-between gap-3">
-                              <div className="min-w-0 flex-1">
-                                <div className="text-[15px] font-semibold text-slate-800">{item.title}</div>
-                                <div className="mt-1 text-[12px] text-slate-400">{item.scene}</div>
-                              </div>
-                              <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-600">{item.match}</span>
-                            </div>
-                            <p className="mt-3 text-[13px] leading-6 text-slate-500">{item.summary}</p>
-                            <div className="mt-3 flex flex-wrap gap-2">
-                              {item.tags.map((tag) => (
-                                <span key={tag} className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-600">
-                                  {tag}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex h-full flex-col gap-4">
-                  <div className="portal-card flex min-h-0 flex-1 flex-col p-5">
-                    <div className="mb-4 flex items-center justify-between">
-                      <div>
-                        <div className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-400">Today's Actions</div>
-                        <h3 className="mt-1 text-[18px] font-semibold tracking-[-0.03em] text-slate-900">今日动作</h3>
-                      </div>
-                      <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-500">
-                        {agentPortalActionItems.length + 1} 项
-                      </span>
-                    </div>
-                    <div className="rounded-[18px] border border-slate-100 bg-white p-3.5 shadow-[0_8px_18px_rgba(15,23,42,0.04)]">
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="text-[13px] font-medium text-slate-700">今日必看</span>
-                        <button
-                          type="button"
-                          onClick={() => handleOpenMainTab('消息服务')}
-                          className="portal-inline-action shrink-0 text-[12px]"
-                        >
-                          查看更多 <ChevronRight size={14} />
-                        </button>
-                      </div>
-                      <div className="mt-2 text-[13px] leading-6 text-slate-500">
-                        1.30 要求：今天所有人都必须完成任务，以便能够迎接双11的工作，并且能够...
-                      </div>
-                    </div>
-                    <div className="mt-3">
-                      <div className="space-y-3">
-                        {agentPortalActionItems.map((item) => (
-                          <div key={item.label} className="rounded-[18px] border border-slate-100 bg-white p-3.5 shadow-[0_8px_18px_rgba(15,23,42,0.04)]">
-                            <div className="flex items-center justify-between gap-3">
-                              <span className="text-[13px] font-medium text-slate-700">{item.label}</span>
-                              <span
-                                className={cn(
-                                  "rounded-full px-2 py-1 text-[11px] font-medium",
-                                  item.tone === 'rose'
-                                    ? "bg-rose-50 text-rose-600"
-                                    : item.tone === 'amber'
-                                      ? "bg-amber-50 text-amber-600"
-                                      : "bg-emerald-50 text-emerald-600"
-                                )}
-                              >
-                                {item.value}
-                              </span>
-                            </div>
-                            <div className="mt-2 text-[12px] leading-5 text-slate-500">{item.detail}</div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Star Employees */}
-                  <div className="portal-card mt-auto flex flex-col rounded-[24px] p-5">
-                    <div className="mb-4 flex items-center justify-between">
-                      <div>
-                        <div className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-400">Star Ranking</div>
-                        <h3 className="mt-1 text-[18px] font-semibold tracking-[-0.03em] text-slate-900">明星员工</h3>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setAgentPortalPage('ranking-detail')}
-                        className="portal-inline-action"
-                      >
-                        查看更多 <ChevronRight size={14} />
-                      </button>
-                    </div>
-                    <div className="mb-5 grid grid-cols-2 gap-3">
-                      <button
-                        type="button"
-                        onClick={() => setStarEmployeeMetric('communication')}
-                        className={cn(
-                          "flex items-center justify-center gap-2 rounded-[14px] border px-3 py-2 text-[14px] font-medium transition-colors",
-                          starEmployeeMetric === 'communication'
-                            ? "border-[#11b79c] bg-[#eaf9f5] text-[#08ad92] shadow-[0_8px_18px_rgba(17,183,156,0.08)]"
-                            : "border-slate-200 bg-white text-slate-500"
-                        )}
-                      >
-                        <span className={cn(
-                          "flex h-6 w-6 items-center justify-center rounded-full",
-                          starEmployeeMetric === 'communication' ? "bg-[#08ad92] text-white" : "bg-slate-100 text-slate-400"
-                        )}>
-                          <MessageSquare size={14} />
-                        </span>
-                        沟通量
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setStarEmployeeMetric('satisfaction')}
-                        className={cn(
-                          "flex items-center justify-center gap-2 rounded-[14px] border px-3 py-2 text-[14px] font-medium transition-colors",
-                          starEmployeeMetric === 'satisfaction'
-                            ? "border-[#11b79c] bg-[#eaf9f5] text-[#08ad92] shadow-[0_8px_18px_rgba(17,183,156,0.08)]"
-                            : "border-slate-200 bg-white text-slate-500"
-                        )}
-                      >
-                        <span className={cn(
-                          "flex h-6 w-6 items-center justify-center rounded-full",
-                          starEmployeeMetric === 'satisfaction' ? "bg-[#08ad92] text-white" : "bg-slate-100 text-slate-400"
-                        )}>
-                          <Smile size={14} />
-                        </span>
-                        满意度
-                      </button>
-                    </div>
-                    <div className="mb-5 grid grid-cols-3 gap-2">
-                      {activeStarEmployees.map((employee) => (
-                        <div key={employee.rank} className="flex flex-col items-center text-center">
-                          <div className="relative mb-2 flex h-[74px] w-[74px] items-start justify-center">
-                            <div className={cn("absolute top-0 h-[24px] w-[10px] rounded-b-[6px] bg-gradient-to-b", employee.ribbonClassName)} />
-                            <div className={cn("absolute left-[22px] top-0 h-[24px] w-[10px] rounded-b-[6px] bg-gradient-to-b", employee.ribbonClassName)} />
-                            <div className={cn("absolute right-[22px] top-0 h-[24px] w-[10px] rounded-b-[6px] bg-gradient-to-b", employee.ribbonClassName)} />
-                            <div className={cn("relative mt-[12px] flex h-[48px] w-[48px] items-center justify-center rounded-full border-[3px] bg-gradient-to-b shadow-[0_6px_14px_rgba(15,23,42,0.1)]", employee.medalClassName)}>
-                              <div className={cn("flex h-[34px] w-[34px] items-center justify-center rounded-full border bg-gradient-to-b", employee.innerClassName)}>
-                                <span className="text-[16px] font-bold">{employee.rank}</span>
-                              </div>
-                              <span className={cn("absolute left-[7px] top-[8px] h-2 w-2 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.7)]", employee.sparkleClassName)} />
-                              <span className="absolute left-[12px] top-[11px] h-1 w-1 rounded-full bg-white/80" />
-                            </div>
-                          </div>
-                          <span className="text-[14px] font-bold text-slate-700">{employee.name}</span>
-                        </div>
-                      ))}
-                    </div>
-                  <div className="flex items-center justify-between rounded-[18px] bg-[linear-gradient(90deg,#fff6ec_0%,#fff2e4_100%)] px-4 py-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.65)]">
-                      <span className="text-[14px] font-bold text-[#ff7a00]">我的排名</span>
-                      <span className="text-[14px] font-bold text-[#ff7a00]">5/100</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </motion.section>
+                </Suspense>
+              )}
+            </>
           )}
-          </>
-          )}
-          </div>
-        </div>
+        </>
         )}
       </main>
 
@@ -16562,285 +13623,32 @@ export default function App() {
       </AnimatePresence>
 
       {/* Director's Express Modal */}
-      <AnimatePresence>
-        {showDirectorModal && (
-          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowDirectorModal(false)}
-              className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
-            />
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-4xl bg-white rounded-lg shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
-            >
-              {/* Modal Header */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    {directorView !== 'list' && (
-                      <button 
-                        onClick={() => setDirectorView('list')}
-                        className="p-1 hover:bg-slate-100 rounded-full transition-colors"
-                      >
-                        <ArrowLeft size={18} className="text-slate-600" />
-                      </button>
-                    )}
-                    <h3 className="text-base font-bold text-slate-800">
-                      {directorView === 'list' ? '总监直通车' : directorView === 'new' ? '新建给总监的信' : '查看信件'}
-                    </h3>
-                  </div>
-
-                  {directorView === 'list' && (
-                    <div className="flex items-center gap-3">
-                      <button 
-                        onClick={() => setDirectorView('new')}
-                        className="flex items-center gap-1 px-3 py-1 border border-emerald-500 text-emerald-500 rounded text-xs font-medium hover:bg-emerald-50 transition-colors"
-                      >
-                        <span className="text-lg leading-none">+</span> 新建信件
-                      </button>
-                    </div>
-                  )}
-                </div>
-                <button 
-                  onClick={() => setShowDirectorModal(false)}
-                  className="text-slate-400 hover:text-slate-600 transition-colors"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-
-              {/* Modal Content */}
-              <div className="flex-1 overflow-auto p-6">
-                {directorView === 'list' ? (
-                  <div className="space-y-4">
-                    <div className="border border-slate-100 rounded-lg overflow-hidden">
-                      <table className="w-full text-left text-xs">
-                        <thead className="bg-slate-50 text-slate-500 font-medium">
-                          <tr>
-                            <th className="px-4 py-3">信件ID</th>
-                            <th className="px-4 py-3">信件标题</th>
-                            <th className="px-4 py-3">是否匿名</th>
-                            <th className="px-4 py-3">创建时间</th>
-                            <th className="px-4 py-3">更新时间</th>
-                            <th className="px-4 py-3">操作</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100">
-                          {messages.map((msg, i) => (
-                            <tr key={i} className="hover:bg-slate-50/50 transition-colors">
-                              <td className="px-4 py-4 text-slate-600">{msg.id}</td>
-                              <td className="px-4 py-4">
-                                <div className="flex items-center gap-2">
-                                  <span className="text-slate-800">{msg.title}</span>
-                                  {msg.hasNew && (
-                                    <span className="px-1 py-0.5 bg-orange-50 text-orange-500 text-[10px] rounded border border-orange-100">新回复</span>
-                                  )}
-                                </div>
-                              </td>
-                              <td className="px-4 py-4 text-slate-600">{msg.isAnonymous ? '是' : '否'}</td>
-                              <td className="px-4 py-4 text-slate-600">{msg.createdAt}</td>
-                              <td className="px-4 py-4 text-slate-600">{msg.updatedAt}</td>
-                              <td className="px-4 py-4">
-                                <button 
-                                  onClick={() => {
-                                    setSelectedMessage(msg);
-                                    setDirectorView('detail');
-                                    if (msg.hasNew) {
-                                      setMessages(messages.map(m => m.id === msg.id ? { ...m, hasNew: false } : m));
-                                    }
-                                  }}
-                                  className="text-emerald-500 hover:text-emerald-600 font-medium"
-                                >
-                                  查看
-                                </button>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-
-                    {/* Pagination */}
-                    <div className="flex items-center justify-end gap-4 text-xs text-slate-500 pt-4">
-                      <div className="flex items-center gap-2">
-                        <span>5条记录</span>
-                        <div className="flex items-center gap-1 px-2 py-1 border border-slate-200 rounded bg-white cursor-pointer">
-                          <span>5</span>
-                          <ChevronDown size={12} />
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center gap-1">
-                        <button className="w-6 h-6 flex items-center justify-center rounded border border-slate-200 bg-slate-50 text-slate-400">
-                          <ChevronLeft size={14} />
-                        </button>
-                        <button className="w-6 h-6 flex items-center justify-center rounded bg-emerald-500 text-white font-bold">1</button>
-                        <button className="w-6 h-6 flex items-center justify-center rounded border border-slate-200 hover:bg-slate-50">2</button>
-                        <button className="w-6 h-6 flex items-center justify-center rounded border border-slate-200 hover:bg-slate-50">3</button>
-                        <button className="w-6 h-6 flex items-center justify-center rounded border border-slate-200 hover:bg-slate-50">4</button>
-                        <span>...</span>
-                        <button className="w-6 h-6 flex items-center justify-center rounded border border-slate-200 hover:bg-slate-50">40</button>
-                        <button className="w-6 h-6 flex items-center justify-center rounded border border-slate-200 hover:bg-slate-50">
-                          <ChevronRight size={14} />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ) : directorView === 'new' ? (
-                  <div className="space-y-4">
-                    <div className="flex items-center">
-                      <span className="text-sm text-slate-500 w-20">收件人</span>
-                      <span className="text-sm text-slate-800">zongjian</span>
-                    </div>
-                    
-                    <div className="flex items-center">
-                      <span className="text-sm text-slate-500 w-20">发件人</span>
-                      <div className="flex items-center gap-10">
-                        <span className="text-sm text-slate-800">Ranou</span>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <div className="relative flex items-center">
-                            <input 
-                              type="checkbox" 
-                              className="peer appearance-none w-4 h-4 border border-slate-300 rounded bg-white checked:bg-[#00BFA5] checked:border-[#00BFA5] transition-colors" 
-                              checked={isAnonymous}
-                              onChange={(e) => setIsAnonymous(e.target.checked)}
-                            />
-                            <Check size={12} className="absolute left-0.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" />
-                          </div>
-                          <span className="text-sm text-slate-500">开启匿名</span>
-                        </label>
-                      </div>
-                    </div>
-
-                    <div className="pt-2">
-                      <span className="text-sm text-slate-800">信件内容</span>
-                    </div>
-
-                    <div className="border border-slate-200 rounded-lg overflow-hidden">
-                        {/* Rich Text Toolbar */}
-                        <div className="bg-slate-50 border-b border-slate-200 p-2 flex flex-wrap gap-1">
-                          <button className="p-1.5 hover:bg-white rounded transition-colors text-slate-600"><Maximize2 size={16} /></button>
-                          <div className="w-px h-4 bg-slate-200 mx-1 self-center" />
-                          <button className="p-1.5 hover:bg-white rounded transition-colors text-slate-600"><Undo2 size={16} /></button>
-                          <button className="p-1.5 hover:bg-white rounded transition-colors text-slate-600"><Redo2 size={16} /></button>
-                          <div className="w-px h-4 bg-slate-200 mx-1 self-center" />
-                          <button className="p-1.5 hover:bg-white rounded transition-colors text-slate-600"><PaintBucket size={16} /></button>
-                          <button className="p-1.5 hover:bg-white rounded transition-colors text-slate-600"><Eraser size={16} /></button>
-                          <div className="w-px h-4 bg-slate-200 mx-1 self-center" />
-                          <div className="flex items-center gap-1 px-2 py-1 hover:bg-white rounded cursor-pointer text-slate-600 text-xs">
-                            正文 <ChevronDown size={12} />
-                          </div>
-                          <div className="flex items-center gap-1 px-2 py-1 hover:bg-white rounded cursor-pointer text-slate-600 text-xs">
-                            11 <ChevronDown size={12} />
-                          </div>
-                          <div className="w-px h-4 bg-slate-200 mx-1 self-center" />
-                          <button className="p-1.5 hover:bg-white rounded transition-colors text-slate-600 font-bold">B</button>
-                          <button className="p-1.5 hover:bg-white rounded transition-colors text-slate-600 italic">I</button>
-                          <button className="p-1.5 hover:bg-white rounded transition-colors text-slate-600"><ListIcon size={16} /></button>
-                          <button className="p-1.5 hover:bg-white rounded transition-colors text-slate-600 underline">U</button>
-                          <button className="p-1.5 hover:bg-white rounded transition-colors text-slate-600"><Type size={16} /></button>
-                          <button className="p-1.5 hover:bg-white rounded transition-colors text-slate-600"><Highlighter size={16} /></button>
-                          <div className="w-px h-4 bg-slate-200 mx-1 self-center" />
-                          <button className="p-1.5 hover:bg-white rounded transition-colors text-slate-600"><ImageIcon size={16} /></button>
-                          <button className="p-1.5 hover:bg-white rounded transition-colors text-slate-600"><LayoutGrid size={16} /></button>
-                          <button className="p-1.5 hover:bg-white rounded transition-colors text-slate-600"><LinkIcon size={16} /></button>
-                          <button className="p-1.5 hover:bg-white rounded transition-colors text-slate-600"><Quote size={16} /></button>
-                          <button className="p-1.5 hover:bg-white rounded transition-colors text-slate-600"><MoreVertical size={16} /></button>
-                        </div>
-                        <textarea 
-                          className="w-full h-64 p-4 text-sm text-slate-700 focus:outline-none resize-none"
-                          placeholder="请输入信件内容..."
-                          value={newMessageContent}
-                          onChange={(e) => setNewMessageContent(e.target.value)}
-                        />
-                      </div>
-
-                      <div className="flex justify-center gap-4 pt-4">
-                        <button 
-                          onClick={() => setDirectorView('list')}
-                          className="px-10 py-2 border border-slate-200 text-slate-500 rounded-full text-sm hover:bg-slate-50 transition-colors"
-                        >
-                          取消
-                        </button>
-                        <button 
-                          onClick={handleSendMessage}
-                          className="px-10 py-2 bg-[#E6F7F4] text-[#00BFA5] border border-[#B2EBE4] rounded-full text-sm font-medium hover:bg-[#D1F2ED] transition-colors"
-                        >
-                          发送
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                  <div className="flex flex-col h-full">
-                    <div className="flex-1 space-y-6 pb-20">
-                      <div className="flex flex-col items-center gap-2 mb-8">
-                        <span className="text-[10px] text-slate-400">{selectedMessage?.createdAt}</span>
-                      </div>
-
-                      {/* Original Message */}
-                      <div className="flex flex-col items-start gap-2 max-w-[80%]">
-                        <span className="text-xs text-slate-500">{selectedMessage?.isAnonymous ? '匿名' : selectedMessage?.sender}</span>
-                        <div className="bg-slate-50 rounded-2xl p-4 text-sm text-slate-700 leading-relaxed relative">
-                          <div className="whitespace-pre-wrap">{selectedMessage?.content}</div>
-                          <div className="absolute -left-2 top-4 w-4 h-4 bg-slate-50 rotate-45" />
-                        </div>
-                      </div>
-
-                      {/* Replies */}
-                      {selectedMessage?.replies.map((reply: any, idx: number) => (
-                        <div key={idx} className={cn(
-                          "flex flex-col gap-2 max-w-[80%]",
-                          reply.sender === 'zongjian' ? "items-end ml-auto" : "items-start"
-                        )}>
-                          <div className={cn("flex items-center gap-2", reply.sender === 'zongjian' ? "flex-row" : "flex-row-reverse")}>
-                            <span className="text-[10px] text-slate-400">{reply.timestamp}</span>
-                            <span className="text-xs text-slate-500">{reply.sender}</span>
-                          </div>
-                          <div className={cn(
-                            "rounded-2xl p-4 text-sm text-slate-700 leading-relaxed relative",
-                            reply.sender === 'zongjian' ? "bg-emerald-50" : "bg-slate-50"
-                          )}>
-                            <p>{reply.content}</p>
-                            <div className={cn(
-                              "absolute top-4 w-4 h-4 rotate-45",
-                              reply.sender === 'zongjian' ? "-right-2 bg-emerald-50" : "-left-2 bg-slate-50"
-                            )} />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Chat Input */}
-                    <div className="absolute bottom-6 left-6 right-6">
-                      <div className="relative">
-                        <input 
-                          type="text" 
-                          placeholder="说点什么"
-                          value={replyText}
-                          onChange={(e) => setReplyText(e.target.value)}
-                          onKeyDown={(e) => e.key === 'Enter' && handleSendReply()}
-                          className="w-full bg-slate-50 border border-slate-100 rounded-full py-3 px-6 pr-12 text-sm focus:outline-none focus:border-emerald-500 transition-colors"
-                        />
-                        <button 
-                          onClick={handleSendReply}
-                          className="absolute right-4 top-1/2 -translate-y-1/2 text-emerald-500 hover:text-emerald-600"
-                        >
-                          <Send size={18} />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      {shouldRenderDirectorModal && (
+        <Suspense fallback={null}>
+          <DirectorExpressModal
+            isOpen={showDirectorModal}
+            portalViewMode={viewMode}
+            view={directorView}
+            messages={directorMessages}
+            selectedMessage={selectedDirectorMessage}
+            newMessageContent={newDirectorMessageContent}
+            newMessageTitle={newDirectorMessageTitle}
+            isAnonymous={isDirectorMessageAnonymous}
+            replyText={directorReplyText}
+            replyImage={directorReplyImage}
+            onClose={() => setShowDirectorModal(false)}
+            onViewChange={setDirectorView}
+            onMessageSelect={handleSelectDirectorMessage}
+            onNewMessageContentChange={setNewDirectorMessageContent}
+            onNewMessageTitleChange={setNewDirectorMessageTitle}
+            onAnonymousChange={setIsDirectorMessageAnonymous}
+            onReplyTextChange={setDirectorReplyText}
+            onReplyImageChange={setDirectorReplyImage}
+            onSendMessage={handleSendDirectorMessage}
+            onSendReply={handleSendDirectorReply}
+          />
+        </Suspense>
+      )}
 
       {/* 繁忙公告管理弹窗 */}
       {busyAnnouncementDialogContent}
@@ -16874,7 +13682,6 @@ export default function App() {
         <HelpCircle size={24} />
       </button>
 
-      {/* Help sidebar overlay */}
       {isHelpSidebarOpen && (
         <HelpSidebarContent onClose={() => setIsHelpSidebarOpen(false)} />
       )}
