@@ -40,6 +40,8 @@ import AttachmentQueryModal from '../workbench/AttachmentQueryModal';
 import WorkbenchSummaryPanel from '../workbench/WorkbenchSummaryPanel';
 import SchoolSearchModal, { type SchoolRecord } from '../workbench/SchoolSearchModal';
 import ProblemClassificationSearchModal, { type ProblemClassificationCombo } from '../workbench/ProblemClassificationSearchModal';
+import SmsSendModal from '../workbench/SmsSendModal';
+import EmailSendModal from '../workbench/EmailSendModal';
 
 import toolSmsIcon from '../../assets/tool-icons/tool-短信.png';
 import toolAttachmentIcon from '../../assets/tool-icons/tool-附件查询.png';
@@ -557,6 +559,8 @@ export default function CallWorkbenchPage() {
   const [showSchoolSearch, setShowSchoolSearch] = useState(false);
   const [schoolSearchKeyword, setSchoolSearchKeyword] = useState('');
   const [showProblemClassification, setShowProblemClassification] = useState(false);
+  const [showSmsSendModal, setShowSmsSendModal] = useState(false);
+  const [showEmailSendModal, setShowEmailSendModal] = useState(false);
 
   const schoolRecords: SchoolRecord[] = [{name:'合肥市第一中学',label:'高中',address:'合肥市庐阳区',serviceGroup:'教育组',auditStatus:'已审核'},{name:'北京市第四中学',label:'高中',address:'北京市西城区',serviceGroup:'教育组',auditStatus:'已审核'},{name:'上海中学',label:'高中',address:'上海市徐汇区',serviceGroup:'教育组',auditStatus:'待审核'}];
   const problemClassificationCombos: ProblemClassificationCombo[] = [{level1:'产品咨询',level2:'学习机',level3:'功能咨询'},{level1:'产品咨询',level2:'学习机',level3:'价格咨询'},{level1:'售后服务',level2:'维修',level3:'屏幕维修'},{level1:'售后服务',level2:'退换货',level3:'七天无理由'},{level1:'投诉建议',level2:'服务态度',level3:'响应速度'}];
@@ -871,7 +875,7 @@ export default function CallWorkbenchPage() {
           <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
             <div className="grid grid-cols-3 gap-3">
               {workbenchToolItems[resolved].map((item) => (
-                <button key={item.label} type="button" className="rounded-lg border border-slate-100 bg-[#f7f8fb] px-2.5 py-3.5 text-center transition-colors hover:border-slate-200 hover:bg-white">
+                <button key={item.label} type="button" onClick={item.label === '附件查询' ? () => setShowAttachmentQuery(true) : item.label === '短信' ? () => setShowSmsSendModal(true) : item.label === '邮箱' ? () => setShowEmailSendModal(true) : undefined} className="rounded-lg border border-slate-100 bg-[#f7f8fb] px-2.5 py-3.5 text-center transition-colors hover:border-slate-200 hover:bg-white">
                   {item.imageSrc ? <div className="mx-auto flex h-[30px] w-[30px] items-center justify-center"><img src={item.imageSrc} alt="" className="h-[30px] w-[30px] object-contain" /></div> : <div className={cn('mx-auto flex h-9 w-9 items-center justify-center rounded-lg', item.bg)}>{item.icon ? <item.icon size={16} className={item.accent} /> : null}</div>}
                   <div className="mt-2 text-[12px] font-medium text-slate-600">{item.label}</div>
                 </button>
@@ -1085,6 +1089,8 @@ export default function CallWorkbenchPage() {
           onBlacklist={(anchor) => setPendingBlacklist(anchor)}
           onOpenTaggingModal={() => setShowTaggingModal(true)}
           onAttachmentQuery={() => setShowAttachmentQuery(true)}
+          onSmsSend={() => setShowSmsSendModal(true)}
+          onEmailSend={() => setShowEmailSendModal(true)}
         />
       }
       rightSidebar={callRightSidebarContent}
@@ -1144,6 +1150,17 @@ export default function CallWorkbenchPage() {
         }));
         setShowProblemClassification(false);
       }}
+    />
+
+    <SmsSendModal
+      isOpen={showSmsSendModal}
+      onClose={() => setShowSmsSendModal(false)}
+      onConfirm={() => setShowSmsSendModal(false)}
+    />
+    <EmailSendModal
+      isOpen={showEmailSendModal}
+      onClose={() => setShowEmailSendModal(false)}
+      onConfirm={() => setShowEmailSendModal(false)}
     />
 
     {pendingBlacklist && (

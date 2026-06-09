@@ -76,6 +76,8 @@ type CallInboundInfoPanelProps = {
   onBlacklist?: (anchor: { x: number; y: number }) => void;
   onOpenTaggingModal?: () => void;
   onAttachmentQuery?: () => void;
+  onSmsSend?: () => void;
+  onEmailSend?: () => void;
 };
 
 export default function CallInboundInfoPanel({
@@ -86,6 +88,8 @@ export default function CallInboundInfoPanel({
   onBlacklist,
   onOpenTaggingModal,
   onAttachmentQuery,
+  onSmsSend,
+  onEmailSend,
 }: CallInboundInfoPanelProps) {
   const [isQueueOpen, setIsQueueOpen] = useState(false);
   const queueTriggerRef = useRef<HTMLButtonElement | null>(null);
@@ -305,7 +309,7 @@ export default function CallInboundInfoPanel({
             <button
               key={`call-frequently-used-${label}`}
               type="button"
-              onClick={label === '附件查询' ? onAttachmentQuery : undefined}
+              onClick={label === '附件查询' ? onAttachmentQuery : label === '短信' ? onSmsSend : label === '邮箱' ? onEmailSend : undefined}
               className="focus-ring group relative rounded-lg p-1.5 transition-all duration-200 hover:bg-brand-50 hover:text-brand-600"
             >
               <span className="pointer-events-none absolute bottom-[calc(100%+8px)] left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-800 px-2 py-1 text-[10px] text-white opacity-0 shadow-sm transition-opacity duration-150 group-hover:opacity-100">

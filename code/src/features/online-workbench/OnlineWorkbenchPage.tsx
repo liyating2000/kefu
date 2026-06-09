@@ -55,6 +55,8 @@ import TaggingModal from '../workbench/TaggingModal';
 import AttachmentQueryModal from '../workbench/AttachmentQueryModal';
 import SchoolSearchModal, { type SchoolRecord } from '../workbench/SchoolSearchModal';
 import ProblemClassificationSearchModal, { type ProblemClassificationCombo } from '../workbench/ProblemClassificationSearchModal';
+import SmsSendModal from '../workbench/SmsSendModal';
+import EmailSendModal from '../workbench/EmailSendModal';
 import CreateTpdWorkOrderModal from '../workbench/CreateTpdWorkOrderModal';
 import CallScheduleFollowUpModal from '../call-workbench/CallScheduleFollowUpModal';
 import BlacklistApplicationModal from '../call-workbench/BlacklistApplicationModal';
@@ -766,6 +768,8 @@ export default function OnlineWorkbenchPage() {
   const [showScheduleFollowUp, setShowScheduleFollowUp] = useState(false);
   const [showBlacklistModal, setShowBlacklistModal] = useState(false);
   const [onlineTransferModal, setOnlineTransferModal] = useState<'转坐席' | '转队列' | null>(null);
+  const [showSmsSendModal, setShowSmsSendModal] = useState(false);
+  const [showEmailSendModal, setShowEmailSendModal] = useState(false);
 
   const schoolRecords: SchoolRecord[] = [{name:'合肥市第一中学',label:'高中',address:'合肥市庐阳区',serviceGroup:'教育组',auditStatus:'已审核'},{name:'北京市第四中学',label:'高中',address:'北京市西城区',serviceGroup:'教育组',auditStatus:'已审核'},{name:'上海中学',label:'高中',address:'上海市徐汇区',serviceGroup:'教育组',auditStatus:'待审核'}];
   const problemClassificationCombos: ProblemClassificationCombo[] = [{level1:'产品咨询',level2:'学习机',level3:'功能咨询'},{level1:'产品咨询',level2:'学习机',level3:'价格咨询'},{level1:'售后服务',level2:'维修',level3:'屏幕维修'},{level1:'售后服务',level2:'退换货',level3:'七天无理由'},{level1:'投诉建议',level2:'服务态度',level3:'响应速度'}];
@@ -1443,6 +1447,8 @@ export default function OnlineWorkbenchPage() {
             composerMessageIconSrc={chatMessageIcon}
             onUtilityItemClick={(label) => {
               if (label === '附件查询') setShowAttachmentQuery(true);
+              if (label === '短信') setShowSmsSendModal(true);
+              if (label === '邮箱') setShowEmailSendModal(true);
             }}
           />
         </div>
@@ -1514,7 +1520,6 @@ export default function OnlineWorkbenchPage() {
                   </div>
                 </div>
                 <div className="flex justify-end gap-3 border-t border-slate-100 px-4 py-3">
-                  <button type="button" onClick={() => setShowBlacklistModal(true)} className="rounded-full border border-rose-200 bg-rose-50/80 px-6 py-1.5 text-[12px] font-medium text-rose-500 transition-colors hover:border-rose-300 hover:bg-rose-100/80">黑名单申请</button>
                   <button type="button" onClick={() => setShowScheduleFollowUp(true)} className="rounded-full border border-violet-200 bg-violet-50/80 px-6 py-1.5 text-[12px] font-medium text-violet-600 transition-colors hover:border-violet-300 hover:bg-violet-100/80">预约回电</button>
                   <button type="button" className="rounded-full border border-[#7ee0d3] bg-[#f1fdfa] px-6 py-1.5 text-[12px] font-medium text-[#18a058]">保存</button>
                   <button type="button" onClick={handleResetActiveOnlineCustomerProfile} className="rounded-full border border-[#7ee0d3] bg-[#f1fdfa] px-6 py-1.5 text-[12px] font-medium text-[#18a058]">重置</button>
@@ -1828,6 +1833,16 @@ export default function OnlineWorkbenchPage() {
       <CreateTpdWorkOrderModal isOpen={showCreateTpdModal} onClose={() => setShowCreateTpdModal(false)} onConfirm={() => setShowCreateTpdModal(false)} />
       <CallScheduleFollowUpModal isOpen={showScheduleFollowUp} leftOffset={0} defaultPhoneNumber="" title="预约回电" onClose={() => setShowScheduleFollowUp(false)} onConfirm={() => setShowScheduleFollowUp(false)} />
       <BlacklistApplicationModal isOpen={showBlacklistModal} defaultPhoneNumber="" onClose={() => setShowBlacklistModal(false)} onConfirm={() => setShowBlacklistModal(false)} />
+      <SmsSendModal
+        isOpen={showSmsSendModal}
+        onClose={() => setShowSmsSendModal(false)}
+        onConfirm={() => setShowSmsSendModal(false)}
+      />
+      <EmailSendModal
+        isOpen={showEmailSendModal}
+        onClose={() => setShowEmailSendModal(false)}
+        onConfirm={() => setShowEmailSendModal(false)}
+      />
       {onlineTransferModal ? (
         <OnlineTransferModal
           title={onlineTransferModal}
@@ -1861,6 +1876,7 @@ function OnlineTransferModal({
   const [groupFilter, setGroupFilter] = useState<string>('');
   const [agentSearch, setAgentSearch] = useState('');
   const [confirmRow, setConfirmRow] = useState<(typeof transferSkillGroupRows)[number] | null>(null);
+  const [confirmAgentRow, setConfirmAgentRow] = useState<(typeof transferAgentRows)[number] | null>(null);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -1937,7 +1953,7 @@ function OnlineTransferModal({
                     <td className="py-3">
                       <button
                         type="button"
-                        onClick={onClose}
+                        onClick={() => setConfirmAgentRow(row)}
                         className="text-[13px] font-medium text-brand-600 transition-colors hover:text-brand-700"
                       >
                         转接
@@ -2008,6 +2024,54 @@ function OnlineTransferModal({
           </button>
         </div>
       </div>
+
+      {/* 转坐席确认弹窗 */}
+      {confirmAgentRow ? (
+        <div
+          className="fixed inset-0 z-[140] flex items-center justify-center bg-slate-900/50 backdrop-blur-[2px]"
+          onClick={() => setConfirmAgentRow(null)}
+        >
+          <div
+            className="animate-fade-in-up w-full max-w-[400px] rounded-2xl bg-white p-6 shadow-[0_30px_80px_rgba(15,23,42,0.25)]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="mb-4 text-[15px] font-bold text-slate-800">
+              转接确认 · 工号 {confirmAgentRow.agentNumber}
+            </h3>
+            <div className="space-y-2 rounded-xl bg-slate-50 px-4 py-3 text-[13px] text-slate-600">
+              <div className="flex items-center justify-between">
+                <span>技能组</span>
+                <span className="font-semibold text-slate-800">{confirmAgentRow.skillGroup}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>工号</span>
+                <span className="font-semibold tabular-nums text-slate-800">{confirmAgentRow.agentNumber}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>状态</span>
+                <span className="font-semibold text-emerald-600">{confirmAgentRow.status}</span>
+              </div>
+            </div>
+            <p className="mt-3 text-center text-[13px] text-slate-500">是否确认转接到该坐席？</p>
+            <div className="mt-4 flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setConfirmAgentRow(null)}
+                className="focus-ring rounded-xl border border-hairline bg-white px-5 py-2 text-[13px] font-semibold text-slate-600 transition-colors hover:border-brand-200 hover:text-brand-600"
+              >
+                取消
+              </button>
+              <button
+                type="button"
+                onClick={() => { setConfirmAgentRow(null); onClose(); }}
+                className="focus-ring rounded-xl bg-gradient-to-r from-brand-500 to-brand-400 px-5 py-2 text-[13px] font-semibold text-white shadow-[0_6px_14px_-4px_rgba(58,92,255,0.5)] transition-all hover:brightness-105"
+              >
+                确认转接
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {/* 转队列确认弹窗 */}
       {confirmRow ? (
