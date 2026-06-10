@@ -531,6 +531,7 @@ export default function WebchatChannelMaintenance() {
   const [editingContentTagId, setEditingContentTagId] = useState<string | null>(null);
   const [editingContentItemId, setEditingContentItemId] = useState<string | null>(null);
   const [editingUnresolvedReasonId, setEditingUnresolvedReasonId] = useState<string | null>(null);
+  const [editingParamIndex, setEditingParamIndex] = useState<number | null>(null);
   const [reasonInput, setReasonInput] = useState<string | null>(null);
   const [robotReasonInput, setRobotReasonInput] = useState<string | null>(null);
   const [addingUnresolvedCategory, setAddingUnresolvedCategory] = useState<UnresolvedReasonCategory | null>(null);
@@ -1492,6 +1493,7 @@ export default function WebchatChannelMaintenance() {
     setEditingContentTagId(null);
     setEditingContentItemId(null);
     setEditingUnresolvedReasonId(null);
+    setEditingParamIndex(null);
     setQuickButtonForm({ name: '', type: '高频词', linkUrl: '' });
     setContentTagFormName('');
     setContentItemFormName('');
@@ -1775,11 +1777,16 @@ export default function WebchatChannelMaintenance() {
     const name = paramForm.name.trim();
     const remark = paramForm.remark.trim();
     if (!name) nextErrors.paramName = '请输入参数名称';
-    else if (active.config.params.some((item) => item.name === name)) nextErrors.paramName = '参数名称已存在';
+    else if (active.config.params.some((item, i) => item.name === name && i !== editingParamIndex)) nextErrors.paramName = '参数名称已存在';
     setFormErrors(nextErrors);
     if (Object.keys(nextErrors).length) return;
-    updateActive((row) => ({ ...row, config: { ...row.config, params: [...row.config.params, { name, remark }] } }));
-    setToast('参数已新增');
+    if (editingParamIndex !== null) {
+      updateActive((row) => ({ ...row, config: { ...row.config, params: row.config.params.map((p, i) => i === editingParamIndex ? { name, remark } : p) } }));
+      setToast('参数已更新');
+    } else {
+      updateActive((row) => ({ ...row, config: { ...row.config, params: [...row.config.params, { name, remark }] } }));
+      setToast('参数已新增');
+    }
     closeDialog();
   };
 
@@ -3674,7 +3681,7 @@ export default function WebchatChannelMaintenance() {
                 </div>
               </div>
             ) : (
-              <div className="w-full rounded-[12px] border border-slate-100 bg-white shadow-sm"><div className="flex items-center justify-between border-b border-slate-100 px-5 py-4"><div className="text-[15px] font-semibold text-slate-700">参数设置</div><button type="button" onClick={() => { setParamForm({ name: '', remark: '' }); setFormErrors({}); setDialog('param'); }} className="rounded bg-[#18c2a7] px-4 py-2 text-[13px] font-medium text-white">新增</button></div><div className="p-5"><table className="min-w-full table-fixed text-left"><thead className="bg-[#f5f7fb] text-[13px] text-slate-600"><tr><th className="w-[90px] px-4 py-3">序号</th><th className="px-4 py-3">参数名称</th><th className="px-4 py-3">参数备注</th><th className="w-[140px] px-4 py-3">操作</th></tr></thead><tbody className="divide-y divide-slate-100 text-[13px] text-slate-600">{active.config.params.map((item, index) => <tr key={`${item.name}-${index}`}><td className="px-4 py-4">{index + 1}</td><td className="px-4 py-4">{item.name}</td><td className="px-4 py-4">{item.remark}</td><td className="px-4 py-4"><button type="button" onClick={() => setConfirmAction({ type: 'delete-param', paramIndex: index, title: '删除参数', message: `确定删除参数 “${item.name}” 吗？删除后不可恢复。` })} className="font-medium text-[#ff8a8a]">删除</button></td></tr>)}</tbody></table></div></div>
+              <div className="w-full rounded-[12px] border border-slate-100 bg-white shadow-sm"><div className="flex items-center justify-between border-b border-slate-100 px-5 py-4"><div className="text-[15px] font-semibold text-slate-700">参数设置</div><button type="button" onClick={() => { setParamForm({ name: '', remark: '' }); setFormErrors({}); setDialog('param'); }} className="rounded bg-[#18c2a7] px-4 py-2 text-[13px] font-medium text-white">新增</button></div><div className="p-5"><table className="min-w-full table-fixed text-left"><thead className="bg-[#f5f7fb] text-[13px] text-slate-600"><tr><th className="w-[90px] px-4 py-3">序号</th><th className="px-4 py-3">参数名称</th><th className="px-4 py-3">参数备注</th><th className="w-[140px] px-4 py-3">操作</th></tr></thead><tbody className="divide-y divide-slate-100 text-[13px] text-slate-600">{active.config.params.map((item, index) => <tr key={`${item.name}-${index}`}><td className="px-4 py-4">{index + 1}</td><td className="px-4 py-4">{item.name}</td><td className="px-4 py-4">{item.remark}</td><td className="px-4 py-4"><button type="button" onClick={() => { setEditingParamIndex(index); setParamForm({ name: item.name, remark: item.remark }); setFormErrors({}); setDialog('param'); }} className="font-medium text-[#2f7bff]">编辑</button><button type="button" onClick={() => setConfirmAction({ type: 'delete-param', paramIndex: index, title: '删除参数', message: `确定删除参数 “${item.name}” 吗？删除后不可恢复。` })} className="ml-3 font-medium text-[#ff8a8a]">删除</button></td></tr>)}</tbody></table></div></div>
             )}
           </div>
         </div>
@@ -3711,7 +3718,7 @@ export default function WebchatChannelMaintenance() {
                                     : dialog === 'unresolved-reason'
                                       ? (editingUnresolvedReasonId ? '编辑原因条目' : '添加原因条目')
                                       : dialog === 'param'
-                                        ? '新增参数'
+                                        ? (editingParamIndex !== null ? '编辑参数' : '新增参数')
                                         : dialog === 'associate-product'
                                           ? '关联产品'
                                           : '一键引用'}

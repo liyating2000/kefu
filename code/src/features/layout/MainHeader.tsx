@@ -813,8 +813,8 @@ export default function MainHeader({
 }
 
 const transferAgentRows = [
-  { id: 1, skillGroup: '王磊队列', agentNumber: '5002', status: '空闲' },
-  { id: 2, skillGroup: '李娜队列', agentNumber: '5004', status: '空闲' },
+  { id: 1, skillGroup: '王磊队列', name: '王磊', agentNumber: '5002', status: '空闲' },
+  { id: 2, skillGroup: '李娜队列', name: '李娜', agentNumber: '5004', status: '空闲' },
 ];
 
 const transferSkillGroupRows = [
@@ -892,7 +892,7 @@ function CallTransferModal({
                 <thead>
                   <tr className="border-b border-hairline text-left text-slate-500">
                     <th className="w-[80px] py-3 font-medium">序号</th>
-                    <th className="py-3 font-medium">技能组</th>
+                    <th className="py-3 font-medium">员工姓名</th>
                     <th className="py-3 font-medium">工号</th>
                     <th className="py-3 font-medium">状态</th>
                     <th className="w-[100px] py-3 font-medium">操作</th>
@@ -904,7 +904,7 @@ function CallTransferModal({
                     .map((row) => (
                   <tr key={row.id} className="border-b border-hairline/60">
                     <td className="py-3 text-slate-600">{row.id}</td>
-                    <td className="py-3 text-slate-700">{row.skillGroup}</td>
+                    <td className="py-3 text-slate-700">{row.name}</td>
                     <td className="py-3 tabular-nums text-slate-700">{row.agentNumber}</td>
                     <td className="py-3">
                       <span className="text-emerald-600">{row.status}</span>
@@ -999,8 +999,8 @@ function CallTransferModal({
             </h3>
             <div className="space-y-2 rounded-xl bg-slate-50 px-4 py-3 text-[13px] text-slate-600">
               <div className="flex items-center justify-between">
-                <span>技能组</span>
-                <span className="font-semibold text-slate-800">{confirmAgentRow.skillGroup}</span>
+                <span>员工姓名</span>
+                <span className="font-semibold text-slate-800">{confirmAgentRow.name}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span>工号</span>
@@ -1092,7 +1092,6 @@ function SignInModal({
 }) {
   const [agentNumber, setAgentNumber] = useState('1001');
   const [extensionNumber, setExtensionNumber] = useState('878881001');
-  const [password, setPassword] = useState('');
   const [method, setMethod] = useState<'browser' | 'sip'>('browser');
 
   useEffect(() => {
@@ -1163,18 +1162,6 @@ function SignInModal({
             />
             <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[12px] tabular-nums text-slate-400">
               {extensionNumber.length} / 20
-            </span>
-          </SignInField>
-          <SignInField label="密码">
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              maxLength={20}
-              className="focus-ring h-[38px] w-full rounded-xl border border-hairline bg-slate-50/60 px-3 text-[13px] text-slate-700 outline-none transition-colors focus:border-emerald-400 focus:bg-white"
-            />
-            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[12px] tabular-nums text-slate-400">
-              {password.length} / 20
             </span>
           </SignInField>
           <div className="grid grid-cols-[80px_minmax(0,1fr)] items-center gap-3">

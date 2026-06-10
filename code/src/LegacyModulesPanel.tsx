@@ -4431,6 +4431,8 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
   const [showAppointmentTodoFollowupReminder, setShowAppointmentTodoFollowupReminder] = useState(false);
   const [appointmentTransferTarget, setAppointmentTransferTarget] = useState<(typeof appointmentRows)[number] | null>(null);
   const [appointmentTransferDepartment, setAppointmentTransferDepartment] = useState('');
+  const [appointmentTransferGroup, setAppointmentTransferGroup] = useState('');
+  const [appointmentTransferSkillGroup, setAppointmentTransferSkillGroup] = useState('');
   const [appointmentTransferHistoryTarget, setAppointmentTransferHistoryTarget] = useState<(typeof appointmentRows)[number] | null>(null);
   const [appointmentAudioRowId, setAppointmentAudioRowId] = useState<string | null>(null);
   const [appointmentDetailTarget, setAppointmentDetailTarget] = useState<(typeof appointmentRows)[number] | null>(null);
@@ -6955,27 +6957,80 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
       ) : null}
 
       {appointmentTransferTarget ? (
-        <Modal title="调剂" onClose={() => setAppointmentTransferTarget(null)} widthClass="max-w-2xl">
-          <div className="space-y-6 px-6 py-8">
-            <Field label="* 部门:" className="xl:[&>span]:w-[88px]">
-              <select
-                value={appointmentTransferDepartment}
-                onChange={(event) => setAppointmentTransferDepartment(event.target.value)}
-                className={inputClass}
-              >
-                <option value="">请选择部门</option>
-                <option value="部门A">部门A</option>
-                <option value="部门B">部门B</option>
-                <option value="部门C">部门C</option>
-              </select>
-            </Field>
+        <Modal title="调剂" onClose={() => setAppointmentTransferTarget(null)} widthClass="w-[420px]">
+          <div className="space-y-4 px-6 py-6">
+            {appointmentTab === 'message' ? (
+              <>
+                <Field label="* 组别:" className="[&>span]:w-[80px]">
+                  <select
+                    value={appointmentTransferGroup}
+                    onChange={(event) => { setAppointmentTransferGroup(event.target.value); setAppointmentTransferSkillGroup(''); }}
+                    className={inputClass}
+                  >
+                    <option value="">请选择组别</option>
+                    <option value="热线服务组别">热线服务组别</option>
+                    <option value="在线服务组别">在线服务组别</option>
+                    <option value="电商业务组别">电商业务组别</option>
+                    <option value="教育业务组别">教育业务组别</option>
+                  </select>
+                </Field>
+                <Field label="* 技能组:" className="[&>span]:w-[80px]">
+                  <select
+                    value={appointmentTransferSkillGroup}
+                    onChange={(event) => setAppointmentTransferSkillGroup(event.target.value)}
+                    className={inputClass}
+                    disabled={!appointmentTransferGroup}
+                  >
+                    <option value="">请选择技能组</option>
+                    {(appointmentTransferGroup === '热线服务组别' ? ['移动服务组', '售后服务组', '学习机一组']
+                      : appointmentTransferGroup === '在线服务组别' ? ['Web售前组', '小程序服务组', '公众号服务组']
+                      : appointmentTransferGroup === '电商业务组别' ? ['抖音电商组', '直播成交组']
+                      : appointmentTransferGroup === '教育业务组别' ? ['学习机一组', '学习机二组', '法院业务组']
+                      : []
+                    ).map((name) => <option key={name} value={name}>{name}</option>)}
+                  </select>
+                </Field>
+              </>
+            ) : (
+              <Field label="* 部门:" className="[&>span]:w-[80px]">
+                <select
+                  value={appointmentTransferDepartment}
+                  onChange={(event) => setAppointmentTransferDepartment(event.target.value)}
+                  className={inputClass}
+                >
+                  <option value="">请选择部门</option>
+                  <option value="部门A">部门A</option>
+                  <option value="部门B">部门B</option>
+                  <option value="部门C">部门C</option>
+                </select>
+              </Field>
+            )}
           </div>
           <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
             <button type="button" onClick={() => setAppointmentTransferTarget(null)} className={secondaryButtonClass}>取消</button>
             <button
               type="button"
               onClick={() => {
-                showToast('预约回电已调剂');
+                if (appointmentTab === 'message') {
+                  if (!appointmentTransferGroup) {
+                    showToast('请选择组别');
+                    return;
+                  }
+                  if (!appointmentTransferSkillGroup) {
+                    showToast('请选择技能组');
+                    return;
+                  }
+                  showToast('留言已调剂');
+                  setAppointmentTransferGroup('');
+                  setAppointmentTransferSkillGroup('');
+                } else {
+                  if (!appointmentTransferDepartment) {
+                    showToast('请选择部门');
+                    return;
+                  }
+                  showToast('预约回电已调剂');
+                  setAppointmentTransferDepartment('');
+                }
                 setAppointmentTransferTarget(null);
               }}
               className={solidButtonClass}
@@ -7833,9 +7888,9 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
       ) : null}
 
       {webchatTransferTarget ? (
-        <Modal title="调剂" onClose={() => setWebchatTransferTarget(null)} widthClass="max-w-xl">
+        <Modal title="调剂" onClose={() => setWebchatTransferTarget(null)} widthClass="w-[420px]">
           <div className="space-y-4 px-6 py-6">
-            <Field label="* 部门:" className="[&>span]:w-[92px]">
+            <Field label="* 部门:" className="[&>span]:w-[80px]">
               <select value={webchatTransferDepartment} onChange={(event) => setWebchatTransferDepartment(event.target.value)} className={inputClass}>
                 <option value="">请选择部门</option>
                 <option value="系统组">系统组</option>
