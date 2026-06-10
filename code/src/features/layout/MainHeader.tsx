@@ -547,22 +547,26 @@ export default function MainHeader({
               value={computedStatusText}
               valueClass={computedStatusCls}
             />
-            <StackedLabel
-              first={`分机号:${extensionNumber}`}
-              second={`工号:${agentNumber}`}
-            />
-            <StatusItem
-              label="通话时长"
-              value={topHeaderPresenceMeta.callDuration}
-            />
             <StatusItem
               label="状态时长"
               value={topHeaderPresenceMeta.statusDuration}
             />
-            <StatusItem
-              label="通话号码"
-              value={topHeaderPresenceMeta.incomingNumber}
-            />
+            {isTopHeaderSignedIn ? (
+              <>
+                <StackedLabel
+                  first={`分机号:${extensionNumber}`}
+                  second={`工号:${agentNumber}`}
+                />
+                <StatusItem
+                  label="通话时长"
+                  value={topHeaderPresenceMeta.callDuration}
+                />
+                <StatusItem
+                  label="通话号码"
+                  value={topHeaderPresenceMeta.incomingNumber}
+                />
+              </>
+            ) : null}
           </div>
         </div>
 

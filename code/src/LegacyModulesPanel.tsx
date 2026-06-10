@@ -4424,6 +4424,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
     agent: '',
     caller: '',
     status: '未处理',
+    skillGroup: '',
   });
   const [appointmentTodoFilterForm, setAppointmentTodoFilterForm] = useState({ ...appointmentTodoFilterDefaults });
   const [appointmentTodoFilters, setAppointmentTodoFilters] = useState({ ...appointmentTodoFilterDefaults });
@@ -4933,9 +4934,9 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
   ];
 
   const appointmentTransferHistoryRows = [
-    { id: '1', operator: '坐席A', transferredAt: '2025-04-29 11:15:14', department: '部门A' },
-    { id: '2', operator: '坐席A', transferredAt: '2025-04-29 11:15:14', department: '部门B' },
-    { id: '3', operator: '坐席A', transferredAt: '2025-04-29 11:15:14', department: '部门C' },
+    { id: '1', operator: '坐席A', transferredAt: '2025-04-29 11:15:14', department: '部门A', group: '热线服务组别', skillGroup: '移动服务组' },
+    { id: '2', operator: '坐席A', transferredAt: '2025-04-29 11:15:14', department: '部门B', group: '在线服务组别', skillGroup: 'Web售前组' },
+    { id: '3', operator: '坐席A', transferredAt: '2025-04-29 11:15:14', department: '部门C', group: '教育业务组别', skillGroup: '学习机一组' },
   ];
 
   const webchatMessageRows = [
@@ -5675,7 +5676,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                     <Field label="组别:" className="xl:col-span-2">
                       <select
                         value={appointmentFilters.businessLine}
-                        onChange={(event) => setAppointmentFilters((current) => ({ ...current, businessLine: event.target.value }))}
+                        onChange={(event) => setAppointmentFilters((current) => ({ ...current, businessLine: event.target.value, skillGroup: '' }))}
                         className={inputClass}
                       >
                         <option value="">请选择组别</option>
@@ -5732,6 +5733,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                           agent: '',
                           caller: '',
                           status: '未处理',
+                          skillGroup: '',
                         })
                       }
                     />
@@ -5760,6 +5762,22 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                       <option value="坐席B">坐席B</option>
                     </select>
                   </Field>
+                  {appointmentTab === 'message' ? (
+                    <Field label="技能组:" className="xl:col-span-2">
+                      <select
+                        value={appointmentFilters.skillGroup}
+                        onChange={(event) => setAppointmentFilters((current) => ({ ...current, skillGroup: event.target.value }))}
+                        className={inputClass}
+                        disabled={!appointmentFilters.businessLine}
+                      >
+                        <option value="">请选择技能组</option>
+                        {(appointmentFilters.businessLine === '教育' ? ['教育组', '学习机一组', '学习机二组']
+                          : appointmentFilters.businessLine === '法院' ? ['法院业务组']
+                          : []
+                        ).map((name) => <option key={name} value={name}>{name}</option>)}
+                      </select>
+                    </Field>
+                  ) : null}
                   </div>
                 ) : null}
                   </>
@@ -7047,7 +7065,10 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
             <table className="min-w-full table-fixed text-left text-[13px]">
               <thead className="bg-[#fafafa] text-slate-600">
                 <tr>
-                  {['序号', '调剂人', '调剂时间', '处理部门'].map((column) => (
+                  {(appointmentTab === 'message'
+                    ? ['序号', '调剂人', '调剂时间', '组别', '技能组']
+                    : ['序号', '调剂人', '调剂时间', '处理部门']
+                  ).map((column) => (
                     <th key={column} className="px-4 py-3 font-medium">
                       {column}
                     </th>
@@ -7060,7 +7081,14 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                     <td className="px-4 py-4">{index + 1}</td>
                     <td className="px-4 py-4">{record.operator}</td>
                     <td className="px-4 py-4">{record.transferredAt}</td>
-                    <td className="px-4 py-4">{record.department}</td>
+                    {appointmentTab === 'message' ? (
+                      <>
+                        <td className="px-4 py-4">{record.group}</td>
+                        <td className="px-4 py-4">{record.skillGroup}</td>
+                      </>
+                    ) : (
+                      <td className="px-4 py-4">{record.department}</td>
+                    )}
                   </tr>
                 ))}
               </tbody>

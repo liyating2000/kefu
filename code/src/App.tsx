@@ -61,6 +61,8 @@ import onlineCallVideoIcon from './assets/video-icons/video.png';
 import onlineVideoHangupIcon from './assets/video-icons/hangup2.png';
 import WebchatChannelMaintenance from './WebchatChannelMaintenance';
 import WebchatWorkgroupMaintenance from './WebchatWorkgroupMaintenance';
+import BusinessFieldManagementContent from './features/business-field-management/BusinessFieldManagementContent';
+import BusinessFieldLaunchReviewContent from './features/business-field-launch-review/BusinessFieldLaunchReviewContent';
 import { 
   Search, 
   LayoutGrid, 
@@ -388,7 +390,9 @@ type MainTab =
   | '品牌维护'
   | '附件管理'
   | '产品模块维护'
-  | '小结管理';
+  | '小结管理'
+  | '业务字段上线审核'
+  | '账号管理';
 type ManagerPortalPage = 'dashboard' | 'overview-detail';
 
 // 繁忙公告管理类型定义
@@ -3064,7 +3068,7 @@ const operationDeskMenus: SubMenuItem[] = [
   { label: '网聊维护', action: { type: 'tab', tab: '网聊维护' } },
   { label: '用户体系管理', action: { type: 'tab', tab: '用户体系管理' } },
   { label: '业务字段管理', action: { type: 'tab', tab: '业务字段管理' } },
-  { label: '业务字段上线审核', action: { type: 'none' } },
+  { label: '业务字段上线审核', action: { type: 'tab', tab: '业务字段上线审核' } },
   { label: '发件人邮箱配置', action: { type: 'none' } },
   { label: '消息维护', action: { type: 'none' } },
   { label: '短信/邮件模板管理', action: { type: 'none' } },
@@ -3079,7 +3083,7 @@ const monitorDeskMenus: SubMenuItem[] = [
 ];
 
 const systemManagementMenus: SubMenuItem[] = [
-  { label: '账号管理', action: { type: 'none' } },
+  { label: '账号管理', action: { type: 'tab', tab: '账号管理' } },
   { label: '部门/角色管理', action: { type: 'tab', tab: '部门角色管理' } },
   { label: '操作权限管理', action: { type: 'none' } },
   { label: '菜单权限管理', action: { type: 'none' } },
@@ -3239,6 +3243,7 @@ const messageNoticeSubMenus = [
 
 const systemSettingsSubMenus = [
   { label: '业务字段管理', key: 'business-field-management' },
+  { label: '业务字段上线审核', key: 'business-field-launch-review' },
   { label: '组别维护', key: 'group-maintenance' },
   { label: '目标值维护', key: 'target-value-maintenance' },
   { label: '品牌维护', key: 'brand-maintenance' },
@@ -3247,6 +3252,7 @@ const systemSettingsSubMenus = [
 
 const systemSettingsMenuTabMap = {
   'business-field-management': '业务字段管理',
+  'business-field-launch-review': '业务字段上线审核',
   'group-maintenance': '组别维护',
   'target-value-maintenance': '目标值维护',
   'brand-maintenance': '品牌维护',
@@ -3799,7 +3805,7 @@ const businessFieldManagementRows = [
 ] as const;
 
 const sidebarSubMenuButtonClass =
-  "flex w-full items-center pl-[58px] pr-2 py-3.5 text-left text-[15px] font-medium leading-5 text-slate-400 transition-colors whitespace-normal break-words hover:bg-[#1f5a67] hover:text-white active:bg-[#244854] active:text-white focus-visible:bg-[#1f5a67] focus-visible:text-white focus-visible:outline-none";
+  "flex w-full items-center pl-[52px] pr-2 py-3.5 text-left text-[14px] font-medium leading-5 text-[#344054] transition-colors whitespace-normal break-words hover:bg-[#f2f3f5] active:bg-[#e9eaed] focus-visible:outline-none";
 
 const cloneWebchatProductConfig = (config: WebchatProductConfig): WebchatProductConfig => ({
   quickButtons: config.quickButtons.map((button) => ({ ...button })),
@@ -3862,26 +3868,27 @@ const SidebarItem = ({
   <div
     onClick={onClick}
     className={cn(
-      "cursor-pointer transition-colors",
+      "cursor-pointer transition-colors duration-200",
       collapsed
         ? "flex justify-center px-0 py-4"
         : "flex items-center justify-between px-5 py-4",
       active
         ? collapsed
-          ? "text-white"
-          : "border-r-[3px] border-[#08d1b4] bg-[#1f5a67] text-[#18d1b3]"
-        : "text-slate-400 hover:text-white"
+          ? "bg-brand-50 font-semibold text-brand-600"
+          : "border-r-[3px] border-brand-500 bg-brand-50 font-semibold text-brand-600"
+        : "text-[#344054] hover:bg-[#f2f3f5]"
     )}
   >
     <div className={cn("flex items-center", collapsed ? "justify-center" : "gap-4")}>
-      <Icon size={collapsed ? 18 : 22} className={cn(active ? (collapsed ? "text-white" : "text-[#18d1b3]") : "text-slate-400")} />
-      {!collapsed ? <span className="text-[16px] font-medium leading-none">{label}</span> : null}
+      <Icon size={collapsed ? 18 : 22} className={cn("transition-colors duration-200", active ? "text-brand-500" : "text-[#344054]")} />
+      {!collapsed ? <span className={cn("text-[15px] leading-none", active ? "font-semibold" : "font-medium")}>{label}</span> : null}
     </div>
     {!collapsed && hasSub && (
       <ChevronDown
         size={16}
         className={cn(
-          active ? "text-[#d9fffa]" : "text-slate-500",
+          "transition-transform duration-200",
+          active ? "text-brand-500" : "text-[#344054]",
           expanded && "rotate-180"
         )}
       />
@@ -4243,6 +4250,7 @@ export default function App() {
   const [isMessageServiceTabVisible, setIsMessageServiceTabVisible] = useState(false);
   const [isScheduleDisplayTabVisible, setIsScheduleDisplayTabVisible] = useState(false);
   const [isBusinessFieldManagementTabVisible, setIsBusinessFieldManagementTabVisible] = useState(false);
+  const [isBusinessFieldLaunchReviewTabVisible, setIsBusinessFieldLaunchReviewTabVisible] = useState(false);
   const [isGroupMaintenanceTabVisible, setIsGroupMaintenanceTabVisible] = useState(false);
   const [isTargetValueMaintenanceTabVisible, setIsTargetValueMaintenanceTabVisible] = useState(false);
   const [isBrandMaintenanceTabVisible, setIsBrandMaintenanceTabVisible] = useState(false);
@@ -4262,6 +4270,8 @@ export default function App() {
   const usedUserSystems = useMemo(() => new Set(['体系1', '体系2']), []);
   const [isWebchatMaintenanceTabVisible, setIsWebchatMaintenanceTabVisible] = useState(false);
   const [isDeptRoleManagementTabVisible, setIsDeptRoleManagementTabVisible] = useState(false);
+  const [isAccountManagementTabVisible, setIsAccountManagementTabVisible] = useState(false);
+  const [isAccountFiltersExpanded, setIsAccountFiltersExpanded] = useState(true);
 
   // 繁忙公告管理 state
   const [busyAnnouncements, setBusyAnnouncements] = useState<BusyAnnouncement[]>(busyAnnouncementManagementRows);
@@ -4316,7 +4326,7 @@ export default function App() {
     useState<
       Exclude<
         MainTab,
-        '在线工作台' | '消息服务' | '排班信息展示' | '业务字段管理' | '品牌维护' | '附件管理' | '产品模块维护' | '繁忙公告管理' | '隐私声明管理' | '用户体系管理' | '网聊维护' | '小结管理'
+        '在线工作台' | '消息服务' | '排班信息展示' | '业务字段管理' | '业务字段上线审核' | '品牌维护' | '附件管理' | '产品模块维护' | '繁忙公告管理' | '隐私声明管理' | '用户体系管理' | '网聊维护' | '小结管理' | '账号管理'
       >
     >('个人门户');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -4805,6 +4815,12 @@ export default function App() {
       setActiveTab('业务字段管理');
       return;
     }
+    if (tab === '业务字段上线审核') {
+      setIsBusinessFieldLaunchReviewTabVisible(true);
+      setIsOperationDeskExpanded(true);
+      setActiveTab('业务字段上线审核');
+      return;
+    }
     if (tab === '组别维护') {
       setIsGroupMaintenanceTabVisible(true);
       setIsOperationDeskExpanded(true);
@@ -4865,6 +4881,12 @@ export default function App() {
       setActiveTab('部门角色管理');
       return;
     }
+    if (tab === '账号管理') {
+      setIsAccountManagementTabVisible(true);
+      setIsSystemManagementExpanded(true);
+      setActiveTab('账号管理');
+      return;
+    }
     setLastPrimaryTab(tab);
     setActiveTab(tab);
   };
@@ -4894,6 +4916,13 @@ export default function App() {
     setActiveLegacyModulePage(null);
     setIsBusinessFieldManagementTabVisible(false);
     if (activeTab === '业务字段管理') {
+      setActiveTab(lastPrimaryTab);
+    }
+  };
+  const handleCloseBusinessFieldLaunchReviewTab = () => {
+    setActiveLegacyModulePage(null);
+    setIsBusinessFieldLaunchReviewTabVisible(false);
+    if (activeTab === '业务字段上线审核') {
       setActiveTab(lastPrimaryTab);
     }
   };
@@ -4964,6 +4993,13 @@ export default function App() {
     setActiveLegacyModulePage(null);
     setIsDeptRoleManagementTabVisible(false);
     if (activeTab === '部门角色管理') {
+      setActiveTab(lastPrimaryTab);
+    }
+  };
+  const handleCloseAccountManagementTab = () => {
+    setActiveLegacyModulePage(null);
+    setIsAccountManagementTabVisible(false);
+    if (activeTab === '账号管理') {
       setActiveTab(lastPrimaryTab);
     }
   };
@@ -7221,7 +7257,9 @@ export default function App() {
       activeTab !== '在线工作台' &&
       activeTab !== '消息服务' &&
       activeTab !== '排班信息展示' &&
-      activeTab !== '业务字段管理'
+      activeTab !== '业务字段管理' &&
+      activeTab !== '业务字段上线审核' &&
+      activeTab !== '账号管理'
     ) {
       setLastPrimaryTab(activeTab);
     }
@@ -9790,6 +9828,102 @@ export default function App() {
     { name: '管理员', icon: '👤', children: ['留言管理员', '运维人员', '客服'] },
   ];
 
+  const accountManagementRows = [
+    { id: 1, loginName: 'ADMIN', employeeName: 'ADMIN', employeeId: 'ADMIN', extensionNo: '000001', permConfig: '系统组', defaultDept: '公司总部/管理部', deptSchedule: '系统组', phone: '15000000000', email: '', group: '', entryDate: '2000-01-01', workStatus: '工作', chatRole: '管理员', concurrentCount: '管理部', sessionPeriod: 'ADMIN', suitablePeriod: '' },
+    { id: 2, loginName: 'qt', employeeName: 'qt', employeeId: '3097', extensionNo: '87100013097', permConfig: '管理组', defaultDept: '公司总部/管理部', deptSchedule: '系统组', phone: '15900000022', email: '', group: '', entryDate: '2026-03-05', workStatus: '工作', chatRole: '管理员', concurrentCount: '-', sessionPeriod: 'qt', suitablePeriod: '2' },
+    { id: 3, loginName: 'lyhz2', employeeName: 'lyhz2', employeeId: '3002', extensionNo: '87100013002', permConfig: '管理组', defaultDept: '公司总部/管理部', deptSchedule: '系统组', phone: '18099992222', email: '', group: '', entryDate: '2026-02-27', workStatus: '工作', chatRole: '坐席', concurrentCount: '-', sessionPeriod: 'lyhz2', suitablePeriod: '2' },
+    { id: 4, loginName: 'lyhz1', employeeName: '客服1', employeeId: '3003', extensionNo: '87100013003', permConfig: '客服组一', defaultDept: '客服部/区', deptSchedule: '客服部/区', phone: '18011111111', email: '', group: '', entryDate: '2026-02-27', workStatus: '离职', chatRole: '坐席', concurrentCount: '-', sessionPeriod: 'lyhz1', suitablePeriod: '2' },
+    { id: 5, loginName: 'lyt04', employeeName: 'k5004', employeeId: '3004', extensionNo: '87100013004', permConfig: '客服组/客服部/区', defaultDept: '客服部/区', deptSchedule: '客服部/区', phone: '16011114444', email: '', group: '', entryDate: '2026-03-16', workStatus: '工作', chatRole: '坐席', concurrentCount: '-', sessionPeriod: 'k5004', suitablePeriod: '2' },
+    { id: 6, loginName: 'lyt05', employeeName: 'k5005', employeeId: '3005', extensionNo: '87100013005', permConfig: '客服部一', defaultDept: '客服部/区', deptSchedule: '客服部/区', phone: '16051111234', email: '', group: '', entryDate: '2026-03-16', workStatus: '工作', chatRole: '坐席', concurrentCount: '-', sessionPeriod: 'k5005', suitablePeriod: '2' },
+    { id: 7, loginName: 'lyt06', employeeName: 'k5006', employeeId: '3006', extensionNo: '87100013006', permConfig: '客服部一', defaultDept: '客服部/区', deptSchedule: '客服部/区', phone: '18022223456', email: '', group: '', entryDate: '2026-03-16', workStatus: '锁定', chatRole: '坐席', concurrentCount: '-', sessionPeriod: 'k5006', suitablePeriod: '2' },
+    { id: 8, loginName: 'lyt07', employeeName: 'k5007', employeeId: '3007', extensionNo: '87100013007', permConfig: '客服部一', defaultDept: '客服部/区', deptSchedule: '客服部/区', phone: '15910000001', email: '', group: '', entryDate: '2026-03-23', workStatus: '工作', chatRole: '管理员', concurrentCount: '-', sessionPeriod: 'k5007', suitablePeriod: '2' },
+    { id: 9, loginName: 'lyt08', employeeName: 'k5008', employeeId: '3008', extensionNo: '87100013008', permConfig: '客服部一', defaultDept: '客服部/区', deptSchedule: '客服部/区', phone: '15910000002', email: '', group: '', entryDate: '2026-02-23', workStatus: '密码过期', chatRole: '坐席', concurrentCount: '-', sessionPeriod: 'k5008', suitablePeriod: '2' },
+    { id: 10, loginName: 'lyt09', employeeName: 'k5009', employeeId: '3009', extensionNo: '87100013009', permConfig: '客服部一基', defaultDept: '客服部/区', deptSchedule: '客服部/区', phone: '15910000003', email: '', group: '', entryDate: '2026-03-23', workStatus: '工作', chatRole: '坐席', concurrentCount: '-', sessionPeriod: 'lyt09', suitablePeriod: '2' },
+  ];
+
+  const accountManagementContent = (
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[#f7f9fc]">
+      <div className="flex min-h-0 flex-1 flex-col overflow-auto px-4 pb-4 pt-3 custom-scrollbar">
+        <div className="rounded-[18px] border border-slate-200 bg-white shadow-sm">
+          <div className="border-b border-slate-100 px-5 py-4">
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-2">
+                <div className="flex h-10 w-[260px] items-center rounded-md border border-slate-200 bg-white text-[13px]">
+                  <input type="text" placeholder="模糊查找工号/姓名/登录名" className="min-w-0 flex-1 border-none bg-transparent px-3 text-slate-600 outline-none placeholder:text-slate-400" />
+                  <button type="button" className="flex h-full w-10 shrink-0 items-center justify-center border-l border-slate-200 text-slate-400 transition-colors hover:text-[#18bca2]"><Search size={15} /></button>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="shrink-0 text-[13px] text-slate-500">工作状态</span>
+                <select defaultValue="工作" className="h-10 min-w-[110px] rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-600 outline-none focus:border-[#12b89f]">
+                  <option value="工作">工作</option>
+                  <option value="锁定">锁定</option>
+                  <option value="密码过期">密码过期</option>
+                  <option value="离职">离职</option>
+                </select>
+              </div>
+              {isAccountFiltersExpanded ? (
+                <>
+                  <div className="flex items-center gap-2">
+                    <span className="shrink-0 text-[13px] text-slate-500">默认部门</span>
+                    <div className="flex h-10 w-[200px] items-center rounded-md border border-slate-200 bg-white text-[13px]">
+                      <input type="text" placeholder="输入部门名称" className="min-w-0 flex-1 border-none bg-transparent px-3 text-slate-600 outline-none placeholder:text-slate-400" />
+                      <button type="button" className="flex h-full w-10 shrink-0 items-center justify-center border-l border-slate-200 text-slate-400 transition-colors hover:text-[#18bca2]"><Search size={15} /></button>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="shrink-0 text-[13px] text-slate-500">入职日期</span>
+                    <input type="date" className="h-10 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-600 outline-none focus:border-[#12b89f]" />
+                    <span className="text-slate-400">-</span>
+                    <input type="date" className="h-10 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-600 outline-none focus:border-[#12b89f]" />
+                  </div>
+                </>
+              ) : null}
+              <button type="button" className="h-10 rounded-md border border-[#8fe0d2] bg-[#effbf8] px-5 text-[13px] font-medium text-[#18bca2] transition-colors hover:bg-[#e2f8f3]">查询</button>
+              <button type="button" className="h-10 rounded-md border border-slate-200 bg-white px-5 text-[13px] font-medium text-slate-500 transition-colors hover:bg-slate-50">重置</button>
+              <button type="button" onClick={() => setIsAccountFiltersExpanded((v) => !v)} className="ml-auto text-[13px] text-[#18bca2]">{isAccountFiltersExpanded ? '收起' : '展开'}</button>
+            </div>
+            <div className="mt-3 flex flex-wrap items-center gap-3">
+              <button type="button" className="h-9 rounded-md bg-[#18c2a7] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#15b39a]">新增</button>
+              <button type="button" className="h-9 rounded-md bg-[#18c2a7] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#15b39a]">导入</button>
+              <button type="button" className="h-9 rounded-md border border-[#8fe0d2] bg-[#effbf8] px-4 text-[13px] font-medium text-[#18bca2] transition-colors hover:bg-[#e2f8f3]">权限刷新</button>
+              <button type="button" className="h-9 rounded-md border border-[#8fe0d2] bg-[#effbf8] px-4 text-[13px] font-medium text-[#18bca2] transition-colors hover:bg-[#e2f8f3]">权限导出</button>
+              <button type="button" className="h-9 rounded-md bg-[#18c2a7] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#15b39a]">部门/角色管理</button>
+            </div>
+          </div>
+          <div className="min-h-0 overflow-auto custom-scrollbar">
+            <table className="min-w-[1800px] table-fixed text-left text-[13px]">
+              <thead className="bg-[#fafafa] text-slate-600">
+                <tr>
+                  {['序号', '登录名', '员工姓名', '员工工号', '分机号', '默认部门', '员工手机号', '入职时间', '工作状态', '网聊角色', '会话限制'].map((col) => (
+                    <th key={col} className="whitespace-nowrap px-4 py-3 font-medium">{col}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="text-slate-600">
+                {accountManagementRows.map((row, index) => (
+                  <tr key={row.id} className={cn(index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]')}>
+                    <td className="whitespace-nowrap px-4 py-4">{row.id}</td>
+                    <td className="whitespace-nowrap px-4 py-4">{row.loginName}</td>
+                    <td className="whitespace-nowrap px-4 py-4">{row.employeeName}</td>
+                    <td className="whitespace-nowrap px-4 py-4">{row.employeeId}</td>
+                    <td className="whitespace-nowrap px-4 py-4">{row.extensionNo}</td>
+                    <td className="whitespace-nowrap px-4 py-4">{row.defaultDept}</td>
+                    <td className="whitespace-nowrap px-4 py-4">{row.phone}</td>
+                    <td className="whitespace-nowrap px-4 py-4">{row.entryDate}</td>
+                    <td className="whitespace-nowrap px-4 py-4">{row.workStatus}</td>
+                    <td className="whitespace-nowrap px-4 py-4">{row.chatRole}</td>
+                    <td className="whitespace-nowrap px-4 py-4">{row.sessionPeriod}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   const renderDeptRoleManagementContent = () => (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[#f7f9fc]">
       <div className="flex min-h-0 flex-1 flex-col overflow-auto px-3 pb-3 pt-2 custom-scrollbar">
@@ -10266,7 +10400,9 @@ export default function App() {
     </div>
   );
 
-  const businessFieldManagementContent = (
+  const businessFieldManagementContent = <BusinessFieldManagementContent />;
+
+  const businessFieldManagementContentOld = (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[#f7f9fc]">
       <div className="flex min-h-0 flex-1 flex-col overflow-auto px-4 pb-4 pt-3 custom-scrollbar">
         <div className="rounded-[18px] border border-slate-200 bg-white p-5 shadow-sm">
@@ -12559,20 +12695,20 @@ export default function App() {
           : "bg-[#f0f2f5]"
     )}>
       {/* Sidebar */}
-      <aside className={cn("flex shrink-0 flex-col bg-[#1a233a] transition-[width] duration-200", isSidebarCollapsed ? "w-[68px]" : "w-64")}>
+      <aside className={cn("flex shrink-0 flex-col border-r border-[#e7edf3] bg-white transition-[width] duration-200", isSidebarCollapsed ? "w-[68px]" : "w-56")}>
         {!isSidebarCollapsed ? (
           <>
-            <div className="px-6 py-6">
+            <div className="px-6 py-5">
               <img src={logoImage} alt="科大讯飞" className="h-20 w-auto object-contain" />
             </div>
 
-            <div className="px-4 mb-6">
+            <div className="mb-4 px-4 pb-4">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
-                <input 
-                  type="text" 
-                  placeholder="功能搜索" 
-                  className="w-full bg-slate-800 border-none rounded-md py-2 pl-10 pr-4 text-sm text-slate-300 focus:ring-1 focus:ring-emerald-500 outline-none"
+                <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#98a2b3]" size={16} />
+                <input
+                  type="text"
+                  placeholder="功能搜索"
+                  className="w-full rounded-full border border-[#edf1f5] bg-[#f8fafc] py-2 pl-10 pr-4 text-sm text-[#475467] outline-none placeholder:text-[#98a2b3] focus:border-brand-300 focus:ring-1 focus:ring-brand-200"
                 />
               </div>
             </div>
@@ -12614,14 +12750,14 @@ export default function App() {
             />
           )}
 
-          {[
-            { icon: Headset, label: '客户服务台', items: customerServiceMenus, expanded: isCustomerServiceExpanded, setExpanded: setIsCustomerServiceExpanded },
-            { icon: Wrench, label: '工具台', items: toolDeskMenus, expanded: isToolDeskExpanded, setExpanded: setIsToolDeskExpanded },
-            { icon: Calendar, label: '排班管理', items: scheduleManagementSubMenus.map((s): SubMenuItem => ({ label: s, action: s === '排班信息展示' ? { type: 'tab', tab: '排班信息展示' } : { type: 'none' } })), expanded: isScheduleManagementExpanded, setExpanded: setIsScheduleManagementExpanded },
-            { icon: Activity, label: '运营台', items: operationDeskMenus, expanded: isOperationDeskExpanded, setExpanded: setIsOperationDeskExpanded },
-            { icon: Monitor, label: '监控台', items: monitorDeskMenus, expanded: isMonitorDeskExpanded, setExpanded: setIsMonitorDeskExpanded },
-            { icon: Shield, label: '系统管理', items: systemManagementMenus, expanded: isSystemManagementExpanded, setExpanded: setIsSystemManagementExpanded },
-          ].map((menu) => (
+          {([
+            { icon: Headset, label: '客户服务台', items: customerServiceMenus, expanded: isCustomerServiceExpanded, setExpanded: setIsCustomerServiceExpanded, roles: ['agent', 'manager', 'director', 'admin'] as UserRole[] },
+            { icon: Wrench, label: '工具台', items: toolDeskMenus, expanded: isToolDeskExpanded, setExpanded: setIsToolDeskExpanded, roles: ['agent', 'manager', 'director', 'admin'] as UserRole[] },
+            { icon: Monitor, label: '监控台', items: monitorDeskMenus, expanded: isMonitorDeskExpanded, setExpanded: setIsMonitorDeskExpanded, roles: ['manager', 'director', 'admin'] as UserRole[] },
+            { icon: Calendar, label: '排班管理', items: scheduleManagementSubMenus.map((s): SubMenuItem => ({ label: s, action: s === '排班信息展示' ? { type: 'tab', tab: '排班信息展示' } : { type: 'none' } })), expanded: isScheduleManagementExpanded, setExpanded: setIsScheduleManagementExpanded, roles: ['admin'] as UserRole[] },
+            { icon: Activity, label: '运营台', items: operationDeskMenus, expanded: isOperationDeskExpanded, setExpanded: setIsOperationDeskExpanded, roles: ['admin'] as UserRole[] },
+            { icon: Shield, label: '系统管理', items: systemManagementMenus, expanded: isSystemManagementExpanded, setExpanded: setIsSystemManagementExpanded, roles: ['admin'] as UserRole[] },
+          ] as const).filter((menu) => menu.roles.includes(userRole)).map((menu) => (
             <div key={menu.label}>
               <SidebarItem
                 icon={menu.icon}
@@ -12655,7 +12791,7 @@ export default function App() {
                         sidebarSubMenuButtonClass,
                         (item.action.type === 'legacy' && item.action.key === activeLegacyModulePage) ||
                           (item.action.type === 'tab' && item.action.tab === activeTab)
-                          ? "bg-[#1f5a67] text-[#18d1b3]"
+                          ? "border-r-[3px] border-brand-500 bg-brand-50 font-semibold text-brand-600"
                           : ""
                       )}
                     >
@@ -12685,7 +12821,7 @@ export default function App() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col min-w-0">
+      <main className="flex-1 flex flex-col min-w-0 min-h-0">
         {/* Top Header */}
         <MainHeader
           isTopHeaderSignedIn={isTopHeaderSignedIn}
@@ -12705,6 +12841,7 @@ export default function App() {
             ...(isMessageServiceTabVisible ? (['消息服务'] as MainTab[]) : []),
             ...(isScheduleDisplayTabVisible ? (['排班信息展示'] as MainTab[]) : []),
             ...(isBusinessFieldManagementTabVisible ? (['业务字段管理'] as MainTab[]) : []),
+            ...(isBusinessFieldLaunchReviewTabVisible ? (['业务字段上线审核'] as MainTab[]) : []),
             ...(isGroupMaintenanceTabVisible ? (['组别维护'] as MainTab[]) : []),
             ...(isTargetValueMaintenanceTabVisible ? (['目标值维护'] as MainTab[]) : []),
             ...(isBrandMaintenanceTabVisible ? (['品牌维护'] as MainTab[]) : []),
@@ -12715,12 +12852,13 @@ export default function App() {
             ...(isUserSystemManagementTabVisible ? (['用户体系管理'] as MainTab[]) : []),
             ...(isWebchatMaintenanceTabVisible ? (['网聊维护'] as MainTab[]) : []),
             ...(isDeptRoleManagementTabVisible ? (['部门角色管理'] as MainTab[]) : []),
+            ...(isAccountManagementTabVisible ? (['账号管理'] as MainTab[]) : []),
             ...openLegacyModulePages.map(p => (legacyModuleLabels[p] ?? p) as MainTab),
           ])}
           activeTab={(activeLegacyModulePage ? (legacyModuleLabels[activeLegacyModulePage] ?? activeLegacyModulePage) : activeTab) as MainTab}
           secondaryMainTabCloseLabels={Object.fromEntries([
             ...([
-              '消息服务', '排班信息展示', '业务字段管理', '组别维护', '目标值维护',
+              '消息服务', '排班信息展示', '业务字段管理', '业务字段上线审核', '组别维护', '目标值维护', '账号管理',
               '品牌维护', '附件管理', '产品模块维护', '繁忙公告管理', '隐私声明管理',
               '用户体系管理', '网聊维护', '部门角色管理', '在线工作台',
             ] as const).map(tab => [tab, `关闭${tab}`]),
@@ -12749,6 +12887,7 @@ export default function App() {
             else if (tab === '消息服务') handleCloseMessageServiceTab();
             else if (tab === '排班信息展示') handleCloseScheduleDisplayTab();
             else if (tab === '业务字段管理') handleCloseBusinessFieldManagementTab();
+            else if (tab === '业务字段上线审核') handleCloseBusinessFieldLaunchReviewTab();
             else if (tab === '组别维护') handleCloseGroupMaintenanceTab();
             else if (tab === '目标值维护') handleCloseTargetValueMaintenanceTab();
             else if (tab === '品牌维护') handleCloseBrandMaintenanceTab();
@@ -12759,6 +12898,7 @@ export default function App() {
             else if (tab === '用户体系管理') handleCloseUserSystemManagementTab();
             else if (tab === '网聊维护') handleCloseWebchatMaintenanceTab();
             else if (tab === '部门角色管理') handleCloseDeptRoleManagementTab();
+            else if (tab === '账号管理') handleCloseAccountManagementTab();
           }}
           onOpenPortal={() => {
             setManagerPortalPage('dashboard');
@@ -12773,7 +12913,7 @@ export default function App() {
 
         {/* old header removed - now using MainHeader */}
 
-        {activeLegacyModulePage ? <LegacyModulesPanel page={activeLegacyModulePage} onOpenMainTab={handleOpenMainTab} onOpenLegacyModulePage={handleOpenLegacyModulePage} /> : activeTab === '呼叫工作台' ? callWorkbenchContent : activeTab === '在线工作台' ? onlineWorkbenchContent : activeTab === '消息服务' ? messageServiceContent : activeTab === '排班信息展示' ? scheduleDisplayContent : activeTab === '业务字段管理' ? businessFieldManagementContent : activeTab === '组别维护' ? <GroupMaintenance /> : activeTab === '目标值维护' ? <TargetValueMaintenance /> : activeTab === '品牌维护' ? <BrandMaintenance /> : activeTab === '附件管理' ? <AttachmentManagement /> : activeTab === '产品模块维护' ? <ProductModuleMaintenance /> : activeTab === '繁忙公告管理' ? busyAnnouncementManagementContent : activeTab === '隐私声明管理' ? privacyStatementManagementContent : activeTab === '用户体系管理' ? userSystemManagementContent : activeTab === '网聊维护' ? renderWebchatMaintenanceContent() : activeTab === '部门角色管理' ? renderDeptRoleManagementContent() : (
+        {activeLegacyModulePage ? <LegacyModulesPanel page={activeLegacyModulePage} onOpenMainTab={handleOpenMainTab} onOpenLegacyModulePage={handleOpenLegacyModulePage} /> : activeTab === '呼叫工作台' ? callWorkbenchContent : activeTab === '在线工作台' ? onlineWorkbenchContent : activeTab === '消息服务' ? messageServiceContent : activeTab === '排班信息展示' ? scheduleDisplayContent : activeTab === '业务字段管理' ? businessFieldManagementContent : activeTab === '业务字段上线审核' ? <BusinessFieldLaunchReviewContent /> : activeTab === '组别维护' ? <GroupMaintenance /> : activeTab === '目标值维护' ? <TargetValueMaintenance /> : activeTab === '品牌维护' ? <BrandMaintenance /> : activeTab === '附件管理' ? <AttachmentManagement /> : activeTab === '产品模块维护' ? <ProductModuleMaintenance /> : activeTab === '繁忙公告管理' ? busyAnnouncementManagementContent : activeTab === '隐私声明管理' ? privacyStatementManagementContent : activeTab === '用户体系管理' ? userSystemManagementContent : activeTab === '网聊维护' ? renderWebchatMaintenanceContent() : activeTab === '部门角色管理' ? renderDeptRoleManagementContent() : activeTab === '账号管理' ? accountManagementContent : (
         <>
           {viewMode === 'manager' && managerPortalPage === 'overview-detail' ? (
             <div className="flex-1 p-6 text-slate-500">概览详情页面（开发中）</div>
@@ -12782,7 +12922,7 @@ export default function App() {
           ) : viewMode === 'agent' && agentPortalPage === 'ranking-detail' ? (
             <div className="flex-1 p-6 text-slate-500">排名详情页面（开发中）</div>
           ) : (
-            <>
+            <div className="flex min-h-0 flex-1 flex-col overflow-auto px-6 pb-4 custom-scrollbar">
               <PortalViewHeader greeting={portalGreeting || `你好，${userRoleLabels[userRole]}`} />
               {viewMode === 'manager' ? (
                 <Suspense fallback={<div className="flex-1" />}>
@@ -12844,7 +12984,7 @@ export default function App() {
                   />
                 </Suspense>
               )}
-            </>
+            </div>
           )}
         </>
         )}

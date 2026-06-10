@@ -62,11 +62,10 @@ export const getAllowedWorkbenchesForRole = (
 ): AllowedWorkbenches => {
   switch (role) {
     case 'agent':
-      return { call: true, online: true };
     case 'manager':
     case 'director':
     case 'admin':
-      return { call: false, online: false };
+      return { call: true, online: true };
   }
 };
 
