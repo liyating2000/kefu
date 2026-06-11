@@ -43,7 +43,7 @@ const businessFieldInnerSections: ReadonlyArray<{
   label: string;
   icon: typeof LayoutGrid;
 }> = [
-  { key: 'product-management', label: '业务类型和产品管理', icon: LayoutGrid },
+  { key: 'product-management', label: '产品信息', icon: LayoutGrid },
   { key: 'field-management', label: '字段版本管理', icon: List },
   { key: 'field-detail-management', label: '字段管理', icon: Users },
 ];

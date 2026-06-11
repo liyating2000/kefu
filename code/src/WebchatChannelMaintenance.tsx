@@ -2577,6 +2577,25 @@ export default function WebchatChannelMaintenance() {
                         />
                       </label>
                     </div>
+                    <div className="mt-4 rounded-lg border border-dashed border-slate-200 bg-[#fbfcff] px-4 py-4">
+                      <div className="text-[13px] font-medium text-slate-600">机器人静默提醒</div>
+                      <div className="mt-3 grid grid-cols-2 gap-4">
+                        <label className="block text-[13px] text-slate-600">静默时间（秒）
+                          <input type="number" defaultValue={60} min={10} max={600} className="mt-2 h-10 w-full rounded-lg border border-slate-200 px-3 text-[13px] outline-none focus:border-[#18bca2]" />
+                        </label>
+                        <div className="block text-[13px] text-slate-600">启用状态
+                          <div className="mt-2 flex h-10 items-center">
+                            <label className="relative inline-flex cursor-pointer items-center">
+                              <input type="checkbox" defaultChecked className="peer sr-only" />
+                              <div className="h-6 w-11 rounded-full bg-slate-200 transition-colors after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow after:transition-all peer-checked:bg-[#19c5aa] peer-checked:after:translate-x-5" />
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                      <label className="mt-3 block text-[13px] text-slate-600">提醒内容
+                        <textarea defaultValue="您好，请问还在吗？如需继续咨询请回复消息。" rows={3} className="mt-2 w-full rounded-lg border border-slate-200 px-3 py-2 text-[13px] outline-none focus:border-[#18bca2]" />
+                      </label>
+                    </div>
                   </div>
                   <div className="rounded-[12px] border border-slate-100 bg-white p-5 shadow-sm">
                     <div className="mb-4 text-[15px] font-semibold text-slate-700">基础设置</div>

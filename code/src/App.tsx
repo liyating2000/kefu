@@ -10468,7 +10468,61 @@ export default function App() {
             ))}
           </div>
 
-          {activeWebchatMaintenanceSection === '渠道管理' ? (
+          {activeWebchatMaintenanceSection === '系统' ? (
+            <div className="flex min-h-0 flex-1">
+              <div className="w-[200px] shrink-0 border-r border-slate-100 bg-[#fafbfc]">
+                {['应用程序属性维护', '工作组默认属性维护', '队列默认属性维护', '其它属性维护'].map((item) => (
+                  <button key={item} type="button" className={cn('block w-full px-5 py-4 text-left text-[13px] transition-colors', item === '其它属性维护' ? 'border-l-[3px] border-[#19c5aa] bg-white font-semibold text-[#19c5aa]' : 'text-slate-600 hover:bg-white')}>
+                    {item}
+                  </button>
+                ))}
+              </div>
+              <div className="flex-1 overflow-auto p-6 custom-scrollbar">
+                <h3 className="text-[16px] font-bold text-slate-800">在线网络声音配置</h3>
+                <div className="mt-4 space-y-0 divide-y divide-slate-100 rounded-lg border border-slate-200">
+                  {[
+                    { label: '坐席超时提示音', file: 'rec_4050ms_16kbps_16000hz_....mp3' },
+                    { label: '用户超时提示音', file: 'new_msg_1778143157503.mp3' },
+                    { label: '创建会话提示音', file: 'ding_dong_1778143152845.m...' },
+                    { label: '新消息提醒提示音', file: 'new_msg_1778143174834.mp3' },
+                  ].map((sound) => (
+                    <div key={sound.label} className="flex items-center gap-4 px-5 py-4">
+                      <span className="w-[130px] shrink-0 text-[13px] font-medium text-slate-700">{sound.label}</span>
+                      <span className="min-w-0 flex-1 truncate text-[13px] text-slate-500">{sound.file}</span>
+                      <button type="button" className="text-[13px] font-medium text-[#19c5aa] hover:underline">试听</button>
+                      <button type="button" className="text-[13px] font-medium text-red-400 hover:underline">删除</button>
+                      <button type="button" className="rounded border border-slate-200 bg-white px-3 py-1 text-[13px] text-slate-600 transition-colors hover:bg-slate-50">导 入</button>
+                    </div>
+                  ))}
+                </div>
+                <h3 className="mt-8 text-[16px] font-bold text-slate-800">坐席头像配置</h3>
+                <div className="mt-4 rounded-lg border border-slate-200 px-5 py-5">
+                  <div className="flex items-center gap-5">
+                    <span className="w-[130px] shrink-0 text-[13px] font-medium text-slate-700">坐席头像</span>
+                    <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-slate-100">
+                      <img src="https://picsum.photos/seed/agent-avatar/100/100" alt="" className="h-full w-full object-cover" />
+                    </div>
+                    <button type="button" className="rounded border border-slate-200 bg-white px-3 py-1 text-[13px] text-slate-600 transition-colors hover:bg-slate-50">更 换</button>
+                    <span className="text-[12px] text-slate-400">支持 PNG、JPG 格式，不超过 2MB</span>
+                  </div>
+                </div>
+                <h3 className="mt-8 text-[16px] font-bold text-slate-800">水印配置</h3>
+                <div className="mt-4 rounded-lg border border-slate-200 px-5 py-5">
+                  <div className="flex items-center gap-5">
+                    <span className="w-[130px] shrink-0 text-[13px] font-medium text-slate-700">显示水印</span>
+                    <label className="relative inline-flex cursor-pointer items-center">
+                      <input type="checkbox" defaultChecked className="peer sr-only" />
+                      <div className="h-6 w-11 rounded-full bg-slate-200 transition-colors after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow after:transition-all peer-checked:bg-[#19c5aa] peer-checked:after:translate-x-5" />
+                    </label>
+                    <span className="text-[12px] text-slate-400">开启后将显示域账号水印</span>
+                  </div>
+                </div>
+                <div className="mt-8 flex justify-end">
+                  <button type="button" className="rounded-full bg-[#19c5aa] px-8 py-2 text-[14px] font-medium text-white transition-colors hover:bg-[#15b39a]">保 存</button>
+                </div>
+              </div>
+            </div>
+          ) : activeWebchatMaintenanceSection === '渠道管理' ? (
             <WebchatChannelMaintenance />
           ) : activeWebchatMaintenanceSection === '工作组/队列' ? (
             <WebchatWorkgroupMaintenance />
