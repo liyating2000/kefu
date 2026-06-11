@@ -4269,6 +4269,9 @@ export default function App() {
   const [isDeptRoleManagementTabVisible, setIsDeptRoleManagementTabVisible] = useState(false);
   const [isAccountManagementTabVisible, setIsAccountManagementTabVisible] = useState(false);
   const [isAccountFiltersExpanded, setIsAccountFiltersExpanded] = useState(true);
+  const [showAccountAddModal, setShowAccountAddModal] = useState(false);
+  const [accountNextId, setAccountNextId] = useState(1001);
+  const [accountAddForm, setAccountAddForm] = useState({ domainAccount: '', employeeName: '', employeeId: '1001', extensionNo: '', phone: '', defaultDept: '', chatRole: '坐席', role: '' });
 
   // 繁忙公告管理 state
   const [busyAnnouncements, setBusyAnnouncements] = useState<BusyAnnouncement[]>(busyAnnouncementManagementRows);
@@ -9899,18 +9902,18 @@ export default function App() {
               <button type="button" onClick={() => setIsAccountFiltersExpanded((v) => !v)} className="ml-auto text-[13px] text-[#18bca2]">{isAccountFiltersExpanded ? '收起' : '展开'}</button>
             </div>
             <div className="mt-3 flex flex-wrap items-center gap-3">
-              <button type="button" className="h-9 rounded-md bg-[#18c2a7] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#15b39a]">新增</button>
+              <button type="button" onClick={() => { setAccountAddForm({ domainAccount: '', employeeName: '', employeeId: String(accountNextId), extensionNo: '', phone: '', defaultDept: '', chatRole: '坐席', role: '' }); setShowAccountAddModal(true); }} className="h-9 rounded-md bg-[#18c2a7] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#15b39a]">新增</button>
               <button type="button" className="h-9 rounded-md bg-[#18c2a7] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#15b39a]">导入</button>
               <button type="button" className="h-9 rounded-md border border-[#8fe0d2] bg-[#effbf8] px-4 text-[13px] font-medium text-[#18bca2] transition-colors hover:bg-[#e2f8f3]">权限刷新</button>
               <button type="button" className="h-9 rounded-md border border-[#8fe0d2] bg-[#effbf8] px-4 text-[13px] font-medium text-[#18bca2] transition-colors hover:bg-[#e2f8f3]">权限导出</button>
               <button type="button" className="h-9 rounded-md bg-[#18c2a7] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#15b39a]">部门/角色管理</button>
             </div>
           </div>
-          <div className="min-h-0 overflow-auto custom-scrollbar">
+          <div className="min-h-0 overflow-auto px-4 custom-scrollbar">
             <table className="min-w-[1800px] table-fixed text-left text-[13px]">
               <thead className="bg-[#fafafa] text-slate-600">
                 <tr>
-                  {['序号', '域账号', '员工姓名', '员工工号', '分机号', '默认部门', '员工手机号', '入职时间', '工作状态', '网聊角色', '会话限制'].map((col) => (
+                  {['序号', '域账号', '员工姓名', '员工工号', '分机号', '默认部门', '员工手机号', '入职时间', '工作状态', '会话限制'].map((col) => (
                     <th key={col} className="whitespace-nowrap px-4 py-3 font-medium">{col}</th>
                   ))}
                 </tr>
@@ -9919,7 +9922,7 @@ export default function App() {
                 {accountManagementRows.map((row, index) => (
                   <tr key={row.id} className={cn(index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]')}>
                     <td className="whitespace-nowrap px-4 py-4">{row.id}</td>
-                    <td className="whitespace-nowrap px-4 py-4">{row.loginName}</td>
+                    <td className="whitespace-nowrap px-4 py-4"><button type="button" className="text-[#18bca2] hover:underline">{row.loginName}</button></td>
                     <td className="whitespace-nowrap px-4 py-4">{row.employeeName}</td>
                     <td className="whitespace-nowrap px-4 py-4">{row.employeeId}</td>
                     <td className="whitespace-nowrap px-4 py-4">{row.extensionNo}</td>
@@ -9927,8 +9930,7 @@ export default function App() {
                     <td className="whitespace-nowrap px-4 py-4">{row.phone}</td>
                     <td className="whitespace-nowrap px-4 py-4">{row.entryDate}</td>
                     <td className="whitespace-nowrap px-4 py-4">{row.workStatus}</td>
-                    <td className="whitespace-nowrap px-4 py-4">{row.chatRole}</td>
-                    <td className="whitespace-nowrap px-4 py-4">{row.sessionPeriod}</td>
+                    <td className="whitespace-nowrap px-4 py-4">{row.suitablePeriod || '-'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -9936,6 +9938,84 @@ export default function App() {
           </div>
         </div>
       </div>
+      {showAccountAddModal ? (
+        <div className="fixed inset-0 z-[100] flex items-start justify-center bg-black/30 pt-[10vh]" onClick={() => setShowAccountAddModal(false)}>
+          <div className="w-full max-w-[900px] overflow-hidden rounded-xl bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+              <h3 className="text-[15px] font-semibold text-slate-800">新增账号</h3>
+              <button type="button" onClick={() => setShowAccountAddModal(false)} className="flex h-7 w-7 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600"><X size={15} /></button>
+            </div>
+            <div className="flex gap-6 px-5 py-5">
+              <div className="flex-1 space-y-4">
+                <h4 className="text-[13px] font-semibold text-slate-700 border-b border-slate-100 pb-2">账号信息</h4>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-4">
+                  <div className="flex items-center gap-2">
+                    <label className="w-[70px] shrink-0 text-right text-[13px] text-slate-600"><span className="mr-0.5 text-red-500">*</span>域账号</label>
+                    <input type="text" value={accountAddForm.domainAccount} onChange={(e) => setAccountAddForm((f) => ({ ...f, domainAccount: e.target.value }))} placeholder="请输入域账号" className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 outline-none placeholder:text-slate-400 focus:border-[#18c2a7]" />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="w-[70px] shrink-0 text-right text-[13px] text-slate-600"><span className="mr-0.5 text-red-500">*</span>员工姓名</label>
+                    <input type="text" value={accountAddForm.employeeName} onChange={(e) => setAccountAddForm((f) => ({ ...f, employeeName: e.target.value }))} placeholder="请输入员工姓名" className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 outline-none placeholder:text-slate-400 focus:border-[#18c2a7]" />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="w-[70px] shrink-0 text-right text-[13px] text-slate-600"><span className="mr-0.5 text-red-500">*</span>员工工号</label>
+                    <input type="text" value={accountAddForm.employeeId} onChange={(e) => setAccountAddForm((f) => ({ ...f, employeeId: e.target.value }))} placeholder="请输入员工工号" className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 outline-none placeholder:text-slate-400 focus:border-[#18c2a7]" />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="w-[70px] shrink-0 text-right text-[13px] text-slate-600"><span className="mr-0.5 text-red-500">*</span>分机号</label>
+                    <input type="text" value={accountAddForm.extensionNo} onChange={(e) => setAccountAddForm((f) => ({ ...f, extensionNo: e.target.value }))} placeholder="请输入分机号" className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 outline-none placeholder:text-slate-400 focus:border-[#18c2a7]" />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="w-[70px] shrink-0 text-right text-[13px] text-slate-600"><span className="mr-0.5 text-red-500">*</span>手机号</label>
+                    <input type="text" value={accountAddForm.phone} onChange={(e) => setAccountAddForm((f) => ({ ...f, phone: e.target.value }))} placeholder="请输入手机号" className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 outline-none placeholder:text-slate-400 focus:border-[#18c2a7]" />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="w-[70px] shrink-0 text-right text-[13px] text-slate-600"><span className="mr-0.5 text-red-500">*</span>默认部门</label>
+                    <select value={accountAddForm.defaultDept} onChange={(e) => setAccountAddForm((f) => ({ ...f, defaultDept: e.target.value }))} className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 outline-none focus:border-[#18c2a7]">
+                      <option value="">请选择默认部门</option>
+                      <option value="公司总部/管理部">公司总部/管理部</option>
+                      <option value="客服部/区">客服部/区</option>
+                    </select>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="w-[70px] shrink-0 text-right text-[13px] text-slate-600">会话限制</label>
+                    <input type="number" placeholder="请输入会话限制" min={1} max={20} className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 outline-none placeholder:text-slate-400 focus:border-[#18c2a7]" />
+                  </div>
+                  <div className="col-span-2 flex items-center gap-2">
+                    <label className="w-[70px] shrink-0 text-right text-[13px] text-slate-600"><span className="mr-0.5 text-red-500">*</span>角色</label>
+                    <select value={accountAddForm.role} onChange={(e) => setAccountAddForm((f) => ({ ...f, role: e.target.value }))} className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 outline-none focus:border-[#18c2a7]">
+                      <option value="">请至少选择一个角色</option>
+                      <option value="坐席">坐席</option>
+                      <option value="班组长">班组长</option>
+                      <option value="总监">总监</option>
+                      <option value="系统管理员">系统管理员</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div className="w-px bg-slate-100" />
+              <div className="w-[220px] shrink-0 space-y-4">
+                <h4 className="text-[13px] font-semibold text-slate-700 border-b border-slate-100 pb-2">权限信息</h4>
+                <div className="flex items-start gap-3">
+                  <label className="w-[70px] shrink-0 pt-0.5 text-right text-[13px] text-slate-600">数据权限</label>
+                  <div className="flex-1 space-y-2.5">
+                    {['仅看自己', '所属部门', '所属部门及下属部门', '自定义'].map((opt) => (
+                      <label key={opt} className="flex items-center gap-2 text-[13px] text-slate-600">
+                        <input type="radio" name="account-data-perm" defaultChecked={opt === '仅看自己'} className="h-4 w-4 accent-[#18c2a7]" />
+                        {opt}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-2 border-t border-slate-100 px-5 py-4">
+              <button type="button" onClick={() => setShowAccountAddModal(false)} className="h-9 rounded-md border border-slate-200 bg-white px-5 text-[13px] font-medium text-slate-500 transition-colors hover:bg-slate-50">取消</button>
+              <button type="button" onClick={() => { setAccountNextId((n) => n + 1); setShowAccountAddModal(false); }} className="h-9 rounded-md bg-[#18c2a7] px-5 text-[13px] font-medium text-white transition-colors hover:bg-[#15b39a]">确定</button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 
