@@ -633,7 +633,6 @@ const onlineSidebarFeatureDefinitions: ReadonlyArray<{
   { key: 'robot', label: 'Agent', title: 'Agent', imageSrc: onlineSideAgentIcon, panel: 'robot' },
   { key: 'customer', label: '客户资料', title: '客户资料', imageSrc: onlineSideCustomerInfoIcon, panel: 'customer' },
   { key: 'history', label: '通话历史', title: '通话历史', imageSrc: onlineSideCustomerHistoryIcon, panel: 'history' },
-  { key: 'knowledge', label: '知识库', title: '知识库', imageSrc: onlineSideKnowledgeBaseIcon },
   { key: 'workorder', label: '工单管理', title: '工单管理', imageSrc: onlineSideWorkOrderIcon },
   { key: 'third-party', label: '第三方网站', title: '第三方网站', imageSrc: onlineSideThirdPartyIcon, panel: 'third-party' },
   { key: 'settings', label: '设置', title: '设置', imageSrc: onlineSideSettingsIcon, locked: true },

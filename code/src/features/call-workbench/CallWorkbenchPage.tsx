@@ -307,7 +307,6 @@ const callSidebarFeatureDefinitions: ReadonlyArray<{
 }> = [
   { key: 'agent', label: 'Agent', title: 'Agent', imageSrc: onlineSideAgentIcon, panel: 'agent' },
   { key: 'workorder', label: '工单管理', title: '工单管理', imageSrc: onlineSideWorkOrderIcon, panel: 'workorder' },
-  { key: 'knowledge', label: '知识库', title: '知识库', imageSrc: onlineSideKnowledgeBaseIcon, panel: 'knowledge' },
   { key: 'toolsite', label: '第三方网站', title: '第三方网站', imageSrc: onlineSideToolIcon, panel: 'toolsite' },
   { key: 'summary', label: '通话小结', title: '通话小结', icon: FilePen, panel: 'summary' },
   { key: 'settings', label: '设置', title: '设置', imageSrc: onlineSideSettingsIcon, locked: true },

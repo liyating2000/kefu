@@ -3059,10 +3059,10 @@ const toolDeskMenus: SubMenuItem[] = [
 const operationDeskMenus: SubMenuItem[] = [
   { label: '组别维护', action: { type: 'tab', tab: '组别维护' } },
   { label: '目标值维护', action: { type: 'tab', tab: '目标值维护' } },
-  { label: '品牌维护', action: { type: 'tab', tab: '品牌维护' } },
   { label: '产品模块维护', action: { type: 'tab', tab: '产品模块维护' } },
   { label: '敏感词维护', action: { type: 'none' } },
   { label: '系统标签维护', action: { type: 'none' } },
+  { label: '系统通告', action: { type: 'none' } },
   { label: '繁忙公告管理', action: { type: 'tab', tab: '繁忙公告管理' } },
   { label: '隐私声明管理', action: { type: 'tab', tab: '隐私声明管理' } },
   { label: '网聊维护', action: { type: 'tab', tab: '网聊维护' } },
@@ -3104,9 +3104,6 @@ const webchatMaintenanceSections = [
   '工作组/队列',
   '渠道管理',
   '产品管理',
-  '繁忙公告管理',
-  '隐私声明管理',
-  '用户体系管理',
   '员工快捷检索',
   '访问地址',
   '终端',
@@ -4329,6 +4326,9 @@ export default function App() {
         '在线工作台' | '消息服务' | '排班信息展示' | '业务字段管理' | '业务字段上线审核' | '品牌维护' | '附件管理' | '产品模块维护' | '繁忙公告管理' | '隐私声明管理' | '用户体系管理' | '网聊维护' | '小结管理' | '账号管理'
       >
     >('个人门户');
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [loginForm, setLoginForm] = useState({ account: '', password: '', remember: false });
+  const [loginTab, setLoginTab] = useState<'password' | 'phone'>('password');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const { userRole, setUserRole, initialUserRole } = useRoleRouting();
   const [viewMode, setViewMode] = useState<'manager' | 'agent'>(() => getViewModeForRole(initialUserRole));
@@ -4616,6 +4616,7 @@ export default function App() {
   const handleSelectDirectorMessage = (message: DirectorExpressMessage) => {
     const next = message.hasNew ? { ...message, hasNew: false } : message;
     setSelectedDirectorMessage(next);
+    setDirectorView('detail');
     setDirectorMessages(prev => prev.map(m => m.id === message.id ? next : m));
   };
 
@@ -4759,6 +4760,8 @@ export default function App() {
     setActiveErrorTab(tab);
     setErrorModalPage(1);
   };
+  const [legacyModuleInitialState, setLegacyModuleInitialState] = useState<{ summaryStatus?: string; webchatHistorySummarized?: string; appointmentTab?: 'appointment' | 'message' | 'todo' } | null>(null);
+
   const handleOpenLegacyModulePage = (page: LegacyModulePage) => {
     setActiveLegacyModulePage(page);
     setOpenLegacyModulePages((current) => (current.includes(page) ? current : [...current, page]));
@@ -4779,6 +4782,18 @@ export default function App() {
       setIsCustomerServiceExpanded(true);
       return;
     }
+  };
+  const handleOpenSummaryWithFilter = (status: string) => {
+    setLegacyModuleInitialState({ summaryStatus: status });
+    handleOpenLegacyModulePage('summary-management');
+  };
+  const handleOpenWebchatHistoryWithFilter = (summarized: string) => {
+    setLegacyModuleInitialState({ webchatHistorySummarized: summarized });
+    handleOpenLegacyModulePage('webchat-history-query');
+  };
+  const handleOpenAppointmentTodo = () => {
+    setLegacyModuleInitialState({ appointmentTab: 'todo' });
+    handleOpenLegacyModulePage('appointment-message-management');
   };
   const handleCloseLegacyModulePage = (page: LegacyModulePage) => {
     setOpenLegacyModulePages((current) => {
@@ -9849,7 +9864,7 @@ export default function App() {
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-2">
                 <div className="flex h-10 w-[260px] items-center rounded-md border border-slate-200 bg-white text-[13px]">
-                  <input type="text" placeholder="模糊查找工号/姓名/登录名" className="min-w-0 flex-1 border-none bg-transparent px-3 text-slate-600 outline-none placeholder:text-slate-400" />
+                  <input type="text" placeholder="模糊查找工号/姓名/域账号" className="min-w-0 flex-1 border-none bg-transparent px-3 text-slate-600 outline-none placeholder:text-slate-400" />
                   <button type="button" className="flex h-full w-10 shrink-0 items-center justify-center border-l border-slate-200 text-slate-400 transition-colors hover:text-[#18bca2]"><Search size={15} /></button>
                 </div>
               </div>
@@ -9895,7 +9910,7 @@ export default function App() {
             <table className="min-w-[1800px] table-fixed text-left text-[13px]">
               <thead className="bg-[#fafafa] text-slate-600">
                 <tr>
-                  {['序号', '登录名', '员工姓名', '员工工号', '分机号', '默认部门', '员工手机号', '入职时间', '工作状态', '网聊角色', '会话限制'].map((col) => (
+                  {['序号', '域账号', '员工姓名', '员工工号', '分机号', '默认部门', '员工手机号', '入职时间', '工作状态', '网聊角色', '会话限制'].map((col) => (
                     <th key={col} className="whitespace-nowrap px-4 py-3 font-medium">{col}</th>
                   ))}
                 </tr>
@@ -12685,6 +12700,42 @@ export default function App() {
 
   const activeLegacyTabLabel = activeLegacyModulePage ? legacyModuleLabels[activeLegacyModulePage] : null;
 
+  if (!isLoggedIn) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 font-sans">
+        <div className="flex w-full max-w-[900px] overflow-hidden rounded-2xl bg-white shadow-[0_30px_80px_rgba(15,23,42,0.12)]">
+          <div className="hidden w-[420px] shrink-0 items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-8 lg:flex">
+            <div className="text-center">
+              <img src={logoImage} alt="科大讯飞" className="mx-auto mb-4 h-24 w-auto object-contain" />
+              <p className="text-[15px] font-semibold text-slate-700">智能客服系统</p>
+            </div>
+          </div>
+          <div className="flex flex-1 flex-col px-10 py-10">
+            <h2 className="text-[20px] font-bold text-slate-800">智能客服系统</h2>
+            <div className="mt-6 space-y-5">
+              <div>
+                <label className="text-[13px] font-medium text-slate-600">账号</label>
+                <input type="text" value={loginForm.account} onChange={(e) => setLoginForm((f) => ({ ...f, account: e.target.value }))} placeholder="请输入账号" className="mt-1.5 h-11 w-full rounded-lg border border-slate-200 bg-slate-50/60 px-4 text-[14px] text-slate-700 outline-none transition-colors placeholder:text-slate-400 focus:border-[#18c2a7] focus:bg-white" />
+              </div>
+              <div>
+                <label className="text-[13px] font-medium text-slate-600">密码</label>
+                <input type="password" value={loginForm.password} onChange={(e) => setLoginForm((f) => ({ ...f, password: e.target.value }))} placeholder="请输入密码" className="mt-1.5 h-11 w-full rounded-lg border border-slate-200 bg-slate-50/60 px-4 text-[14px] text-slate-700 outline-none transition-colors placeholder:text-slate-400 focus:border-[#18c2a7] focus:bg-white" />
+              </div>
+              <div className="flex items-center justify-between text-[13px]">
+                <label className="flex items-center gap-2 text-slate-500">
+                  <input type="checkbox" checked={loginForm.remember} onChange={(e) => setLoginForm((f) => ({ ...f, remember: e.target.checked }))} className="h-4 w-4 rounded border-slate-300 accent-[#18c2a7]" />
+                  记住密码
+                </label>
+              </div>
+              <button type="button" onClick={() => setIsLoggedIn(true)} className="h-11 w-full rounded-lg bg-gradient-to-r from-[#18c2a7] to-[#15b39a] text-[15px] font-semibold text-white shadow-md transition-shadow hover:shadow-lg">登 录</button>
+              <button type="button" onClick={() => setIsLoggedIn(true)} className="h-11 w-full rounded-lg border border-slate-200 bg-white text-[15px] font-semibold text-slate-600 transition-colors hover:bg-slate-50">SSO 登录</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={cn(
       "flex h-screen font-sans text-slate-900 overflow-hidden",
@@ -12909,11 +12960,12 @@ export default function App() {
           avatarSrc="https://picsum.photos/seed/user/100/100"
           currentRole={userRole}
           onRoleChange={setUserRole}
+          onLogout={() => setIsLoggedIn(false)}
         />
 
         {/* old header removed - now using MainHeader */}
 
-        {activeLegacyModulePage ? <LegacyModulesPanel page={activeLegacyModulePage} onOpenMainTab={handleOpenMainTab} onOpenLegacyModulePage={handleOpenLegacyModulePage} /> : activeTab === '呼叫工作台' ? callWorkbenchContent : activeTab === '在线工作台' ? onlineWorkbenchContent : activeTab === '消息服务' ? messageServiceContent : activeTab === '排班信息展示' ? scheduleDisplayContent : activeTab === '业务字段管理' ? businessFieldManagementContent : activeTab === '业务字段上线审核' ? <BusinessFieldLaunchReviewContent /> : activeTab === '组别维护' ? <GroupMaintenance /> : activeTab === '目标值维护' ? <TargetValueMaintenance /> : activeTab === '品牌维护' ? <BrandMaintenance /> : activeTab === '附件管理' ? <AttachmentManagement /> : activeTab === '产品模块维护' ? <ProductModuleMaintenance /> : activeTab === '繁忙公告管理' ? busyAnnouncementManagementContent : activeTab === '隐私声明管理' ? privacyStatementManagementContent : activeTab === '用户体系管理' ? userSystemManagementContent : activeTab === '网聊维护' ? renderWebchatMaintenanceContent() : activeTab === '部门角色管理' ? renderDeptRoleManagementContent() : activeTab === '账号管理' ? accountManagementContent : (
+        {activeLegacyModulePage ? <LegacyModulesPanel page={activeLegacyModulePage} onOpenMainTab={handleOpenMainTab} onOpenLegacyModulePage={handleOpenLegacyModulePage} initialState={legacyModuleInitialState} onClearInitialState={() => setLegacyModuleInitialState(null)} /> : activeTab === '呼叫工作台' ? callWorkbenchContent : activeTab === '在线工作台' ? onlineWorkbenchContent : activeTab === '消息服务' ? messageServiceContent : activeTab === '排班信息展示' ? scheduleDisplayContent : activeTab === '业务字段管理' ? businessFieldManagementContent : activeTab === '业务字段上线审核' ? <BusinessFieldLaunchReviewContent /> : activeTab === '组别维护' ? <GroupMaintenance /> : activeTab === '目标值维护' ? <TargetValueMaintenance /> : activeTab === '品牌维护' ? <BrandMaintenance /> : activeTab === '附件管理' ? <AttachmentManagement /> : activeTab === '产品模块维护' ? <ProductModuleMaintenance /> : activeTab === '繁忙公告管理' ? busyAnnouncementManagementContent : activeTab === '隐私声明管理' ? privacyStatementManagementContent : activeTab === '用户体系管理' ? userSystemManagementContent : activeTab === '网聊维护' ? renderWebchatMaintenanceContent() : activeTab === '部门角色管理' ? renderDeptRoleManagementContent() : activeTab === '账号管理' ? accountManagementContent : (
         <>
           {viewMode === 'manager' && managerPortalPage === 'overview-detail' ? (
             <div className="flex-1 p-6 text-slate-500">概览详情页面（开发中）</div>
@@ -12950,9 +13002,9 @@ export default function App() {
                     onOpenRankingDetail={() => setManagerPortalPage('ranking-detail')}
                     onOpenScheduleDisplay={() => handleOpenMainTab('排班信息展示')}
                     onOpenWorkOrder={() => {}}
-                    onOpenCustomerFollow={() => {}}
+                    onOpenCustomerFollow={() => handleOpenAppointmentTodo()}
                     onOpenCourseList={() => {}}
-                    onOpenSummaryManagement={() => handleOpenMainTab('小结管理')}
+                    onOpenSummaryManagement={() => handleOpenSummaryWithFilter('暂存')}
                     isDirector={userRole === 'director'}
                   />
                 </Suspense>
@@ -12978,9 +13030,10 @@ export default function App() {
                     onOpenScheduleDisplay={() => handleOpenMainTab('排班信息展示')}
                     onOpenOnlineWorkbench={() => handleOpenMainTab('在线工作台')}
                     onOpenWorkOrder={() => {}}
-                    onOpenCustomerFollow={() => {}}
+                    onOpenCustomerFollow={() => handleOpenAppointmentTodo()}
                     onOpenCourseList={() => {}}
-                    onOpenSummaryManagement={() => {}}
+                    onOpenSummaryManagementHotline={() => handleOpenSummaryWithFilter('暂存')}
+                    onOpenSummaryManagementOnline={() => handleOpenWebchatHistoryWithFilter('未小结')}
                   />
                 </Suspense>
               )}

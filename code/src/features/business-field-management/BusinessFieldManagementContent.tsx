@@ -11,6 +11,7 @@ import {
   List,
   Pencil,
   Plus,
+  RefreshCw,
   Trash2,
   Upload,
   Users,
@@ -2512,6 +2513,57 @@ function ProductManagementPanel({
     setDragOverBusinessTypeId(null);
   };
 
+  const [showChangeLog, setShowChangeLog] = useState(false);
+  const [syncToast, setSyncToast] = useState<'success' | 'fail' | null>(null);
+  const [changeLogPage, setChangeLogPage] = useState(1);
+  const [changeLogKeyword, setChangeLogKeyword] = useState('');
+  const changeLogPageSize = 10;
+  const changeLogRows = [
+    { id: 1, time: '2026-06-10 14:32:05', content: [
+      '业务类型：新增【智能硬件】、删除【打印机】',
+      '产品分类：新增【AI学习平板系列】',
+      '产品名称：新增【X3 Pro Max】、【T30 Ultra】',
+    ] },
+    { id: 2, time: '2026-06-09 10:15:22', content: [
+      '产品分类：【学习平板】变更为【AI学习平板】',
+    ] },
+    { id: 3, time: '2026-06-08 16:48:33', content: [
+      '业务类型：【翻译笔】变更为【AI翻译笔】',
+      '产品名称：删除【T20 Pro】、【T20】',
+    ] },
+    { id: 4, time: '2026-06-07 09:20:11', content: [
+      '产品分类：新增【词典笔系列】、【翻译笔系列】',
+      '产品名称：新增【S30 Plus】',
+    ] },
+    { id: 5, time: '2026-06-05 11:05:44', content: [
+      '业务类型：新增【办公设备】',
+      '产品分类：新增【激光打印机】',
+      '产品名称：新增【P2000】、【P3000 Pro】',
+    ] },
+    { id: 6, time: '2026-06-04 15:30:18', content: [
+      '产品名称：【S30】变更为【S30 标准版】',
+    ] },
+    { id: 7, time: '2026-06-03 08:55:02', content: [
+      '业务类型：删除【教育平板】',
+      '产品分类：删除【基础款】',
+    ] },
+    { id: 8, time: '2026-06-01 13:42:37', content: [
+      '业务类型：【学习机】变更为【AI学习机】',
+      '产品分类：【入门系列】变更为【基础系列】',
+      '产品名称：【X2】变更为【X2 Plus】、删除【X1】',
+    ] },
+    { id: 9, time: '2026-05-30 17:10:55', content: [
+      '产品名称：新增【T50】',
+    ] },
+    { id: 10, time: '2026-05-28 09:33:41', content: [
+      '业务类型：新增【扫描笔】',
+      '产品分类：新增【扫描笔系列】',
+    ] },
+    { id: 11, time: '2026-05-25 14:20:18', content: [
+      '产品名称：删除【A10 旧款】',
+    ] },
+  ];
+
   const renderPanels = [
     {
       key: 'business-type',
@@ -2575,16 +2627,24 @@ function ProductManagementPanel({
   return (
     <>
       <div className="flex min-h-0 flex-1 flex-col pl-14">
-        <div className="flex items-center justify-end px-2 pb-4 pt-1">
+        <div className="flex items-center justify-end gap-2 px-2 pb-4 pt-1">
           <button
             type="button"
+            onClick={() => { setSyncToast('success'); setTimeout(() => setSyncToast(null), 2500); }}
             className="inline-flex h-8 items-center gap-1 rounded-[4px] border border-[#8fe0d2] bg-white px-4 text-[13px] font-medium text-[#21c4b0] transition-colors hover:bg-[#f4fcfa]"
           >
-            <Download size={14} />
-            导出
+            <RefreshCw size={14} />
+            手动同步
+          </button>
+          <button
+            type="button"
+            onClick={() => { setChangeLogPage(1); setChangeLogKeyword(''); setShowChangeLog(true); }}
+            className="inline-flex h-8 items-center gap-1 rounded-[4px] border border-slate-200 bg-white px-4 text-[13px] font-medium text-slate-600 transition-colors hover:bg-slate-50"
+          >
+            <List size={14} />
+            变更记录
           </button>
         </div>
-
         <div className="flex min-h-0 flex-1 items-stretch gap-[28px] overflow-x-auto pb-1 pr-6">
           {renderPanels.map((panel) => {
             const isAddButtonDisabled =
@@ -3002,14 +3062,80 @@ function ProductManagementPanel({
           <div className="space-y-3 text-[13px] leading-6 text-slate-600">
             {productManagementDeleteState.blocked ? (
               <>
-                <p>无法删除“{productManagementDeleteState.itemName}”</p>
+                <p>无法删除"{productManagementDeleteState.itemName}"</p>
                 <p className="text-amber-600">{productManagementDeleteState.blockedReason}</p>
               </>
             ) : (
-              <p>确定删除”{productManagementDeleteState.itemName}”吗？</p>
+              <p>确定删除"{productManagementDeleteState.itemName}"吗？</p>
             )}
           </div>
         </ProductManagementModalFrame>
+      ) : null}
+
+      {showChangeLog ? (
+        <div className="fixed inset-0 z-[100] flex items-start justify-center bg-black/30 pt-[10vh]" onClick={() => setShowChangeLog(false)}>
+          <div className="w-full max-w-[720px] overflow-hidden rounded-xl bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+              <h3 className="text-[15px] font-semibold text-slate-800">变更记录</h3>
+              <div className="flex items-center gap-3">
+                <div className="flex h-8 w-[200px] items-center rounded-md border border-slate-200 bg-white text-[13px]">
+                  <input type="text" value={changeLogKeyword} onChange={(e) => { setChangeLogKeyword(e.target.value); setChangeLogPage(1); }} placeholder="搜索变更内容" className="min-w-0 flex-1 border-none bg-transparent px-3 text-slate-600 outline-none placeholder:text-slate-400" />
+                </div>
+                <button type="button" onClick={() => setShowChangeLog(false)} className="flex h-7 w-7 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600">
+                  <X size={15} />
+                </button>
+              </div>
+            </div>
+            <div className="max-h-[60vh] overflow-auto px-5 custom-scrollbar">
+              <table className="w-full text-left text-[13px]">
+                <thead className="sticky top-0 bg-[#fafafa] text-slate-600">
+                  <tr>
+                    <th className="w-[60px] whitespace-nowrap px-5 py-3 font-medium">序号</th>
+                    <th className="w-[180px] px-4 py-3 font-medium">变更时间</th>
+                    <th className="px-4 py-3 font-medium">变更内容</th>
+                  </tr>
+                </thead>
+                <tbody className="text-slate-600">
+                  {(() => { const filtered = changeLogKeyword.trim() ? changeLogRows.filter((r) => r.content.some((c) => c.includes(changeLogKeyword.trim()))) : changeLogRows; return filtered.slice((changeLogPage - 1) * changeLogPageSize, changeLogPage * changeLogPageSize).map((row, i) => (
+                    <tr key={row.id} className={i % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]'}>
+                      <td className="whitespace-nowrap px-5 py-3">{row.id}</td>
+                      <td className="px-4 py-3 text-slate-500">{row.time}</td>
+                      <td className="px-4 py-3">{row.content.map((line, li) => (<div key={li}>{changeLogKeyword.trim() && line.includes(changeLogKeyword.trim()) ? line.split(changeLogKeyword.trim()).reduce<ReactNode[]>((parts, seg, si) => { if (si > 0) parts.push(<mark key={`h${si}`} className="rounded bg-[#fef08a] px-0.5">{changeLogKeyword.trim()}</mark>); parts.push(seg); return parts; }, []) : line}</div>))}</td>
+                    </tr>
+                  )); })()}
+                </tbody>
+              </table>
+            </div>
+            <div className="flex items-center justify-between border-t border-slate-100 px-5 py-3">
+              <span className="text-[12px] text-slate-400">共 {(changeLogKeyword.trim() ? changeLogRows.filter((r) => r.content.some((c) => c.includes(changeLogKeyword.trim()))) : changeLogRows).length} 条</span>
+              <div className="flex items-center gap-1">
+                <button type="button" disabled={changeLogPage <= 1} onClick={() => setChangeLogPage((p) => p - 1)} className="flex h-7 min-w-[28px] items-center justify-center rounded border border-slate-200 px-1.5 text-[12px] text-slate-500 transition-colors hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-white">
+                  <ChevronLeft size={14} />
+                </button>
+                {Array.from({ length: Math.ceil((changeLogKeyword.trim() ? changeLogRows.filter((r) => r.content.some((c) => c.includes(changeLogKeyword.trim()))) : changeLogRows).length / changeLogPageSize) }, (_, i) => i + 1).map((p) => (
+                  <button key={p} type="button" onClick={() => setChangeLogPage(p)} className={cn('flex h-7 min-w-[28px] items-center justify-center rounded border px-1.5 text-[12px] transition-colors', p === changeLogPage ? 'border-[#21c4b0] bg-[#f0fbf8] font-medium text-[#21c4b0]' : 'border-slate-200 text-slate-500 hover:bg-slate-50')}>
+                    {p}
+                  </button>
+                ))}
+                <button type="button" disabled={changeLogPage >= Math.ceil((changeLogKeyword.trim() ? changeLogRows.filter((r) => r.content.some((c) => c.includes(changeLogKeyword.trim()))) : changeLogRows).length / changeLogPageSize)} onClick={() => setChangeLogPage((p) => p + 1)} className="flex h-7 min-w-[28px] items-center justify-center rounded border border-slate-200 px-1.5 text-[12px] text-slate-500 transition-colors hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-white">
+                  <ChevronRight size={14} />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {syncToast ? (
+        <div className="fixed left-1/2 top-8 z-[200] -translate-x-1/2">
+          <div className={cn(
+            'flex items-center gap-2 rounded-lg px-5 py-3 text-[13px] font-medium shadow-lg',
+            syncToast === 'success' ? 'bg-[#f0fbf8] text-[#18bca2] border border-[#8fe0d2]' : 'bg-red-50 text-red-600 border border-red-200'
+          )}>
+            {syncToast === 'success' ? <CheckCircle2 size={16} /> : <X size={16} />}
+            {syncToast === 'success' ? '同步成功' : '同步失败，请稍后重试'}
+          </div>
+        </div>
       ) : null}
     </>
   );

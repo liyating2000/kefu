@@ -68,6 +68,7 @@ type MainHeaderProps = {
   avatarSrc: string;
   currentRole: UserRole;
   onRoleChange: (role: UserRole) => void;
+  onLogout?: () => void;
 };
 
 const breakOptions = ['厕所', '吃饭', '会议', '其他', '午休'] as const;
@@ -128,6 +129,7 @@ export default function MainHeader({
   avatarSrc,
   currentRole,
   onRoleChange,
+  onLogout,
 }: MainHeaderProps) {
   const [isAvatarMenuOpen, setIsAvatarMenuOpen] = useState(false);
   const [avatarMenuView, setAvatarMenuView] = useState<'main' | 'role'>('main');
@@ -286,7 +288,6 @@ export default function MainHeader({
   }> = [
     { key: 'profile', label: '个人信息', icon: User, onClick: onOpenPortal },
     { key: 'avatar', label: '更换头像', icon: ImageIcon },
-    { key: 'docs', label: '文档', icon: BookOpen },
     {
       key: 'system-group',
       label: userRoleLabels[currentRole],
@@ -296,7 +297,7 @@ export default function MainHeader({
     { key: 'password', label: '修改密码', icon: Key },
     { key: 'clear-lock', label: '清除所有业务锁', icon: Unlock },
     { key: 'lock-screen', label: '锁定屏幕', icon: Lock },
-    { key: 'logout', label: '退出系统', icon: LogOut },
+    { key: 'logout', label: '退出系统', icon: LogOut, onClick: onLogout },
   ];
 
   return (
@@ -571,15 +572,6 @@ export default function MainHeader({
         </div>
 
         <div className="flex shrink-0 items-center gap-3">
-          <button
-            type="button"
-            onClick={() => setIsKnowledgeSearchOpen(true)}
-            aria-label="知识搜索"
-            title="知识搜索"
-            className="focus-ring relative flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-brand-50 hover:text-brand-600"
-          >
-            <Search size={17} />
-          </button>
           <button
             type="button"
             onClick={() => setIsChatModalOpen(true)}

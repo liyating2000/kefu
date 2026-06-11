@@ -781,7 +781,13 @@ function SummaryHotlinePlayer() {
   );
 }
 
-export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyModulePage }: { page: LegacyModulePage; onOpenMainTab?: (tab: string) => void; onOpenLegacyModulePage?: (page: LegacyModulePage) => void }) {
+type LegacyModuleInitialState = {
+  summaryStatus?: string;
+  webchatHistorySummarized?: string;
+  appointmentTab?: 'appointment' | 'message' | 'todo';
+};
+
+export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyModulePage, initialState, onClearInitialState }: { page: LegacyModulePage; onOpenMainTab?: (tab: string) => void; onOpenLegacyModulePage?: (page: LegacyModulePage) => void; initialState?: LegacyModuleInitialState | null; onClearInitialState?: () => void }) {
   const currentSummaryAgent = '坐席A';
   const currentProcessorId = '3001';
   const currentProcessorName = '张小花';
@@ -2896,7 +2902,6 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                     <span>{detailRow.duration}</span>
                   </div>
                   <div className="mt-3 flex flex-wrap items-center gap-x-8 gap-y-2 text-[12px] text-slate-500">
-                    <div>渠道来源: {detailRow.channel || 'web'}</div>
                     <div>IP: 10.23.12.10</div>
                     <div>地址: 北京市朝阳区</div>
                     <div>队列: {detailRow.queue || '默认队列'}</div>
@@ -5305,6 +5310,21 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
     setAppointmentTodoFilters({ ...appointmentTodoFilterDefaults });
     setShowAppointmentTodoReminder(true);
   };
+
+  useEffect(() => {
+    if (!initialState) return;
+    if (initialState.summaryStatus && page === 'summary-management') {
+      setSummaryFilters((prev) => ({ ...prev, status: initialState.summaryStatus! }));
+    }
+    if (initialState.webchatHistorySummarized && page === 'webchat-history') {
+      setWebchatHistoryFilterForm((prev) => ({ ...prev, summarized: initialState.webchatHistorySummarized! }));
+      setWebchatHistoryFilters((prev) => ({ ...prev, summarized: initialState.webchatHistorySummarized! }));
+    }
+    if (initialState.appointmentTab === 'todo' && page === 'appointment-message-management') {
+      openAppointmentTodoTab();
+    }
+    onClearInitialState?.();
+  }, [initialState]);
 
   const openCallWorkbench = () => {
     setShowAppointmentTodoReminder(false);

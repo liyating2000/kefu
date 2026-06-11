@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { RefreshCw, X } from 'lucide-react';
+import { Download, RefreshCw, X } from 'lucide-react';
 
 import { cn } from '../../lib/cn';
 
@@ -332,7 +332,14 @@ function AttachmentDetailModal({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end border-t border-hairline px-6 py-4">
+        <div className="flex items-center justify-end gap-2 border-t border-hairline px-6 py-4">
+          <button
+            type="button"
+            className="focus-ring inline-flex items-center gap-1.5 rounded-xl border border-orange-300 bg-orange-50/60 px-5 py-2 text-[13px] font-semibold text-orange-600 transition-colors hover:bg-orange-50"
+          >
+            <Download size={14} />
+            下载
+          </button>
           <button
             type="button"
             onClick={onClose}

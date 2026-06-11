@@ -64,7 +64,8 @@ type AgentPortalDashboardContentProps = {
   onOpenWorkOrder?: () => void;
   onOpenCustomerFollow?: () => void;
   onOpenCourseList?: () => void;
-  onOpenSummaryManagement?: () => void;
+  onOpenSummaryManagementHotline?: () => void;
+  onOpenSummaryManagementOnline?: () => void;
 };
 
 const hotlineMetricCards: readonly MetricCard[] = [
@@ -235,8 +236,10 @@ export default function AgentPortalDashboardContent({
   onOpenWorkOrder,
   onOpenCustomerFollow,
   onOpenCourseList,
-  onOpenSummaryManagement,
+  onOpenSummaryManagementHotline,
+  onOpenSummaryManagementOnline,
 }: AgentPortalDashboardContentProps) {
+  const isOnlineView = agentSubTab === 'online';
   const handleTodayTodoClick = (key: TodayTodoKey) => {
     switch (key) {
       case 'online-workspace':
@@ -252,7 +255,11 @@ export default function AgentPortalDashboardContent({
         onOpenCourseList?.();
         return;
       case 'summary-pending':
-        onOpenSummaryManagement?.();
+        if (isOnlineView) {
+          onOpenSummaryManagementOnline?.();
+        } else {
+          onOpenSummaryManagementHotline?.();
+        }
         return;
     }
   };
@@ -269,7 +276,6 @@ export default function AgentPortalDashboardContent({
       ? communicationStarEmployees
       : satisfactionStarEmployees;
   const activeShiftSchedules = shiftScheduleByDay[activeShiftDay];
-  const isOnlineView = agentSubTab === 'online';
   const metricCards = isOnlineView
     ? selectedMetricPeriod === '本月'
       ? onlineMonthlyMetricCards

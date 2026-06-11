@@ -1432,7 +1432,7 @@ export default function ProjectPortalManagerDashboardContent({
           <DirectorExpressTrigger
             unreadCount={unreadDirectorMessageCount}
             onClick={onOpenDirectorModal}
-            buttonClassName="focus-ring press-lift rounded-full bg-gradient-to-r from-accent-500 to-accent-400 px-5 py-2.5 text-[14px] font-semibold text-white shadow-[0_10px_24px_-8px_rgba(16,185,129,0.55)] hover:shadow-[0_14px_30px_-8px_rgba(16,185,129,0.65)]"
+            buttonClassName="focus-ring press-lift rounded-full bg-[#216BFF] px-5 py-2.5 text-[14px] font-semibold text-white shadow-[0_8px_20px_-6px_rgba(33,107,255,0.5)] hover:bg-[#1a5ce6] hover:shadow-[0_12px_28px_-6px_rgba(33,107,255,0.6)]"
             badgeClassName="-top-1.5 -right-1.5 h-[18px] w-[18px] bg-gradient-to-br from-rose-500 to-orange-500 text-[11px] font-bold shadow-[0_4px_10px_rgba(244,63,94,0.45)]"
           />
         </header>

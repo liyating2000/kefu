@@ -120,12 +120,10 @@ export default function SmsSendModal({ isOpen, onClose, onConfirm }: SmsSendModa
           <FormField label="短信内容" required alignStart>
             <textarea
               value={formValues.content}
-              onChange={(event) =>
-                setFormValues((prev) => ({ ...prev, content: event.target.value }))
-              }
+              readOnly
               rows={5}
-              placeholder="请输入短信内容"
-              className="focus-ring w-full rounded-xl border border-hairline bg-slate-50/60 px-3 py-2.5 text-[13px] leading-5 text-slate-700 placeholder:text-slate-400 outline-none transition-colors hover:border-brand-200 focus:border-brand-400 focus:bg-white"
+              placeholder="请选择模板后自动带入"
+              className="w-full rounded-xl border border-hairline bg-slate-100 px-3 py-2.5 text-[13px] leading-5 text-slate-500 outline-none cursor-not-allowed"
             />
           </FormField>
 
