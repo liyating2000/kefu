@@ -546,6 +546,8 @@ export default function WebchatChannelMaintenance() {
   const [productPickerOpen, setProductPickerOpen] = useState(false);
   const [selectedProductCategory, setSelectedProductCategory] = useState<string | null>(null);
   const [productSelected, setProductSelected] = useState(false);
+  const [selectedProductName, setSelectedProductName] = useState('');
+  const [mobileProductPickerOpen, setMobileProductPickerOpen] = useState(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [closeDialogOpen, setCloseDialogOpen] = useState(false);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
@@ -733,6 +735,8 @@ export default function WebchatChannelMaintenance() {
     setProductPickerOpen(false);
     setSelectedProductCategory(null);
     setProductSelected(false);
+    setSelectedProductName('');
+    setMobileProductPickerOpen(false);
     setMoreMenuOpen(false);
     setCloseDialogOpen(false);
     setEmojiPickerOpen(false);
@@ -1041,6 +1045,29 @@ export default function WebchatChannelMaintenance() {
     const isProductPrompt = msg.type === 'product-prompt';
     const isSatisfactionCard = msg.type === 'satisfaction-card';
     const isTransferMenu = msg.type === 'transfer-menu';
+    if (msg.type === 'unresolved-guide') {
+      const isPc = mode === 'pc';
+      return (
+        <div key={key} className={cn('py-1', isPc ? 'px-2' : 'px-1')}>
+          <span className={cn('font-medium text-slate-500', isPc ? 'text-[13px]' : 'text-[11px]')}>{msg.text}</span>
+        </div>
+      );
+    }
+    if (isProductPrompt) {
+      const isPc = mode === 'pc';
+      return (
+        <div key={key} className={cn('flex items-center gap-2', isPc ? 'px-2 py-1' : 'px-1 py-1')}>
+          {productSelected ? (
+            <>
+              <span className={cn('inline-flex items-center rounded-full border border-[#8fe0d2] bg-[#effbf8] font-medium text-[#18bca2]', isPc ? 'px-4 py-2 text-[13px]' : 'px-3 py-1.5 text-[11px]')}>{selectedProductName}</span>
+              <button type="button" onClick={() => { setProductSelected(false); setSelectedProductName(''); setSelectedProductCategory(null); openProductPicker(); }} className={cn('font-medium text-[#18bca2] hover:underline', isPc ? 'text-[12px]' : 'text-[10px]')}>切换</button>
+            </>
+          ) : (
+            <button type="button" onClick={() => openProductPicker()} className={cn('rounded-full border border-[#8fe0d2] bg-[#effbf8] font-medium text-[#18bca2] transition-colors hover:bg-[#e2f8f3]', isPc ? 'px-4 py-2 text-[13px]' : 'px-3 py-1.5 text-[11px]')}>{msg.text}</button>
+          )}
+        </div>
+      );
+    }
     if (isSatisfactionCard) {
       return <div key={key} className={cn('flex', mode === 'pc' ? 'justify-center' : 'justify-center')}>{renderSatisfactionCard(mode)}</div>;
     }
@@ -1048,7 +1075,7 @@ export default function WebchatChannelMaintenance() {
       return <div key={key} className={cn('flex', mode === 'pc' ? 'justify-center' : 'justify-center')}>{renderTransferMenuCard(mode)}</div>;
     }
     if (msg.type === 'hot-content') {
-      return <div key={key} className={cn('flex', mode === 'pc' ? 'justify-center' : 'justify-center')}>{renderHotContentCard(mode)}</div>;
+      return <div key={key} className="flex justify-center">{renderHotContentCard(mode)}</div>;
     }
     if (msg.type === 'unresolved-feedback') {
       const isPc = mode === 'pc';
@@ -1190,7 +1217,7 @@ export default function WebchatChannelMaintenance() {
                       <button
                         key={child.id}
                         type="button"
-                        onClick={() => { setProductSelected(true); setProductPickerOpen(false); const tags = active?.config.tags ?? []; setHotContentActiveTag(tags.length > 0 ? tags[0].id : null); setChatMessages((prev) => [...prev, { from: 'bot', text: `您好，${robotDisplayName}为您服务`, type: 'unresolved-guide' as const }, ...(tags.length > 0 ? [{ from: 'bot' as const, text: '以下是常见问题，点击即可咨询', type: 'hot-content' as const }] : [])]); }}
+                        onClick={() => { setSelectedProductName(child.name); setProductSelected(true); setProductPickerOpen(false); const tags = active?.config.tags ?? []; setHotContentActiveTag(tags.length > 0 ? tags[0].id : null); setChatMessages((prev) => [...prev, ...(tags.length > 0 ? [{ from: 'bot' as const, text: '根据使用为您推荐', type: 'unresolved-guide' as const }, { from: 'bot' as const, text: '以下是常见问题，点击即可咨询', type: 'hot-content' as const }] : [])]); }}
                         className={cn(
                           'flex flex-col items-center gap-2 rounded-[10px] border border-slate-100 bg-slate-50/60 p-3 transition-colors hover:border-slate-200 hover:bg-white',
                           isPc ? 'text-[12px]' : 'text-[10px] p-2'
@@ -1379,7 +1406,68 @@ export default function WebchatChannelMaintenance() {
             </div>
           </div>
           <div className="relative z-10 flex-1 space-y-3 overflow-auto px-3 pb-2 pt-3">
-            {chatMessages.length === 0 ? <div className="pt-10 text-center text-[11px] text-slate-400">暂无消息，发送一条消息开始对话</div> : chatMessages.map((m, i) => renderMessageBubble(m, i, 'mobile'))}
+            <div className="text-[14px] font-semibold text-slate-700">Hi · 138****6312 👋</div>
+
+            {/* Product tags */}
+            {productSelected ? (
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="rounded-full border border-[#18bca2] bg-[#effbf8] px-3 py-1 text-[10px] font-medium text-[#18bca2]">
+                  <span className="mr-1 inline-block h-1.5 w-1.5 rounded-full bg-[#18bca2]" />{selectedProductName}
+                </span>
+                <button type="button" onClick={() => openProductPicker()} className="text-[10px] font-medium text-[#18bca2] hover:underline">切换</button>
+              </div>
+            ) : (
+              <button type="button" onClick={() => openProductPicker()} className="rounded-full border border-[#8fe0d2] bg-[#effbf8] px-3 py-1.5 text-[11px] font-medium text-[#18bca2] transition-colors hover:bg-[#e2f8f3]">请选择您要咨询的产品</button>
+            )}
+
+            {/* Resolve card */}
+            {productSelected ? (
+              <div className="rounded-xl border border-slate-100 bg-white p-3 shadow-sm">
+                <div className="text-[11px] text-slate-600">针对您的 <span className="font-semibold text-slate-700">{selectedProductName}</span>，{robotDisplayName}能解决</div>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {['文件导出', '转写', '设备连接', '账户购买', '操作故障'].map((tag) => (
+                    <span key={tag} className="rounded-full border border-slate-200 bg-white px-2.5 py-0.5 text-[10px] text-slate-500">{tag}</span>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            {(() => {
+              const msgs = chatMessages.filter((m) => m.type !== 'product-prompt');
+              const systemTypes = new Set(['unresolved-guide', 'hot-content']);
+              const firstConvIdx = msgs.findIndex((m) => !systemTypes.has(m.type ?? ''));
+              const systemMsgs = firstConvIdx < 0 ? msgs : msgs.slice(0, firstConvIdx);
+              const convMsgs = firstConvIdx < 0 ? [] : msgs.slice(firstConvIdx);
+              return (
+                <>
+                  {systemMsgs.map((m, i) => renderMessageBubble(m, i, 'mobile'))}
+                  {productSelected ? (
+                    <div className="space-y-1.5">
+                      <span className="text-[11px] font-medium text-slate-600">⚠ 您有 <span className="font-bold text-[#f59e0b]">2</span> 个未解决</span>
+                      <div className="rounded-xl border border-slate-100 bg-white shadow-sm">
+                        <div className="flex items-center gap-2 border-b border-slate-50 px-3 py-2">
+                          <span className="shrink-0 rounded bg-amber-50 px-1.5 py-0.5 text-[9px] font-medium text-amber-600 border border-amber-200">处理中</span>
+                          <div className="min-w-0 flex-1">
+                            <div className="text-[11px] font-medium text-slate-700">录音文件丢失</div>
+                            <div className="text-[9px] text-slate-400">工程师小陈 · 2 天前 · #XF-1234</div>
+                          </div>
+                          <ChevronRight size={12} className="shrink-0 text-slate-300" />
+                        </div>
+                        <div className="flex items-center gap-2 px-3 py-2">
+                          <span className="shrink-0 rounded bg-blue-50 px-1.5 py-0.5 text-[9px] font-medium text-blue-600 border border-blue-200">待确认</span>
+                          <div className="min-w-0 flex-1">
+                            <div className="text-[11px] font-medium text-slate-700">换货申请</div>
+                            <div className="text-[9px] text-slate-400">物流已收件 · 1 周前 · #XF-5678</div>
+                          </div>
+                          <ChevronRight size={12} className="shrink-0 text-slate-300" />
+                        </div>
+                      </div>
+                    </div>
+                  ) : null}
+                  {convMsgs.map((m, i) => renderMessageBubble(m, systemMsgs.length + i, 'mobile'))}
+                </>
+              );
+            })()}
           </div>
           {productSelected && (transferEnabled && !chatTransferred && robotEnabled || !chatTransferred || showSatisfaction || active.config.quickButtons.length > 0) ? (
             <div className="relative z-10 flex items-center gap-1.5 overflow-x-auto border-t border-white/70 bg-white/60 px-3 py-1.5 scrollbar-none">
@@ -1399,10 +1487,8 @@ export default function WebchatChannelMaintenance() {
           ) : null}
           <div className="relative z-10 border-t border-white/70 bg-white/80 px-3 py-2">
             <div className="flex items-center gap-2 rounded-full bg-white px-3 py-2 text-[11px] shadow-sm">
-              <button type="button" className="flex shrink-0 items-center justify-center text-slate-400"><Mic size={16} /></button>
-              <input value={chatInput} onChange={(e) => setChatInput(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); sendChatMessage(); } }} placeholder="请输入消息..." className="flex-1 bg-transparent text-[11px] outline-none placeholder:text-slate-300" />
-              <button type="button" onClick={sendChatMessage} className="font-semibold" style={{ color: themeAccentColor }}>➤</button>
-              <button type="button" onClick={() => { if (!chatTransferred) return; setMoreMenuOpen(!moreMenuOpen); setEmojiPickerOpen(false); }} className={cn('flex shrink-0 items-center justify-center', chatTransferred ? 'text-slate-400' : 'cursor-not-allowed text-slate-200')}><PlusCircle size={18} /></button>
+              <input value={chatInput} onChange={(e) => setChatInput(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); sendChatMessage(); } }} placeholder="上面都不对？告诉我您遇到什么" className="flex-1 bg-transparent text-[11px] outline-none placeholder:text-slate-300" />
+              <button type="button" onClick={sendChatMessage} className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-white" style={previewThemeStyle}><PlusCircle size={16} /></button>
             </div>
           </div>
           {productPickerPanel('mobile')}
