@@ -1,0 +1,2061 @@
+================================================================================
+=== SECTION 1: IMPORTS (Lines 0-199) ===
+=== All imports referencing features/call-workbench/, features/online-workbench/,
+=== features/workbench/, and asset imports used by the workbenches
+================================================================================
+
+import React, { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
+import type { LegacyModuleFilterPreset } from './features/legacy/LegacyModulesPanel';
+import logoImage from './logo.png';
+import channelMobileIcon from './assets/channel-icons/移动端.png';
+import channelWebIcon from './assets/channel-icons/Web端.png';
+import channelWechatMiniProgramIcon from './assets/channel-icons/微信小程序.png';
+import channelWechatServiceIcon from './assets/channel-icons/微信服务号.png';
+import onlineTransferAgentIcon from './assets/chat-icons/聊天-顶-转坐席.png';
+import onlineTransferQueueIcon from './assets/chat-icons/聊天-顶-转队列.png';
+import onlineConferenceIcon from './assets/chat-icons/聊天-顶-三方会议.png';
+import onlineEndSessionIcon from './assets/chat-icons/聊天-顶-结束会话.png';
+import chatScreenshotIcon from './assets/chat-icons/聊天-截图.png';
+import chatMessageIcon from './assets/chat-icons/聊天-留言.png';
+import chatTranslateIcon from './assets/chat-icons/聊天-翻译.png';
+import chatUtilityIcon from './assets/chat-icons/聊天-常用工具.png';
+import chatSuggestionIcon from './assets/chat-icons/聊天-推荐语.png';
+import chatVoiceIcon from './assets/chat-icons/聊天-语音.png';
+import onlineSideAgentIcon from './assets/rightside-icons/在线-侧-Agent.png';
+import onlineSideCustomerInfoIcon from './assets/rightside-icons/在线-侧-客户信息.png';
+import onlineSideCustomerHistoryIcon from './assets/rightside-icons/在线-侧-客户历史.png';
+import onlineSideKnowledgeBaseIcon from './assets/rightside-icons/在线-侧-知识库.png';
+import onlineSideWorkOrderIcon from './assets/rightside-icons/在线-侧-工单端丽.png';
+import onlineSideToolIcon from './assets/rightside-icons/在线-侧-常用工具.png';
+import onlineSideThirdPartyIcon from './assets/rightside-icons/在线-侧-三方.png';
+import onlineSideSettingsIcon from './assets/rightside-icons/在线-侧-设置.png';
+import toolSmsIcon from './assets/tool-icons/tool-短信.png';
+import toolAttachmentIcon from './assets/tool-icons/tool-附件查询.png';
+import toolSortIcon from './assets/tool-icons/tool-排序.png';
+import toolMailIcon from './assets/tool-icons/tool-邮件.png';
+import toolServicePointIcon from './assets/tool-icons/tool-售后网点查询.png';
+import toolRepairPriceIcon from './assets/tool-icons/tool-售后维修价格.png';
+import toolPaymentIcon from './assets/tool-icons/tool-售后付款.png';
+import onlineAudioCallAvatar from './assets/video-icons/audio-photo.png';
+import onlineCallMuteIcon from './assets/video-icons/audio.png';
+import onlineCallHangupIcon from './assets/video-icons/hangup.png';
+import onlineCallSpeakerIcon from './assets/video-icons/louder.png';
+import onlineVideoMainPhoto from './assets/video-icons/video-photo2.png';
+import onlineVideoPreviewPhoto from './assets/video-icons/video-ru-photo.png';
+import onlineVideoToolbarBackground from './assets/video-icons/video-toobg.png';
+import onlineCallVideoIcon from './assets/video-icons/video.png';
+import onlineVideoHangupIcon from './assets/video-icons/hangup2.png';
+import {
+  Search,
+  LayoutGrid,
+  Phone,
+  MessageSquare,
+  FileText,
+  FileSearch,
+  ExternalLink,
+  BookOpen,
+  ShieldCheck,
+  GraduationCap,
+  Calendar,
+  Monitor,
+  BarChart3,
+  Bell,
+  Settings,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  User,
+  Mic,
+  PhoneOff,
+  PhoneForwarded,
+  Pause,
+  Volume2,
+  LogIn,
+  LogOut,
+  Mail,
+  Download,
+  ArrowUpRight,
+  ArrowLeft,
+  ArrowRight,
+  Send,
+  Check,
+  Paperclip,
+  Undo2,
+  HelpCircle,
+  Smile,
+  Scissors,
+  FilePen,
+  Video,
+  Languages,
+  ScreenShare,
+  Clock,
+  X,
+  AlertCircle,
+  Smartphone,
+  Rows3,
+  Headphones,
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { createPortal } from 'react-dom';
+import { useDragResize } from './hooks/useDragResize';
+import { useFeatureSidebarState } from './hooks/useFeatureSidebarState';
+import { usePanelSizeSync } from './hooks/usePanelSizeSync';
+import { useWorkbenchSummaryState } from './hooks/useWorkbenchSummaryState';
+import { cn } from './lib/cn';
+import SidebarItem from './features/layout/SidebarItem';
+import ErrorBoundary from './features/layout/ErrorBoundary';
+import MainHeader from './features/layout/MainHeader';
+import { useRoleRouting } from './hooks/useRoleRouting';
+import { useSidebar } from './hooks/useSidebar';
+import {
+  sidebarMenuConfig,
+  findMenuGroupForTab,
+  filterMenuByRole,
+  filterMenuByQuery,
+  type MenuItemConfig,
+} from './features/layout/menuConfig';
+import type {
+  MainTab,
+  PrimaryMainTab,
+  SecondaryMainTab,
+} from './features/layout/mainTabs';
+import {
+  getAgentChannelForRole,
+  getAllowedWorkbenchesForRole,
+  getViewModeForRole,
+  isAgentChannelLockedForRole,
+  userRoleLabels,
+} from './features/layout/roles';
+import OnlineConversationPanel from './features/online-workbench/OnlineConversationPanel';
+import OnlineSessionListPanel from './features/online-workbench/OnlineSessionListPanel';
+import OnlineWorkbenchContentView from './features/online-workbench/OnlineWorkbenchContent';
+import OnlineWorkbenchSidebar from './features/online-workbench/OnlineWorkbenchSidebar';
+import CallAgentPanel from './features/call-workbench/CallAgentPanel';
+import CallCustomerInfoPanel from './features/call-workbench/CallCustomerInfoPanel';
+import CallInboundInfoPanel from './features/call-workbench/CallInboundInfoPanel';
+import CallHistoryPanel, {
+  CallRecordingPlayer,
+  EmailContentList,
+  SmsContentList,
+} from './features/call-workbench/CallHistoryPanel';
+import BlacklistApplicationModal from './features/call-workbench/BlacklistApplicationModal';
+import CallScheduleFollowUpModal from './features/call-workbench/CallScheduleFollowUpModal';
+import TaggingModal from './features/workbench/TaggingModal';
+import ProblemClassificationSearchModal, {
+  type ProblemClassificationCombo,
+} from './features/workbench/ProblemClassificationSearchModal';
+import SchoolSearchModal, { type SchoolRecord } from './features/workbench/SchoolSearchModal';
+import CreateTpdWorkOrderModal from './features/workbench/CreateTpdWorkOrderModal';
+import AttachmentQueryModal from './features/workbench/AttachmentQueryModal';
+import CallWorkbenchContentView from './features/call-workbench/CallWorkbenchContent';
+import CallRightSidebar from './features/call-workbench/CallRightSidebar';
+import {
+  HistoryDateRangeFilter,
+  HistoryDateRangeMenu,
+  type HistoryDateRangeValue,
+} from './features/workbench/HistoryDateRangeControls';
+import WorkbenchResizeHandle from './features/workbench/WorkbenchResizeHandle';
+import WorkbenchSummaryPanel from './features/workbench/WorkbenchSummaryPanel';
+
+
+================================================================================
+=== SECTION 2: MOCK DATA & TYPE DEFINITIONS (defined OUTSIDE App component) ===
+================================================================================
+
+--- 2A: Type definitions (Lines 229-512) ---
+
+const historyTimeDropdownTabs = ['通话历史', '会话历史'] as const;
+type HistoryTimeDropdownTab = (typeof historyTimeDropdownTabs)[number];
+const historyDateRangeTabs = ['短信历史', '邮件历史'] as const;
+type HistoryDateRangeTab = (typeof historyDateRangeTabs)[number];
+type HistoryTimeSortOrder = 'asc' | 'desc';
+type HistoryTimeDropdownState = {
+  optionsByTab: Record<HistoryTimeDropdownTab, string[]>;
+  orderByTab: Record<HistoryTimeDropdownTab, HistoryTimeSortOrder>;
+  selectedByTab: Record<HistoryTimeDropdownTab, string>;
+};
+
+const formatHistoryDropdownTime = (date: Date) => {
+  const pad = (value: number) => value.toString().padStart(2, '0');
+
+  return `${date.getFullYear()}.${pad(date.getMonth() + 1)}.${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+};
+
+const createHistoryTimeOptions = (
+  baseTimeText: string,
+  hourOffsets: readonly number[]
+) =>
+  hourOffsets.map((offset) => {
+    const date = new Date(baseTimeText);
+    date.setHours(date.getHours() + offset);
+    return formatHistoryDropdownTime(date);
+  });
+
+const createHistoryTimeDropdownState = (): HistoryTimeDropdownState => {
+  const callOptions = createHistoryTimeOptions('2025-03-18T09:00:00', [0, 4, 9, 15, 22]);
+  const sessionOptions = createHistoryTimeOptions('2025-08-06T10:30:00', [0, 3, 8, 14, 21]);
+
+  return {
+    optionsByTab: {
+      '通话历史': callOptions,
+      '会话历史': sessionOptions,
+    },
+    orderByTab: {
+      '通话历史': 'asc',
+      '会话历史': 'asc',
+    },
+    selectedByTab: {
+      '通话历史': '',
+      '会话历史': '',
+    },
+  };
+};
+
+const toggleHistoryTimeDropdownSort = (
+  state: HistoryTimeDropdownState,
+  tab: HistoryTimeDropdownTab
+): HistoryTimeDropdownState => {
+  const nextOrder: HistoryTimeSortOrder = state.orderByTab[tab] === 'asc' ? 'desc' : 'asc';
+  const sortedOptions = [...state.optionsByTab[tab]].sort((timeA, timeB) => timeA.localeCompare(timeB));
+  const nextOptions = nextOrder === 'asc' ? sortedOptions : [...sortedOptions].reverse();
+
+  return {
+    optionsByTab: {
+      ...state.optionsByTab,
+      [tab]: nextOptions,
+    },
+    orderByTab: {
+      ...state.orderByTab,
+      [tab]: nextOrder,
+    },
+    selectedByTab: {
+      ...state.selectedByTab,
+      [tab]: nextOptions[0],
+    },
+  };
+};
+
+type ErrorTabKey = 'critical' | 'non-critical';
+type WorkbenchHistoryTab = '会话历史' | '通话历史' | '短信历史' | '邮件历史';
+type WorkbenchSummaryTab = string;
+type WorkbenchToolTab = '工单管理' | '知识库' | '常用工具' | '第三方网站';
+type OnlineUtilityTab = '常用工具' | '第三方系统';
+type OnlineSessionListTab = '活动会话' | '结束会话';
+type CallRightPanel = 'agent' | 'workorder' | 'knowledge' | 'toolsite' | 'summary';
+type CallSidebarFeatureKey = 'agent' | 'workorder' | 'knowledge' | 'toolsite' | 'summary' | 'settings';
+type OnlineRightPanel = 'robot' | 'customer' | 'history' | 'third-party';
+type OnlineSidebarFeatureKey =
+  | 'robot'
+  | 'customer'
+  | 'history'
+  | 'knowledge'
+  | 'workorder'
+  | 'third-party'
+  | 'settings';
+type OnlineThirdPartyScope = 'public' | 'personal';
+type OnlineCallOverlay = 'audio' | 'video';
+type OnlineMessageTranslateLanguage = 'zh' | 'en';
+type OnlineFormFieldOption = '姓名' | '学校名称' | '学校省份' | '联系电话';
+type OnlineUtilityItem = {
+  label: string;
+  note: string;
+  icon?: IconComponent;
+  imageSrc?: string;
+  accent?: string;
+  bg?: string;
+};
+type OnlineSession = {
+  id: string;
+  customer: string;
+  channel: string;
+  waiting: string;
+  unread: number;
+  summary: string;
+  statusText: string;
+  statusCls: string;
+  listState: 'default' | 'current' | 'attention';
+  finished: boolean;
+};
+type OnlineVisitorTag = {
+  label: string;
+  cls: string;
+};
+type OnlineConversationSummaryCard = {
+  title: string;
+  body: string;
+  cls: string;
+};
+type OnlineConversationMessage = {
+  id: string;
+  role: 'customer' | 'agent';
+  time: string;
+  text: string;
+  translation?: string;
+  qualityCheckText?: string;
+  withdrawn?: boolean;
+};
+type OnlineWithdrawNotice = {
+  messageId: string;
+  text: string;
+};
+type OnlineRobotInsightEntry = {
+  id: string;
+  content: string;
+  duration: string;
+  time: string;
+};
+type OnlineRobotCapabilityCard = {
+  title: string;
+  status: string;
+  emphasized?: boolean;
+};
+type OnlineRobotPanel = {
+  insights: OnlineRobotInsightEntry[];
+  capabilities: OnlineRobotCapabilityCard[];
+  topicTitle: string;
+  steps: string[];
+  resultTitle: string;
+  suggestedReply: string;
+};
+type OnlineHistoryPanelMessage = {
+  align: 'left' | 'right';
+  text: string;
+  badge?: string;
+};
+type OnlineHistoryPanelSection = {
+  total: string;
+  filterPlaceholder: string;
+  details: Array<{ label: string; value: string }>;
+  messages: OnlineHistoryPanelMessage[];
+};
+type OnlineToolItem = {
+  label: string;
+  imageSrc: string;
+  note: string;
+};
+type OnlineThirdPartyLinkGroup = {
+  group: string;
+  items: string[];
+};
+type OnlineCustomerProfile = {
+  anonymous: boolean;
+  businessType: string;
+  fieldValues: WorkbenchFieldValues;
+};
+type OnlineSessionCoreDetail = {
+  visitorMeta: Array<{ label: string; value: string }>;
+  tags: OnlineVisitorTag[];
+  summaryCards: OnlineConversationSummaryCard[];
+  messages: OnlineConversationMessage[];
+};
+type OnlineSessionRightPanelDetail = {
+  robotPanel: OnlineRobotPanel;
+  customerProfile: OnlineCustomerProfile;
+  historyPanelMeta: Record<WorkbenchHistoryTab, OnlineHistoryPanelSection>;
+  toolItems: OnlineToolItem[];
+  thirdPartyLinks: Record<OnlineThirdPartyScope, OnlineThirdPartyLinkGroup[]>;
+};
+type OnlineSessionDetail = OnlineSessionCoreDetail & OnlineSessionRightPanelDetail;
+type OnlineAgentPanelData = {
+  insight: {
+    indexLabel: string;
+    content: string;
+    primaryTime: string;
+    secondaryTime: string;
+  };
+  quickCards: ReadonlyArray<{
+    title: string;
+    status: string;
+    active?: boolean;
+  }>;
+  journeyName: string;
+  profile: {
+    name: string;
+    phone: string;
+    customerType: string;
+    vipLevel: string;
+    customerId: string;
+    address: string;
+    tag: string;
+  };
+  openTickets: ReadonlyArray<{
+    id: string;
+    title: string;
+    time: string;
+    status: string;
+    tone: 'warning' | 'muted';
+  }>;
+  purchasedDeviceCount: number;
+  interactionCount: number;
+};
+type AgentPresence = 'signed-in' | 'signed-out';
+type ManagerPortalPage = 'dashboard' | 'overview-detail' | 'ranking-detail';
+type AgentPortalPage = 'dashboard' | 'ranking-detail';
+type WorkbenchFieldConfig = {
+  label: string;
+  placeholder: string;
+  required?: boolean;
+  type?: 'input' | 'select' | 'school-search';
+  span?: 1 | 2 | 3;
+  disabledUntilSchool?: boolean;
+};
+
+type WorkbenchFieldValues = Record<string, string>;
+type RegionCityOption = {
+  name: string;
+  districts: readonly string[];
+};
+type RegionProvinceOption = {
+  name: string;
+  cities: readonly RegionCityOption[];
+};
+type CallWorkbenchInboundProfile = {
+  inboundInfoItems: Array<{ label: string; value: string }>;
+  tags: Array<{ label: string; cls: string }>;
+  ivrPath: string;
+  transferSummary: string;
+  openingQuestion?: string;
+  conversationMessages?: OnlineConversationMessage[];
+  customerFieldValues: WorkbenchFieldValues;
+};
+type IconComponent = React.ComponentType<{
+  size?: number;
+  strokeWidth?: number;
+  className?: string;
+}>;
+type AgentPresenceMeta = {
+  toolbarActionLabel: string;
+  toolbarActionIcon: IconComponent;
+  toolbarActionCls: string;
+  sideActionLabel: string;
+  sideActionIcon: IconComponent;
+  sideActionButtonCls: string;
+  sideActionIconWrapCls: string;
+  showOnlineStatusSelector: boolean;
+  statusText: string;
+  statusCls: string;
+  callDuration: string;
+  statusDuration: string;
+  incomingNumber: string;
+  extensionNumber: string;
+  agentNumber: string;
+};
+
+
+--- 2B: callSummaryDataByTimeIndex (Lines 300-306) ---
+
+const callSummaryDataByTimeIndex: Array<{ fieldValues: WorkbenchFieldValues; text: string }> = [
+  { fieldValues: { 产品分类: '学习机', 呼入类型: '咨询', 问题定型: '使用问题' }, text: '用户来电咨询学习机使用问题，已指导操作步骤。' },
+  { fieldValues: { 产品分类: '智能硬件', 呼入类型: '投诉', 问题定型: '质量问题' }, text: '用户反馈智能硬件质量问题，已记录并转售后处理。' },
+  { fieldValues: { 产品分类: '学习机', 呼入类型: '售后', 问题定型: '退换货' }, text: '用户申请退换货，已确认订单信息并提交申请。' },
+  { fieldValues: { 产品分类: '智能硬件', 呼入类型: '咨询', 问题定型: '功能咨询' }, text: '用户咨询产品功能，已详细介绍并发送资料。' },
+  { fieldValues: { 产品分类: '学习机', 呼入类型: '投诉', 问题定型: '服务态度' }, text: '用户投诉服务态度问题，已记录并安排主管回访。' },
+];
+
+
+--- 2C: workbenchCustomerFields & workbenchSummaryFields (Lines 565-592) ---
+
+const workbenchCustomerFields: WorkbenchFieldConfig[] = [
+  { label: '业务类型', placeholder: '请选择', required: true, type: 'select' },
+  { label: '客户类型', placeholder: '请选择', type: 'select' },
+  { label: '来电号码', placeholder: '请输入', type: 'input' },
+  { label: '省市区', placeholder: '请选择', type: 'select' },
+  { label: '学校名称', placeholder: '请输入关键字查询', type: 'school-search' },
+  { label: '运营商', placeholder: '请选择', type: 'select' },
+  { label: '客户名称', placeholder: '请输入', type: 'input' },
+  { label: '联系号码', placeholder: '请输入', type: 'input' },
+  { label: '学校标签', placeholder: '', type: 'input', disabledUntilSchool: true },
+  { label: '服务归口', placeholder: '', type: 'input', disabledUntilSchool: true },
+  { label: '是否审核', placeholder: '', type: 'select', disabledUntilSchool: true },
+];
+
+const workbenchSummaryFields: WorkbenchFieldConfig[] = [
+  { label: '产品分类', placeholder: '请选择', required: true, type: 'select' },
+  { label: '产品名称', placeholder: '请选择', type: 'select' },
+  { label: '呼入类型', placeholder: '请选择', type: 'select' },
+  { label: '问题定型', placeholder: '请选择', type: 'select' },
+  { label: '问题分类一级', placeholder: '请选择', type: 'select' },
+  { label: '问题分类二级', placeholder: '请选择', type: 'select' },
+  { label: '问题分类三级', placeholder: '请选择', type: 'select' },
+  { label: '小结类型', placeholder: '请选择', type: 'select' },
+  { label: '处理结果状态', placeholder: '请选择', type: 'select' },
+  { label: '账号', placeholder: '请输入', type: 'input' },
+  { label: '投诉分类一级', placeholder: '请选择', type: 'select' },
+  { label: '投诉分类二级', placeholder: '请选择', type: 'select' },
+];
+
+
+--- 2D: workbenchToolItems (Lines 594-629) ---
+
+const workbenchToolItems: Record<WorkbenchToolTab, Array<{ label: string; icon?: IconComponent; imageSrc?: string; accent?: string; bg?: string }>> = {
+  '工单管理': [
+    { label: '工单新建', icon: FileText, accent: 'text-sky-500', bg: 'bg-sky-50' },
+    { label: '待办工单', icon: BookOpen, accent: 'text-indigo-500', bg: 'bg-indigo-50' },
+    { label: '升级工单', icon: ShieldCheck, accent: 'text-amber-500', bg: 'bg-amber-50' },
+    { label: '工单查询', icon: Search, accent: 'text-emerald-500', bg: 'bg-emerald-50' },
+    { label: '回访计划', icon: Calendar, accent: 'text-violet-500', bg: 'bg-violet-50' },
+    { label: '工单报表', icon: BarChart3, accent: 'text-orange-500', bg: 'bg-orange-50' },
+  ],
+  '知识库': [
+    { label: '产品知识', icon: BookOpen, accent: 'text-emerald-500', bg: 'bg-emerald-50' },
+    { label: '流程标准', icon: ShieldCheck, accent: 'text-sky-500', bg: 'bg-sky-50' },
+    { label: '质检话术', icon: MessageSquare, accent: 'text-orange-500', bg: 'bg-orange-50' },
+    { label: '公告制度', icon: Bell, accent: 'text-violet-500', bg: 'bg-violet-50' },
+    { label: '培训考试', icon: GraduationCap, accent: 'text-amber-500', bg: 'bg-amber-50' },
+    { label: '业务FAQ', icon: HelpCircle, accent: 'text-indigo-500', bg: 'bg-indigo-50' },
+  ],
+  '常用工具': [
+    { label: '短信', imageSrc: toolSmsIcon },
+    { label: '附件查询', imageSrc: toolAttachmentIcon },
+    { label: '邮箱', imageSrc: toolMailIcon },
+    { label: '售后网点查询', imageSrc: toolServicePointIcon },
+    { label: '售后维修价格', imageSrc: toolRepairPriceIcon },
+    { label: '售后付款', imageSrc: toolPaymentIcon },
+    { label: '家庭圈信息查询', imageSrc: toolAttachmentIcon },
+    { label: '学习机查询', imageSrc: toolServicePointIcon },
+  ],
+  '第三方网站': [
+    { label: 'CRM系统', icon: Monitor, accent: 'text-sky-500', bg: 'bg-sky-50' },
+    { label: '物流平台', icon: ExternalLink, accent: 'text-orange-500', bg: 'bg-orange-50' },
+    { label: '短信平台', icon: MessageSquare, accent: 'text-violet-500', bg: 'bg-violet-50' },
+    { label: '支付中心', icon: Phone, accent: 'text-emerald-500', bg: 'bg-emerald-50' },
+    { label: '外呼平台', icon: PhoneForwarded, accent: 'text-indigo-500', bg: 'bg-indigo-50' },
+    { label: '邮件系统', icon: Mail, accent: 'text-rose-500', bg: 'bg-rose-50' },
+  ],
+};
+
+
+--- 2E: historyTabMeta (Lines 631-702) ---
+
+const historyTabMeta: Record<WorkbenchHistoryTab, {
+  total: string;
+  filterPlaceholder: string;
+  details: Array<{ label: string; value: string }>;
+  messages: Array<{ align: 'left' | 'right'; text: string; badge?: string }>;
+}> = {
+  '会话历史': {
+    total: '共12次，当前第1次',
+    filterPlaceholder: '关键词',
+    details: [
+      { label: '渠道来源', value: '网页IM' },
+      { label: '队列', value: 'A技能组' },
+      { label: '浏览器类型', value: 'Chrome' },
+      { label: '地址', value: '北京市海淀区' },
+      { label: '持续时间', value: '10min' },
+    ],
+    messages: [
+      { align: 'left', text: '您好，请问是人工客服吗' },
+      { align: 'right', text: '您好，请稍等，我帮您确认一下' },
+      { align: 'left', text: '那请问，可以介绍一下产品吗' },
+    ]
+  },
+  '通话历史': {
+    total: '共10次，当前第0次',
+    filterPlaceholder: '关键词',
+    details: [
+      { label: '振铃时长', value: '10s' },
+      { label: '电话归属', value: '北京海淀' },
+      { label: '技能组', value: 'A技能组' },
+      { label: '呼叫类型', value: '呼入' },
+      { label: '坐席号码', value: '0101' },
+      { label: '客户号码', value: '17601672305' },
+    ],
+    messages: [
+      { align: 'left', text: '您好，请问是人工客服吗' },
+      { align: 'right', text: '很抱歉，我不是' },
+      { align: 'left', text: '那请问，可以介绍一下产品吗' },
+    ]
+  },
+  '短信历史': {
+    total: '共5次，当前第1次',
+    filterPlaceholder: '短信关键词',
+    details: [
+      { label: '发送状态', value: '成功' },
+      { label: '短信渠道', value: '营销短信' },
+      { label: '短信模板', value: '售后通知' },
+      { label: '短信类型', value: '单发' },
+      { label: '发送账号', value: 'SMS01' },
+      { label: '接收号码', value: '17601672305' },
+    ],
+    messages: [
+      { align: 'right', text: '您好，您的工单已受理，请留意后续通知。', badge: '短信模板' },
+      { align: 'left', text: '好的，麻烦尽快处理。' },
+    ]
+  },
+  '邮件历史': {
+    total: '共3次，当前第1次',
+    filterPlaceholder: '邮件关键词',
+    details: [
+      { label: '邮件状态', value: '已送达' },
+      { label: '邮件分类', value: '售后邮件' },
+      { label: '邮件主题', value: '服务处理进展' },
+      { label: '发送方式', value: '系统发送' },
+      { label: '发件账号', value: 'service@iflytek.com' },
+      { label: '收件账号', value: 'user@example.com' },
+    ],
+    messages: [
+      { align: 'right', text: '您好，相关处理进展已通过邮件发送，请注意查收。', badge: '邮件摘要' },
+      { align: 'left', text: '收到，谢谢。' },
+    ]
+  },
+};
+
+
+--- 2F: onlineCustomerFields (Lines 1095-1106) ---
+
+const onlineCustomerFields: WorkbenchFieldConfig[] = [
+  { label: '客户类型', placeholder: '请选择', required: true, type: 'select' },
+  { label: '来电号码', placeholder: '请输入', type: 'input' },
+  { label: '省市区', placeholder: '请选择', type: 'select' },
+  { label: '学校名称', placeholder: '请输入关键字查询', type: 'school-search' },
+  { label: '运营商', placeholder: '请选择', type: 'select' },
+  { label: '客户名称', placeholder: '请输入', type: 'input' },
+  { label: '联系号码', placeholder: '请输入', type: 'input' },
+  { label: '学校标签', placeholder: '', type: 'input', disabledUntilSchool: true },
+  { label: '服务归口', placeholder: '', type: 'input', disabledUntilSchool: true },
+  { label: '是否审核', placeholder: '', type: 'select', disabledUntilSchool: true },
+];
+
+
+--- 2G: onlineUtilityItems (Lines 1108-1126) ---
+
+const onlineUtilityItems: Record<OnlineUtilityTab, OnlineUtilityItem[]> = {
+  '常用工具': [
+    { label: '短信', imageSrc: toolSmsIcon, note: '消息发送' },
+    { label: '附件查询', imageSrc: toolAttachmentIcon, note: '附件检索' },
+    { label: '邮箱', imageSrc: toolMailIcon, note: '邮件发送' },
+    { label: '售后网点查询', imageSrc: toolServicePointIcon, note: '附近网点' },
+    { label: '售后维修价格', imageSrc: toolRepairPriceIcon, note: '维修参考' },
+    { label: '售后付款', imageSrc: toolPaymentIcon, note: '补差处理' },
+    { label: '学习机价格', imageSrc: toolRepairPriceIcon, note: '产品报价' },
+    { label: '配件价格', imageSrc: toolRepairPriceIcon, note: '配件报价' },
+    { label: '家庭圈信息查询', imageSrc: toolAttachmentIcon, note: '成员档案' },
+  ],
+  '第三方系统': [
+    { label: 'CRM', icon: LayoutGrid, note: '客户信息', accent: 'text-sky-500', bg: 'bg-sky-50' },
+    { label: '工单系统', icon: ExternalLink, note: '售后流转', accent: 'text-orange-500', bg: 'bg-orange-50' },
+    { label: '物流系统', icon: Search, note: '订单查询', accent: 'text-violet-500', bg: 'bg-violet-50' },
+    { label: '营销系统', icon: BarChart3, note: '活动配置', accent: 'text-emerald-500', bg: 'bg-emerald-50' },
+  ],
+};
+
+
+--- 2H: initialOnlineSessions (Lines 1128-1225) ---
+
+const initialOnlineSessions: OnlineSession[] = [
+  {
+    id: 'sess-1',
+    customer: 'APP访客138989',
+    channel: 'APP',
+    waiting: '11:09:29',
+    unread: 0,
+    summary: '那大概多久能修好？',
+    statusText: '1m20s未回复',
+    statusCls: 'text-[#ff8c4b]',
+    listState: 'default',
+    finished: false,
+  },
+  {
+    id: 'sess-2',
+    customer: 'PC访客12345',
+    channel: 'PC',
+    waiting: '11:09:29',
+    unread: 0,
+    summary: '您好，请问你是哪个位?',
+    statusText: '',
+    statusCls: 'text-slate-400',
+    listState: 'current',
+    finished: false,
+  },
+  {
+    id: 'sess-3',
+    customer: '微信公众号访客1398993',
+    channel: '微信公众号',
+    waiting: '11:09:29',
+    unread: 0,
+    summary: '清单发我吧，谢谢。',
+    statusText: '',
+    statusCls: 'text-slate-400',
+    listState: 'default',
+    finished: false,
+  },
+  {
+    id: 'sess-4',
+    customer: 'PC访客92999',
+    channel: 'PC',
+    waiting: '11:09:29',
+    unread: 0,
+    summary: '这个怎么样?',
+    statusText: '1m20s未回复',
+    statusCls: 'text-[#ff8c4b]',
+    listState: 'default',
+    finished: false,
+  },
+  {
+    id: 'sess-5',
+    customer: '微信小程序访客139',
+    channel: '微信小程序',
+    waiting: '11:09:29',
+    unread: 0,
+    summary: '这个客户管理的页面知识库服...',
+    statusText: '',
+    statusCls: 'text-slate-400',
+    listState: 'attention',
+    finished: false,
+  },
+  {
+    id: 'sess-6',
+    customer: '微信公众号访客909',
+    channel: '微信公众号',
+    waiting: '11:09:29',
+    unread: 0,
+    summary: '收到，那我等明天的物流。',
+    statusText: '',
+    statusCls: 'text-slate-400',
+    listState: 'default',
+    finished: false,
+  },
+  {
+    id: 'sess-7',
+    customer: 'APP访客909',
+    channel: 'APP',
+    waiting: '11:09:29',
+    unread: 0,
+    summary: '激活后退货规则也说一下。',
+    statusText: '',
+    statusCls: 'text-slate-400',
+    listState: 'default',
+    finished: false,
+  },
+  {
+    id: 'sess-8',
+    customer: '结束会话示例909',
+    channel: 'PC',
+    waiting: '昨天',
+    unread: 0,
+    summary: '退款状态查询，需转人工审核。',
+    statusText: '已结束',
+    statusCls: 'text-slate-400',
+    listState: 'default',
+    finished: true,
+  },
+];
+
+
+--- 2I: onlineSessionEntryCountLabels (Lines 1227-1236) ---
+
+const onlineSessionEntryCountLabels: Record<string, string> = {
+  'sess-1': '2次进线',
+  'sess-2': '首次进线',
+  'sess-3': '首次进线',
+  'sess-4': '3次进线',
+  'sess-5': '2次进线',
+  'sess-6': '3次进线',
+  'sess-7': '首次进线',
+  'sess-8': '2次进线',
+};
+
+
+--- 2J: callWorkbenchInboundConversationMessages (Lines 1238-1253) ---
+
+const callWorkbenchInboundConversationMessages: OnlineConversationMessage[] = [
+  { id: 'sess-3-m-1', role: 'customer', time: '10-28 09:12:08', text: '直播间这款翻译机现在多少钱？' },
+  {
+    id: 'sess-3-m-2',
+    role: 'agent',
+    time: '10-28 09:12:24',
+    text: '当前活动到手价是 1999 元，我再帮您确认一下是否能叠加新人券。',
+  },
+  { id: 'sess-3-m-3', role: 'customer', time: '10-28 09:12:41', text: '能分期吗？还有赠品吗？' },
+  {
+    id: 'sess-3-m-4',
+    role: 'agent',
+    time: '10-28 09:13:06',
+    text: '支持分期，赠品是保护套和耳机，具体我给您发一份活动清单。',
+  },
+];
+
+
+--- 2K: onlineKuaishouVisitorConversationMessages (Lines 1255-1272) ---
+
+const onlineKuaishouVisitorConversationMessages: OnlineConversationMessage[] = [
+  { id: 'sess-3-m-1', role: 'customer', time: '10-28 09:12:08', text: '直播间这款翻译机现在多少钱？' },
+  {
+    id: 'sess-3-m-2',
+    role: 'agent',
+    time: '10-28 09:12:24',
+    text: '当前活动到手价是 1999 元，我再帮您确认一下是否能叠加新人券。',
+  },
+  { id: 'sess-3-m-3', role: 'customer', time: '10-28 09:12:41', text: '能分期吗？还有赠品吗？' },
+  {
+    id: 'sess-3-m-4',
+    role: 'agent',
+    time: '10-28 09:13:06',
+    text: '支持分期，赠品是保护套和耳机，具体我给您发一份活动清单。',
+    qualityCheckText: '触发规则：引导推销',
+  },
+  { id: 'sess-3-m-5', role: 'customer', time: '10-28 09:13:24', text: '清单发我吧，谢谢。' },
+];
+
+
+--- 2L: callWorkbenchInboundProfile (Lines 1274-1313) ---
+
+const callWorkbenchInboundProfile: CallWorkbenchInboundProfile = {
+  inboundInfoItems: [
+    { label: '电话', value: '17601672305' },
+    { label: '持续时间', value: '05:00' },
+    { label: '技能组', value: '10' },
+    { label: '电话归属', value: '北京海淀' },
+    { label: '来电次数', value: '第20次' },
+    { label: '运营商', value: '电信' },
+  ],
+  tags: [
+    { label: '二次元', cls: 'border-emerald-200 bg-emerald-50 text-emerald-500' },
+    { label: '00后', cls: 'border-orange-200 bg-orange-50 text-orange-500' },
+    { label: '性格A', cls: 'border-blue-200 bg-blue-50 text-blue-500' },
+    { label: 'VIP客户', cls: 'border-indigo-200 bg-indigo-50 text-indigo-500' },
+    { label: '高净值', cls: 'border-amber-200 bg-amber-50 text-amber-500' },
+    { label: '已婚', cls: 'border-sky-200 bg-sky-50 text-sky-500' },
+    { label: '有房', cls: 'border-teal-200 bg-teal-50 text-teal-500' },
+    { label: '对学习机有兴趣', cls: 'border-yellow-200 bg-yellow-50 text-yellow-600' },
+  ],
+  ivrPath:
+    '用户本次发起会话，反馈账户进行提现操作时提示限额不足无法完成提现，希望调整账户提现限额对话中机器人已向用户推送自助调整限额的路径。',
+  transferSummary:
+    '用户本次发起会话，反馈账户进行提现操作时提示限额不足无法完成提现，希望调整账户提现限额对话中机器人已向用户推送自助调整限额的路径。',
+  openingQuestion:
+    '您好，我看到您之前反馈过提现限额的问题，请问是同一个账户吗？我帮您核实一下当前的限额设置和账户状态。',
+  conversationMessages: callWorkbenchInboundConversationMessages,
+  customerFieldValues: {
+    业务类型: '学习机',
+    客户类型: 'VIP客户',
+    来电号码: '17601672305',
+    省市区: '北京市 / 北京市 / 海淀区',
+    学校名称: '科大附中',
+    运营商: '电信',
+    客户名称: '王同学',
+    联系号码: '17601672305',
+    学校标签: '对学习机有兴趣',
+    服务归口: 'A技能组',
+    是否审核: '是',
+  },
+};
+
+
+--- 2M: DEFAULT_ONLINE_LEFT_PRESENCE & agentPresenceMetaMap (Lines 1314-1355) ---
+
+const DEFAULT_TOP_HEADER_PRESENCE: AgentPresence = 'signed-out';
+const DEFAULT_ONLINE_LEFT_PRESENCE: AgentPresence = 'signed-out';
+const toggleAgentPresence = (presence: AgentPresence): AgentPresence =>
+  presence === 'signed-in' ? 'signed-out' : 'signed-in';
+const agentPresenceMetaMap: Record<AgentPresence, AgentPresenceMeta> = {
+  'signed-in': {
+    toolbarActionLabel: '签出',
+    toolbarActionIcon: LogOut,
+    toolbarActionCls: 'bg-amber-50 text-amber-600 hover:bg-amber-100',
+    sideActionLabel: '签出',
+    sideActionIcon: ArrowLeft,
+    sideActionButtonCls:
+      'bg-[linear-gradient(180deg,#ff9f21_0%,#ff8611_100%)] text-white shadow-[0_10px_18px_rgba(255,146,24,0.22)] hover:brightness-[0.98]',
+    sideActionIconWrapCls: 'border-white/90 text-white',
+    showOnlineStatusSelector: true,
+    statusText: '已准备好',
+    statusCls: 'text-emerald-500',
+    callDuration: '0:00:00',
+    statusDuration: '00:46',
+    incomingNumber: '--- ---',
+    extensionNumber: '878881001',
+    agentNumber: '1001',
+  },
+  'signed-out': {
+    toolbarActionLabel: '签入',
+    toolbarActionIcon: LogIn,
+    toolbarActionCls: 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100',
+    sideActionLabel: '签入',
+    sideActionIcon: ArrowRight,
+    sideActionButtonCls:
+      'bg-[linear-gradient(180deg,#12cfaf_0%,#09c39f_100%)] text-white shadow-[0_10px_18px_rgba(18,207,175,0.2)] hover:brightness-[0.98]',
+    sideActionIconWrapCls: 'border-white/90 text-white',
+    showOnlineStatusSelector: false,
+    statusText: '未签入',
+    statusCls: 'text-[#f59a23]',
+    callDuration: '0:00:00',
+    statusDuration: '00:19',
+    incomingNumber: '--- ---',
+    extensionNumber: '',
+    agentNumber: '',
+  },
+};
+
+
+--- 2N: onlineStatusOptions (Line 3085) ---
+
+const onlineStatusOptions = ['在线状态', '马上回来', '电话在线', '忙碌状态', '离开状态', '午餐状态', '隐身状态'] as const;
+
+
+--- 2O: RegionSelection & normalizeRegionSelection (Lines 2835-2839, 3375-3407) ---
+
+type RegionSelection = {
+  province: string;
+  city: string;
+  district: string;
+};
+
+const getDefaultRegionSelection = (): RegionSelection => {
+  const firstProvince = chinaRegionOptions[0];
+  const firstCity = firstProvince.cities[0];
+  return {
+    province: firstProvince.name,
+    city: firstCity.name,
+    district: firstCity.districts[0] ?? '',
+  };
+};
+
+const parseRegionValue = (value: string): RegionSelection => {
+  const [province = '', city = '', district = ''] = value.split('/').map((item) => item.trim());
+  return { province, city, district };
+};
+
+const normalizeRegionSelection = (selection?: RegionSelection, value?: string): RegionSelection => {
+  const fallbackSelection = value ? parseRegionValue(value) : selection ?? getDefaultRegionSelection();
+  const provinceOption =
+    chinaRegionOptions.find((province) => province.name === fallbackSelection.province) ?? chinaRegionOptions[0];
+  const cityOption =
+    provinceOption.cities.find((city) => city.name === fallbackSelection.city) ?? provinceOption.cities[0];
+  const district =
+    cityOption.districts.find((item) => item === fallbackSelection.district) ?? cityOption.districts[0] ?? '';
+
+  return {
+    province: provinceOption.name,
+    city: cityOption.name,
+    district,
+  };
+};
+
+const formatRegionValue = (selection: RegionSelection) =>
+  [selection.province, selection.city, selection.district].filter(Boolean).join(' / ');
+
+
+--- 2P: onlineSessionChannelIcons (Lines 5208-5213, INSIDE App component) ---
+--- NOTE: This is defined inside the App component, not at module level ---
+
+  const onlineSessionChannelIcons: Record<string, string> = {
+    微信公众号: channelWechatServiceIcon,
+    微信小程序: channelWechatMiniProgramIcon,
+    APP: channelMobileIcon,
+    PC: channelWebIcon,
+  };
+
+
+--- 2Q: callCustomerFields (Line 4376, INSIDE App component) ---
+--- NOTE: This is a computed variable inside the App component ---
+
+  const callCustomerFields = insertLinkedCustomerFields(workbenchCustomerFields, callLinkedCustomerFields, '业务类型');
+
+
+--- 2R: onlineThirdPartyLinks (Lines 1084-1093) ---
+
+const onlineThirdPartyLinks: Record<OnlineThirdPartyScope, OnlineThirdPartyLinkGroup[]> = {
+  public: [
+    { group: '讯飞开放平台官网', items: ['AI能力体验中心', '讯飞智作官网', '讯飞文档官网'] },
+    { group: '消费者事业群旗下子系统', items: ['讯飞语记', '录音文件助手', '讯飞翻译', '咪咕讯飞电子阅读器'] },
+  ],
+  personal: [
+    { group: '个人常用', items: ['个人 CRM', '个人知识库', '个人工单中心'] },
+    { group: '快捷入口', items: ['价格申请平台', '活动素材库'] },
+  ],
+};
+
+
+--- 2S: onlineSessionDetails (Lines 1370-2734 for base+right, merged at 2725-2734) ---
+--- NOTE: This is a very large block. Showing the merge logic (full data in source file) ---
+
+const onlineSessionDetails = Object.keys(onlineSessionBaseDetails).reduce<Record<string, OnlineSessionDetail>>(
+  (result, sessionId) => {
+    result[sessionId] = {
+      ...onlineSessionBaseDetails[sessionId],
+      ...onlineSessionRightPanelDetails[sessionId],
+    };
+    return result;
+  },
+  {}
+);
+
+
+================================================================================
+=== SECTION 3: callWorkbenchContent (Lines 6299-6433) ===
+================================================================================
+
+  const callWorkbenchContent = (
+    <CallWorkbenchContentView
+      layoutRef={callWorkbenchLayoutRef}
+      leftPanelStackRef={callLeftPanelStackRef}
+      centerPanelRef={callCenterPanelRef}
+      centerPanelStackRef={callCenterPanelStackRef}
+      rightPanelStackRef={callRightPanelStackRef}
+      leftPanelWidth={callLeftPanelWidth}
+      leftTopPanelHeight={callLeftTopPanelHeight}
+      centerPanelWidth={callCenterPanelWidth}
+      centerTopPanelHeight={callCenterTopPanelHeight}
+      rightTopPanelHeight={callRightTopPanelHeight}
+      isLeftTopResizing={isCallLeftTopResizing}
+      isLeftResizing={isCallLeftResizing}
+      isCenterTopResizing={isCallCenterTopResizing}
+      isCenterResizing={isCallCenterResizing}
+      isRightTopResizing={isCallRightTopResizing}
+      onStartLeftTopResize={() => setIsCallLeftTopResizing(true)}
+      onResetLeftTopPanelHeight={() => {
+        if (!callLeftPanelStackRef.current) {
+          return;
+        }
+
+        const stackHeight = callLeftPanelStackRef.current.getBoundingClientRect().height;
+        setIsCallLeftTopPanelCustomized(false);
+        setCallLeftTopPanelHeight(getCallVerticalPanelDefaultHeight(stackHeight, CALL_VERTICAL_RESIZER_HEIGHT));
+      }}
+      onStartLeftResize={() => setIsCallLeftResizing(true)}
+      onResetLeftPanelWidth={() => {
+        if (!callWorkbenchLayoutRef.current) {
+          return;
+        }
+
+        const layoutWidth = callWorkbenchLayoutRef.current.getBoundingClientRect().width;
+        setIsCallLeftPanelCustomized(false);
+        setCallLeftPanelWidth(getCallLeftPanelDefaultWidth(layoutWidth, window.innerWidth));
+      }}
+      onStartCenterTopResize={() => setIsCallCenterTopResizing(true)}
+      onResetCenterTopPanelHeight={() => {
+        if (!callCenterPanelStackRef.current) {
+          return;
+        }
+
+        const stackHeight = callCenterPanelStackRef.current.getBoundingClientRect().height;
+        setIsCallCenterTopPanelCustomized(false);
+        setCallCenterTopPanelHeight(getCallVerticalPanelDefaultHeight(stackHeight, CALL_VERTICAL_RESIZER_HEIGHT));
+      }}
+      onStartCenterResize={() => setIsCallCenterResizing(true)}
+      onResetCenterPanelWidth={() => {
+        if (!callWorkbenchLayoutRef.current) {
+          return;
+        }
+
+        const layoutWidth = callWorkbenchLayoutRef.current.getBoundingClientRect().width;
+        setIsCallCenterPanelCustomized(false);
+        setCallCenterPanelWidth(getCallCenterPanelDefaultWidth(layoutWidth, callLeftPanelWidth));
+      }}
+      onStartRightTopResize={() => setIsCallRightTopResizing(true)}
+      onResetRightTopPanelHeight={() => {
+        if (!callRightPanelStackRef.current) {
+          return;
+        }
+
+        const stackHeight = callRightPanelStackRef.current.getBoundingClientRect().height;
+        setIsCallRightTopPanelCustomized(false);
+        setCallRightTopPanelHeight(
+          getCallVerticalPanelDefaultHeight(stackHeight, CALL_RIGHT_VERTICAL_RESIZER_HEIGHT)
+        );
+      }}
+      leftTopContent={
+        <CallCustomerInfoPanel
+          onReset={handleResetCallCustomerFields}
+          onAddNew={handleAddNewCallCustomer}
+          onQueryByPhone={handleQueryCallCustomerByPhone}
+          height={
+            typeof window !== 'undefined' && window.innerWidth >= 1280
+              ? callLeftTopPanelHeight
+              : undefined
+          }
+          fieldsContent={callCustomerFields.map((field) =>
+            renderEditableWorkbenchField(
+              field,
+              callCustomerFieldValues,
+              setCallCustomerFieldValues,
+              callCustomerOpenSelect,
+              setCallCustomerOpenSelect,
+              'call-customer',
+              callCustomerRegionSelection,
+              setCallCustomerRegionSelection
+            )
+          )}
+        />
+      }
+      leftBottomContent={
+        <CallHistoryPanel
+          callHistoryTab={callHistoryTab}
+          onCallHistoryTabChange={setCallHistoryTab}
+          callHistorySummaryLabel={(isCallAddNewMode || isCallHistoryEmpty) ? '' : callHistorySummaryLabel}
+          activeHistoryMeta={(isCallAddNewMode || isCallHistoryEmpty) ? { filterPlaceholder: '关键词', details: [], messages: [] } : activeHistoryMeta}
+          isCallHistoryDateRangeTab={isCallHistoryDateRangeTab}
+          isCallHistoryTimeDropdownTab={isCallHistoryTimeDropdownTab}
+          activeCallHistoryDateRange={isCallAddNewMode ? { startDate: '', endDate: '' } : activeCallHistoryDateRange}
+          isCallHistoryDateRangeMenuOpen={isCallHistoryDateRangeMenuOpen}
+          onToggleCallHistoryDateRangeMenu={handleToggleActiveCallHistoryDateRangeMenu}
+          onUpdateActiveCallHistoryDateRange={updateActiveCallHistoryDateRange}
+          activeCallHistoryTime={isCallAddNewMode ? '' : activeCallHistoryTime}
+          isCallHistoryTimeMenuOpen={isCallHistoryTimeMenuOpen}
+          onToggleCallHistoryTimeMenu={handleToggleActiveCallHistoryTimeMenu}
+          callHistoryTimeOptions={
+            isCallHistoryTimeDropdownTab
+              ? callHistoryTimeDropdown.optionsByTab[callHistoryTab as HistoryTimeDropdownTab]
+              : []
+          }
+          onSelectCallHistoryTime={handleSelectActiveCallHistoryTime}
+          onToggleCallHistoryTimeSort={handleToggleActiveCallHistoryTimeSort}
+          renderFloatingMenu={renderFloatingMenu}
+          toolSortIcon={toolSortIcon}
+          hideDetails={isCallAddNewMode || isCallHistoryEmpty}
+        />
+      }
+      centerTopContent={
+        <CallInboundInfoPanel
+          profile={isCallAddNewMode ? { inboundInfoItems: [], tags: [], ivrPath: '', transferSummary: '' } : { ...callWorkbenchInboundProfile, tags: callTags }}
+          hideDetails={isCallAddNewMode}
+          onScheduleFollowUp={handleOpenCallScheduleFollowUpModal}
+          onBlacklist={handleOpenCallBlockConfirm}
+          onOpenTaggingModal={() => handleOpenTaggingModal('call')}
+          onAttachmentQuery={() => setShowAttachmentQueryModal('call')}
+        />
+      }
+      rightSidebar={callRightSidebarContent}
+      rightLayoutMode="single"
+      rightSingleContent={callRightSingleContent}
+    />
+  );
+
+
+================================================================================
+=== SECTION 4: onlineWorkbenchContent (Lines 6435-7361) ===
+================================================================================
+
+  const onlineWorkbenchContent = (
+    <OnlineWorkbenchContentView
+      layoutRef={onlineWorkbenchLayoutRef}
+      leftPanelWidth={onlineLeftPanelWidth}
+      isLeftResizing={isOnlineLeftResizing}
+      onStartLeftResize={() => setIsOnlineLeftResizing(true)}
+      onResetLeftPanelWidth={() => {
+        if (!onlineWorkbenchLayoutRef.current) {
+          return;
+        }
+
+        const layoutWidth = onlineWorkbenchLayoutRef.current.getBoundingClientRect().width;
+        setIsOnlineLeftPanelCustomized(false);
+        setOnlineLeftPanelWidth(getOnlineLeftPanelDefaultWidth(layoutWidth, window.innerWidth));
+      }}
+      leftContent={
+        <OnlineSessionListPanel
+          presenceMeta={onlineLeftPresenceMeta}
+          onTogglePresence={toggleOnlineLeftPresence}
+          isOnlineStatusMenuOpen={isOnlineStatusMenuOpen}
+          onToggleStatusMenu={() => setIsOnlineStatusMenuOpen((open) => !open)}
+          selectedOnlineStatus={selectedOnlineStatus}
+          onlineStatusOptions={onlineStatusOptions}
+          onSelectOnlineStatus={(option) => {
+            setSelectedOnlineStatus(option as typeof selectedOnlineStatus);
+            setIsOnlineStatusMenuOpen(false);
+          }}
+          queueCount={10}
+          sessionListTab={onlineSessionListTab}
+          onSessionListTabChange={handleChangeOnlineSessionListTab}
+          visibleSessions={visibleOnlineSessions}
+          summaryRoleBySessionId={onlineSessionSummaryRoleById}
+          activeSessionId={activeOnlineSessionId}
+          getChannelIcon={getOnlineSessionChannelIcon}
+          onSessionSelect={handleSelectOnlineSession}
+          onSessionContextMenu={handleOpenOnlineSessionContextMenu}
+          contextMenu={onlineSessionContextMenu}
+          pinnedSessionIds={pinnedOnlineSessionIds}
+          onTogglePin={handleToggleOnlineSessionPin}
+          onOpenBlockConfirm={handleOpenOnlineBlockConfirm}
+          lockedSessionIds={lockedOnlineSessionIds}
+          onToggleLock={handleToggleOnlineSessionLock}
+        />
+      }
+    >
+
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 xl:flex-row xl:gap-0">
+
+        <div
+          ref={onlineCenterPanelRef}
+          className="flex min-h-0 min-w-0 xl:shrink-0"
+          style={{
+            width:
+              typeof window !== 'undefined' && window.innerWidth >= 1280
+                ? `${onlineCenterPanelWidth}px`
+                : undefined,
+          }}
+        >
+        <OnlineConversationPanel
+          sessionId={activeOnlineSession.id}
+          customerName={activeOnlineSession.customer}
+          entryCountLabel={onlineSessionEntryCountLabels[activeOnlineSession.id] ?? '首次进线'}
+          visitorMeta={activeOnlineSessionDetail.visitorMeta}
+          tags={onlineTagsBySession[activeOnlineSession.id] ?? activeOnlineSessionDetail.tags}
+          summaryCards={activeOnlineSessionDetail.summaryCards}
+          isVisitorExpanded={isOnlineVisitorExpanded}
+          onToggleVisitorExpanded={() => setIsOnlineVisitorExpanded((expanded) => !expanded)}
+          isSessionFinished={isActiveOnlineSessionFinished}
+          isSessionConnected={isOnlineSessionConnected}
+          onSessionConnectionToggle={handleOnlineSessionConnectionToggle}
+          onOpenTaggingModal={() => handleOpenTaggingModal('online')}
+          transferAgentIconSrc={onlineTransferAgentIcon}
+          transferQueueIconSrc={onlineTransferQueueIcon}
+          conferenceIconSrc={onlineConferenceIcon}
+          endSessionIconSrc={onlineEndSessionIcon}
+          messages={activeOnlineConversationMessages}
+          translationLanguageById={onlineMessageTranslationLanguageById}
+          getTranslatedMessageText={getOnlineMessageTranslationText}
+          activeTranslateMenuMessageId={activeOnlineMessageTranslateMenuId}
+          onOpenTranslateMenu={handleOpenOnlineMessageTranslateMenu}
+          onSelectMessageTranslationLanguage={handleSelectOnlineMessageTranslationLanguage}
+          translateTriggerRefs={onlineMessageTranslateTriggerRefs}
+          messageTranslateIconSrc={chatTranslateIcon}
+          withdrawNoticeText={activeOnlineWithdrawNotice?.text ?? null}
+          onRequestWithdrawMessage={handleRequestWithdrawOnlineMessage}
+          onReEditWithdrawnMessage={() => {
+            if (!activeOnlineWithdrawNotice) {
+              return;
+            }
+
+            handleReEditWithdrawnOnlineMessage(activeOnlineSession.id, activeOnlineWithdrawNotice.text);
+          }}
+          onQuoteOpeningQuestion={handleQuoteOnlineOpeningQuestion}
+          renderFloatingMenu={renderFloatingMenu}
+          utilityItems={onlineUtilityItems['常用工具']}
+          composerPrimaryTools={onlineComposerPrimaryTools}
+          composerSecondaryTools={onlineComposerSecondaryTools}
+          activeCallOverlay={activeOnlineCallOverlay}
+          onPrimaryToolClick={handleOnlineComposerPrimaryToolClick}
+          suggestionTriggerRef={onlineSuggestionTriggerRef}
+          isComposerTranslateMenuOpen={isOnlineComposerTranslateMenuOpen}
+          onToggleComposerTranslateMenu={handleToggleOnlineComposerTranslateMenu}
+          composerTranslateLanguage={onlineComposerTranslateLanguage}
+          onSelectComposerTranslateLanguage={handleSelectOnlineComposerTranslateLanguage}
+          isSuggestionMenuOpen={isOnlineSuggestionMenuOpen}
+          onToggleSuggestionMenu={handleToggleOnlineSuggestionMenu}
+          onCloseSuggestionMenu={handleCloseOnlineSuggestionMenu}
+          suggestionKeyword={onlineSuggestionKeyword}
+          onSuggestionKeywordChange={setOnlineSuggestionKeyword}
+          visibleSuggestionGroups={visibleOnlineSuggestionGroups}
+          isSuggestionSearching={isOnlineSuggestionSearching}
+          expandedSuggestionGroups={expandedOnlineSuggestionGroups}
+          onToggleSuggestionGroup={handleToggleOnlineSuggestionGroup}
+          onApplySuggestion={handleApplyOnlineSuggestion}
+          composerTextareaRef={onlineComposerTextareaRef}
+          composerText={activeOnlineComposerText}
+          onComposerTextChange={updateActiveOnlineComposerText}
+          isComposerDisabled={isOnlineComposerDisabled}
+          composerActionLabel={onlineComposerActionLabel}
+          onSubmitComposer={handleSubmitOnlineComposer}
+          composerMessageIconSrc={chatMessageIcon}
+          onUtilityItemClick={(label) => {
+            if (label === '附件查询') setShowAttachmentQueryModal('online');
+          }}
+        />
+        </div>
+
+        <WorkbenchResizeHandle
+          direction="col"
+          active={isOnlineCenterResizing}
+          ariaLabel="调整在线工作台中间区域宽度"
+          className="w-2"
+          trackClassName="flex h-20 w-[3px] flex-col items-center justify-center gap-1 rounded-full bg-transparent transition-colors"
+          indicatorClassName="h-7 w-[2px] rounded-full bg-slate-200 transition-colors group-hover:bg-slate-300"
+          onMouseDown={(event) => {
+            event.preventDefault();
+            setIsOnlineCenterResizing(true);
+          }}
+          onDoubleClick={() => {
+            if (!onlineWorkbenchLayoutRef.current) {
+              return;
+            }
+
+            const layoutWidth = onlineWorkbenchLayoutRef.current.getBoundingClientRect().width;
+            setIsOnlineCenterPanelCustomized(false);
+            setOnlineCenterPanelWidth(getOnlineCenterPanelDefaultWidth(layoutWidth, onlineLeftPanelWidth));
+          }}
+        />
+
+        <div className="grid min-h-0 min-w-0 flex-1 grid-cols-[minmax(0,1fr)_50px] gap-2.5">
+          <div
+            ref={onlineRightPanelStackRef}
+            className={cn(
+              "min-h-0 gap-[10px] xl:gap-0",
+              onlineRightPanel === 'robot' ? "grid grid-rows-[minmax(0,1fr)]" : "flex flex-col"
+            )}
+          >
+            {onlineRightPanel === 'robot' && (
+              <CallAgentPanel
+                insight={activeOnlineAgentPanel.insight}
+                quickCards={activeOnlineAgentPanel.quickCards}
+                journeyName={activeOnlineAgentPanel.journeyName}
+                profile={activeOnlineAgentPanel.profile}
+                openTickets={activeOnlineAgentPanel.openTickets}
+                purchasedDeviceCount={activeOnlineAgentPanel.purchasedDeviceCount}
+                interactionCount={activeOnlineAgentPanel.interactionCount}
+              />
+            )}
+
+            {onlineRightPanel === 'customer' && (
+              <section
+                className="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
+                style={{ height: `${onlineRightTopPanelHeight}px` }}
+              >
+                <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+                  <h2 className="text-[14px] font-bold text-slate-800">客户信息</h2>
+                  <div className="flex items-center gap-2">
+                    <input type="text" placeholder="输入手机号查询" className="h-8 w-[132px] rounded-full border border-slate-200 bg-[#fcfcfd] px-3 text-[12px] text-slate-400 outline-none" />
+                    <button type="button" aria-label="按手机号查询客户信息" title="按手机号查询客户信息" className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-50 hover:text-slate-600">
+                      <Search size={14} />
+                    </button>
+                  </div>
+                </div>
+                <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+                  <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="text-[11px] font-medium text-slate-600">匿名</div>
+                    <button
+                      type="button"
+                      aria-pressed={activeOnlineCustomerAnonymous}
+                      onClick={handleToggleActiveOnlineCustomerAnonymous}
+                      className={cn(
+                        "relative h-5 w-9 rounded-full transition-colors",
+                        activeOnlineCustomerAnonymous ? "bg-[#34d399]" : "bg-slate-300"
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          "absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-all",
+                          activeOnlineCustomerAnonymous ? "right-0.5" : "left-0.5"
+                        )}
+                      />
+                    </button>
+                    <div className="text-[11px] font-medium text-slate-600">业务类型</div>
+                    <div className="relative" data-dropdown-root="true">
+                      <button
+                        ref={onlineBusinessTypeTriggerRef}
+                        type="button"
+                        onClick={() => setIsOnlineBusinessTypeMenuOpen((open) => !open)}
+                        className="flex h-[30px] min-w-[94px] items-center justify-between rounded-md border border-slate-200 bg-[#fcfcfd] px-3 text-[12px] text-slate-600"
+                      >
+                        <span>{activeOnlineBusinessType}</span>
+                        <ChevronDown
+                          size={13}
+                          className={cn("text-slate-300 transition-transform", isOnlineBusinessTypeMenuOpen && "rotate-180")}
+                        />
+                      </button>
+                      {isOnlineBusinessTypeMenuOpen
+                        ? renderFloatingMenu(
+                            onlineBusinessTypeTriggerRef.current,
+                            <div className="overflow-hidden rounded-md border border-slate-200 bg-white py-1 shadow-[0_10px_24px_rgba(15,23,42,0.12)]">
+                              {onlineBusinessTypeOptions.map((option) => (
+                                <button
+                                  key={option}
+                                  type="button"
+                                  onClick={() => handleSelectActiveOnlineBusinessType(option)}
+                                  className={cn(
+                                    "flex w-full items-center px-3 py-2 text-left text-[12px] transition-colors",
+                                    activeOnlineBusinessType === option
+                                      ? "bg-emerald-50 text-emerald-600"
+                                      : "text-slate-600 hover:bg-slate-50"
+                                  )}
+                                >
+                                  {option}
+                                </button>
+                              ))}
+                            </div>,
+                            { marginTop: 4, width: 120 }
+                          )
+                        : null}
+                  </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-3">
+                    {onlineCustomerFieldsWithLinked.map((field) =>
+                      renderEditableWorkbenchField(
+                        field,
+                        activeOnlineCustomerFieldValues,
+                        updateActiveOnlineCustomerFieldValues,
+                        onlineCustomerOpenSelect,
+                        setOnlineCustomerOpenSelect,
+                        'online-customer',
+                        onlineCustomerRegionSelection,
+                        setOnlineCustomerRegionSelection
+                      )
+                    )}
+                  </div>
+                  </div>
+                </div>
+                <div className="flex justify-end gap-3 border-t border-slate-100 px-4 py-3">
+                  <button
+                    type="button"
+                    onClick={handleOpenOnlineScheduleFollowUpModal}
+                    className="focus-ring press-lift rounded-full border border-violet-200 bg-violet-50/80 px-6 py-1.5 text-[12px] font-medium text-violet-600 transition-colors hover:border-violet-300 hover:bg-violet-100/80"
+                  >
+                    预约回电
+                  </button>
+                  <button type="button" className="rounded-full border border-[#7ee0d3] bg-[#f1fdfa] px-6 py-1.5 text-[12px] font-medium text-[#18a058]">保存</button>
+                  <button
+                    type="button"
+                    onClick={handleResetActiveOnlineCustomerProfile}
+                    className="rounded-full border border-[#7ee0d3] bg-[#f1fdfa] px-6 py-1.5 text-[12px] font-medium text-[#18a058]"
+                  >
+                    重置
+                  </button>
+                </div>
+              </section>
+            )}
+
+            {onlineRightPanel === 'history' && (
+              <section
+                className="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
+                style={{
+                  height: `${onlineRightTopPanelHeight}px`,
+                }}
+              >
+                <div className="flex items-center gap-6 border-b border-slate-100 px-4">
+                  {(['会话历史', '通话历史', '短信历史', '邮件历史'] as WorkbenchHistoryTab[]).map((tab) => (
+                    <button
+                      key={tab}
+                      type="button"
+                      onClick={() => setOnlineWorkbenchHistoryTab(tab)}
+                      className={cn(
+                        "relative py-3 text-[12px] font-semibold transition-colors",
+                        onlineWorkbenchHistoryTab === tab ? "text-emerald-500" : "text-slate-500 hover:text-slate-700"
+                      )}
+                    >
+                      {tab}
+                      {onlineWorkbenchHistoryTab === tab && <span className="absolute inset-x-0 bottom-0 h-0.5 bg-emerald-500" />}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+                  <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                    <div className="text-[12px] text-slate-500">
+                      <span className="text-[#18a058]">{onlineHistorySummaryLabel}</span>
+                    </div>
+                    <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-2">
+                      <div className="relative min-w-[120px] flex-[1_1_120px] sm:flex-none">
+                        <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" />
+                        <input
+                          type="text"
+                          placeholder={activeOnlineHistoryPanelMeta.filterPlaceholder}
+                          className="h-8 w-[120px] rounded-md border border-slate-200 bg-[#fcfcfd] pl-9 pr-3 text-[12px] text-slate-400 outline-none"
+                        />
+                      </div>
+                      {isOnlineHistoryDateRangeTab ? (
+                        <div className="relative" data-dropdown-root="true">
+                          <HistoryDateRangeFilter
+                            buttonRef={(node) => {
+                              onlineHistoryDateRangeTriggerRefs.current[onlineWorkbenchHistoryTab as HistoryDateRangeTab] = node;
+                            }}
+                            startDate={activeOnlineHistoryDateRange.startDate}
+                            endDate={activeOnlineHistoryDateRange.endDate}
+                            isOpen={activeOnlineHistoryDateRangeMenuTab === onlineWorkbenchHistoryTab}
+                            onClick={() =>
+                              setActiveOnlineHistoryDateRangeMenuTab((currentTab) =>
+                                currentTab === onlineWorkbenchHistoryTab ? null : (onlineWorkbenchHistoryTab as HistoryDateRangeTab)
+                              )
+                            }
+                            className="flex-[1_1_230px]"
+                          />
+                          {activeOnlineHistoryDateRangeMenuTab === onlineWorkbenchHistoryTab
+                            ? renderFloatingMenu(
+                                onlineHistoryDateRangeTriggerRefs.current[onlineWorkbenchHistoryTab as HistoryDateRangeTab] ?? null,
+                                <HistoryDateRangeMenu
+                                  startDate={activeOnlineHistoryDateRange.startDate}
+                                  endDate={activeOnlineHistoryDateRange.endDate}
+                                  onStartDateChange={(value) => updateActiveOnlineHistoryDateRange('startDate', value)}
+                                  onEndDateChange={(value) => updateActiveOnlineHistoryDateRange('endDate', value)}
+                                  onClear={() => {
+                                    updateActiveOnlineHistoryDateRange('startDate', '');
+                                    updateActiveOnlineHistoryDateRange('endDate', '');
+                                  }}
+                                />,
+                                { marginTop: 4, width: 280 }
+                              )
+                            : null}
+                        </div>
+                      ) : (
+                        <div className="relative" data-dropdown-root="true">
+                          <button
+                            ref={(node) => {
+                              if (isOnlineHistoryTimeDropdownTab) {
+                                onlineHistoryTimeTriggerRefs.current[onlineWorkbenchHistoryTab as HistoryTimeDropdownTab] = node;
+                              }
+                            }}
+                            type="button"
+                            onClick={() => {
+                              if (!isOnlineHistoryTimeDropdownTab) {
+                                return;
+                              }
+
+                              setActiveOnlineHistoryTimeMenuTab((currentTab) =>
+                                currentTab === onlineWorkbenchHistoryTab ? null : (onlineWorkbenchHistoryTab as HistoryTimeDropdownTab)
+                              );
+                            }}
+                            className="flex h-8 items-center gap-1 rounded-md border border-slate-200 bg-[#fcfcfd] px-3 text-[12px] text-slate-500"
+                          >
+                            {activeOnlineHistoryTime}
+                            <ChevronDown
+                              size={12}
+                              className={cn(
+                                "text-slate-300 transition-transform",
+                                activeOnlineHistoryTimeMenuTab === onlineWorkbenchHistoryTab && "rotate-180"
+                              )}
+                            />
+                          </button>
+                          {isOnlineHistoryTimeDropdownTab && activeOnlineHistoryTimeMenuTab === onlineWorkbenchHistoryTab
+                            ? renderFloatingMenu(
+                                onlineHistoryTimeTriggerRefs.current[onlineWorkbenchHistoryTab as HistoryTimeDropdownTab] ?? null,
+                                <div className="overflow-hidden rounded-md border border-slate-200 bg-white py-1 shadow-[0_10px_24px_rgba(15,23,42,0.12)]">
+                                  {onlineHistoryTimeDropdown.optionsByTab[onlineWorkbenchHistoryTab as HistoryTimeDropdownTab].map((time) => (
+                                    <button
+                                      key={`${onlineWorkbenchHistoryTab}-${time}`}
+                                      type="button"
+                                      onClick={() => handleSelectOnlineHistoryTime(onlineWorkbenchHistoryTab as HistoryTimeDropdownTab, time)}
+                                      className={cn(
+                                        "flex w-full items-center px-3 py-2 text-left text-[12px] transition-colors",
+                                        activeOnlineHistoryTime === time
+                                          ? "bg-emerald-50 text-emerald-600"
+                                          : "text-slate-600 hover:bg-slate-50"
+                                      )}
+                                    >
+                                      {time}
+                                    </button>
+                                  ))}
+                                </div>,
+                                { marginTop: 4, width: 176 }
+                              )
+                            : null}
+                        </div>
+                      )}
+                      {!isOnlineHistoryDateRangeTab ? (
+                        <button
+                          type="button"
+                          aria-label="切换时间排序"
+                          onClick={() => {
+                            if (!isOnlineHistoryTimeDropdownTab) {
+                              return;
+                            }
+
+                            handleToggleOnlineHistoryTimeSort(onlineWorkbenchHistoryTab as HistoryTimeDropdownTab);
+                          }}
+                          className="flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 bg-[#fcfcfd] text-slate-400"
+                        >
+                          <img src={toolSortIcon} alt="" className="h-[14px] w-[14px] object-contain" />
+                        </button>
+                      ) : null}
+                    </div>
+                  </div>
+                  {onlineWorkbenchHistoryTab !== '短信历史' && onlineWorkbenchHistoryTab !== '邮件历史' ? (
+                    <div className="grid grid-cols-3 gap-x-3 gap-y-2 text-[11px] text-slate-500">
+                      {activeOnlineHistoryPanelMeta.details.map((detail) => (
+                        <div key={`${onlineWorkbenchHistoryTab}-${detail.label}`}>
+                          <span>{detail.label}: </span>
+                          <span className="text-slate-700">{detail.value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+                  {onlineWorkbenchHistoryTab === '通话历史' ? (
+                    <div className="mt-3">
+                      <CallRecordingPlayer duration="00:16" />
+                    </div>
+                  ) : null}
+                  {(onlineWorkbenchHistoryTab === '通话历史' || onlineWorkbenchHistoryTab === '会话历史') ? (
+                    <div className="mt-3 rounded-[10px] border-l-[3px] border-l-accent-400 bg-accent-50/60 px-3 py-2.5 text-[12px] leading-5 text-slate-600">
+                      <button
+                        type="button"
+                        aria-expanded={!isOnlineHistorySummaryCollapsed}
+                        onClick={() => setIsOnlineHistorySummaryCollapsed((prev) => !prev)}
+                        className="focus-ring flex w-full items-center justify-between gap-2 rounded-md text-left text-[12px] font-semibold uppercase tracking-wide text-accent-700"
+                      >
+                        <span>{onlineWorkbenchHistoryTab === '通话历史' ? '通话纪要' : '会话纪要'}</span>
+                        {isOnlineHistorySummaryCollapsed ? (
+                          <ChevronRight size={14} className="text-accent-500" />
+                        ) : (
+                          <ChevronDown size={14} className="text-accent-500" />
+                        )}
+                      </button>
+                      {!isOnlineHistorySummaryCollapsed ? (
+                        <p className="mt-1 text-slate-700">
+                          {(() => {
+                            const sample = activeOnlineHistoryPanelMeta.messages
+                              .filter((m) => m.text && m.text.trim().length > 0)
+                              .slice(0, 2)
+                              .map((m) => m.text.trim())
+                              .join(' ');
+                            return (
+                              sample ||
+                              (onlineWorkbenchHistoryTab === '通话历史'
+                                ? '本次通话围绕用户来电诉求展开，已记录关键问题与处理建议。'
+                                : '本次会话已记录用户主要诉求与客服处理过程，详情可展开查看。')
+                            );
+                          })()}
+                        </p>
+                      ) : null}
+                    </div>
+                  ) : null}
+                  <div className="mt-4 min-h-[212px] space-y-3 border-t border-slate-100 pt-4">
+                    {onlineWorkbenchHistoryTab === '短信历史' ? (
+                      <SmsContentList
+                        entries={activeOnlineHistoryPanelMeta.messages.map((message, index) => ({
+                          direction: message.align === 'right' ? 'out' : 'in',
+                          time: `10-28 09:${String(10 + index * 2).padStart(2, '0')}:20`,
+                          content: message.text,
+                        }))}
+                      />
+                    ) : onlineWorkbenchHistoryTab === '邮件历史' ? (
+                      <EmailContentList
+                        entries={activeOnlineHistoryPanelMeta.messages.map((message, index) => ({
+                          direction: message.align === 'right' ? 'out' : 'in',
+                          time: `10-28 09:${String(10 + index * 5).padStart(2, '0')}:20`,
+                          content: message.text,
+                          subject: message.badge ?? '未命名主题',
+                          sender: message.align === 'right' ? '客服001' : '客户',
+                          recipient: message.align === 'right' ? '客户' : '客服001',
+                        }))}
+                      />
+                    ) : (
+                      activeOnlineHistoryPanelMeta.messages.map((message, index) => (
+                        <div key={`${onlineWorkbenchHistoryTab}-message-${index}`} className={cn("flex", message.align === 'right' ? "justify-end" : "justify-start")}>
+                          <div className={cn("max-w-[240px]", message.align === 'right' && "items-end")}>
+                            <div className={cn("mb-1 text-[11px] text-slate-400", message.align === 'right' ? "text-right" : "text-left")}>
+                              10-28 09:10:20
+                            </div>
+                            <div className={cn("flex items-start gap-2", message.align === 'right' && "flex-row-reverse")}>
+                              <div className={cn(
+                                "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-white",
+                                message.align === 'right' ? "bg-orange-400" : "bg-emerald-500"
+                              )}>
+                                <MessageSquare size={14} />
+                              </div>
+                              <div className="space-y-1">
+                                {message.badge && (
+                                  <div className="text-left">
+                                    <span className="rounded-md bg-emerald-50 px-2 py-1 text-[10px] font-medium text-emerald-500">
+                                      {message.badge}
+                                    </span>
+                                  </div>
+                                )}
+                                <div className={cn(
+                                  "rounded-2xl px-4 py-2 text-[12px] leading-5 shadow-[0_2px_6px_rgba(15,23,42,0.03)]",
+                                  message.align === 'right'
+                                    ? "rounded-tr-md bg-[#e9f9f4] text-slate-700"
+                                    : "rounded-tl-md bg-slate-50 text-slate-700"
+                                )}>
+                                  {message.text}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {onlineRightPanel === 'third-party' && (
+              <section
+                className="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
+                style={{
+                  height: `${onlineRightTopPanelHeight}px`,
+                }}
+              >
+                {renderThirdPartySystemPanelContent(
+                  '第三方网站',
+                  onlineThirdPartySettingsTriggerRef,
+                  '打开第三方网站默认设置'
+                )}
+              </section>
+            )}
+
+            {onlineRightPanel !== 'robot' && (
+            <>
+            <WorkbenchResizeHandle
+              direction="row"
+              active={isOnlineRightTopResizing}
+              ariaLabel="调整在线工作台右侧上方区域高度"
+              className="h-[10px]"
+              trackClassName="flex h-[3px] w-20 items-center justify-center gap-1 rounded-full bg-transparent transition-colors"
+              indicatorClassName="h-[2px] w-7 rounded-full bg-slate-200 transition-colors group-hover:bg-slate-300"
+              onMouseDown={(event) => {
+                event.preventDefault();
+                setIsOnlineRightTopResizing(true);
+              }}
+              onDoubleClick={() => {
+                if (!onlineRightPanelStackRef.current) {
+                  return;
+                }
+
+                const stackHeight = onlineRightPanelStackRef.current.getBoundingClientRect().height;
+                setIsOnlineRightTopPanelCustomized(false);
+                setOnlineRightTopPanelHeight(getOnlineRightTopPanelDefaultHeight(stackHeight));
+              }}
+            />
+            <WorkbenchSummaryPanel
+              variant="online"
+              tabs={onlineSummaryTabs}
+              activeTab={onlineSummaryTab}
+              onTabSelect={setOnlineSummaryTab}
+              onAddTab={handleAddOnlineSummaryTab}
+              onRemoveTab={handleRemoveOnlineSummaryTab}
+              fieldsContent={workbenchSummaryFields.map((field) =>
+                renderEditableWorkbenchField(
+                  field,
+                  activeOnlineSummaryFieldValues,
+                  updateOnlineSummaryFieldValues,
+                  onlineSummaryOpenSelect,
+                  setOnlineSummaryOpenSelect,
+                  'online-summary'
+                )
+              )}
+              descriptionValue={activeOnlineSummaryText}
+              onDescriptionChange={setActiveOnlineSummaryText}
+              ticketTemplateOptions={onlineTicketTemplateOptions}
+              actions={
+                <>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveOnlineSummaryTab(onlineSummaryTab)}
+                    className="rounded-full border border-rose-300 bg-rose-50/60 px-5 py-1.5 text-[12px] font-medium text-rose-500 transition-colors hover:bg-rose-50"
+                  >
+                    废弃
+                  </button>
+                  <button className="rounded-full border border-[#7ee0d3] bg-[#f1fdfa] px-5 py-1.5 text-[12px] font-medium text-[#18a058]">
+                    升级工单
+                  </button>
+                  {activeOnlineBusinessType === '教育' ? (
+                    <button
+                      type="button"
+                      onClick={() => setShowCreateTpdModal(true)}
+                      className="rounded-full border border-[#7ee0d3] bg-[#f1fdfa] px-5 py-1.5 text-[12px] font-medium text-[#18a058]"
+                    >
+                      创建TPD工单
+                    </button>
+                  ) : null}
+                  <button className="rounded-full border border-[#7ee0d3] bg-[#f1fdfa] px-5 py-1.5 text-[12px] font-medium text-[#18a058]">
+                    提交
+                  </button>
+                </>
+              }
+            />
+            </>
+            )}
+          </div>
+
+          <OnlineWorkbenchSidebar
+            visibleButtons={visibleOnlineSidebarButtons}
+            orderedFeatures={orderedOnlineSidebarFeatures}
+            visibility={onlineSidebarVisibility}
+            activePanel={onlineRightPanel}
+            isSettingsOpen={isOnlineFeatureSettingsOpen}
+            settingsTriggerRef={onlineFeatureSettingsTriggerRef}
+            draggingFeatureKey={draggingOnlineSidebarFeatureKey}
+            dropIndicator={onlineSidebarDropIndicator}
+            onPanelSelect={(panel) => setOnlineRightPanel(panel)}
+            onToggleSettings={handleToggleOnlineFeatureSettings}
+            onToggleVisibility={handleToggleOnlineSidebarVisibility}
+            onFeatureDragStart={handleOnlineSidebarFeatureDragStart}
+            onFeatureDragOver={handleOnlineSidebarFeatureDragOver}
+            onFeatureDrop={handleOnlineSidebarFeatureDrop}
+            onFeatureDragEnd={handleOnlineSidebarFeatureDragEnd}
+            renderFloatingMenu={renderFloatingMenu}
+          />
+        </div>
+        </div>
+
+        {activeOnlineCallOverlay && (
+            <div
+              data-call-overlay
+              className="absolute z-50"
+              style={callOverlayPos.x >= 0 ? { left: callOverlayPos.x, top: callOverlayPos.y } : { left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }}
+            >
+              {activeOnlineCallOverlay === 'audio' ? (
+                <div className="w-[258px] overflow-hidden rounded-[18px] border border-[#e7edf3] bg-white shadow-[0_24px_50px_rgba(15,23,42,0.16)]">
+                  <div
+                    className="flex cursor-move items-center gap-2 border-b border-[#e4f3ef] bg-[#f2fbf8] px-4 py-[11px] text-[13px] font-semibold text-[#12b89d] select-none"
+                    onMouseDown={handleCallOverlayDragStart}
+                  >
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#dff8f2] text-[#14c4a6]">
+                      <Phone size={11} strokeWidth={2.2} />
+                    </span>
+                    <span>语音通话进行中</span>
+                  </div>
+                  <div className="flex flex-col items-center px-5 pb-6 pt-7">
+                    <img
+                      src={onlineAudioCallAvatar}
+                      alt={`${onlineCallContactName}头像`}
+                      className="h-[84px] w-[84px] rounded-full object-cover shadow-[0_12px_24px_rgba(125,144,255,0.2)]"
+                    />
+                    <div className="mt-3.5 text-[18px] font-semibold tracking-[0.02em] text-slate-700">{onlineCallContactName}</div>
+                    <div className="mt-1 text-[18px] font-semibold tracking-[0.08em] text-[#1cc9af]">{onlineAudioCallDuration}</div>
+                    <div className="mt-7 grid w-full grid-cols-3 gap-2.5 text-center">
+                      {onlineAudioCallControls.map(({ label, iconSrc, onClick }) => (
+                        <div key={`online-audio-call-control-${label}`} className="flex flex-col items-center gap-2">
+                          <button
+                            type="button"
+                            aria-label={label}
+                            onClick={onClick}
+                            className="flex h-9 w-9 items-center justify-center rounded-full border border-[#e4e8ef] bg-white shadow-[0_4px_10px_rgba(15,23,42,0.04)] transition-colors hover:border-[#cfd8e3]"
+                          >
+                            <img
+                              src={iconSrc}
+                              alt=""
+                              className={cn(
+                                "object-contain opacity-70",
+                                label === '外放' ? "h-[14px] w-[18px]" : "h-[18px] w-[18px]"
+                              )}
+                            />
+                          </button>
+                          <span className="text-[11px] text-slate-400">{label}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <button
+                      type="button"
+                      aria-label="挂断语音通话"
+                      onClick={handleCloseOnlineCallOverlay}
+                      className="mt-6 transition-transform hover:scale-[1.02]"
+                    >
+                      <img src={onlineCallHangupIcon} alt="" className="h-[42px] w-[42px] object-contain" />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="w-[500px] max-w-[calc(100%-48px)] overflow-hidden rounded-[14px] bg-[#23252b] shadow-[0_28px_60px_rgba(15,23,42,0.28)]">
+                  <div
+                    className="flex cursor-move items-center bg-[rgba(12,14,18,0.9)] px-4 py-2.5 text-white select-none"
+                    onMouseDown={handleCallOverlayDragStart}
+                  >
+                    <div className="flex items-center gap-2 text-[13px] font-medium">
+                      <span className="flex h-4 w-4 items-center justify-center rounded-full bg-white/10">
+                        <Phone size={10} strokeWidth={2.4} />
+                      </span>
+                      <span>正在与{onlineCallContactName}视频通话</span>
+                      <span className="text-white/70">{onlineVideoCallDuration}</span>
+                    </div>
+                  </div>
+                  <div className="relative h-[332px] overflow-hidden bg-[#3f4145]">
+                    <img
+                      src={onlineVideoMainPhoto}
+                      alt={`${onlineCallContactName}视频画面`}
+                      className="h-full w-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.02),rgba(0,0,0,0.08))]" />
+                    <div className="absolute right-4 top-4 h-[102px] w-[102px] overflow-hidden rounded-[10px] border border-white/10 shadow-[0_14px_22px_rgba(15,23,42,0.24)]">
+                      <img
+                        src={onlineVideoPreviewPhoto}
+                        alt="本地视频预览"
+                        className="h-full w-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(0,0,0,0.08))]" />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[rgba(0,0,0,0.18)] text-white shadow-[0_6px_12px_rgba(0,0,0,0.18)]">
+                          <Video size={15} strokeWidth={2.1} />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="absolute inset-x-0 bottom-[14px] flex justify-center">
+                      <div className="relative h-[58px] w-[252px]">
+                        <img
+                          src={onlineVideoToolbarBackground}
+                          alt=""
+                          className="absolute inset-0 h-full w-full object-cover"
+                        />
+                        <div className="relative z-10 flex h-full items-center justify-center gap-3.5 px-5">
+                          {onlineVideoCallControls.map(({ label, iconSrc }) => (
+                            <button
+                              key={`online-video-call-control-${label}`}
+                              type="button"
+                              aria-label={label}
+                              className="flex h-9 w-9 items-center justify-center rounded-full bg-white/5 transition-colors hover:bg-white/10"
+                            >
+                              <img
+                                src={iconSrc}
+                                alt=""
+                                className={cn(
+                                  "object-contain invert",
+                                  label === '外放' ? "h-[14px] w-[18px]" : "h-[16px] w-[16px]"
+                                )}
+                              />
+                            </button>
+                          ))}
+                          <button
+                            type="button"
+                            aria-label="挂断视频通话"
+                            onClick={handleCloseOnlineCallOverlay}
+                            className="transition-transform hover:scale-[1.02]"
+                          >
+                            <img src={onlineVideoHangupIcon} alt="" className="h-10 w-10 object-contain" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+        )}
+
+        {showOnlineEndSessionConfirm && (
+          <>
+            <button
+              type="button"
+              aria-label="关闭结束会话弹窗"
+              onClick={() => setShowOnlineEndSessionConfirm(false)}
+              className="absolute inset-0 z-20 bg-[rgba(245,247,251,0.58)]"
+            />
+            <div className="absolute left-1/2 top-[58px] z-30 w-[230px] -translate-x-1/2 rounded-[10px] bg-white px-[20px] py-[16px] text-left shadow-[0_12px_28px_rgba(15,23,42,0.16)] xl:left-[67.4%] xl:top-[64px] xl:-translate-x-1/2">
+              <div className="text-[14px] font-semibold leading-none text-[#3f434a]">结束会话</div>
+              <div className="mt-[18px] text-[12px] leading-[18px] text-[#5c6570]">是否立即结束会话?</div>
+              <div className="mt-[18px] flex items-center justify-end gap-[10px]">
+                <button
+                  type="button"
+                  onClick={() => setShowOnlineEndSessionConfirm(false)}
+                  className="flex h-[30px] min-w-[66px] items-center justify-center rounded-full border border-[#e4e8ef] bg-white px-[18px] text-[12px] text-[#6f7782] transition-colors hover:bg-slate-50"
+                >
+                  取消
+                </button>
+                <button
+                  type="button"
+                  onClick={handleOnlineSessionDisconnectConfirm}
+                  className="flex h-[30px] min-w-[74px] items-center justify-center rounded-full border border-[#8ee8db] bg-[#ecfbf8] px-[18px] text-[12px] font-medium text-[#11c5ab] transition-colors hover:bg-[#dff8f3]"
+                >
+                  确定
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+        {isOnlineFormSelectModalOpen && (
+          <>
+            <button
+              type="button"
+              aria-label="关闭表单选择弹窗"
+              onClick={handleCloseOnlineFormSelectModal}
+              className="absolute inset-0 z-20 bg-[rgba(245,247,251,0.58)]"
+            />
+            <div className="absolute left-1/2 top-[73%] z-30 w-[376px] -translate-x-1/2 -translate-y-1/2 rounded-[10px] bg-white px-[20px] py-[16px] text-left shadow-[0_12px_28px_rgba(15,23,42,0.16)]">
+              <div className="text-[14px] font-semibold leading-none text-[#3f434a]">表单选择</div>
+              <div className="mt-[16px] flex flex-wrap items-center gap-x-[22px] gap-y-[10px] text-[12px] text-[#3f434a]">
+                {onlineFormFieldOptions.map((field) => {
+                  const isSelected = selectedOnlineFormFields.includes(field);
+
+                  return (
+                    <button
+                      key={field}
+                      type="button"
+                      onClick={() => handleToggleOnlineFormField(field)}
+                      className="inline-flex items-center gap-[6px] transition-colors hover:text-[#18a058]"
+                    >
+                      <span>{field}</span>
+                      <span
+                        className={cn(
+                          "flex h-[13px] w-[13px] items-center justify-center rounded-[3px] border transition-colors",
+                          isSelected ? "border-[#17c6aa] bg-[#17c6aa]" : "border-[#d6dee7] bg-white"
+                        )}
+                      >
+                        {isSelected ? <Check size={10} strokeWidth={2.8} className="text-white" /> : null}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="mt-[22px] flex items-center justify-end gap-[10px]">
+                <button
+                  type="button"
+                  onClick={handleCloseOnlineFormSelectModal}
+                  className="flex h-[30px] min-w-[66px] items-center justify-center rounded-full border border-[#e4e8ef] bg-white px-[18px] text-[12px] text-[#6f7782] transition-colors hover:bg-slate-50"
+                >
+                  取消
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmOnlineFormSelect}
+                  className="flex h-[30px] min-w-[74px] items-center justify-center rounded-full border border-[#8ee8db] bg-[#ecfbf8] px-[18px] text-[12px] font-medium text-[#11c5ab] transition-colors hover:bg-[#dff8f3]"
+                >
+                  确定
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+        {pendingOnlineWithdrawMessage && (
+          <>
+            <button
+              type="button"
+              aria-label="关闭撤回消息弹窗"
+              onClick={handleCloseOnlineWithdrawConfirm}
+              className="absolute inset-0 z-20 bg-[rgba(245,247,251,0.58)]"
+            />
+            <div className="absolute left-1/2 top-1/2 z-30 w-[230px] -translate-x-1/2 -translate-y-1/2 rounded-[10px] bg-white px-[20px] py-[16px] text-left shadow-[0_12px_28px_rgba(15,23,42,0.16)]">
+              <div className="text-[14px] font-semibold leading-none text-[#3f434a]">撤回消息</div>
+              <div className="mt-[18px] text-[12px] leading-[18px] text-[#5c6570]">是否立即撤回消息?</div>
+              <div className="mt-[18px] flex items-center justify-end gap-[10px]">
+                <button
+                  type="button"
+                  onClick={handleCloseOnlineWithdrawConfirm}
+                  className="flex h-[30px] min-w-[66px] items-center justify-center rounded-full border border-[#e4e8ef] bg-white px-[18px] text-[12px] text-[#6f7782] transition-colors hover:bg-slate-50"
+                >
+                  取消
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmWithdrawOnlineMessage}
+                  className="flex h-[30px] min-w-[74px] items-center justify-center rounded-full border border-[#8ee8db] bg-[#ecfbf8] px-[18px] text-[12px] font-medium text-[#11c5ab] transition-colors hover:bg-[#dff8f3]"
+                >
+                  确定
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+        {pendingBlockedOnlineSession && (
+          <>
+            <button
+              type="button"
+              aria-label="关闭拉黑弹窗"
+              onClick={handleCloseOnlineBlockConfirm}
+              className="absolute inset-0 z-20 bg-transparent"
+            />
+            <div
+              data-dropdown-root="true"
+              className="fixed z-[81] w-[280px] rounded-[10px] border border-[#e8edf3] bg-white px-[16px] py-[14px] text-left shadow-[0_12px_28px_rgba(15,23,42,0.16)]"
+              style={{ left: pendingBlockedOnlineSession.x, top: pendingBlockedOnlineSession.y }}
+            >
+              <div className="text-[14px] font-semibold leading-none text-[#3f434a]">拉黑原因</div>
+              <textarea
+                value={onlineBlockReason}
+                onChange={(event) => setOnlineBlockReason(event.target.value)}
+                placeholder="请输入拉黑原因"
+                className="mt-[18px] h-[70px] w-full resize-none rounded-[4px] border border-[#e8edf3] px-[10px] py-[8px] text-[12px] leading-[18px] text-[#3f434a] outline-none transition-colors placeholder:text-[#c3cad5] focus:border-[#8ee8db]"
+              />
+              <div className="mt-[12px] flex items-center justify-end gap-[10px]">
+                <button
+                  type="button"
+                  onClick={handleCloseOnlineBlockConfirm}
+                  className="flex h-[30px] min-w-[66px] items-center justify-center rounded-full border border-[#e4e8ef] bg-white px-[18px] text-[12px] text-[#6f7782] transition-colors hover:bg-slate-50"
+                >
+                  取消
+                </button>
+                <button
+                  type="button"
+                  onClick={handleBlockOnlineSession}
+                  className="flex h-[30px] min-w-[74px] items-center justify-center rounded-full border border-[#8ee8db] bg-[#ecfbf8] px-[18px] text-[12px] font-medium text-[#11c5ab] transition-colors hover:bg-[#dff8f3]"
+                >
+                  确定
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+    </OnlineWorkbenchContentView>
+  );
+
+
+================================================================================
+=== END OF EXTRACTION ===
+================================================================================
