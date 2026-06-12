@@ -38,7 +38,8 @@ export type MainTab =
   | '产品模块维护'
   | '用户体系管理'
   | '部门角色管理'
-  | '账号管理';
+  | '账号管理'
+  | '表单维护';
 
 export type PrimaryMainTab = '个人门户（6月）' | '个人门户' | '呼叫工作台' | '在线工作台';
 export type SecondaryMainTab = Exclude<MainTab, PrimaryMainTab>;

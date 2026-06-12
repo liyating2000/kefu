@@ -731,24 +731,24 @@ export default function OnlineConversationPanel({
 
                       <div className="text-[14px] font-bold text-slate-800">常用工具</div>
                     </div>
-                    <div className="grid grid-cols-3 gap-3 p-4">
+                    <div className="grid grid-cols-4 gap-2 p-3">
                       {utilityItems.map((item) => (
                         <button
                           key={item.label}
                           type="button"
                           onClick={() => onUtilityItemClick?.(item.label)}
-                          className="focus-ring press-lift rounded-xl border border-hairline bg-surface-sunken px-2 py-3.5 text-center transition-all duration-200 hover:border-brand-200 hover:bg-brand-50/40"
+                          className="focus-ring press-lift rounded-lg border border-hairline bg-surface-sunken px-1.5 py-2 text-center transition-all duration-200 hover:border-brand-200 hover:bg-brand-50/40"
                         >
-                          <div className="mx-auto flex h-[35px] w-[35px] items-center justify-center">
+                          <div className="mx-auto flex h-[24px] w-[24px] items-center justify-center">
                             {item.imageSrc ? (
                               <img
                                 src={item.imageSrc}
                                 alt=""
-                                className="h-[35px] w-[35px] object-contain"
+                                className="h-[24px] w-[24px] object-contain"
                               />
                             ) : null}
                           </div>
-                          <div className="mt-2 text-[12px] font-semibold text-slate-700">
+                          <div className="mt-1 text-[11px] font-medium text-slate-700">
                             {item.label}
                           </div>
                         </button>

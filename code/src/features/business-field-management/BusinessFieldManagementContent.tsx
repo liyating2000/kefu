@@ -49,7 +49,7 @@ const businessFieldInnerSections: ReadonlyArray<{
 ];
 
 const panelToneClassNameMap = {
-  emerald: 'border-[#d6f1ea] bg-[linear-gradient(180deg,#edf9f5_0%,#f7fcfa_26%,#ffffff_100%)]',
+  emerald: 'border-[#c9dcff] bg-[linear-gradient(180deg,#e8f1ff_0%,#f0f4ff_26%,#ffffff_100%)]',
   blue: 'border-[#d9e4fb] bg-[linear-gradient(180deg,#eff4fe_0%,#f6f8ff_26%,#ffffff_100%)]',
   amber: 'border-[#f3e1c9] bg-[linear-gradient(180deg,#fff7ee_0%,#fffbf6_26%,#ffffff_100%)]',
 } as const;
@@ -1797,7 +1797,7 @@ export default function BusinessFieldManagementContent() {
                     className={cn(
                       'border-b-2 pb-2 text-[14px] font-medium transition-colors',
                       isActive
-                        ? 'border-[#19bba5] text-[#19bba5]'
+                        ? 'border-[#216BFF] text-[#216BFF]'
                         : 'border-transparent text-slate-500 hover:text-slate-700'
                     )}
                   >
@@ -2519,47 +2519,47 @@ function ProductManagementPanel({
   const [changeLogKeyword, setChangeLogKeyword] = useState('');
   const changeLogPageSize = 10;
   const changeLogRows = [
-    { id: 1, time: '2026-06-10 14:32:05', content: [
+    { id: 1, time: '2026-06-10 14:32:05', operator: '张三', content: [
       '业务类型：新增【智能硬件】、删除【打印机】',
       '产品分类：新增【AI学习平板系列】',
       '产品名称：新增【X3 Pro Max】、【T30 Ultra】',
     ] },
-    { id: 2, time: '2026-06-09 10:15:22', content: [
+    { id: 2, time: '2026-06-09 10:15:22', operator: '李四', content: [
       '产品分类：【学习平板】变更为【AI学习平板】',
     ] },
-    { id: 3, time: '2026-06-08 16:48:33', content: [
+    { id: 3, time: '2026-06-08 16:48:33', operator: '王五', content: [
       '业务类型：【翻译笔】变更为【AI翻译笔】',
       '产品名称：删除【T20 Pro】、【T20】',
     ] },
-    { id: 4, time: '2026-06-07 09:20:11', content: [
+    { id: 4, time: '2026-06-07 09:20:11', operator: '张三', content: [
       '产品分类：新增【词典笔系列】、【翻译笔系列】',
       '产品名称：新增【S30 Plus】',
     ] },
-    { id: 5, time: '2026-06-05 11:05:44', content: [
+    { id: 5, time: '2026-06-05 11:05:44', operator: '赵六', content: [
       '业务类型：新增【办公设备】',
       '产品分类：新增【激光打印机】',
       '产品名称：新增【P2000】、【P3000 Pro】',
     ] },
-    { id: 6, time: '2026-06-04 15:30:18', content: [
+    { id: 6, time: '2026-06-04 15:30:18', operator: '李四', content: [
       '产品名称：【S30】变更为【S30 标准版】',
     ] },
-    { id: 7, time: '2026-06-03 08:55:02', content: [
+    { id: 7, time: '2026-06-03 08:55:02', operator: '王五', content: [
       '业务类型：删除【教育平板】',
       '产品分类：删除【基础款】',
     ] },
-    { id: 8, time: '2026-06-01 13:42:37', content: [
+    { id: 8, time: '2026-06-01 13:42:37', operator: '张三', content: [
       '业务类型：【学习机】变更为【AI学习机】',
       '产品分类：【入门系列】变更为【基础系列】',
       '产品名称：【X2】变更为【X2 Plus】、删除【X1】',
     ] },
-    { id: 9, time: '2026-05-30 17:10:55', content: [
+    { id: 9, time: '2026-05-30 17:10:55', operator: '赵六', content: [
       '产品名称：新增【T50】',
     ] },
-    { id: 10, time: '2026-05-28 09:33:41', content: [
+    { id: 10, time: '2026-05-28 09:33:41', operator: '李四', content: [
       '业务类型：新增【扫描笔】',
       '产品分类：新增【扫描笔系列】',
     ] },
-    { id: 11, time: '2026-05-25 14:20:18', content: [
+    { id: 11, time: '2026-05-25 14:20:18', operator: '王五', content: [
       '产品名称：删除【A10 旧款】',
     ] },
   ];
@@ -2631,7 +2631,7 @@ function ProductManagementPanel({
           <button
             type="button"
             onClick={() => { setSyncToast('success'); setTimeout(() => setSyncToast(null), 2500); }}
-            className="inline-flex h-8 items-center gap-1 rounded-[4px] border border-[#8fe0d2] bg-white px-4 text-[13px] font-medium text-[#21c4b0] transition-colors hover:bg-[#f4fcfa]"
+            className="inline-flex h-8 items-center gap-1 rounded-[4px] border border-[#96b8ff] bg-white px-4 text-[13px] font-medium text-[#216BFF] transition-colors hover:bg-[#e8f1ff]"
           >
             <RefreshCw size={14} />
             手动同步
@@ -3092,6 +3092,7 @@ function ProductManagementPanel({
                   <tr>
                     <th className="w-[60px] whitespace-nowrap px-5 py-3 font-medium">序号</th>
                     <th className="w-[180px] px-4 py-3 font-medium">变更时间</th>
+                    <th className="w-[100px] px-4 py-3 font-medium">变更人</th>
                     <th className="px-4 py-3 font-medium">变更内容</th>
                   </tr>
                 </thead>
@@ -3100,6 +3101,7 @@ function ProductManagementPanel({
                     <tr key={row.id} className={i % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]'}>
                       <td className="whitespace-nowrap px-5 py-3">{row.id}</td>
                       <td className="px-4 py-3 text-slate-500">{row.time}</td>
+                      <td className="px-4 py-3">{row.operator}</td>
                       <td className="px-4 py-3">{row.content.map((line, li) => (<div key={li}>{changeLogKeyword.trim() && line.includes(changeLogKeyword.trim()) ? line.split(changeLogKeyword.trim()).reduce<ReactNode[]>((parts, seg, si) => { if (si > 0) parts.push(<mark key={`h${si}`} className="rounded bg-[#fef08a] px-0.5">{changeLogKeyword.trim()}</mark>); parts.push(seg); return parts; }, []) : line}</div>))}</td>
                     </tr>
                   )); })()}
@@ -3113,7 +3115,7 @@ function ProductManagementPanel({
                   <ChevronLeft size={14} />
                 </button>
                 {Array.from({ length: Math.ceil((changeLogKeyword.trim() ? changeLogRows.filter((r) => r.content.some((c) => c.includes(changeLogKeyword.trim()))) : changeLogRows).length / changeLogPageSize) }, (_, i) => i + 1).map((p) => (
-                  <button key={p} type="button" onClick={() => setChangeLogPage(p)} className={cn('flex h-7 min-w-[28px] items-center justify-center rounded border px-1.5 text-[12px] transition-colors', p === changeLogPage ? 'border-[#21c4b0] bg-[#f0fbf8] font-medium text-[#21c4b0]' : 'border-slate-200 text-slate-500 hover:bg-slate-50')}>
+                  <button key={p} type="button" onClick={() => setChangeLogPage(p)} className={cn('flex h-7 min-w-[28px] items-center justify-center rounded border px-1.5 text-[12px] transition-colors', p === changeLogPage ? 'border-[#216BFF] bg-[#e8f1ff] font-medium text-[#216BFF]' : 'border-slate-200 text-slate-500 hover:bg-slate-50')}>
                     {p}
                   </button>
                 ))}
@@ -3130,7 +3132,7 @@ function ProductManagementPanel({
         <div className="fixed left-1/2 top-8 z-[200] -translate-x-1/2">
           <div className={cn(
             'flex items-center gap-2 rounded-lg px-5 py-3 text-[13px] font-medium shadow-lg',
-            syncToast === 'success' ? 'bg-[#f0fbf8] text-[#18bca2] border border-[#8fe0d2]' : 'bg-red-50 text-red-600 border border-red-200'
+            syncToast === 'success' ? 'bg-[#e8f1ff] text-[#216BFF] border border-[#96b8ff]' : 'bg-red-50 text-red-600 border border-red-200'
           )}>
             {syncToast === 'success' ? <CheckCircle2 size={16} /> : <X size={16} />}
             {syncToast === 'success' ? '同步成功' : '同步失败，请稍后重试'}
@@ -3194,8 +3196,8 @@ function ProductManagementModalFrame({
             className={cn(
               'inline-flex h-[28px] min-w-[72px] items-center justify-center rounded-full border px-4 text-[13px] transition-colors',
               confirmDisabled
-                ? 'cursor-not-allowed border-[#d9efe9] bg-[#f6fbfa] text-[#9ad7cc]'
-                : 'border-[#82ddd0] bg-[#effbf8] text-[#18bca2] hover:bg-[#e2f8f3]'
+                ? 'cursor-not-allowed border-[#c9dcff] bg-[#e8f1ff] text-[#96b8ff]'
+                : 'border-[#96b8ff] bg-[#e8f1ff] text-[#216BFF] hover:bg-[#c9dcff]'
             )}
           >
             确定
@@ -3253,7 +3255,7 @@ function ProductManagementMultiSelect({
                 type="checkbox"
                 checked={checked}
                 onChange={() => handleToggle(option.value)}
-                className="mt-[2px] h-3.5 w-3.5 rounded border-[#cbd5e1] text-[#18bca2] focus:ring-[#7fdccf]"
+                className="mt-[2px] h-3.5 w-3.5 rounded border-[#cbd5e1] text-[#216BFF] focus:ring-[#96b8ff]"
               />
               <span className="leading-5">{option.label}</span>
             </label>
@@ -3283,7 +3285,7 @@ function ProductManagementInput({
       onChange={onChange ? (event) => onChange(event.target.value) : undefined}
       disabled={disabled}
       className={cn(
-        'h-[28px] flex-1 rounded-[4px] border border-[#dfe6ee] bg-white px-3 text-[13px] text-slate-600 outline-none transition-colors placeholder:text-slate-300 focus:border-[#7fdccf]',
+        'h-[28px] flex-1 rounded-[4px] border border-[#dfe6ee] bg-white px-3 text-[13px] text-slate-600 outline-none transition-colors placeholder:text-slate-300 focus:border-[#96b8ff]',
         disabled && 'bg-[#f8fafc] text-slate-300'
       )}
     />
@@ -3308,7 +3310,7 @@ function ProductManagementSelect({
         disabled={disabled}
         onChange={(event) => onChange(event.target.value)}
         className={cn(
-          'h-[28px] w-full appearance-none rounded-[4px] border border-[#dfe6ee] bg-white pl-3 pr-8 text-[13px] text-slate-600 outline-none transition-colors focus:border-[#7fdccf]',
+          'h-[28px] w-full appearance-none rounded-[4px] border border-[#dfe6ee] bg-white pl-3 pr-8 text-[13px] text-slate-600 outline-none transition-colors focus:border-[#96b8ff]',
           disabled && 'cursor-not-allowed bg-slate-50 text-slate-500'
         )}
       >
@@ -3353,12 +3355,12 @@ function FieldManagementListPanel({
             <tbody className="text-[13px] text-slate-600">
               {rows.map((row, index) => (
                 <tr key={row.id} className={cn(index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfd]')}>
-                  <td className="px-4 py-4 text-center text-slate-700">{row.businessType}</td>
-                  <td className="px-4 py-4 text-center">{row.onlineVersion}</td>
-                  <td className="px-4 py-4 text-center text-slate-700">{row.status}</td>
-                  <td className="px-4 py-4 text-center">{row.updatedBy}</td>
-                  <td className="px-4 py-4 text-center">{row.updatedAt}</td>
-                  <td className="px-4 py-4 text-center">
+                  <td className="px-4 py-3 text-center text-slate-700">{row.businessType}</td>
+                  <td className="px-4 py-3 text-center">{row.onlineVersion}</td>
+                  <td className="px-4 py-3 text-center text-slate-700">{row.status}</td>
+                  <td className="px-4 py-3 text-center">{row.updatedBy}</td>
+                  <td className="px-4 py-3 text-center">{row.updatedAt}</td>
+                  <td className="px-4 py-3 text-center">
                     <div className="flex items-center justify-center gap-6 whitespace-nowrap">
                       <button
                         type="button"
@@ -3366,7 +3368,7 @@ function FieldManagementListPanel({
                         className={cn(
                           'transition-colors',
                           row.canSwitchVersion
-                            ? 'text-[#2ac7b2] hover:text-[#18bca2]'
+                            ? 'text-[#216BFF] hover:text-[#216BFF]'
                             : 'cursor-default text-slate-300'
                         )}
                       >
@@ -3378,7 +3380,7 @@ function FieldManagementListPanel({
                         className={cn(
                           'transition-colors',
                           row.canManageVersion
-                            ? 'text-[#2ac7b2] hover:text-[#18bca2]'
+                            ? 'text-[#216BFF] hover:text-[#216BFF]'
                             : 'cursor-default text-slate-300'
                         )}
                       >
@@ -4317,7 +4319,7 @@ function FieldManagementDetailManagementPanel({
                 className={cn(
                   'inline-flex h-8 min-w-[100px] items-center justify-center border text-[14px] font-medium transition-colors',
                   item.key === activeTab
-                    ? 'border-[#87e0d4] bg-[#ecfbf8] text-[#18bca2]'
+                    ? 'border-[#96b8ff] bg-[#e8f1ff] text-[#216BFF]'
                     : 'border-[#e5e9ef] bg-white text-slate-500 hover:bg-slate-50'
                 )}
               >
@@ -4330,7 +4332,7 @@ function FieldManagementDetailManagementPanel({
             <button
               type="button"
               onClick={handleOpenCustomFieldDrawer}
-              className="inline-flex h-8 items-center gap-1 rounded-[4px] border border-[#87e0d4] bg-white px-4 text-[13px] font-medium text-[#18bca2] transition-colors hover:bg-[#f4fcfa]"
+              className="inline-flex h-8 items-center gap-1 rounded-[4px] border border-[#96b8ff] bg-white px-4 text-[13px] font-medium text-[#216BFF] transition-colors hover:bg-[#e8f1ff]"
             >
               <Plus size={14} />
               新增自定义字段
@@ -4356,15 +4358,15 @@ function FieldManagementDetailManagementPanel({
                 <tbody className="text-[13px] text-slate-600">
                   {rows.map((row, index) => (
                     <tr key={row.id} className="border-b border-[#eef2f6] last:border-b-0">
-                      <td className="px-4 py-4 align-top text-slate-700">
+                      <td className="px-4 py-3 align-top text-slate-700">
                         {index + 1}
                       </td>
-                      <td className="px-4 py-4 align-top text-slate-700">
+                      <td className="px-4 py-3 align-top text-slate-700">
                         <div className="truncate" title={row.fieldName}>
                           {row.fieldName}
                         </div>
                       </td>
-                      <td className="px-4 py-4 align-top text-slate-700">
+                      <td className="px-4 py-3 align-top text-slate-700">
                         {(() => {
                           const joined = row.databaseFields?.join('、') ?? '';
                           return (
@@ -4374,20 +4376,20 @@ function FieldManagementDetailManagementPanel({
                           );
                         })()}
                       </td>
-                      <td className="px-4 py-4 align-top">{row.fieldType}</td>
-                      <td className="px-4 py-4 align-top">
+                      <td className="px-4 py-3 align-top">{row.fieldType}</td>
+                      <td className="px-4 py-3 align-top">
                         {row.createdBy === 'system' ? '系统字段' : '自定义字段'}
                       </td>
-                      <td className="px-4 py-4 align-top">{row.createdBy}</td>
-                      <td className="px-4 py-4 align-top">{row.updatedBy}</td>
-                      <td className="px-4 py-4 align-top">{row.updatedAt}</td>
-                      <td className="px-4 py-4 align-top">
-                        <div className="flex items-center gap-4 whitespace-nowrap text-[#21c4b0]">
+                      <td className="px-4 py-3 align-top">{row.createdBy}</td>
+                      <td className="px-4 py-3 align-top">{row.updatedBy}</td>
+                      <td className="px-4 py-3 align-top">{row.updatedAt}</td>
+                      <td className="px-4 py-3 align-top">
+                        <div className="flex items-center gap-4 whitespace-nowrap text-[#216BFF]">
                           {(activeTab === 'customer' ? row.canEdit : !['product-category', 'product-name', 'call-summary', 'session-summary'].includes(row.id)) ? (
                             <button
                               type="button"
                               onClick={() => handleOpenViewDrawer(row)}
-                              className="inline-flex items-center gap-1 transition-colors hover:text-[#18bca2]"
+                              className="inline-flex items-center gap-1 transition-colors hover:text-[#216BFF]"
                             >
                               <Eye size={13} />
                               查看
@@ -4397,7 +4399,7 @@ function FieldManagementDetailManagementPanel({
                             <button
                               type="button"
                               onClick={() => handleOpenEditCustomFieldDrawer(row)}
-                              className="inline-flex items-center gap-1 transition-colors hover:text-[#18bca2]"
+                              className="inline-flex items-center gap-1 transition-colors hover:text-[#216BFF]"
                             >
                               <Pencil size={13} />
                               编辑
@@ -4407,7 +4409,7 @@ function FieldManagementDetailManagementPanel({
                             <button
                               type="button"
                               onClick={() => handleDeleteCustomField(row)}
-                              className="inline-flex items-center gap-1 transition-colors hover:text-[#18bca2]"
+                              className="inline-flex items-center gap-1 transition-colors hover:text-[#216BFF]"
                             >
                               <Trash2 size={13} />
                               删除
@@ -4545,7 +4547,7 @@ function FieldManagementCustomFieldDrawer({
                       };
                     })
                   }
-                  className="h-[28px] w-full appearance-none rounded-[4px] border border-[#dfe6ee] bg-white pl-3 pr-8 text-[13px] text-slate-600 outline-none transition-colors focus:border-[#7fdccf]"
+                  className="h-[28px] w-full appearance-none rounded-[4px] border border-[#dfe6ee] bg-white pl-3 pr-8 text-[13px] text-slate-600 outline-none transition-colors focus:border-[#96b8ff]"
                 >
                   <option value="单行文本">单行文本</option>
                   <option value="多行文本">多行文本</option>
@@ -4590,7 +4592,7 @@ function FieldManagementCustomFieldDrawer({
                             return { ...current, cascadeFieldNames: next };
                           })
                         }
-                        className="h-[28px] flex-1 rounded-[4px] border border-[#dfe6ee] bg-white px-3 text-[13px] text-slate-600 outline-none transition-colors placeholder:text-slate-300 focus:border-[#7fdccf]"
+                        className="h-[28px] flex-1 rounded-[4px] border border-[#dfe6ee] bg-white px-3 text-[13px] text-slate-600 outline-none transition-colors placeholder:text-slate-300 focus:border-[#96b8ff]"
                       />
                       <div className="relative flex-1">
                         <select
@@ -4607,7 +4609,7 @@ function FieldManagementCustomFieldDrawer({
                               return { ...current, databaseFields: next };
                             })
                           }
-                          className="h-[28px] w-full appearance-none rounded-[4px] border border-[#dfe6ee] bg-white pl-3 pr-8 text-[13px] text-slate-600 outline-none transition-colors focus:border-[#7fdccf]"
+                          className="h-[28px] w-full appearance-none rounded-[4px] border border-[#dfe6ee] bg-white pl-3 pr-8 text-[13px] text-slate-600 outline-none transition-colors focus:border-[#96b8ff]"
                         >
                           <option value="">{getDatabaseFieldPlaceholder(draft.fieldType, index)}</option>
                           {businessFieldCustomDatabaseFieldOptions.map((option) => (
@@ -4646,7 +4648,7 @@ function FieldManagementCustomFieldDrawer({
                       };
                     })
                   }
-                  className="h-[28px] w-full rounded-[4px] border border-[#dfe6ee] bg-white px-3 text-[13px] text-slate-600 outline-none transition-colors placeholder:text-slate-300 focus:border-[#7fdccf]"
+                  className="h-[28px] w-full rounded-[4px] border border-[#dfe6ee] bg-white px-3 text-[13px] text-slate-600 outline-none transition-colors placeholder:text-slate-300 focus:border-[#96b8ff]"
                 />
               </FieldManagementCustomFieldRow>
             )}
@@ -4679,7 +4681,7 @@ function FieldManagementCustomFieldDrawer({
                             return { ...current, databaseFields: next };
                           })
                         }
-                        className="h-[28px] w-full appearance-none rounded-[4px] border border-[#dfe6ee] bg-white pl-3 pr-8 text-[13px] text-slate-600 outline-none transition-colors focus:border-[#7fdccf]"
+                        className="h-[28px] w-full appearance-none rounded-[4px] border border-[#dfe6ee] bg-white pl-3 pr-8 text-[13px] text-slate-600 outline-none transition-colors focus:border-[#96b8ff]"
                       >
                         <option value="">{getDatabaseFieldPlaceholder(draft.fieldType, index)}</option>
                         {businessFieldCustomDatabaseFieldOptions.map((option) => (
@@ -4710,7 +4712,7 @@ function FieldManagementCustomFieldDrawer({
                       fieldPattern: event.target.value,
                     }))
                   }
-                  className="h-[28px] w-full rounded-[4px] border border-[#dfe6ee] bg-white px-3 text-[13px] text-slate-600 outline-none transition-colors placeholder:text-slate-300 focus:border-[#7fdccf]"
+                  className="h-[28px] w-full rounded-[4px] border border-[#dfe6ee] bg-white px-3 text-[13px] text-slate-600 outline-none transition-colors placeholder:text-slate-300 focus:border-[#96b8ff]"
                 />
               </FieldManagementCustomFieldRow>
             ) : (
@@ -4737,7 +4739,7 @@ function FieldManagementCustomFieldDrawer({
                                 ),
                               }))
                             }
-                            className="h-[28px] min-w-0 flex-1 rounded-[4px] border border-[#dfe6ee] bg-white px-3 text-[13px] text-slate-600 outline-none transition-colors placeholder:text-slate-300 focus:border-[#7fdccf]"
+                            className="h-[28px] min-w-0 flex-1 rounded-[4px] border border-[#dfe6ee] bg-white px-3 text-[13px] text-slate-600 outline-none transition-colors placeholder:text-slate-300 focus:border-[#96b8ff]"
                           />
                           {draft.optionItems.length > 1 ? (
                             <button
@@ -4769,7 +4771,7 @@ function FieldManagementCustomFieldDrawer({
                           ],
                         }))
                       }
-                      className="mt-2 inline-flex h-[28px] items-center gap-1 rounded-[4px] border border-[#87e0d4] bg-white px-3 text-[13px] text-[#18bca2] transition-colors hover:bg-[#f4fcfa]"
+                      className="mt-2 inline-flex h-[28px] items-center gap-1 rounded-[4px] border border-[#96b8ff] bg-white px-3 text-[13px] text-[#216BFF] transition-colors hover:bg-[#e8f1ff]"
                     >
                       <Plus size={14} />
                       添加
@@ -4826,7 +4828,7 @@ function FieldManagementCustomFieldDrawer({
             <button
               type="button"
               onClick={onClose}
-              className="inline-flex h-[28px] min-w-[68px] items-center justify-center rounded-full border border-[#82ddd0] bg-[#effbf8] px-4 text-[13px] text-[#18bca2] transition-colors hover:bg-[#e2f8f3]"
+              className="inline-flex h-[28px] min-w-[68px] items-center justify-center rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-4 text-[13px] text-[#216BFF] transition-colors hover:bg-[#c9dcff]"
             >
               关闭
             </button>
@@ -4847,8 +4849,8 @@ function FieldManagementCustomFieldDrawer({
               className={cn(
                 'inline-flex h-[28px] min-w-[68px] items-center justify-center rounded-full border px-4 text-[13px] transition-colors',
                 confirmDisabled
-                  ? 'cursor-not-allowed border-[#d9efe9] bg-[#f6fbfa] text-[#9ad7cc]'
-                  : 'border-[#82ddd0] bg-[#effbf8] text-[#18bca2] hover:bg-[#e2f8f3]'
+                  ? 'cursor-not-allowed border-[#c9dcff] bg-[#e8f1ff] text-[#96b8ff]'
+                  : 'border-[#96b8ff] bg-[#e8f1ff] text-[#216BFF] hover:bg-[#c9dcff]'
               )}
             >
               确定
@@ -4976,7 +4978,7 @@ function ProblemClassificationLevelCreateModal({
                   problemId: event.target.value,
                 }))
               }
-              className="h-[28px] w-0 min-w-0 flex-1 rounded-[4px] border border-[#dfe6ee] bg-white px-3 text-[13px] text-slate-600 outline-none transition-colors placeholder:text-slate-300 focus:border-[#7fdccf]"
+              className="h-[28px] w-0 min-w-0 flex-1 rounded-[4px] border border-[#dfe6ee] bg-white px-3 text-[13px] text-slate-600 outline-none transition-colors placeholder:text-slate-300 focus:border-[#96b8ff]"
             />
           </div>
 
@@ -4991,7 +4993,7 @@ function ProblemClassificationLevelCreateModal({
                   problemName: event.target.value,
                 }))
               }
-              className="h-[28px] w-0 min-w-0 flex-1 rounded-[4px] border border-[#dfe6ee] bg-white px-3 text-[13px] text-slate-600 outline-none transition-colors placeholder:text-slate-300 focus:border-[#7fdccf]"
+              className="h-[28px] w-0 min-w-0 flex-1 rounded-[4px] border border-[#dfe6ee] bg-white px-3 text-[13px] text-slate-600 outline-none transition-colors placeholder:text-slate-300 focus:border-[#96b8ff]"
             />
           </div>
 
@@ -5027,8 +5029,8 @@ function ProblemClassificationLevelCreateModal({
             className={cn(
               'inline-flex h-[28px] min-w-[60px] items-center justify-center rounded-full border px-4 text-[13px] transition-colors',
               confirmDisabled
-                ? 'cursor-not-allowed border-[#d9efe9] bg-[#f6fbfa] text-[#9ad7cc]'
-                : 'border-[#82ddd0] bg-[#effbf8] text-[#18bca2] hover:bg-[#e2f8f3]'
+                ? 'cursor-not-allowed border-[#c9dcff] bg-[#e8f1ff] text-[#96b8ff]'
+                : 'border-[#96b8ff] bg-[#e8f1ff] text-[#216BFF] hover:bg-[#c9dcff]'
             )}
           >
             确定
@@ -5123,14 +5125,14 @@ function FieldManagementProblemClassificationPanel({
               <button
                 type="button"
                 onClick={() => setImportModalOpen(true)}
-                className="inline-flex h-8 items-center gap-1 rounded-[4px] border border-[#8fe0d2] bg-white px-4 text-[13px] font-medium text-[#21c4b0] transition-colors hover:bg-[#f4fcfa]"
+                className="inline-flex h-8 items-center gap-1 rounded-[4px] border border-[#96b8ff] bg-white px-4 text-[13px] font-medium text-[#216BFF] transition-colors hover:bg-[#e8f1ff]"
               >
                 <Upload size={14} />
                 导入
               </button>
               <button
                 type="button"
-                className="inline-flex h-8 items-center gap-1 rounded-[4px] border border-[#8fe0d2] bg-white px-4 text-[13px] font-medium text-[#21c4b0] transition-colors hover:bg-[#f4fcfa]"
+                className="inline-flex h-8 items-center gap-1 rounded-[4px] border border-[#96b8ff] bg-white px-4 text-[13px] font-medium text-[#216BFF] transition-colors hover:bg-[#e8f1ff]"
               >
                 <Download size={14} />
                 导出
@@ -5151,13 +5153,13 @@ function FieldManagementProblemClassificationPanel({
           <div className="space-y-4">
             <div className="flex items-center justify-between rounded-[6px] border border-[#e6ebf2] bg-[#fafcfe] px-3 py-2.5">
               <div className="flex items-center gap-2 text-[13px] text-slate-600">
-                <List size={14} className="text-[#1fc0ad]" />
+                <List size={14} className="text-[#216BFF]" />
                 <span>问题标签模板</span>
               </div>
               <a
                 href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,UEsDBBQACAgIAAAAIQAAAAAAAAAAAAAAAAALAAAAX3JlbHMvLnJlbHM="
                 download="问题标签模板.xlsx"
-                className="inline-flex items-center gap-1 text-[13px] text-[#1fc0ad] transition-colors hover:text-[#18a391]"
+                className="inline-flex items-center gap-1 text-[13px] text-[#216BFF] transition-colors hover:text-[#1a5ce6]"
               >
                 <Download size={13} />
                 下载
@@ -5178,9 +5180,9 @@ function FieldManagementProblemClassificationPanel({
               <button
                 type="button"
                 onClick={() => importFileInputRef.current?.click()}
-                className="flex w-full flex-col items-center justify-center gap-1 rounded-[6px] border border-dashed border-[#c8d2dd] bg-white px-3 py-6 text-[13px] text-slate-500 transition-colors hover:border-[#8fe0d2] hover:bg-[#f4fcfa]"
+                className="flex w-full flex-col items-center justify-center gap-1 rounded-[6px] border border-dashed border-[#c8d2dd] bg-white px-3 py-6 text-[13px] text-slate-500 transition-colors hover:border-[#96b8ff] hover:bg-[#e8f1ff]"
               >
-                <Upload size={18} className="text-[#1fc0ad]" />
+                <Upload size={18} className="text-[#216BFF]" />
                 <span>{importFile ? importFile.name : '点击选择 Excel 文件上传'}</span>
                 <span className="text-[12px] text-slate-400">支持 .xls / .xlsx 格式</span>
               </button>
@@ -5271,7 +5273,7 @@ function FieldManagementProblemClassificationTree({
             <div
               className={cn(
                 'flex items-center gap-[6px] rounded-[4px] py-[5px] pr-[6px]',
-                isSelected ? 'bg-[#dff4ef]' : 'hover:bg-[#f4f7fa]'
+                isSelected ? 'bg-[#c9dcff]' : 'hover:bg-[#f4f7fa]'
               )}
               style={{ paddingLeft: `${8 + depth * 16}px` }}
             >
@@ -5291,7 +5293,7 @@ function FieldManagementProblemClassificationTree({
               </button>
 
               {node.enabled ? (
-                <CheckCircle2 size={13} strokeWidth={2.1} className="shrink-0 text-[#28c7b2]" />
+                <CheckCircle2 size={13} strokeWidth={2.1} className="shrink-0 text-[#216BFF]" />
               ) : (
                 <img src={minusIcon} alt="" className="h-[13px] w-[13px] shrink-0 object-contain" />
               )}
@@ -5374,11 +5376,11 @@ function FieldManagementProblemClassificationCard({
               key={item.id}
               className={cn(
                 'flex items-center gap-[7px] rounded-[4px] px-[6px] py-[5px]',
-                item.id === selectedItemId ? 'bg-[#dff4ef]' : 'hover:bg-white/70'
+                item.id === selectedItemId ? 'bg-[#c9dcff]' : 'hover:bg-white/70'
               )}
             >
               {item.enabled ? (
-                <CheckCircle2 size={13} strokeWidth={2.1} className="shrink-0 text-[#28c7b2]" />
+                <CheckCircle2 size={13} strokeWidth={2.1} className="shrink-0 text-[#216BFF]" />
               ) : (
                 <img src={minusIcon} alt="" className="h-[13px] w-[13px] shrink-0 object-contain" />
               )}
@@ -5425,8 +5427,8 @@ function FieldManagementProblemClassificationCard({
             className={cn(
               'mt-auto inline-flex h-[28px] w-[142px] self-center items-center justify-center gap-1 rounded-[4px] border text-[13px] font-medium transition-colors',
               addDisabled
-                ? 'cursor-not-allowed border-[#d9efe9] bg-[#f6fbfa] text-[#9ad7cc]'
-                : 'border-[#8fe0d2] bg-white text-[#21c4b0] hover:bg-[#f4fcfa]'
+                ? 'cursor-not-allowed border-[#c9dcff] bg-[#e8f1ff] text-[#96b8ff]'
+                : 'border-[#96b8ff] bg-white text-[#216BFF] hover:bg-[#e8f1ff]'
             )}
           >
             <Plus size={14} />
@@ -5523,7 +5525,7 @@ function FieldManagementCascadeTreeEditor({
               value={node.value}
               placeholder={node.placeholder}
               onChange={(event) => onValueChange(node.id, event.target.value)}
-              className="h-[28px] flex-1 rounded-[4px] border border-[#dfe6ee] bg-white px-3 text-[12px] text-slate-600 outline-none transition-colors placeholder:text-slate-300 focus:border-[#7fdccf]"
+              className="h-[28px] flex-1 rounded-[4px] border border-[#dfe6ee] bg-white px-3 text-[12px] text-slate-600 outline-none transition-colors placeholder:text-slate-300 focus:border-[#96b8ff]"
             />
 
             <div className="grid w-[77px] grid-cols-[16px_16px_16px] items-center justify-items-center gap-x-[10px] pl-1">
@@ -5621,7 +5623,7 @@ function SwitchVersionDialog({
                 id="switch-version-select"
                 value={targetVersion}
                 onChange={(event) => onTargetVersionChange(event.target.value)}
-                className="h-8 w-full appearance-none rounded-[4px] border border-[#dfe6ee] bg-white pl-3 pr-8 text-[13px] text-slate-600 outline-none transition-colors focus:border-[#7fdccf]"
+                className="h-8 w-full appearance-none rounded-[4px] border border-[#dfe6ee] bg-white pl-3 pr-8 text-[13px] text-slate-600 outline-none transition-colors focus:border-[#96b8ff]"
               >
                 <option value="">请选择</option>
                 {availableVersions.map((item) => (
@@ -5644,7 +5646,7 @@ function SwitchVersionDialog({
               id="switch-version-reason"
               value={reason}
               onChange={(event) => onReasonChange(event.target.value)}
-              className="h-[84px] w-[226px] resize-none rounded-[2px] border border-slate-400 px-3 py-2 text-[13px] text-slate-600 outline-none transition-colors focus:border-[#7fdccf]"
+              className="h-[84px] w-[226px] resize-none rounded-[2px] border border-slate-400 px-3 py-2 text-[13px] text-slate-600 outline-none transition-colors focus:border-[#96b8ff]"
             />
           </div>
         </div>
@@ -5663,8 +5665,8 @@ function SwitchVersionDialog({
             className={cn(
               'inline-flex h-7 min-w-[58px] items-center justify-center rounded-full border px-4 text-[13px] transition-colors',
               targetVersion
-                ? 'border-[#82ddd0] bg-[#effbf8] text-[#18bca2] hover:bg-[#e2f8f3]'
-                : 'cursor-not-allowed border-[#d9efe9] bg-[#f6fbfa] text-[#9ad7cc]'
+                ? 'border-[#96b8ff] bg-[#e8f1ff] text-[#216BFF] hover:bg-[#c9dcff]'
+                : 'cursor-not-allowed border-[#c9dcff] bg-[#e8f1ff] text-[#96b8ff]'
             )}
           >
             确定
@@ -5712,7 +5714,7 @@ function VersionManagementListPanel({
           <button
             type="button"
             onClick={onOpenCreateVersionField}
-            className="inline-flex h-8 items-center gap-1 rounded-[4px] border border-[#8fe0d2] bg-white px-4 text-[13px] font-medium text-[#21c4b0] transition-colors hover:bg-[#f4fcfa]"
+            className="inline-flex h-8 items-center gap-1 rounded-[4px] border border-[#96b8ff] bg-white px-4 text-[13px] font-medium text-[#216BFF] transition-colors hover:bg-[#e8f1ff]"
           >
             <Plus size={14} />
             新增字段版本
@@ -5739,32 +5741,32 @@ function VersionManagementListPanel({
                     <td className="px-4 py-[11px] text-center">{item.updatedBy}</td>
                     <td className="px-4 py-[11px] text-center">{item.updatedAt}</td>
                     <td className="px-4 py-[11px] text-center">
-                      <div className="flex items-center justify-center gap-4 whitespace-nowrap text-[#21c4b0]">
+                      <div className="flex items-center justify-center gap-4 whitespace-nowrap text-[#216BFF]">
                         <button
                           type="button"
                           onClick={() => onOpenViewVersionField(item.id)}
-                          className="transition-colors hover:text-[#18bca2]"
+                          className="transition-colors hover:text-[#216BFF]"
                         >
                           查看
                         </button>
                         <button
                           type="button"
                           onClick={() => onCopyVersionField(item.id)}
-                          className="transition-colors hover:text-[#18bca2]"
+                          className="transition-colors hover:text-[#216BFF]"
                         >
                           复制
                         </button>
                         <button
                           type="button"
                           onClick={() => onOpenEditVersionField(item.id)}
-                          className="transition-colors hover:text-[#18bca2]"
+                          className="transition-colors hover:text-[#216BFF]"
                         >
                           编辑
                         </button>
                         <button
                           type="button"
                           onClick={() => onRequestDeleteVersionField(item.id)}
-                          className="transition-colors hover:text-[#18bca2]"
+                          className="transition-colors hover:text-[#216BFF]"
                         >
                           删除
                         </button>
@@ -5961,7 +5963,7 @@ function VersionFieldEditorPanel({
                 disabled={readOnly}
                 onChange={(event) => setVersionName(event.target.value)}
                 className={cn(
-                  'h-8 w-[164px] rounded-[4px] border border-[#dfe6ee] px-3 text-[13px] text-slate-600 outline-none transition-colors focus:border-[#7fdccf]',
+                  'h-8 w-[164px] rounded-[4px] border border-[#dfe6ee] px-3 text-[13px] text-slate-600 outline-none transition-colors focus:border-[#96b8ff]',
                   readOnly && 'cursor-not-allowed bg-slate-50 text-slate-500'
                 )}
               />
@@ -5975,7 +5977,7 @@ function VersionFieldEditorPanel({
                 disabled={readOnly}
                 onChange={(event) => setVersionDescription(event.target.value)}
                 className={cn(
-                  'h-[84px] w-[292px] resize-none rounded-[4px] border border-[#dfe6ee] px-3 py-2 text-[13px] text-slate-600 outline-none transition-colors focus:border-[#7fdccf]',
+                  'h-[84px] w-[292px] resize-none rounded-[4px] border border-[#dfe6ee] px-3 py-2 text-[13px] text-slate-600 outline-none transition-colors focus:border-[#96b8ff]',
                   readOnly && 'cursor-not-allowed bg-slate-50 text-slate-500'
                 )}
               />
@@ -5993,7 +5995,7 @@ function VersionFieldEditorPanel({
                     className={cn(
                       'inline-flex h-8 min-w-[100px] items-center justify-center border text-[14px] font-medium transition-colors',
                       item.key === activeScope
-                        ? 'border-[#87e0d4] bg-[#ecfbf8] text-[#18bca2]'
+                        ? 'border-[#96b8ff] bg-[#e8f1ff] text-[#216BFF]'
                         : 'border-[#e5e9ef] bg-white text-slate-500 hover:bg-slate-50'
                     )}
                   >
@@ -6011,7 +6013,7 @@ function VersionFieldEditorPanel({
                     className={cn(
                       'inline-flex h-8 min-w-[100px] items-center justify-center border text-[14px] font-medium transition-colors',
                       item.key === activeCategory
-                        ? 'border-[#87e0d4] bg-[#ecfbf8] text-[#18bca2]'
+                        ? 'border-[#96b8ff] bg-[#e8f1ff] text-[#216BFF]'
                         : 'border-[#e5e9ef] bg-white text-slate-500 hover:bg-slate-50'
                     )}
                   >
@@ -6051,7 +6053,7 @@ function VersionFieldEditorPanel({
                         dragOverFieldId === field.id &&
                           draggingFieldId &&
                           draggingFieldId !== field.id &&
-                          'bg-[#f4fcfa] shadow-[inset_0_0_0_1px_rgba(132,221,208,0.9)]',
+                          'bg-[#e8f1ff] shadow-[inset_0_0_0_1px_rgba(132,221,208,0.9)]',
                         draggingFieldId === field.id && 'opacity-60'
                       )}
                     >
@@ -6061,7 +6063,7 @@ function VersionFieldEditorPanel({
                           disabled={readOnly}
                           onChange={(event) => handleChangeFieldName(field.id, event.target.value)}
                           className={cn(
-                            'h-8 w-full appearance-none rounded-[4px] border border-[#dfe6ee] bg-white pl-3 pr-8 text-[13px] text-slate-600 outline-none transition-colors focus:border-[#7fdccf]',
+                            'h-8 w-full appearance-none rounded-[4px] border border-[#dfe6ee] bg-white pl-3 pr-8 text-[13px] text-slate-600 outline-none transition-colors focus:border-[#96b8ff]',
                             readOnly && 'cursor-not-allowed bg-slate-50 text-slate-500'
                           )}
                         >
@@ -6086,7 +6088,7 @@ function VersionFieldEditorPanel({
                             checked={field.required}
                             disabled={readOnly}
                             onChange={() => handleChangeRequired(field.id, true)}
-                            className={cn('h-4 w-4 accent-[#20c6b1]', readOnly && 'cursor-not-allowed')}
+                            className={cn('h-4 w-4 accent-[#216BFF]', readOnly && 'cursor-not-allowed')}
                           />
                           <span>是</span>
                         </label>
@@ -6097,7 +6099,7 @@ function VersionFieldEditorPanel({
                             checked={!field.required}
                             disabled={readOnly}
                             onChange={() => handleChangeRequired(field.id, false)}
-                            className={cn('h-4 w-4 accent-[#20c6b1]', readOnly && 'cursor-not-allowed')}
+                            className={cn('h-4 w-4 accent-[#216BFF]', readOnly && 'cursor-not-allowed')}
                           />
                           <span>否</span>
                         </label>
@@ -6110,7 +6112,7 @@ function VersionFieldEditorPanel({
                           <button
                             type="button"
                             onClick={() => handleDeleteField(field.id)}
-                            className="inline-flex items-center gap-1 text-[#21c4b0] transition-colors hover:text-[#18bca2]"
+                            className="inline-flex items-center gap-1 text-[#216BFF] transition-colors hover:text-[#216BFF]"
                           >
                             <Trash2 size={14} />
                             删除
@@ -6129,7 +6131,7 @@ function VersionFieldEditorPanel({
                               setDragOverFieldId(null);
                             }}
                             aria-label={`拖动排序${field.fieldName || '字段'}`}
-                            className="inline-flex cursor-grab items-center gap-1 text-[#21c4b0] transition-colors hover:text-[#18bca2] active:cursor-grabbing"
+                            className="inline-flex cursor-grab items-center gap-1 text-[#216BFF] transition-colors hover:text-[#216BFF] active:cursor-grabbing"
                           >
                             <GripVertical size={14} />
                             排序
@@ -6146,7 +6148,7 @@ function VersionFieldEditorPanel({
                   <button
                     type="button"
                     onClick={handleAddField}
-                    className="inline-flex h-8 items-center gap-1 rounded-[4px] border border-[#8fe0d2] bg-white px-4 text-[13px] font-medium text-[#21c4b0] transition-colors hover:bg-[#f4fcfa]"
+                    className="inline-flex h-8 items-center gap-1 rounded-[4px] border border-[#96b8ff] bg-white px-4 text-[13px] font-medium text-[#216BFF] transition-colors hover:bg-[#e8f1ff]"
                   >
                     <Plus size={14} />
                     添加
@@ -6183,14 +6185,14 @@ function VersionFieldEditorPanel({
                               <tr key={item.id} className="border-b border-[#eef2f6] last:border-b-0">
                                 <td className="px-4 py-[14px] text-slate-700">{item.productCategory}</td>
                                 <td className="px-4 py-[14px]">
-                                  <div className="flex items-center gap-4 whitespace-nowrap text-[#21c4b0]">
+                                  <div className="flex items-center gap-4 whitespace-nowrap text-[#216BFF]">
                                     <button
                                       type="button"
                                       onClick={() => {
                                         setMoreSettingsEditingItem({ item, mode: 'view' });
                                         setMoreSettingsDrawerOpen(true);
                                       }}
-                                      className="inline-flex items-center gap-1 transition-colors hover:text-[#18bca2]"
+                                      className="inline-flex items-center gap-1 transition-colors hover:text-[#216BFF]"
                                     >
                                       <Eye size={13} />
                                       查看
@@ -6203,7 +6205,7 @@ function VersionFieldEditorPanel({
                                             setMoreSettingsEditingItem({ item, mode: 'edit' });
                                             setMoreSettingsDrawerOpen(true);
                                           }}
-                                          className="inline-flex items-center gap-1 transition-colors hover:text-[#18bca2]"
+                                          className="inline-flex items-center gap-1 transition-colors hover:text-[#216BFF]"
                                         >
                                           <Pencil size={13} />
                                           编辑
@@ -6211,7 +6213,7 @@ function VersionFieldEditorPanel({
                                         <button
                                           type="button"
                                           onClick={() => handleDeleteMoreSettingsItem(item.id)}
-                                          className="inline-flex items-center gap-1 transition-colors hover:text-[#18bca2]"
+                                          className="inline-flex items-center gap-1 transition-colors hover:text-[#216BFF]"
                                         >
                                           <Trash2 size={13} />
                                           删除
@@ -6235,7 +6237,7 @@ function VersionFieldEditorPanel({
                             setMoreSettingsEditingItem(null);
                             setMoreSettingsDrawerOpen(true);
                           }}
-                          className="inline-flex h-8 items-center gap-1 rounded-[4px] border border-[#8fe0d2] bg-white px-4 text-[13px] font-medium text-[#21c4b0] transition-colors hover:bg-[#f4fcfa]"
+                          className="inline-flex h-8 items-center gap-1 rounded-[4px] border border-[#96b8ff] bg-white px-4 text-[13px] font-medium text-[#216BFF] transition-colors hover:bg-[#e8f1ff]"
                         >
                           <Plus size={14} />
                           添加
@@ -6273,8 +6275,8 @@ function VersionFieldEditorPanel({
                 className={cn(
                   'inline-flex h-8 min-w-[68px] items-center justify-center rounded-full border px-5 text-[13px] transition-colors',
                   currentStep === 0 && isStepOneNextDisabled
-                    ? 'cursor-not-allowed border-[#d9efe9] bg-[#f6fbfa] text-[#9ad7cc]'
-                    : 'border-[#82ddd0] bg-[#effbf8] text-[#18bca2] hover:bg-[#e2f8f3]'
+                    ? 'cursor-not-allowed border-[#c9dcff] bg-[#e8f1ff] text-[#96b8ff]'
+                    : 'border-[#96b8ff] bg-[#e8f1ff] text-[#216BFF] hover:bg-[#c9dcff]'
                 )}
               >
                 下一步
@@ -6292,8 +6294,8 @@ function VersionFieldEditorPanel({
                 className={cn(
                   'inline-flex h-8 min-w-[68px] items-center justify-center rounded-full border px-5 text-[13px] transition-colors',
                   isConfirmDisabled
-                    ? 'cursor-not-allowed border-[#d9efe9] bg-[#f6fbfa] text-[#9ad7cc]'
-                    : 'border-[#82ddd0] bg-[#effbf8] text-[#18bca2] hover:bg-[#e2f8f3]'
+                    ? 'cursor-not-allowed border-[#c9dcff] bg-[#e8f1ff] text-[#96b8ff]'
+                    : 'border-[#96b8ff] bg-[#e8f1ff] text-[#216BFF] hover:bg-[#c9dcff]'
                 )}
               >
                 确定
@@ -6336,9 +6338,9 @@ function VersionFieldEditorStepper({ currentStep }: { currentStep: 0 | 1 }) {
                 className={cn(
                   'flex h-7 w-7 items-center justify-center rounded-full border text-[13px] font-medium transition-colors',
                   isActive
-                    ? 'border-[#18bca2] bg-[#18bca2] text-white'
+                    ? 'border-[#216BFF] bg-[#216BFF] text-white'
                     : isCompleted
-                      ? 'border-[#18bca2] bg-white text-[#18bca2]'
+                      ? 'border-[#216BFF] bg-white text-[#216BFF]'
                       : 'border-[#dfe6ee] bg-white text-slate-400'
                 )}
               >
@@ -6348,7 +6350,7 @@ function VersionFieldEditorStepper({ currentStep }: { currentStep: 0 | 1 }) {
                 className={cn(
                   'text-[13px] font-medium transition-colors',
                   isActive
-                    ? 'text-[#18bca2]'
+                    ? 'text-[#216BFF]'
                     : isCompleted
                       ? 'text-slate-700'
                       : 'text-slate-400'
@@ -6361,7 +6363,7 @@ function VersionFieldEditorStepper({ currentStep }: { currentStep: 0 | 1 }) {
               <div
                 className={cn(
                   'mx-4 h-px w-16 transition-colors',
-                  isCompleted ? 'bg-[#18bca2]' : 'bg-[#e3e7ed]'
+                  isCompleted ? 'bg-[#216BFF]' : 'bg-[#e3e7ed]'
                 )}
               />
             )}
@@ -6572,7 +6574,7 @@ function VersionFieldMoreSettingsDrawer({
                 className={cn(
                   'inline-flex h-8 min-w-[98px] items-center justify-center border text-[14px] font-medium transition-colors',
                   item.key === editorState.activeScope
-                    ? 'border-[#87e0d4] bg-[#ecfbf8] text-[#18bca2]'
+                    ? 'border-[#96b8ff] bg-[#e8f1ff] text-[#216BFF]'
                     : 'border-[#e5e9ef] bg-white text-slate-500 hover:bg-slate-50'
                 )}
               >
@@ -6593,7 +6595,7 @@ function VersionFieldMoreSettingsDrawer({
                 className={cn(
                   'inline-flex h-8 min-w-[98px] items-center justify-center border text-[14px] font-medium transition-colors',
                   item.key === editorState.activeCategory
-                    ? 'border-[#87e0d4] bg-[#ecfbf8] text-[#18bca2]'
+                    ? 'border-[#96b8ff] bg-[#e8f1ff] text-[#216BFF]'
                     : 'border-[#e5e9ef] bg-white text-slate-500 hover:bg-slate-50'
                 )}
               >
@@ -6637,7 +6639,7 @@ function VersionFieldMoreSettingsDrawer({
                     dragOverFieldId === field.id &&
                       draggingFieldId &&
                       draggingFieldId !== field.id &&
-                      'bg-[#f4fcfa] shadow-[inset_0_0_0_1px_rgba(132,221,208,0.9)]',
+                      'bg-[#e8f1ff] shadow-[inset_0_0_0_1px_rgba(132,221,208,0.9)]',
                     draggingFieldId === field.id && 'opacity-60'
                   )}
                 >
@@ -6647,7 +6649,7 @@ function VersionFieldMoreSettingsDrawer({
                       disabled={isViewMode}
                       onChange={(event) => handleChangeFieldName(field.id, event.target.value)}
                       className={cn(
-                        'h-8 w-full appearance-none rounded-[4px] border border-[#dfe6ee] bg-white pl-3 pr-8 text-[13px] text-slate-600 outline-none transition-colors focus:border-[#7fdccf]',
+                        'h-8 w-full appearance-none rounded-[4px] border border-[#dfe6ee] bg-white pl-3 pr-8 text-[13px] text-slate-600 outline-none transition-colors focus:border-[#96b8ff]',
                         isViewMode && 'cursor-not-allowed bg-slate-50 text-slate-500'
                       )}
                     >
@@ -6672,7 +6674,7 @@ function VersionFieldMoreSettingsDrawer({
                         checked={field.required}
                         disabled={isViewMode}
                         onChange={() => handleChangeRequired(field.id, true)}
-                        className={cn('h-4 w-4 accent-[#20c6b1]', isViewMode && 'cursor-not-allowed')}
+                        className={cn('h-4 w-4 accent-[#216BFF]', isViewMode && 'cursor-not-allowed')}
                       />
                       <span>是</span>
                     </label>
@@ -6683,18 +6685,18 @@ function VersionFieldMoreSettingsDrawer({
                         checked={!field.required}
                         disabled={isViewMode}
                         onChange={() => handleChangeRequired(field.id, false)}
-                        className={cn('h-4 w-4 accent-[#20c6b1]', isViewMode && 'cursor-not-allowed')}
+                        className={cn('h-4 w-4 accent-[#216BFF]', isViewMode && 'cursor-not-allowed')}
                       />
                       <span>否</span>
                     </label>
                   </div>
 
                   {isViewMode ? null : (
-                    <div className="flex items-center justify-end gap-4 whitespace-nowrap text-[#21c4b0]">
+                    <div className="flex items-center justify-end gap-4 whitespace-nowrap text-[#216BFF]">
                       <button
                         type="button"
                         onClick={() => handleDeleteField(field.id)}
-                        className="inline-flex items-center gap-1 transition-colors hover:text-[#18bca2]"
+                        className="inline-flex items-center gap-1 transition-colors hover:text-[#216BFF]"
                       >
                         <Trash2 size={13} />
                         删除
@@ -6713,7 +6715,7 @@ function VersionFieldMoreSettingsDrawer({
                           setDragOverFieldId(null);
                         }}
                         aria-label={`拖动排序${field.fieldName || '字段'}`}
-                        className="inline-flex cursor-grab items-center gap-1 transition-colors hover:text-[#18bca2] active:cursor-grabbing"
+                        className="inline-flex cursor-grab items-center gap-1 transition-colors hover:text-[#216BFF] active:cursor-grabbing"
                       >
                         <GripVertical size={13} />
                         排序
@@ -6729,7 +6731,7 @@ function VersionFieldMoreSettingsDrawer({
                 <button
                   type="button"
                   onClick={handleAddField}
-                  className="inline-flex h-8 items-center gap-1 rounded-[4px] border border-[#8fe0d2] bg-white px-4 text-[13px] font-medium text-[#21c4b0] transition-colors hover:bg-[#f4fcfa]"
+                  className="inline-flex h-8 items-center gap-1 rounded-[4px] border border-[#96b8ff] bg-white px-4 text-[13px] font-medium text-[#216BFF] transition-colors hover:bg-[#e8f1ff]"
                 >
                   <Plus size={14} />
                   添加
@@ -6744,7 +6746,7 @@ function VersionFieldMoreSettingsDrawer({
             <button
               type="button"
               onClick={onClose}
-              className="inline-flex h-8 min-w-[68px] items-center justify-center rounded-full border border-[#82ddd0] bg-[#effbf8] px-5 text-[13px] text-[#18bca2] transition-colors hover:bg-[#e2f8f3]"
+              className="inline-flex h-8 min-w-[68px] items-center justify-center rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-5 text-[13px] text-[#216BFF] transition-colors hover:bg-[#c9dcff]"
             >
               关闭
             </button>
@@ -6765,8 +6767,8 @@ function VersionFieldMoreSettingsDrawer({
               className={cn(
                 'inline-flex h-8 min-w-[68px] items-center justify-center rounded-full border px-5 text-[13px] transition-colors',
                 isEditorConfirmDisabled
-                  ? 'cursor-not-allowed border-[#d9efe9] bg-[#f6fbfa] text-[#9ad7cc]'
-                  : 'border-[#82ddd0] bg-[#effbf8] text-[#18bca2] hover:bg-[#e2f8f3]'
+                  ? 'cursor-not-allowed border-[#c9dcff] bg-[#e8f1ff] text-[#96b8ff]'
+                  : 'border-[#96b8ff] bg-[#e8f1ff] text-[#216BFF] hover:bg-[#c9dcff]'
               )}
             >
               确定
@@ -6837,7 +6839,7 @@ function FieldManagementTicketTemplatePanel({
               <button
                 type="button"
                 onClick={onOpenCreate}
-                className="inline-flex h-[28px] items-center gap-1 rounded-[4px] border border-[#8fe0d2] bg-white px-3 text-[13px] font-medium text-[#21c4b0] transition-colors hover:bg-[#f4fcfa]"
+                className="inline-flex h-[28px] items-center gap-1 rounded-[4px] border border-[#96b8ff] bg-white px-3 text-[13px] font-medium text-[#216BFF] transition-colors hover:bg-[#e8f1ff]"
               >
                 <Plus size={14} />
                 新增模板
@@ -6860,7 +6862,7 @@ function FieldManagementTicketTemplatePanel({
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-[8px]">
                         {item.enabled ? (
-                          <CheckCircle2 size={13} strokeWidth={2.1} className="shrink-0 text-[#28c7b2]" />
+                          <CheckCircle2 size={13} strokeWidth={2.1} className="shrink-0 text-[#216BFF]" />
                         ) : (
                           <img src={minusIcon} alt="" className="h-[13px] w-[13px] shrink-0 object-contain" />
                         )}
@@ -6950,7 +6952,7 @@ function TicketTemplateEditorModal({
                   name: event.target.value,
                 }))
               }
-              className="h-[28px] w-0 min-w-0 flex-1 rounded-[4px] border border-[#dfe6ee] bg-white px-3 text-[13px] text-slate-600 outline-none transition-colors placeholder:text-slate-300 focus:border-[#7fdccf]"
+              className="h-[28px] w-0 min-w-0 flex-1 rounded-[4px] border border-[#dfe6ee] bg-white px-3 text-[13px] text-slate-600 outline-none transition-colors placeholder:text-slate-300 focus:border-[#96b8ff]"
             />
           </div>
 
@@ -6969,7 +6971,7 @@ function TicketTemplateEditorModal({
                 }))
               }
               placeholder="请输入建单要素模板内容，可使用多行文本"
-              className="w-0 min-w-0 flex-1 rounded-[4px] border border-[#dfe6ee] bg-white px-3 py-[6px] text-[13px] leading-[20px] text-red-500 outline-none transition-colors placeholder:text-slate-300 focus:border-[#7fdccf]"
+              className="w-0 min-w-0 flex-1 rounded-[4px] border border-[#dfe6ee] bg-white px-3 py-[6px] text-[13px] leading-[20px] text-red-500 outline-none transition-colors placeholder:text-slate-300 focus:border-[#96b8ff]"
             />
           </div>
 
@@ -7005,8 +7007,8 @@ function TicketTemplateEditorModal({
             className={cn(
               'inline-flex h-[28px] min-w-[60px] items-center justify-center rounded-full border px-4 text-[13px] transition-colors',
               confirmDisabled
-                ? 'cursor-not-allowed border-[#d9efe9] bg-[#f6fbfa] text-[#9ad7cc]'
-                : 'border-[#82ddd0] bg-[#effbf8] text-[#18bca2] hover:bg-[#e2f8f3]'
+                ? 'cursor-not-allowed border-[#c9dcff] bg-[#e8f1ff] text-[#96b8ff]'
+                : 'border-[#96b8ff] bg-[#e8f1ff] text-[#216BFF] hover:bg-[#c9dcff]'
             )}
           >
             确定

@@ -38,7 +38,7 @@ const variantClassMap: Record<
   call: {
     section:
       'flex min-h-0 flex-1 flex-col overflow-hidden rounded-[14px] border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,0.04)]',
-    activeTab: 'border-emerald-200 bg-emerald-50 text-emerald-500',
+    activeTab: 'border-brand-200 bg-brand-50 text-brand-500',
     fieldGrid: 'grid grid-cols-1 gap-3 md:grid-cols-3',
     descriptionWrapper: 'space-y-1.5',
     descriptionLabel: 'text-[12px] font-medium text-slate-600',
@@ -48,7 +48,7 @@ const variantClassMap: Record<
   online: {
     section:
       'flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm',
-    activeTab: 'border-[#7ee0d3] bg-[#f1fdfa] text-emerald-500',
+    activeTab: 'border-[#96b8ff] bg-[#e8f1ff] text-brand-500',
     fieldGrid: 'grid grid-cols-3 gap-x-3 gap-y-2.5',
     descriptionWrapper: 'space-y-1.5 md:col-span-3',
     descriptionLabel: 'text-[11px] font-medium text-slate-600',

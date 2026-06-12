@@ -207,7 +207,7 @@ export default function MainHeader({
       : breakValue
         ? 'text-violet-500'
         : isReady
-          ? 'text-emerald-500'
+          ? 'text-brand-500'
           : 'text-[#e0389a]';
 
   const extensionNumber = isTopHeaderSignedIn
@@ -396,7 +396,7 @@ export default function MainHeader({
                     <button
                       type="button"
                       onClick={() => setCallTransferModal('转坐席')}
-                      className="focus-ring flex h-[52px] w-[52px] flex-col items-center justify-center gap-1 rounded-xl bg-emerald-50 text-emerald-600 transition-colors hover:bg-emerald-100"
+                      className="focus-ring flex h-[52px] w-[52px] flex-col items-center justify-center gap-1 rounded-xl bg-brand-50 text-brand-600 transition-colors hover:bg-brand-100"
                     >
                       <PhoneForwarded size={16} strokeWidth={2.2} />
                       <span className="text-[12px] font-semibold leading-none">转坐席</span>
@@ -427,7 +427,7 @@ export default function MainHeader({
                     <button
                       type="button"
                       onClick={handleDialCall}
-                      className="focus-ring flex h-[52px] w-[52px] flex-col items-center justify-center gap-1 rounded-xl bg-emerald-50 text-emerald-600 transition-colors hover:bg-emerald-100"
+                      className="focus-ring flex h-[52px] w-[52px] flex-col items-center justify-center gap-1 rounded-xl bg-brand-50 text-brand-600 transition-colors hover:bg-brand-100"
                     >
                       <Phone size={16} strokeWidth={2.2} />
                       <span className="text-[12px] font-semibold leading-none">呼叫</span>
@@ -477,8 +477,8 @@ export default function MainHeader({
                     type="button"
                     onClick={() => setIsBreakMenuOpen((open) => !open)}
                     className={cn(
-                      'focus-ring flex h-11 w-36 items-center justify-between rounded-xl border border-hairline bg-white px-3 text-[13px] font-medium text-slate-500 transition-colors hover:border-emerald-300 hover:text-emerald-600',
-                      isBreakMenuOpen && 'border-emerald-400 ring-2 ring-emerald-100'
+                      'focus-ring flex h-11 w-36 items-center justify-between rounded-xl border border-hairline bg-white px-3 text-[13px] font-medium text-slate-500 transition-colors hover:border-brand-300 hover:text-brand-600',
+                      isBreakMenuOpen && 'border-brand-400 ring-2 ring-brand-100'
                     )}
                   >
                     <span className={cn('truncate', breakValue && 'text-slate-700')}>
@@ -903,7 +903,7 @@ function CallTransferModal({
                     <td className="py-3 text-slate-700">{row.name}</td>
                     <td className="py-3 tabular-nums text-slate-700">{row.agentNumber}</td>
                     <td className="py-3">
-                      <span className="text-emerald-600">{row.status}</span>
+                      <span className="text-brand-600">{row.status}</span>
                     </td>
                     <td className="py-3">
                       <button
@@ -1004,7 +1004,7 @@ function CallTransferModal({
               </div>
               <div className="flex items-center justify-between">
                 <span>状态</span>
-                <span className="font-semibold text-emerald-600">{confirmAgentRow.status}</span>
+                <span className="font-semibold text-brand-600">{confirmAgentRow.status}</span>
               </div>
             </div>
             <p className="mt-3 text-center text-[13px] text-slate-500">是否确认转接到该坐席？</p>
@@ -1048,7 +1048,7 @@ function CallTransferModal({
               </div>
               <div className="flex items-center justify-between">
                 <span>当前就绪人数</span>
-                <span className="font-semibold tabular-nums text-emerald-600">{confirmRow.ready}</span>
+                <span className="font-semibold tabular-nums text-brand-600">{confirmRow.ready}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span>当前排队人数</span>
@@ -1112,7 +1112,7 @@ function SignInModal({
       >
         <header className="flex items-center justify-between border-b border-hairline px-6 py-4">
           <div className="flex min-w-0 items-center gap-3">
-            <span className="h-5 w-1 flex-shrink-0 rounded-full bg-gradient-to-b from-emerald-500 to-emerald-400" />
+            <span className="h-5 w-1 flex-shrink-0 rounded-full bg-gradient-to-b from-brand-500 to-brand-400" />
             <h2
               id="sign-in-title"
               className="truncate text-[16px] font-bold tracking-tight text-slate-800"
@@ -1142,7 +1142,7 @@ function SignInModal({
               value={agentNumber}
               onChange={(e) => setAgentNumber(e.target.value)}
               maxLength={20}
-              className="focus-ring h-[38px] w-full rounded-xl border border-hairline bg-slate-50/60 px-3 text-[13px] text-slate-700 outline-none transition-colors focus:border-emerald-400 focus:bg-white"
+              className="focus-ring h-[38px] w-full rounded-xl border border-hairline bg-slate-50/60 px-3 text-[13px] text-slate-700 outline-none transition-colors focus:border-brand-400 focus:bg-white"
             />
             <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[12px] tabular-nums text-slate-400">
               {agentNumber.length} / 20
@@ -1154,7 +1154,7 @@ function SignInModal({
               value={extensionNumber}
               onChange={(e) => setExtensionNumber(e.target.value)}
               maxLength={20}
-              className="focus-ring h-[38px] w-full rounded-xl border border-hairline bg-slate-50/60 px-3 text-[13px] text-slate-700 outline-none transition-colors focus:border-emerald-400 focus:bg-white"
+              className="focus-ring h-[38px] w-full rounded-xl border border-hairline bg-slate-50/60 px-3 text-[13px] text-slate-700 outline-none transition-colors focus:border-brand-400 focus:bg-white"
             />
             <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[12px] tabular-nums text-slate-400">
               {extensionNumber.length} / 20
@@ -1177,7 +1177,7 @@ function SignInModal({
                     name="sign-in-method"
                     checked={method === opt.v}
                     onChange={() => setMethod(opt.v)}
-                    className="h-4 w-4 cursor-pointer accent-emerald-500"
+                    className="h-4 w-4 cursor-pointer accent-brand-500"
                   />
                   {opt.label}
                 </label>
@@ -1188,13 +1188,13 @@ function SignInModal({
             <button
               type="button"
               onClick={onClose}
-              className="focus-ring rounded-xl border border-hairline bg-white px-5 py-2 text-[13px] font-semibold text-slate-600 transition-colors hover:border-emerald-200 hover:bg-emerald-50/40 hover:text-emerald-600"
+              className="focus-ring rounded-xl border border-hairline bg-white px-5 py-2 text-[13px] font-semibold text-slate-600 transition-colors hover:border-brand-200 hover:bg-brand-50/40 hover:text-brand-600"
             >
               取消
             </button>
             <button
               type="submit"
-              className="focus-ring press-lift rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-400 px-5 py-2 text-[13px] font-semibold text-white shadow-[0_10px_24px_-8px_rgba(16,185,129,0.55)]"
+              className="focus-ring press-lift rounded-xl bg-gradient-to-r from-brand-500 to-brand-400 px-5 py-2 text-[13px] font-semibold text-white shadow-[0_10px_24px_-8px_rgba(16,185,129,0.55)]"
             >
               确定
             </button>

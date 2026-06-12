@@ -177,14 +177,14 @@ export default function AttachmentQueryModal({
 
         {/* Table */}
         <div className="min-h-[260px] overflow-x-auto px-6 py-4">
-          <table className="w-full border-collapse text-[12px]">
-            <thead>
-              <tr className="border-b-2 border-orange-400">
+          <table className="min-w-full text-left text-[13px]">
+            <thead className="sticky top-0 bg-[#fafafa] text-slate-600">
+              <tr>
                 {TABLE_COLUMNS.map((col) => (
                   <th
                     key={col.key}
                     className={cn(
-                      'px-2 py-2.5 text-left font-semibold text-slate-700',
+                      'whitespace-nowrap px-4 py-3 font-medium',
                       col.width
                     )}
                   >
@@ -193,30 +193,30 @@ export default function AttachmentQueryModal({
                 ))}
               </tr>
             </thead>
-            <tbody>
+            <tbody className="text-slate-600">
               {results.length > 0 ? (
-                results.map((row) => (
+                results.map((row, i) => (
                   <tr
                     key={row.index}
-                    className="cursor-pointer border-b border-hairline transition-colors hover:bg-brand-50/50"
+                    className={cn(i % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]', 'cursor-pointer transition-colors hover:bg-[#e8f1ff]')}
                     onDoubleClick={() => setDetailRow(row)}
                     title="双击查看附件详情"
                   >
-                    <td className="w-[40px] px-2 py-2 text-slate-600">{row.index}</td>
-                    <td className="w-[80px] px-2 py-2 text-brand-500 underline">{row.link}</td>
-                    <td className="min-w-[100px] px-2 py-2 text-slate-700">{row.receiveNumber}</td>
-                    <td className="min-w-[90px] px-2 py-2 text-slate-700">{row.senderName}</td>
-                    <td className="min-w-[80px] px-2 py-2 text-slate-700">{row.domainAccount}</td>
-                    <td className="min-w-[120px] px-2 py-2 text-slate-500">{row.sendTime}</td>
-                    <td className="min-w-[80px] px-2 py-2 text-slate-700">{row.invalidStatus}</td>
-                    <td className="min-w-[80px] px-2 py-2 text-slate-700">{row.uploadStatus}</td>
+                    <td className="w-[40px] px-4 py-3">{row.index}</td>
+                    <td className="w-[80px] px-4 py-3 text-brand-500 underline">{row.link}</td>
+                    <td className="min-w-[100px] px-4 py-3">{row.receiveNumber}</td>
+                    <td className="min-w-[90px] px-4 py-3">{row.senderName}</td>
+                    <td className="min-w-[80px] px-4 py-3">{row.domainAccount}</td>
+                    <td className="min-w-[120px] px-4 py-3 text-slate-500">{row.sendTime}</td>
+                    <td className="min-w-[80px] px-4 py-3">{row.invalidStatus}</td>
+                    <td className="min-w-[80px] px-4 py-3">{row.uploadStatus}</td>
                   </tr>
                 ))
               ) : (
                 <tr>
                   <td
                     colSpan={TABLE_COLUMNS.length}
-                    className="px-2 py-12 text-center text-[13px] text-slate-400"
+                    className="px-4 py-12 text-center text-[13px] text-slate-400"
                   >
                     {queried ? '未查询到相关数据' : '表格无数据...'}
                   </td>
@@ -288,14 +288,14 @@ function AttachmentDetailModal({
 
         {/* Table */}
         <div className="min-h-[200px] overflow-x-auto px-6 py-4">
-          <table className="w-full border-collapse text-[12px]">
-            <thead>
-              <tr className="border-b-2 border-orange-400">
+          <table className="min-w-full text-left text-[13px]">
+            <thead className="sticky top-0 bg-[#fafafa] text-slate-600">
+              <tr>
                 {DETAIL_COLUMNS.map((col) => (
                   <th
                     key={col.key}
                     className={cn(
-                      'px-2 py-2.5 text-left font-semibold text-slate-700',
+                      'whitespace-nowrap px-4 py-3 font-medium',
                       col.width
                     )}
                   >
@@ -304,17 +304,17 @@ function AttachmentDetailModal({
                 ))}
               </tr>
             </thead>
-            <tbody>
+            <tbody className="text-slate-600">
               {details.length > 0 ? (
-                details.map((d) => (
+                details.map((d, i) => (
                   <tr
                     key={d.index}
-                    className="border-b border-hairline transition-colors hover:bg-brand-50/50"
+                    className={(i % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]') + ' transition-colors hover:bg-[#e8f1ff]'}
                   >
-                    <td className="w-[40px] px-2 py-2 text-slate-600">{d.index}</td>
-                    <td className="min-w-[240px] px-2 py-2 text-brand-500" title={d.fileName}>{d.fileName}</td>
-                    <td className="min-w-[140px] px-2 py-2 text-slate-700">{d.fileRemark}</td>
-                    <td className="min-w-[140px] px-2 py-2 text-slate-500">{d.uploadTime}</td>
+                    <td className="w-[40px] px-4 py-3">{d.index}</td>
+                    <td className="min-w-[240px] px-4 py-3 text-brand-500" title={d.fileName}>{d.fileName}</td>
+                    <td className="min-w-[140px] px-4 py-3">{d.fileRemark}</td>
+                    <td className="min-w-[140px] px-4 py-3 text-slate-500">{d.uploadTime}</td>
                   </tr>
                 ))
               ) : (

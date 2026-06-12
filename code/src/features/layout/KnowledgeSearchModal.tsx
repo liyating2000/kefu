@@ -35,7 +35,7 @@ type KnowledgeArticle = {
 };
 
 const categories: KnowledgeCategory[] = [
-  { id: 'product', label: '产品知识', icon: BookOpen, accent: 'text-emerald-500', bg: 'bg-emerald-50' },
+  { id: 'product', label: '产品知识', icon: BookOpen, accent: 'text-brand-500', bg: 'bg-brand-50' },
   { id: 'process', label: '流程标准', icon: FileText, accent: 'text-sky-500', bg: 'bg-sky-50' },
   { id: 'script', label: '质检话术', icon: MessageSquare, accent: 'text-orange-500', bg: 'bg-orange-50' },
   { id: 'faq', label: '业务FAQ', icon: HelpCircle, accent: 'text-indigo-500', bg: 'bg-indigo-50' },

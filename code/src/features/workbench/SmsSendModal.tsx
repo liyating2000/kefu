@@ -109,7 +109,7 @@ export default function SmsSendModal({ isOpen, onClose, onConfirm }: SmsSendModa
               <button
                 type="button"
                 onClick={() => setShowTemplateModal(true)}
-                className="focus-ring shrink-0 whitespace-nowrap rounded-xl border border-emerald-300 bg-white px-4 py-2 text-[13px] font-semibold text-emerald-600 transition-colors hover:border-emerald-400 hover:bg-emerald-50"
+                className="focus-ring shrink-0 whitespace-nowrap rounded-xl border border-brand-300 bg-white px-4 py-2 text-[13px] font-semibold text-brand-600 transition-colors hover:border-brand-400 hover:bg-brand-50"
               >
                 短信模板
               </button>

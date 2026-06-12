@@ -227,13 +227,13 @@ const pageWrapperClass = 'flex min-h-0 flex-1 flex-col overflow-hidden bg-[#f7f9
 const pageScrollClass = 'flex min-h-0 flex-1 flex-col overflow-auto px-4 pb-4 pt-3 custom-scrollbar';
 const pageCardClass = 'overflow-hidden rounded-[18px] border border-slate-200 bg-white shadow-sm';
 const inputClass =
-  'h-10 w-full min-w-0 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-600 outline-none transition-colors placeholder:text-slate-400 focus:border-[#12b89f]';
+  'h-10 w-full min-w-0 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-600 outline-none transition-colors placeholder:text-slate-400 focus:border-[#216BFF]';
 const primaryButtonClass =
-  'inline-flex h-10 shrink-0 items-center justify-center whitespace-nowrap rounded-md border border-[#8fe0d2] bg-[#effbf8] px-4 text-[13px] font-medium text-[#18bca2] transition-colors hover:bg-[#e3f8f3]';
+  'inline-flex h-10 shrink-0 items-center justify-center whitespace-nowrap rounded-md border border-[#96b8ff] bg-[#e8f1ff] px-4 text-[13px] font-medium text-[#216BFF] transition-colors hover:bg-[#c9dcff]';
 const secondaryButtonClass =
   'inline-flex h-10 shrink-0 items-center justify-center whitespace-nowrap rounded-md border border-slate-200 bg-white px-4 text-[13px] font-medium text-slate-500 transition-colors hover:bg-slate-50';
 const solidButtonClass =
-  'inline-flex h-10 shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-[#12b89f] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#0da88f]';
+  'inline-flex h-10 shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-[#216BFF] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#1a5ce6]';
 
 const userSystemRows = [
   { id: '1', name: '声聊1', blacklistDays: 30, createdAt: '2025-04-29 11:15:14', updatedAt: '2025-04-29 11:15:14' },
@@ -632,11 +632,9 @@ function QueryActions({ onSearch, onReset }: { onSearch?: () => void; onReset?: 
   return (
     <div className="flex items-center gap-3">
       <button type="button" onClick={onSearch} className={primaryButtonClass}>
-        <Search size={14} className="mr-1.5" />
         查询
       </button>
       <button type="button" onClick={onReset} className={secondaryButtonClass}>
-        <RotateCcw size={14} className="mr-1.5" />
         重置
       </button>
     </div>
@@ -654,7 +652,7 @@ function FooterPagination({ total }: { total: string }) {
             type="button"
             className={cn(
               'flex h-8 w-8 items-center justify-center rounded-md border text-[13px]',
-              page === 1 ? 'border-[#8fe0d2] bg-[#effbf8] text-[#18bca2]' : 'border-slate-200 bg-white text-slate-500'
+              page === 1 ? 'border-[#96b8ff] bg-[#e8f1ff] text-[#216BFF]' : 'border-slate-200 bg-white text-slate-500'
             )}
           >
             {page}
@@ -707,7 +705,7 @@ function PlayerBar() {
         </button>
       </div>
       <div className="h-1.5 flex-1 rounded-full bg-slate-100">
-        <div className="h-full w-1/3 rounded-full bg-[#40d6c0]" />
+        <div className="h-full w-1/3 rounded-full bg-[#216BFF]" />
       </div>
       <div className="rounded-md border border-slate-200 px-3 py-1.5 text-[13px] text-slate-500">1倍速</div>
     </div>
@@ -730,7 +728,7 @@ function SummaryHotlinePlayer() {
           max={100}
           value={progress}
           onChange={(event) => setProgress(Number(event.target.value))}
-          className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-slate-200 accent-[#40d6c0]"
+          className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-slate-200 accent-[#216BFF]"
         />
       </div>
       <div className="flex items-center justify-between gap-3">
@@ -763,13 +761,13 @@ function SummaryHotlinePlayer() {
             max={100}
             value={volume}
             onChange={(event) => setVolume(Number(event.target.value))}
-            className="h-1.5 w-24 cursor-pointer appearance-none rounded-full bg-slate-200 accent-[#40d6c0]"
+            className="h-1.5 w-24 cursor-pointer appearance-none rounded-full bg-slate-200 accent-[#216BFF]"
           />
         </div>
         <select
           value={speed}
           onChange={(event) => setSpeed(event.target.value)}
-          className="h-7 rounded border border-slate-200 bg-white px-2 text-[12px] text-slate-500 outline-none focus:border-[#12b89f]"
+          className="h-7 rounded border border-slate-200 bg-white px-2 text-[12px] text-slate-500 outline-none focus:border-[#216BFF]"
         >
           <option value="0.5">0.5倍速</option>
           <option value="1">1倍速</option>
@@ -1295,15 +1293,16 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
               <tbody className="text-slate-600">
                 {filteredUserSystems.map((row, index) => (
                   <tr key={row.id} className={cn(index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]')}>
-                    <td className="px-4 py-4">{row.id}</td>
-                    <td className="px-4 py-4 font-medium text-slate-700">{row.name}</td>
-                    <td className="px-4 py-4">{row.blacklistDays}</td>
-                    <td className="px-4 py-4">{row.createdAt}</td>
-                    <td className="px-4 py-4">{row.updatedAt}</td>
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-4 text-[#18bca2]">
+                    <td className="px-4 py-3">{row.id}</td>
+                    <td className="px-4 py-3 font-medium text-slate-700">{row.name}</td>
+                    <td className="px-4 py-3">{row.blacklistDays}</td>
+                    <td className="px-4 py-3">{row.createdAt}</td>
+                    <td className="px-4 py-3">{row.updatedAt}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-4 text-[13px] font-medium text-[#216BFF]">
                         <button
                           type="button"
+                          className="hover:text-[#1a5ce6]"
                           onClick={() => {
                             setUserSystemDialog('edit');
                             setEditingUserSystemId(row.id);
@@ -1312,7 +1311,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                         >
                           编辑
                         </button>
-                        <button type="button" onClick={() => deleteUserSystem(row.id)}>
+                        <button type="button" onClick={() => deleteUserSystem(row.id)} className="text-[#ff6f6f] hover:text-[#ff4d4f]">
                           删除
                         </button>
                       </div>
@@ -1362,7 +1361,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
               <button
                 type="button"
                 onClick={() => setShowSummaryFilters((value) => !value)}
-                className="flex items-center gap-1 text-[13px] font-medium text-[#18bca2]"
+                className="flex items-center gap-1 text-[13px] font-medium text-[#216BFF]"
               >
                 {showSummaryFilters ? '收起' : '展开'}
                 {showSummaryFilters ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
@@ -1553,11 +1552,11 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                       <span className="flex flex-col leading-none">
                         <ChevronUp
                           size={12}
-                          className={cn(summaryCorrectionSortOrder === 'asc' ? 'text-[#18bca2]' : 'text-slate-300')}
+                          className={cn(summaryCorrectionSortOrder === 'asc' ? 'text-[#216BFF]' : 'text-slate-300')}
                         />
                         <ChevronDown
                           size={12}
-                          className={cn(summaryCorrectionSortOrder === 'desc' ? 'text-[#18bca2]' : 'text-slate-300', '-mt-1')}
+                          className={cn(summaryCorrectionSortOrder === 'desc' ? 'text-[#216BFF]' : 'text-slate-300', '-mt-1')}
                         />
                       </span>
                     </button>
@@ -1588,44 +1587,44 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                     }}
                     className={cn(
                       index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]',
-                      row.summaryType === '热线' || (row.summaryType === '在线' && row.status !== '已完成') ? 'cursor-pointer transition-colors hover:bg-[#f7fffd]' : '',
-                      summaryHotlineRow?.id === row.id ? 'bg-[#f2fffb]' : ''
+                      row.summaryType === '热线' || (row.summaryType === '在线' && row.status !== '已完成') ? 'cursor-pointer transition-colors hover:bg-[#e8f1ff]' : '',
+                      summaryHotlineRow?.id === row.id ? 'bg-[#e8f1ff]' : ''
                     )}
                   >
-                    <td className="px-4 py-4">{row.id}</td>
-                    <td className="px-4 py-4">{row.businessLine}</td>
-                    <td className="px-4 py-4">{row.category}</td>
-                    <td className="px-4 py-4 font-medium text-slate-700">{row.product}</td>
-                    <td className="px-4 py-4">{row.type}</td>
-                    <td className="px-4 py-4">
+                    <td className="px-4 py-3">{row.id}</td>
+                    <td className="px-4 py-3">{row.businessLine}</td>
+                    <td className="px-4 py-3">{row.category}</td>
+                    <td className="px-4 py-3 font-medium text-slate-700">{row.product}</td>
+                    <td className="px-4 py-3">{row.type}</td>
+                    <td className="px-4 py-3">
                       <span
                         className={cn(
                           'inline-flex items-center rounded-full px-3 py-1 text-[12px] font-medium whitespace-nowrap',
-                          row.status === '已完成' ? 'bg-[#e8fbf4] text-[#14956f]' : 'bg-[#fff4e5] text-[#c57a12]'
+                          row.status === '已完成' ? 'bg-[#e8f1ff] text-[#216BFF]' : 'bg-[#fff4e5] text-[#c57a12]'
                         )}
                       >
                         {row.status}
                       </span>
                     </td>
-                    <td className="px-4 py-4">{row.createdAt}</td>
-                    <td className="px-4 py-4">
+                    <td className="px-4 py-3">{row.createdAt}</td>
+                    <td className="px-4 py-3">
                       <span
                         className={cn(
                           'inline-flex items-center rounded-full px-3 py-1 text-[12px] font-medium whitespace-nowrap',
-                          row.summaryType === '热线' ? 'bg-[#e8fffb] text-[#0f9f89]' : 'bg-[#eef4ff] text-[#4568d4]'
+                          row.summaryType === '热线' ? 'bg-[#e8f1ff] text-[#1a5ce6]' : 'bg-[#eef4ff] text-[#4568d4]'
                         )}
                       >
                         {row.summaryType}
                       </span>
                     </td>
-                    <td className="px-4 py-4">{row.department}</td>
-                    <td className="px-4 py-4">{row.agent}</td>
-                    <td className="px-4 py-4">{row.level1}</td>
-                    <td className="px-4 py-4">{row.level2}</td>
-                    <td className="px-4 py-4">{row.level3}</td>
-                    <td className="px-4 py-4">{row.customerId}</td>
-                    <td className="px-4 py-4">{row.sessionId}</td>
-                    <td className="px-4 py-4 text-[#5f6fff]">
+                    <td className="px-4 py-3">{row.department}</td>
+                    <td className="px-4 py-3">{row.agent}</td>
+                    <td className="px-4 py-3">{row.level1}</td>
+                    <td className="px-4 py-3">{row.level2}</td>
+                    <td className="px-4 py-3">{row.level3}</td>
+                    <td className="px-4 py-3">{row.customerId}</td>
+                    <td className="px-4 py-3">{row.sessionId}</td>
+                    <td className="px-4 py-3 text-[#5f6fff]">
                       {row.correctionCount > 0 ? (
                         <button type="button" onClick={() => openSummaryRecordsModal(row)}>
                           {row.correctionCount}
@@ -1634,8 +1633,8 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                         row.correctionCount
                       )}
                     </td>
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-3 whitespace-nowrap text-[#18bca2]">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3 whitespace-nowrap text-[#216BFF]">
                         {row.status === '暂存' ? (
                           <span className="text-slate-300">-</span>
                         ) : (
@@ -1703,7 +1702,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                       <button
                         type="button"
                         onClick={() => setShowRecordingFilters((value) => !value)}
-                        className="flex items-center gap-1 text-[13px] font-medium text-[#18bca2]"
+                        className="flex items-center gap-1 text-[13px] font-medium text-[#216BFF]"
                       >
                         {showRecordingFilters ? '收起' : '展开'}
                         {showRecordingFilters ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
@@ -1871,7 +1870,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                 <thead className="bg-[#fafafa] text-slate-600">
                   <tr>
                     {isRecordingQuery ? (
-                      <th className="w-10 px-2 py-3 text-center font-medium">
+                      <th className="w-10 px-4 py-3 text-center font-medium">
                         <input
                           type="checkbox"
                           checked={allRecordingSelected}
@@ -1880,7 +1879,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                               event.target.checked ? filteredRecordingRows.map((row) => row.id) : []
                             )
                           }
-                          className="h-4 w-4 cursor-pointer accent-[#18bca2]"
+                          className="h-4 w-4 cursor-pointer accent-[#216BFF]"
                         />
                       </th>
                     ) : null}
@@ -1900,12 +1899,12 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                       }}
                       className={cn(
                         index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]',
-                        isRecordingQuery ? 'cursor-pointer transition-colors hover:bg-[#f7fffd]' : '',
-                        isRecordingQuery && recordingAudioRowId === row.id ? 'bg-[#f2fffb]' : ''
+                        isRecordingQuery ? 'cursor-pointer transition-colors hover:bg-[#e8f1ff]' : '',
+                        isRecordingQuery && recordingAudioRowId === row.id ? 'bg-[#e8f1ff]' : ''
                       )}
                     >
                       {isRecordingQuery ? (
-                        <td className="px-2 py-4 text-center">
+                        <td className="px-4 py-3 text-center">
                           <input
                             type="checkbox"
                             checked={selectedRecordingIds.includes(row.id)}
@@ -1914,25 +1913,25 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                                 event.target.checked ? [...current, row.id] : current.filter((id) => id !== row.id)
                               )
                             }
-                            className="h-4 w-4 cursor-pointer accent-[#18bca2]"
+                            className="h-4 w-4 cursor-pointer accent-[#216BFF]"
                           />
                         </td>
                       ) : null}
-                      <td className="px-4 py-4">{index + 1}</td>
-                      <td className="px-4 py-4 text-[#18bca2]">{row.recordNo}</td>
-                      <td className="px-4 py-4">{row.employeeId}</td>
-                      <td className="px-4 py-4">{row.department}</td>
-                      <td className="px-4 py-4">{row.employeeName}</td>
-                      <td className="px-4 py-4">{row.skillGroup}</td>
-                      <td className="px-4 py-4">{row.startAt}</td>
-                      <td className="px-4 py-4">{row.endAt}</td>
-                      <td className="px-4 py-4">{row.duration}</td>
-                      <td className="px-4 py-4">{row.callType}</td>
-                      <td className="px-4 py-4">{row.extensionNo}</td>
-                      <td className="px-4 py-4">{row.caller}</td>
-                      <td className="px-4 py-4">{row.callee}</td>
-                      <td className="px-4 py-4">{row.endReason}</td>
-                      <td className="px-4 py-4">{row.satisfaction}</td>
+                      <td className="px-4 py-3">{index + 1}</td>
+                      <td className="px-4 py-3 text-[#216BFF]">{row.recordNo}</td>
+                      <td className="px-4 py-3">{row.employeeId}</td>
+                      <td className="px-4 py-3">{row.department}</td>
+                      <td className="px-4 py-3">{row.employeeName}</td>
+                      <td className="px-4 py-3">{row.skillGroup}</td>
+                      <td className="px-4 py-3">{row.startAt}</td>
+                      <td className="px-4 py-3">{row.endAt}</td>
+                      <td className="px-4 py-3">{row.duration}</td>
+                      <td className="px-4 py-3">{row.callType}</td>
+                      <td className="px-4 py-3">{row.extensionNo}</td>
+                      <td className="px-4 py-3">{row.caller}</td>
+                      <td className="px-4 py-3">{row.callee}</td>
+                      <td className="px-4 py-3">{row.endReason}</td>
+                      <td className="px-4 py-3">{row.satisfaction}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -2066,27 +2065,27 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                       onDoubleClick={() => setSampleQueryAudioRowId(row.id)}
                       className={cn(
                         index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]',
-                        'cursor-pointer transition-colors hover:bg-[#f7fffd]',
-                        sampleQueryAudioRowId === row.id ? 'bg-[#f2fffb]' : ''
+                        'cursor-pointer transition-colors hover:bg-[#e8f1ff]',
+                        sampleQueryAudioRowId === row.id ? 'bg-[#e8f1ff]' : ''
                       )}
                     >
-                      <td className="px-4 py-4">{index + 1}</td>
-                      <td className="px-4 py-4">{row.recordNo}</td>
-                      <td className="px-4 py-4">{row.quality}</td>
-                      <td className="px-4 py-4">{row.description}</td>
-                      <td className="px-4 py-4">{row.submitter}</td>
-                      <td className="px-4 py-4">{row.submittedAt}</td>
-                      <td className="px-4 py-4">{row.reason}</td>
-                      <td className="px-4 py-4">{(row as { auditCategory?: string }).auditCategory ?? '-'}</td>
-                      <td className="px-4 py-4">{(row as { reviewer?: string }).reviewer ?? '-'}</td>
-                      <td className="px-4 py-4">{(row as { opinion?: string }).opinion ?? '-'}</td>
-                      <td className="px-4 py-4">{row.employeeName}</td>
-                      <td className="px-4 py-4">{row.skillGroup}</td>
-                      <td className="px-4 py-4">{row.department}</td>
-                      <td className="px-4 py-4">{row.startedAt}</td>
-                      <td className="px-4 py-4">{row.endedAt}</td>
-                      <td className="px-4 py-4">{row.duration}</td>
-                      <td className="px-4 py-4">{row.callType}</td>
+                      <td className="px-4 py-3">{index + 1}</td>
+                      <td className="px-4 py-3">{row.recordNo}</td>
+                      <td className="px-4 py-3">{row.quality}</td>
+                      <td className="px-4 py-3">{row.description}</td>
+                      <td className="px-4 py-3">{row.submitter}</td>
+                      <td className="px-4 py-3">{row.submittedAt}</td>
+                      <td className="px-4 py-3">{row.reason}</td>
+                      <td className="px-4 py-3">{(row as { auditCategory?: string }).auditCategory ?? '-'}</td>
+                      <td className="px-4 py-3">{(row as { reviewer?: string }).reviewer ?? '-'}</td>
+                      <td className="px-4 py-3">{(row as { opinion?: string }).opinion ?? '-'}</td>
+                      <td className="px-4 py-3">{row.employeeName}</td>
+                      <td className="px-4 py-3">{row.skillGroup}</td>
+                      <td className="px-4 py-3">{row.department}</td>
+                      <td className="px-4 py-3">{row.startedAt}</td>
+                      <td className="px-4 py-3">{row.endedAt}</td>
+                      <td className="px-4 py-3">{row.duration}</td>
+                      <td className="px-4 py-3">{row.callType}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -2234,12 +2233,12 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                       onDoubleClick={() => setAuditAudioRowId(row.id)}
                       className={cn(
                         index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]',
-                        'cursor-pointer transition-colors hover:bg-[#f7fffd]',
-                        auditAudioRowId === row.id ? 'bg-[#f2fffb]' : ''
+                        'cursor-pointer transition-colors hover:bg-[#e8f1ff]',
+                        auditAudioRowId === row.id ? 'bg-[#e8f1ff]' : ''
                       )}
                     >
-                      <td className="px-4 py-4">{index + 1}</td>
-                      <td className="px-4 py-4">
+                      <td className="px-4 py-3">{index + 1}</td>
+                      <td className="px-4 py-3">
                         <button
                           type="button"
                           onClick={() => {
@@ -2248,29 +2247,29 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                             setAuditCategory((row as { auditCategory?: string }).auditCategory ?? '');
                             setAuditOpinion((row as { opinion?: string }).opinion ?? '');
                           }}
-                          className="text-[#18bca2]"
+                          className="text-[#216BFF]"
                         >
                           审批
                         </button>
                       </td>
-                      <td className="px-4 py-4">{row.recordNo}</td>
-                      <td className="px-4 py-4">{row.quality}</td>
-                      <td className="px-4 py-4">{(row as { auditCategory?: string }).auditCategory ?? '-'}</td>
-                      <td className="px-4 py-4">{row.description}</td>
-                      <td className="px-4 py-4">{row.submitter}</td>
-                      <td className="px-4 py-4">{row.submittedAt}</td>
-                      <td className="px-4 py-4">{row.reason}</td>
-                      <td className="px-4 py-4">{row.status}</td>
-                      <td className="px-4 py-4">{(row as { reviewer?: string }).reviewer ?? '-'}</td>
-                      <td className="px-4 py-4">{(row as { opinion?: string }).opinion ?? '-'}</td>
-                      <td className="px-4 py-4">{row.customerName}</td>
-                      <td className="px-4 py-4">{row.employeeName}</td>
-                      <td className="px-4 py-4">{row.department}</td>
-                      <td className="px-4 py-4">{row.skillGroup}</td>
-                      <td className="px-4 py-4">{row.startedAt}</td>
-                      <td className="px-4 py-4">{row.endedAt}</td>
-                      <td className="px-4 py-4">{row.duration}</td>
-                      <td className="px-4 py-4">{row.callType}</td>
+                      <td className="px-4 py-3">{row.recordNo}</td>
+                      <td className="px-4 py-3">{row.quality}</td>
+                      <td className="px-4 py-3">{(row as { auditCategory?: string }).auditCategory ?? '-'}</td>
+                      <td className="px-4 py-3">{row.description}</td>
+                      <td className="px-4 py-3">{row.submitter}</td>
+                      <td className="px-4 py-3">{row.submittedAt}</td>
+                      <td className="px-4 py-3">{row.reason}</td>
+                      <td className="px-4 py-3">{row.status}</td>
+                      <td className="px-4 py-3">{(row as { reviewer?: string }).reviewer ?? '-'}</td>
+                      <td className="px-4 py-3">{(row as { opinion?: string }).opinion ?? '-'}</td>
+                      <td className="px-4 py-3">{row.customerName}</td>
+                      <td className="px-4 py-3">{row.employeeName}</td>
+                      <td className="px-4 py-3">{row.department}</td>
+                      <td className="px-4 py-3">{row.skillGroup}</td>
+                      <td className="px-4 py-3">{row.startedAt}</td>
+                      <td className="px-4 py-3">{row.endedAt}</td>
+                      <td className="px-4 py-3">{row.duration}</td>
+                      <td className="px-4 py-3">{row.callType}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -2318,7 +2317,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                     onClick={() => onChange(tab.key)}
                     className={cn(
                       'border-b-2 pb-2 text-[14px] font-medium',
-                      activeTab === tab.key ? 'border-[#18bca2] text-[#18bca2]' : 'border-transparent text-slate-500'
+                      activeTab === tab.key ? 'border-[#216BFF] text-[#216BFF]' : 'border-transparent text-slate-500'
                     )}
                   >
                     {tab.label}
@@ -2355,7 +2354,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                 {rows.map((row, index) => (
                   <tr key={`${activeTab}-${index}`} className={cn(index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]')}>
                     {row.map((cell, cellIndex) => (
-                      <td key={`${activeTab}-${index}-${cellIndex}`} className="px-4 py-4">
+                      <td key={`${activeTab}-${index}-${cellIndex}`} className="px-4 py-3">
                         {cell}
                       </td>
                     ))}
@@ -2432,7 +2431,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                   <button
                     type="button"
                     onClick={() => setShowSmsSentFilters((value) => !value)}
-                    className="flex items-center gap-1 text-[13px] font-medium text-[#18bca2]"
+                    className="flex items-center gap-1 text-[13px] font-medium text-[#216BFF]"
                   >
                     {showSmsSentFilters ? '收起' : '展开'}
                     {showSmsSentFilters ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
@@ -2490,22 +2489,22 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                       className={cn('cursor-pointer', index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]')}
                       onDoubleClick={() => setSmsDetailTarget({ receiverNo: row.receiverNo, content: row.content })}
                     >
-                      <td className="px-4 py-4">{index + 1}</td>
-                      <td className="px-4 py-4 whitespace-nowrap">
+                      <td className="px-4 py-3">{index + 1}</td>
+                      <td className="px-4 py-3 whitespace-nowrap">
                         <button
                           type="button"
-                          className="text-[#18bca2]"
+                          className="text-[#216BFF]"
                           onClick={() => setSmsDetailTarget({ receiverNo: row.receiverNo, content: row.content })}
                         >
                           查看
                         </button>
                       </td>
-                      <td className="px-4 py-4">{row.content}</td>
-                      <td className="px-4 py-4">{row.senderDept}</td>
-                      <td className="px-4 py-4">{row.sender}</td>
-                      <td className="px-4 py-4">{row.sentAt}</td>
-                      <td className="px-4 py-4">{row.status}</td>
-                      <td className="px-4 py-4">{row.receiverNo}</td>
+                      <td className="px-4 py-3">{row.content}</td>
+                      <td className="px-4 py-3">{row.senderDept}</td>
+                      <td className="px-4 py-3">{row.sender}</td>
+                      <td className="px-4 py-3">{row.sentAt}</td>
+                      <td className="px-4 py-3">{row.status}</td>
+                      <td className="px-4 py-3">{row.receiverNo}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -2545,7 +2544,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                     onClick={() => setMailDeliveryTab(key as 'mail-sent' | 'mail-received')}
                     className={cn(
                       'border-b-2 pb-2 text-[14px] font-medium',
-                      mailDeliveryTab === key ? 'border-[#18bca2] text-[#18bca2]' : 'border-transparent text-slate-500'
+                      mailDeliveryTab === key ? 'border-[#216BFF] text-[#216BFF]' : 'border-transparent text-slate-500'
                     )}
                   >
                     {label}
@@ -2575,7 +2574,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                       ? setShowMailSentFilters((value) => !value)
                       : setShowMailReceivedFilters((value) => !value)
                   }
-                  className="flex items-center gap-1 text-[13px] font-medium text-[#18bca2]"
+                  className="flex items-center gap-1 text-[13px] font-medium text-[#216BFF]"
                 >
                   {(isSentTab ? showMailSentFilters : showMailReceivedFilters) ? '收起' : '展开'}
                   {(isSentTab ? showMailSentFilters : showMailReceivedFilters) ? (
@@ -2740,19 +2739,19 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                   <tbody className="text-slate-600">
                     {filteredMailSentRows.map((row, index) => (
                       <tr key={row.id} className={cn(index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]')}>
-                        <td className="px-4 py-4">{index + 1}</td>
-                        <td className="px-4 py-4">
-                          <button type="button" className="text-[#18bca2]" onClick={() => showToast('已查看邮件详情')}>
+                        <td className="px-4 py-3">{index + 1}</td>
+                        <td className="px-4 py-3">
+                          <button type="button" className="text-[#216BFF]" onClick={() => showToast('已查看邮件详情')}>
                             查看
                           </button>
                         </td>
-                        <td className="px-4 py-4">{row.subject}</td>
-                        <td className="px-4 py-4">{row.senderDept}</td>
-                        <td className="px-4 py-4">{row.sender}</td>
-                        <td className="px-4 py-4">{row.senderEmail}</td>
-                        <td className="px-4 py-4">{row.sentAt}</td>
-                        <td className="px-4 py-4">{row.status}</td>
-                        <td className="px-4 py-4">{row.receiverEmail}</td>
+                        <td className="px-4 py-3">{row.subject}</td>
+                        <td className="px-4 py-3">{row.senderDept}</td>
+                        <td className="px-4 py-3">{row.sender}</td>
+                        <td className="px-4 py-3">{row.senderEmail}</td>
+                        <td className="px-4 py-3">{row.sentAt}</td>
+                        <td className="px-4 py-3">{row.status}</td>
+                        <td className="px-4 py-3">{row.receiverEmail}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -2771,21 +2770,21 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                   <tbody className="text-slate-600">
                     {filteredMailReceivedRows.map((row, index) => (
                       <tr key={row.id} className={cn(index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]')}>
-                        <td className="px-4 py-4">{index + 1}</td>
-                        <td className="px-4 py-4">
-                          <button type="button" className="text-[#18bca2]" onClick={() => showToast('邮件已认领')}>
+                        <td className="px-4 py-3">{index + 1}</td>
+                        <td className="px-4 py-3">
+                          <button type="button" className="text-[#216BFF]" onClick={() => showToast('邮件已认领')}>
                             认领
                           </button>
                         </td>
-                        <td className="px-4 py-4">{row.status}</td>
-                        <td className="px-4 py-4">{row.subject || '-'}</td>
-                        <td className="px-4 py-4">{row.senderEmail}</td>
-                        <td className="px-4 py-4">{row.receivedAt}</td>
-                        <td className="px-4 py-4">{row.receiverEmail || '-'}</td>
-                        <td className="px-4 py-4">{row.handler || '-'}</td>
-                        <td className="px-4 py-4">{row.department || '-'}</td>
-                        <td className="px-4 py-4">{row.handledAt || '-'}</td>
-                        <td className="px-4 py-4">{row.customerName || '-'}</td>
+                        <td className="px-4 py-3">{row.status}</td>
+                        <td className="px-4 py-3">{row.subject || '-'}</td>
+                        <td className="px-4 py-3">{row.senderEmail}</td>
+                        <td className="px-4 py-3">{row.receivedAt}</td>
+                        <td className="px-4 py-3">{row.receiverEmail || '-'}</td>
+                        <td className="px-4 py-3">{row.handler || '-'}</td>
+                        <td className="px-4 py-3">{row.department || '-'}</td>
+                        <td className="px-4 py-3">{row.handledAt || '-'}</td>
+                        <td className="px-4 py-3">{row.customerName || '-'}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -2873,11 +2872,11 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                 <div className="border-b border-slate-100 bg-white px-5 py-3">
                   <div className="mb-3 flex flex-wrap items-center gap-3 text-[12px] text-slate-500">
                     <span className="text-[13px] font-medium text-slate-700">
-                      共咨询 <span className="text-[#18bca2]">{consultTotal}</span> 次
+                      共咨询 <span className="text-[#216BFF]">{consultTotal}</span> 次
                     </span>
                     <span className="text-slate-300">|</span>
                     <span>
-                      当前第 <span className="font-medium text-[#18bca2]">{safeConsultIndex + 1}</span> 次
+                      当前第 <span className="font-medium text-[#216BFF]">{safeConsultIndex + 1}</span> 次
                     </span>
                     <select
                       value={detailRow.id}
@@ -2912,7 +2911,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
 
                 <div className="flex-1 space-y-5 overflow-y-auto bg-slate-50 px-5 py-6 custom-scrollbar">
                   <div className="flex items-start gap-2">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#18bca2] text-[13px] font-semibold text-white">AI</div>
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#216BFF] text-[13px] font-semibold text-white">AI</div>
                     <div className="max-w-[78%] rounded-lg bg-white px-4 py-3 text-[13px] leading-6 text-slate-600 shadow-sm">
                       欢迎咨询容联智能在线客服，7×24小时竭诚为您提供帮助。需要我为您解答什么问题？
                     </div>
@@ -2969,13 +2968,13 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                   </div>
 
                   <div className="flex items-start gap-2">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#18bca2] text-[13px] font-semibold text-white">赵</div>
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#216BFF] text-[13px] font-semibold text-white">赵</div>
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-2 text-[12px] text-slate-400">
                         <span>赵子豪</span>
                         <span>10:15</span>
                       </div>
-                      <div className="max-w-full rounded-lg bg-[#e8f8f4] px-4 py-3 text-[13px] leading-6 text-slate-600 shadow-sm">
+                      <div className="max-w-full rounded-lg bg-[#e8f1ff] px-4 py-3 text-[13px] leading-6 text-slate-600 shadow-sm">
                         对的，我要开户
                       </div>
                     </div>
@@ -3022,7 +3021,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                       {detailRow.hasAudio ? (
                         <div className="flex items-center justify-between gap-3 rounded-lg border border-slate-100 bg-slate-50 px-3 py-2.5">
                           <span className="flex min-w-0 items-center gap-2 text-[13px] text-slate-600">
-                            <FileAudio size={16} className="shrink-0 text-[#18bca2]" />
+                            <FileAudio size={16} className="shrink-0 text-[#216BFF]" />
                             <span className="truncate">{audioFileName}</span>
                             <span className="shrink-0 text-[12px] text-slate-400">{mediaDuration}</span>
                           </span>
@@ -3030,7 +3029,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                             <button
                               type="button"
                               onClick={() => showToast(`正在播放 ${audioFileName}`)}
-                              className="inline-flex items-center gap-1 text-[13px] font-medium text-[#18bca2] hover:underline"
+                              className="inline-flex items-center gap-1 text-[13px] font-medium text-[#216BFF] hover:underline"
                             >
                               <Play size={14} />
                               播放
@@ -3038,7 +3037,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                             <button
                               type="button"
                               onClick={() => showToast(`正在下载 ${audioFileName}`)}
-                              className="inline-flex items-center gap-1 text-[13px] font-medium text-[#18bca2] hover:underline"
+                              className="inline-flex items-center gap-1 text-[13px] font-medium text-[#216BFF] hover:underline"
                             >
                               <Download size={14} />
                               下载
@@ -3049,7 +3048,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                       {detailRow.hasVideo ? (
                         <div className="flex items-center justify-between gap-3 rounded-lg border border-slate-100 bg-slate-50 px-3 py-2.5">
                           <span className="flex min-w-0 items-center gap-2 text-[13px] text-slate-600">
-                            <FileVideo size={16} className="shrink-0 text-[#18bca2]" />
+                            <FileVideo size={16} className="shrink-0 text-[#216BFF]" />
                             <span className="truncate">{videoFileName}</span>
                             <span className="shrink-0 text-[12px] text-slate-400">{mediaDuration}</span>
                           </span>
@@ -3057,7 +3056,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                             <button
                               type="button"
                               onClick={() => setWebchatHistoryVideoPreview(true)}
-                              className="inline-flex items-center gap-1 text-[13px] font-medium text-[#18bca2] hover:underline"
+                              className="inline-flex items-center gap-1 text-[13px] font-medium text-[#216BFF] hover:underline"
                             >
                               <PlayCircle size={14} />
                               查看
@@ -3065,7 +3064,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                             <button
                               type="button"
                               onClick={() => showToast(`正在下载 ${videoFileName}`)}
-                              className="inline-flex items-center gap-1 text-[13px] font-medium text-[#18bca2] hover:underline"
+                              className="inline-flex items-center gap-1 text-[13px] font-medium text-[#216BFF] hover:underline"
                             >
                               <Download size={14} />
                               下载
@@ -3090,12 +3089,12 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                       onClick={() => setWebchatHistoryDetailTab(tab.key)}
                       className={cn(
                         'relative py-3 text-[13px] font-semibold transition-colors',
-                        webchatHistoryDetailTab === tab.key ? 'text-[#18bca2]' : 'text-slate-500 hover:text-slate-700'
+                        webchatHistoryDetailTab === tab.key ? 'text-[#216BFF]' : 'text-slate-500 hover:text-slate-700'
                       )}
                     >
                       {tab.label}
                       {webchatHistoryDetailTab === tab.key ? (
-                        <span className="absolute inset-x-0 bottom-0 h-0.5 bg-[#18bca2]" />
+                        <span className="absolute inset-x-0 bottom-0 h-0.5 bg-[#216BFF]" />
                       ) : null}
                     </button>
                   ))}
@@ -3195,14 +3194,14 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                           <button
                             type="button"
                             onClick={() => showToast('客户信息已保存')}
-                            className="rounded-full border border-[#7ee0d3] bg-[#f1fdfa] px-6 py-1.5 text-[12px] font-medium text-[#18a058]"
+                            className="rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-6 py-1.5 text-[12px] font-medium text-[#216BFF]"
                           >
                             保存
                           </button>
                           <button
                             type="button"
                             onClick={() => showToast('已重置')}
-                            className="rounded-full border border-[#7ee0d3] bg-[#f1fdfa] px-6 py-1.5 text-[12px] font-medium text-[#18a058]"
+                            className="rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-6 py-1.5 text-[12px] font-medium text-[#216BFF]"
                           >
                             重置
                           </button>
@@ -3221,7 +3220,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                                 className={cn(
                                   'rounded-md border px-2.5 py-1 text-[12px] transition-colors',
                                   webchatHistorySummaryTab === tab
-                                    ? 'border-[#7ee0d3] bg-[#f1fdfa] text-emerald-500'
+                                    ? 'border-[#96b8ff] bg-[#e8f1ff] text-brand-500'
                                     : 'border-transparent text-slate-400 hover:bg-slate-50 hover:text-slate-600'
                                 )}
                               >
@@ -3327,10 +3326,10 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                           <button type="button" onClick={() => showToast('小结已废弃')} className="rounded-full border border-rose-200 bg-rose-50 px-5 py-1.5 text-[12px] font-medium text-rose-600 transition-colors hover:bg-rose-100">
                             废弃
                           </button>
-                          <button type="button" onClick={() => showToast('已升级工单')} className="rounded-full border border-[#7ee0d3] bg-[#f1fdfa] px-5 py-1.5 text-[12px] font-medium text-[#18a058]">
+                          <button type="button" onClick={() => showToast('已升级工单')} className="rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-5 py-1.5 text-[12px] font-medium text-[#216BFF]">
                             升级工单
                           </button>
-                          <button type="button" onClick={() => showToast('小结已提交')} className="rounded-full border border-[#7ee0d3] bg-[#f1fdfa] px-5 py-1.5 text-[12px] font-medium text-[#18a058]">
+                          <button type="button" onClick={() => showToast('小结已提交')} className="rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-5 py-1.5 text-[12px] font-medium text-[#216BFF]">
                             提交
                           </button>
                         </div>
@@ -3355,12 +3354,12 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                             <tr
                               key={row.id}
                               className={cn(
-                                'transition-colors hover:bg-[#f1fbf8]',
+                                'transition-colors hover:bg-[#e8f1ff]',
                                 index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]'
                               )}
                             >
                               <td className="px-4 py-3">{index + 1}</td>
-                              <td className="whitespace-nowrap px-4 py-3 text-[#18bca2]">{row.id}</td>
+                              <td className="whitespace-nowrap px-4 py-3 text-[#216BFF]">{row.id}</td>
                               <td className="whitespace-nowrap px-4 py-3">{row.type}</td>
                               <td className="px-4 py-3">{row.title}</td>
                               <td className="whitespace-nowrap px-4 py-3">
@@ -3368,7 +3367,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                                   className={cn(
                                     'inline-flex items-center rounded-full px-2 py-0.5 text-[12px]',
                                     row.status === '已办结'
-                                      ? 'bg-emerald-50 text-emerald-600'
+                                      ? 'bg-brand-50 text-brand-600'
                                       : 'bg-amber-50 text-amber-600'
                                   )}
                                 >
@@ -3419,7 +3418,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                 <button
                   type="button"
                   onClick={() => setShowWebchatHistoryMoreFilters((value) => !value)}
-                  className="flex items-center gap-1 text-[13px] font-medium text-[#18bca2]"
+                  className="flex items-center gap-1 text-[13px] font-medium text-[#216BFF]"
                 >
                   {showWebchatHistoryMoreFilters ? '收起' : '展开'}
                   {showWebchatHistoryMoreFilters ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
@@ -3590,7 +3589,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                     onClick={() => setWebchatHistoryAdvancedSearch((v) => !v)}
                     className={cn(
                       'relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full transition-colors',
-                      webchatHistoryAdvancedSearch ? 'bg-[#18bca2]' : 'bg-slate-300'
+                      webchatHistoryAdvancedSearch ? 'bg-[#216BFF]' : 'bg-slate-300'
                     )}
                   >
                     <span
@@ -3636,13 +3635,13 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                         <tr
                           key={row.id}
                           className={cn(
-                            'transition-colors hover:bg-[#f1fbf8]',
+                            'transition-colors hover:bg-[#e8f1ff]',
                             index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]'
                           )}
                         >
-                          <td className="px-4 py-4">{index + 1}</td>
-                          <td className="px-4 py-4">{row.requestAt.replace(/[-: ]/g, '').slice(0, 14) + row.sessionId + '00'}</td>
-                          <td className="truncate px-4 py-4 text-slate-500">
+                          <td className="px-4 py-3">{index + 1}</td>
+                          <td className="px-4 py-3">{row.requestAt.replace(/[-: ]/g, '').slice(0, 14) + row.sessionId + '00'}</td>
+                          <td className="truncate px-4 py-3 text-slate-500">
                             {(() => {
                               const fullText = `${row.content}，{"keyword":"${row.sessionId}","type":"${row.channel}","timestamp":"${row.requestAt}"}`;
                               const keyword = webchatHistoryFilters.content;
@@ -3655,10 +3654,10 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                               );
                             })()}
                           </td>
-                          <td className="px-4 py-4">
+                          <td className="px-4 py-3">
                             <button
                               type="button"
-                              className="text-[#18bca2] hover:underline"
+                              className="text-[#216BFF] hover:underline"
                               onClick={() => {
                                 setWebchatHistoryDetail(row.id);
                                 setWebchatHistoryDetailTab('summary');
@@ -3677,14 +3676,14 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                 <table className="min-w-[1900px] table-fixed text-left text-[13px]">
                   <thead className="bg-[#fafafa] text-slate-600">
                     <tr>
-                      <th className="w-10 px-2 py-3 text-center font-medium">
+                      <th className="w-10 px-4 py-3 text-center font-medium">
                         <input
                           type="checkbox"
                           checked={allSelected}
                           onChange={(event) =>
                             setSelectedWebchatHistoryIds(event.target.checked ? filteredWebchatHistoryRows.map((row) => row.id) : [])
                           }
-                          className="h-4 w-4 cursor-pointer accent-[#18bca2]"
+                          className="h-4 w-4 cursor-pointer accent-[#216BFF]"
                         />
                       </th>
                       {['序号', '访客ID', '会话ID', '员工姓名', '员工工号', '所属队列', '所属工作组', '请求时间', '聊天开始时间', '聊天结束时间', '聊天时长', '结束原因', '渠道', '满意度', '提交范例库状态'].map((column) => (
@@ -3704,11 +3703,11 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                           setWebchatHistoryConsultIndex(0);
                         }}
                         className={cn(
-                          'cursor-pointer transition-colors hover:bg-[#f1fbf8]',
+                          'cursor-pointer transition-colors hover:bg-[#e8f1ff]',
                           index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]'
                         )}
                       >
-                        <td className="px-2 py-4 text-center" onDoubleClick={(event) => event.stopPropagation()}>
+                        <td className="px-4 py-3 text-center" onDoubleClick={(event) => event.stopPropagation()}>
                           <input
                             type="checkbox"
                             checked={selectedWebchatHistoryIds.includes(row.id)}
@@ -3717,29 +3716,29 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                                 event.target.checked ? [...current, row.id] : current.filter((id) => id !== row.id)
                               )
                             }
-                            className="h-4 w-4 cursor-pointer accent-[#18bca2]"
+                            className="h-4 w-4 cursor-pointer accent-[#216BFF]"
                           />
                         </td>
-                        <td className="px-4 py-4">{index + 1}</td>
-                        <td className="hidden px-4 py-4">
-                          <button type="button" className="hidden text-[#18bca2]" onClick={() => showToast('已提交范例库')}>
+                        <td className="px-4 py-3">{index + 1}</td>
+                        <td className="hidden px-4 py-3">
+                          <button type="button" className="hidden text-[#216BFF]" onClick={() => showToast('已提交范例库')}>
                             提交范例库
                           </button>
                         </td>
-                        <td className="px-4 py-4">{row.visitorId}</td>
-                        <td className="px-4 py-4">{row.sessionId}</td>
-                        <td className="px-4 py-4">{row.employeeName}</td>
-                        <td className="px-4 py-4">{row.employeeId}</td>
-                        <td className="px-4 py-4">{row.queue}</td>
-                        <td className="px-4 py-4">{row.workgroup}</td>
-                        <td className="px-4 py-4">{row.requestAt}</td>
-                        <td className="px-4 py-4">{row.chatStartedAt}</td>
-                        <td className="px-4 py-4">{row.chatEndedAt}</td>
-                        <td className="px-4 py-4">{row.duration}</td>
-                        <td className="px-4 py-4">{row.endReason}</td>
-                        <td className="px-4 py-4">{row.channel}</td>
-                        <td className="px-4 py-4">{row.satisfaction || '-'}</td>
-                        <td className="px-4 py-4">{row.exampleStatus}</td>
+                        <td className="px-4 py-3">{row.visitorId}</td>
+                        <td className="px-4 py-3">{row.sessionId}</td>
+                        <td className="px-4 py-3">{row.employeeName}</td>
+                        <td className="px-4 py-3">{row.employeeId}</td>
+                        <td className="px-4 py-3">{row.queue}</td>
+                        <td className="px-4 py-3">{row.workgroup}</td>
+                        <td className="px-4 py-3">{row.requestAt}</td>
+                        <td className="px-4 py-3">{row.chatStartedAt}</td>
+                        <td className="px-4 py-3">{row.chatEndedAt}</td>
+                        <td className="px-4 py-3">{row.duration}</td>
+                        <td className="px-4 py-3">{row.endReason}</td>
+                        <td className="px-4 py-3">{row.channel}</td>
+                        <td className="px-4 py-3">{row.satisfaction || '-'}</td>
+                        <td className="px-4 py-3">{row.exampleStatus}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -3816,7 +3815,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                                   <button
                                     type="button"
                                     onClick={() => showToast(`正在下载 ${fileName}`)}
-                                    className="inline-flex shrink-0 items-center gap-1 text-[13px] font-medium text-[#18bca2] hover:underline"
+                                    className="inline-flex shrink-0 items-center gap-1 text-[13px] font-medium text-[#216BFF] hover:underline"
                                   >
                                     <Download size={14} />
                                     下载
@@ -3887,7 +3886,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                 <button
                   type="button"
                   onClick={() => setShowWebchatMessageMoreFilters((value) => !value)}
-                  className="flex items-center gap-1 text-[13px] font-medium text-[#18bca2]"
+                  className="flex items-center gap-1 text-[13px] font-medium text-[#216BFF]"
                 >
                   {showWebchatMessageMoreFilters ? '收起' : '展开'}
                   {showWebchatMessageMoreFilters ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
@@ -4008,14 +4007,14 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
               <table className="min-w-[2140px] table-fixed text-left text-[13px]">
                 <thead className="bg-[#fafafa] text-slate-600">
                   <tr>
-                    <th className="w-10 px-2 py-3 text-center font-medium">
+                    <th className="w-10 px-4 py-3 text-center font-medium">
                       <input
                         type="checkbox"
                         checked={allSelected}
                         onChange={(event) =>
                           setSelectedWebchatMessageIds(event.target.checked ? filteredWebchatMessageRows.map((row) => row.id) : [])
                         }
-                        className="h-4 w-4 cursor-pointer accent-[#18bca2]"
+                        className="h-4 w-4 cursor-pointer accent-[#216BFF]"
                       />
                     </th>
                     {columns.map((column) => (
@@ -4028,7 +4027,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                 <tbody className="text-slate-600">
                   {filteredWebchatMessageRows.map((row, index) => (
                     <tr key={row.id} className={cn(index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]')}>
-                      <td className="px-2 py-4 text-center">
+                      <td className="px-4 py-3 text-center">
                         <input
                           type="checkbox"
                           checked={selectedWebchatMessageIds.includes(row.id)}
@@ -4037,12 +4036,12 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                               event.target.checked ? [...current, row.id] : current.filter((id) => id !== row.id)
                             )
                           }
-                          className="h-4 w-4 cursor-pointer accent-[#18bca2]"
+                          className="h-4 w-4 cursor-pointer accent-[#216BFF]"
                         />
                       </td>
-                      <td className="px-4 py-4">{index + 1}</td>
-                      <td className="px-4 py-4">
-                        <div className="flex gap-3 whitespace-nowrap text-[#18bca2]">
+                      <td className="px-4 py-3">{index + 1}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex gap-3 whitespace-nowrap text-[#216BFF]">
                           {row.status === '待处理' && (
                             <button
                               type="button"
@@ -4109,15 +4108,15 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                           )}
                         </div>
                       </td>
-                      <td className="px-4 py-4">{row.status}</td>
-                      <td className="px-4 py-4">{row.customerName}</td>
-                      <td className="px-4 py-4">{row.channel}</td>
-                      <td className="px-4 py-4">{row.contact}</td>
-                      <td className="px-4 py-4">{row.messageAt}</td>
-                      <td className="px-4 py-4">{row.content || '-'}</td>
-                      <td className="px-4 py-4">{row.transferBy}</td>
-                      <td className="px-4 py-4">{row.transferAt}</td>
-                      <td className="px-4 py-4">
+                      <td className="px-4 py-3">{row.status}</td>
+                      <td className="px-4 py-3">{row.customerName}</td>
+                      <td className="px-4 py-3">{row.channel}</td>
+                      <td className="px-4 py-3">{row.contact}</td>
+                      <td className="px-4 py-3">{row.messageAt}</td>
+                      <td className="px-4 py-3">{row.content || '-'}</td>
+                      <td className="px-4 py-3">{row.transferBy}</td>
+                      <td className="px-4 py-3">{row.transferAt}</td>
+                      <td className="px-4 py-3">
                         {row.transferCount > 0 ? (
                           <button type="button" className="text-[#5f6fff]" onClick={() => setWebchatTransferHistoryTarget(row.id)}>
                             {row.transferCount}
@@ -4126,8 +4125,8 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                           row.transferCount
                         )}
                       </td>
-                      <td className="px-4 py-4">{row.department}</td>
-                      <td className="px-4 py-4">{row.processor || '-'}</td>
+                      <td className="px-4 py-3">{row.department}</td>
+                      <td className="px-4 py-3">{row.processor || '-'}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -4186,7 +4185,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                     onClick={() => setBlacklistManagementTab(key as 'query' | 'approval')}
                     className={cn(
                       'border-b-2 pb-2 text-[14px] font-medium',
-                      mode === key ? 'border-[#18bca2] text-[#18bca2]' : 'border-transparent text-slate-500'
+                      mode === key ? 'border-[#216BFF] text-[#216BFF]' : 'border-transparent text-slate-500'
                     )}
                   >
                     {label}
@@ -4315,25 +4314,25 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                 <tbody className="text-slate-600">
                   {rows.map((row, index) => (
                     <tr key={`${mode}-${row.sessionId}`} className={cn(index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]')}>
-                      <td className="px-4 py-4">{index + 1}</td>
-                      <td className="px-4 py-4">{row.sessionId}</td>
-                      <td className="px-4 py-4">{row.visitorId}</td>
-                      <td className="px-4 py-4">{row.channel}</td>
-                      <td className="px-4 py-4">{row.userSystem}</td>
-                      <td className="px-4 py-4">{row.seatNo}</td>
-                      <td className="px-4 py-4">{row.blocker}</td>
-                      <td className="px-4 py-4">{row.reason}</td>
-                      <td className="px-4 py-4">{row.blockedAt}</td>
+                      <td className="px-4 py-3">{index + 1}</td>
+                      <td className="px-4 py-3">{row.sessionId}</td>
+                      <td className="px-4 py-3">{row.visitorId}</td>
+                      <td className="px-4 py-3">{row.channel}</td>
+                      <td className="px-4 py-3">{row.userSystem}</td>
+                      <td className="px-4 py-3">{row.seatNo}</td>
+                      <td className="px-4 py-3">{row.blocker}</td>
+                      <td className="px-4 py-3">{row.reason}</td>
+                      <td className="px-4 py-3">{row.blockedAt}</td>
                       {isApproval ? (
                         <>
-                          <td className="px-4 py-4">{row.auditStatus}</td>
-                          <td className="px-4 py-4">
+                          <td className="px-4 py-3">{row.auditStatus}</td>
+                          <td className="px-4 py-3">
                             {row.auditStatus === '待审核' ? (
-                              <div className="flex items-center gap-4 text-[#18bca2]">
-                                <button type="button" onClick={() => showToast('黑名单申请已通过')}>
+                              <div className="flex items-center gap-4 text-[13px] font-medium text-[#216BFF]">
+                                <button type="button" onClick={() => showToast('黑名单申请已通过')} className="hover:text-[#1a5ce6]">
                                   通过
                                 </button>
-                                <button type="button" onClick={() => showToast('黑名单申请已驳回')}>
+                                <button type="button" onClick={() => showToast('黑名单申请已驳回')} className="text-[#ff6f6f] hover:text-[#ff4d4f]">
                                   不通过
                                 </button>
                               </div>
@@ -4344,10 +4343,10 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                         </>
                       ) : (
                         <>
-                          <td className="px-4 py-4">{row.removedAt || '-'}</td>
-                          <td className="px-4 py-4">
+                          <td className="px-4 py-3">{row.removedAt || '-'}</td>
+                          <td className="px-4 py-3">
                             {!row.removedAt ? (
-                              <button type="button" onClick={() => setBlacklistRemoveConfirm(row.sessionId)} className="text-[13px] font-medium text-[#5a8cff]">移出</button>
+                              <button type="button" onClick={() => setBlacklistRemoveConfirm(row.sessionId)} className="text-[13px] font-medium text-[#ff6f6f] hover:text-[#ff4d4f]">移出</button>
                             ) : (
                               <span className="text-slate-400">已移出</span>
                             )}
@@ -4382,7 +4381,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                 setBlacklistRows((prev) => prev.map((row) => row.sessionId === blacklistRemoveConfirm ? { ...row, removedAt: now } : row));
                 setBlacklistRemoveConfirm(null);
                 showToast('已将该用户从黑名单中移出');
-              }} className="rounded bg-[#12b89f] px-5 py-2 text-[13px] font-medium text-white">确定</button>
+              }} className="rounded bg-[#216BFF] px-5 py-2 text-[13px] font-medium text-white">确定</button>
             </div>
           </div>
         </div>
@@ -4945,8 +4944,8 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
   ];
 
   const webchatMessageRows = [
-    [<div key="ops-3" className="flex gap-3 text-[#18bca2]"><button type="button" onClick={() => showToast('留言已认领')}>认领</button><button type="button" onClick={() => setWebchatTransferTarget('1')}>调剂</button></div>, '处理中', '访客34446', 'Web', '18022343432', '2026-02-26 14:20:35', 'ceshi 测试', '2026-02-26 15:20:35', '-', '-', 0, '系统组', '刘梦玲2'],
-    [<div key="ops-4" className="flex gap-3 text-[#18bca2]"><button type="button" onClick={() => showToast('留言已处理')}>处理</button><button type="button" onClick={() => setWebchatTransferTarget('2')}>调剂</button></div>, '处理中', '访客34446', '微信', '18022343432', '2026-02-26 14:19:24', '测试测试测试...', '2026-02-26 15:19:24', '坐席B', '2025-04-29 11:15:14', <button key="count2" type="button" className="text-[#5f6fff]" onClick={() => showToast('已打开调剂历史')}>1</button>, '系统组', 'Kukua'],
+    [<div key="ops-3" className="flex gap-3 text-[#216BFF]"><button type="button" onClick={() => showToast('留言已认领')}>认领</button><button type="button" onClick={() => setWebchatTransferTarget('1')}>调剂</button></div>, '处理中', '访客34446', 'Web', '18022343432', '2026-02-26 14:20:35', 'ceshi 测试', '2026-02-26 15:20:35', '-', '-', 0, '系统组', '刘梦玲2'],
+    [<div key="ops-4" className="flex gap-3 text-[#216BFF]"><button type="button" onClick={() => showToast('留言已处理')}>处理</button><button type="button" onClick={() => setWebchatTransferTarget('2')}>调剂</button></div>, '处理中', '访客34446', '微信', '18022343432', '2026-02-26 14:19:24', '测试测试测试...', '2026-02-26 15:19:24', '坐席B', '2025-04-29 11:15:14', <button key="count2" type="button" className="text-[#5f6fff]" onClick={() => showToast('已打开调剂历史')}>1</button>, '系统组', 'Kukua'],
   ];
 
   const [webchatMessageItems, setWebchatMessageItems] = useState([
@@ -5514,7 +5513,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                         type="button"
                         className={cn(
                           'rounded-md px-3 py-1.5 text-[13px] transition-colors',
-                          index === 0 ? 'bg-[#effbf8] text-[#18bca2]' : 'text-slate-500 hover:bg-slate-50'
+                          index === 0 ? 'bg-[#e8f1ff] text-[#216BFF]' : 'text-slate-500 hover:bg-slate-50'
                         )}
                       >
                         {tab}
@@ -5556,21 +5555,21 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
         <div className={cn(pageWrapperClass, 'relative')}>
           {appointmentTab === 'todo' && showAppointmentTodoReminder && appointmentTodoReminderRow ? (
             <div className="pointer-events-none absolute right-6 top-6 z-20">
-              <div className="appointment-todo-reminder-popin pointer-events-auto w-[min(380px,calc(100vw-32px))] rounded-xl border border-[#cfeee7] bg-white px-5 py-4 shadow-[0_10px_24px_rgba(18,184,159,0.14)]">
+              <div className="appointment-todo-reminder-popin pointer-events-auto w-[min(380px,calc(100vw-32px))] rounded-xl border border-[#96b8ff] bg-white px-5 py-4 shadow-[0_10px_24px_rgba(33,107,255,0.14)]">
                 <button
                   type="button"
                   onClick={() => {
                     setShowAppointmentTodoReminder(false);
                     setShowAppointmentTodoFollowupReminder(true);
                   }}
-                  className="absolute right-4 top-4 text-slate-400 transition-colors hover:text-[#18bca2]"
+                  className="absolute right-4 top-4 text-slate-400 transition-colors hover:text-[#216BFF]"
                   aria-label="关闭提醒"
                 >
                   <X size={20} strokeWidth={2} />
                 </button>
                 <div className="pr-8">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#effbf8] text-[22px] font-semibold leading-none text-[#18bca2]">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#e8f1ff] text-[22px] font-semibold leading-none text-[#216BFF]">
                       i
                     </div>
                     <span className="text-[16px] font-semibold text-slate-900">待办提醒</span>
@@ -5593,18 +5592,18 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
           ) : null}
           {showAppointmentTodoFollowupReminder ? (
             <div className="pointer-events-none absolute right-6 top-6 z-20">
-              <div className="appointment-todo-reminder-popin pointer-events-auto w-[min(380px,calc(100vw-32px))] rounded-xl border border-[#cfeee7] bg-white px-5 py-4 shadow-[0_10px_24px_rgba(18,184,159,0.14)]">
+              <div className="appointment-todo-reminder-popin pointer-events-auto w-[min(380px,calc(100vw-32px))] rounded-xl border border-[#96b8ff] bg-white px-5 py-4 shadow-[0_10px_24px_rgba(33,107,255,0.14)]">
                 <button
                   type="button"
                   onClick={() => setShowAppointmentTodoFollowupReminder(false)}
-                  className="absolute right-4 top-4 text-slate-400 transition-colors hover:text-[#18bca2]"
+                  className="absolute right-4 top-4 text-slate-400 transition-colors hover:text-[#216BFF]"
                   aria-label="关闭提醒"
                 >
                   <X size={20} strokeWidth={2} />
                 </button>
                 <div className="pr-8">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#effbf8] text-[22px] font-semibold leading-none text-[#18bca2]">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#e8f1ff] text-[22px] font-semibold leading-none text-[#216BFF]">
                       i
                     </div>
                     <span className="text-[16px] font-semibold text-slate-900">待办提醒</span>
@@ -5639,7 +5638,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                         key={key}
                         type="button"
                         onClick={() => openAppointmentListTab(key as 'appointment' | 'message')}
-                        className={cn('border-b-2 pb-2 text-[14px] font-medium', appointmentTab === key ? 'border-[#18bca2] text-[#18bca2]' : 'border-transparent text-slate-500')}
+                        className={cn('border-b-2 pb-2 text-[14px] font-medium', appointmentTab === key ? 'border-[#216BFF] text-[#216BFF]' : 'border-transparent text-slate-500')}
                       >
                         {label}
                       </button>
@@ -5647,13 +5646,13 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                     <button
                       type="button"
                       onClick={openAppointmentTodoTab}
-                      className={cn('border-b-2 pb-2 text-[14px] font-medium', appointmentTab === 'todo' ? 'border-[#18bca2] text-[#18bca2]' : 'border-transparent text-slate-500')}
+                      className={cn('border-b-2 pb-2 text-[14px] font-medium', appointmentTab === 'todo' ? 'border-[#216BFF] text-[#216BFF]' : 'border-transparent text-slate-500')}
                     >
                       待办
                     </button>
                   </div>
                   {appointmentTab === 'todo' ? null : (
-                    <button type="button" onClick={() => setShowAppointmentFilters((value) => !value)} className="flex items-center gap-1 text-[13px] font-medium text-[#18bca2]">
+                    <button type="button" onClick={() => setShowAppointmentFilters((value) => !value)} className="flex items-center gap-1 text-[13px] font-medium text-[#216BFF]">
                       {showAppointmentFilters ? '收起' : '展开'}
                       {showAppointmentFilters ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                     </button>
@@ -5817,17 +5816,17 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                     </thead>
                     <tbody className="text-slate-600">
                       {filteredAppointmentTodoRows.map((row, index) => (
-                        <tr key={`appointment-todo-${row.id}`} className={cn(index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]', 'transition-colors hover:bg-[#f7fffd]')}>
-                          <td className="px-4 py-4">{index + 1}</td>
-                          <td className="px-4 py-4">{row.customerName}</td>
-                          <td className="px-4 py-4">{row.callbackNo}</td>
-                          <td className="px-4 py-4">{row.callbackAt}</td>
-                          <td className="px-4 py-4">{row.reason}</td>
-                          <td className="px-4 py-4">
+                        <tr key={`appointment-todo-${row.id}`} className={cn(index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]', 'transition-colors hover:bg-[#e8f1ff]')}>
+                          <td className="px-4 py-3">{index + 1}</td>
+                          <td className="px-4 py-3">{row.customerName}</td>
+                          <td className="px-4 py-3">{row.callbackNo}</td>
+                          <td className="px-4 py-3">{row.callbackAt}</td>
+                          <td className="px-4 py-3">{row.reason}</td>
+                          <td className="px-4 py-3">
                             <span
                               className={cn(
                                 'inline-flex rounded-full border px-2.5 py-1 text-xs font-medium leading-none',
-                                row.status === '未处理' ? 'border-[#b7ebd8] bg-[#effcf6] text-[#12a57f]' :
+                                row.status === '未处理' ? 'border-[#96b8ff] bg-[#e8f1ff] text-[#1a5ce6]' :
                                 row.status === '处理中' ? 'border-[#fde68a] bg-[#fffbeb] text-[#d97706]' :
                                 'border-slate-200 bg-slate-50 text-slate-500'
                               )}
@@ -5835,15 +5834,15 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                               {row.status}
                             </span>
                           </td>
-                          <td className="px-4 py-4">
+                          <td className="px-4 py-3">
                             {row.status === '处理中' ? (
-                              <button type="button" onClick={() => openCallWorkbench()} className="text-[#18bca2]">
+                              <button type="button" onClick={() => openCallWorkbench()} className="text-[#216BFF]">
                                 小结
                               </button>
                             ) : row.status === '处理完毕' ? (
                               <span className="text-slate-400">-</span>
                             ) : (
-                              <button type="button" onClick={() => setAppointmentCallbackConfirm(true)} className="text-[#18bca2]">
+                              <button type="button" onClick={() => setAppointmentCallbackConfirm(true)} className="text-[#216BFF]">
                                 回电
                               </button>
                             )}
@@ -5871,42 +5870,42 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                         onDoubleClick={() => setAppointmentAudioRowId(row.id)}
                         className={cn(
                           index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]',
-                          'cursor-pointer transition-colors hover:bg-[#f7fffd]',
-                          appointmentAudioRowId === row.id ? 'bg-[#f2fffb]' : ''
+                          'cursor-pointer transition-colors hover:bg-[#e8f1ff]',
+                          appointmentAudioRowId === row.id ? 'bg-[#e8f1ff]' : ''
                         )}
                       >
-                        <td className="px-4 py-4">{index + 1}</td>
+                        <td className="px-4 py-3">{index + 1}</td>
                         {appointmentTab === 'message' ? (
-                          <td className="px-4 py-4">{row.businessLine}</td>
+                          <td className="px-4 py-3">{row.businessLine}</td>
                         ) : null}
                         {appointmentTab === 'message' ? (
                           <>
-                            <td className="px-4 py-4">{row.caller}</td>
-                            <td className="px-4 py-4">{row.callee}</td>
+                            <td className="px-4 py-3">{row.caller}</td>
+                            <td className="px-4 py-3">{row.callee}</td>
                           </>
                         ) : (
-                          <td className="px-4 py-4">{row.callbackNo}</td>
+                          <td className="px-4 py-3">{row.callbackNo}</td>
                         )}
-                        <td className="px-4 py-4">{row.startAt}</td>
-                        <td className="px-4 py-4">{row.endAt}</td>
-                        <td className="px-4 py-4">
+                        <td className="px-4 py-3">{row.startAt}</td>
+                        <td className="px-4 py-3">{row.endAt}</td>
+                        <td className="px-4 py-3">
                           <span className={cn(
                             'inline-flex rounded-full border px-2.5 py-1 text-xs font-medium leading-none',
                             row.status === '未处理' ? 'border-[#fde68a] bg-[#fffbeb] text-[#d97706]' :
-                            row.status === '处理中' ? 'border-[#b7ebd8] bg-[#effcf6] text-[#12a57f]' :
+                            row.status === '处理中' ? 'border-[#96b8ff] bg-[#e8f1ff] text-[#1a5ce6]' :
                             'border-slate-200 bg-slate-50 text-slate-500'
                           )}>
                             {row.status}
                           </span>
                         </td>
-                        <td className="px-4 py-4">{row.department}</td>
-                        <td className="px-4 py-4">{row.agent}</td>
+                        <td className="px-4 py-3">{row.department}</td>
+                        <td className="px-4 py-3">{row.agent}</td>
                         {appointmentTab === 'message' ? (
-                          <td className="px-4 py-4">{row.skillGroup}</td>
+                          <td className="px-4 py-3">{row.skillGroup}</td>
                         ) : null}
-                        <td className="px-4 py-4">{row.transferAgent}</td>
-                        <td className="px-4 py-4">{row.transferAt}</td>
-                        <td className="px-4 py-4 text-[#5f6fff]">
+                        <td className="px-4 py-3">{row.transferAgent}</td>
+                        <td className="px-4 py-3">{row.transferAt}</td>
+                        <td className="px-4 py-3 text-[#5f6fff]">
                           {row.transferCount > 0 ? (
                             <button type="button" onClick={() => setAppointmentTransferHistoryTarget(row)}>
                               {row.transferCount}
@@ -5916,12 +5915,12 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                           )}
                         </td>
                         {appointmentTab === 'message' ? null : (
-                          <td className="px-4 py-4" title={row.remark}>
+                          <td className="px-4 py-3" title={row.remark}>
                             <span className="block max-w-[180px] truncate">{row.remark || '-'}</span>
                           </td>
                         )}
-                        <td className="px-4 py-4">
-                          <div className="flex gap-3 whitespace-nowrap text-[#18bca2]">
+                        <td className="px-4 py-3">
+                          <div className="flex gap-3 whitespace-nowrap text-[#216BFF]">
                             {row.status === '处理中' ? (
                               <button type="button" onClick={() => openCallWorkbench()}>
                                 小结
@@ -6120,7 +6119,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                       <span
                         className={cn(
                           'relative inline-flex h-5 w-9 rounded-full transition-colors',
-                          monitorHideOffline ? 'bg-[#18bca2]' : 'bg-slate-300'
+                          monitorHideOffline ? 'bg-[#216BFF]' : 'bg-slate-300'
                         )}
                       >
                         <span
@@ -6144,7 +6143,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                       );
                       setShowMonitorDepartmentDialog(true);
                     }}
-                    className="inline-flex h-9 items-center justify-center rounded-full border border-[#8fe0d2] bg-[#effbf8] px-4 text-[#18bca2] transition-colors hover:bg-[#e3f8f3]"
+                    className="inline-flex h-9 items-center justify-center rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-4 text-[#216BFF] transition-colors hover:bg-[#c9dcff]"
                   >
                     选择部门
                   </button>
@@ -6317,7 +6316,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                         </select>
                       </Field>
                     </div>
-                    <div className="mb-3 rounded-md border border-[#cfeee7] bg-[#f4fbf9] px-4 py-3 text-[12px] text-slate-600">
+                    <div className="mb-3 rounded-md border border-[#96b8ff] bg-[#e8f1ff] px-4 py-3 text-[12px] text-slate-600">
                       <div className="mb-2 font-medium text-slate-700">
                         {queueMonitorPhoneSkillGroup ? `组别：${queueMonitorPhoneSkillGroup}` : '全部组别汇总'}
                       </div>
@@ -6336,7 +6335,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                         <thead className="bg-[#fafafa] text-slate-600">
                           <tr>
                             {['序号', '技能组', '累计呼入量', '实时排队数', '平均排队时长', '最大等待时长', '接起率', '20s服务水平', '30s服务水平'].map((column) => (
-                              <th key={`phone-${column}`} className="px-2 py-3 text-[12px] font-medium">
+                              <th key={`phone-${column}`} className="px-4 py-3 text-[12px] font-medium">
                                 {column}
                               </th>
                             ))}
@@ -6345,15 +6344,15 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                         <tbody className="text-slate-600">
                           {queueMonitorPhoneRows.map((row, index) => (
                             <tr key={row.id} className={cn(index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]')}>
-                              <td className="px-2 py-3">{index + 1}</td>
-                              <td className="px-2 py-3">{row.queueName}</td>
-                              <td className="px-2 py-3">{row.inboundTotal}</td>
-                              <td className="px-2 py-3">{row.realtimeQueueCount}</td>
-                              <td className="px-2 py-3">{row.avgQueueTime}</td>
-                              <td className="px-2 py-3">{row.maxWaitTime}</td>
-                              <td className="px-2 py-3">{row.answerRate}</td>
-                              <td className="px-2 py-3">{row.serviceLevel20s}</td>
-                              <td className="px-2 py-3">{row.serviceLevel30s}</td>
+                              <td className="px-4 py-3">{index + 1}</td>
+                              <td className="px-4 py-3">{row.queueName}</td>
+                              <td className="px-4 py-3">{row.inboundTotal}</td>
+                              <td className="px-4 py-3">{row.realtimeQueueCount}</td>
+                              <td className="px-4 py-3">{row.avgQueueTime}</td>
+                              <td className="px-4 py-3">{row.maxWaitTime}</td>
+                              <td className="px-4 py-3">{row.answerRate}</td>
+                              <td className="px-4 py-3">{row.serviceLevel20s}</td>
+                              <td className="px-4 py-3">{row.serviceLevel30s}</td>
                             </tr>
                           ))}
                           {queueMonitorPhoneRows.length === 0 ? (
@@ -6384,7 +6383,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                         </select>
                       </Field>
                     </div>
-                    <div className="mb-3 rounded-md border border-[#cfeee7] bg-[#f4fbf9] px-4 py-3 text-[12px] text-slate-600">
+                    <div className="mb-3 rounded-md border border-[#96b8ff] bg-[#e8f1ff] px-4 py-3 text-[12px] text-slate-600">
                       <div className="mb-2 font-medium text-slate-700">
                         {queueMonitorWebchatQueue ? `工作组：${queueMonitorWebchatQueue}` : '全部工作组汇总'}
                       </div>
@@ -6402,7 +6401,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                         <thead className="bg-[#fafafa] text-slate-600">
                           <tr>
                             {['序号', '队列', '累计转人工量', '实时排队数', '排队失败量', '接起率', '20s服务水平', '30s服务水平'].map((column) => (
-                              <th key={`webchat-${column}`} className="px-2 py-3 text-[12px] font-medium">
+                              <th key={`webchat-${column}`} className="px-4 py-3 text-[12px] font-medium">
                                 {column}
                               </th>
                             ))}
@@ -6411,14 +6410,14 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                         <tbody className="text-slate-600">
                           {queueMonitorWebchatRows.map((row, index) => (
                             <tr key={row.id} className={cn(index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]')}>
-                              <td className="px-2 py-3">{index + 1}</td>
-                              <td className="px-2 py-3">{row.queue}</td>
-                              <td className="px-2 py-3">{row.transferHumanTotal}</td>
-                              <td className="px-2 py-3">{row.realtimeQueueCount}</td>
-                              <td className="px-2 py-3">{row.queueFailCount}</td>
-                              <td className="px-2 py-3">{row.answerRate}</td>
-                              <td className="px-2 py-3">{row.serviceLevel20s}</td>
-                              <td className="px-2 py-3">{row.serviceLevel30s}</td>
+                              <td className="px-4 py-3">{index + 1}</td>
+                              <td className="px-4 py-3">{row.queue}</td>
+                              <td className="px-4 py-3">{row.transferHumanTotal}</td>
+                              <td className="px-4 py-3">{row.realtimeQueueCount}</td>
+                              <td className="px-4 py-3">{row.queueFailCount}</td>
+                              <td className="px-4 py-3">{row.answerRate}</td>
+                              <td className="px-4 py-3">{row.serviceLevel20s}</td>
+                              <td className="px-4 py-3">{row.serviceLevel30s}</td>
                             </tr>
                           ))}
                           {queueMonitorWebchatRows.length === 0 ? (
@@ -6503,16 +6502,16 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                   <tbody className="text-slate-600">
                     {paginatedRows.map((row, index) => (
                       <tr key={row.id} className={cn(index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]')}>
-                        <td className="px-4 py-4">{row.nickname}</td>
-                        <td className="px-4 py-4">{row.startedAt}</td>
-                        <td className="px-4 py-4">{row.skillGroup}</td>
-                        <td className="px-4 py-4">{row.channelName}</td>
-                        <td className="px-4 py-4">{row.productName}</td>
-                        <td className="px-4 py-4">
+                        <td className="px-4 py-3">{row.nickname}</td>
+                        <td className="px-4 py-3">{row.startedAt}</td>
+                        <td className="px-4 py-3">{row.skillGroup}</td>
+                        <td className="px-4 py-3">{row.channelName}</td>
+                        <td className="px-4 py-3">{row.productName}</td>
+                        <td className="px-4 py-3">
                           <button
                             type="button"
                             onClick={() => openWaitingTransferDialog(row)}
-                            className="text-[#18bca2] transition-colors hover:text-[#0da88f]"
+                            className="text-[#216BFF] transition-colors hover:text-[#1a5ce6]"
                           >
                             强制转移
                           </button>
@@ -6548,7 +6547,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                       className={cn(
                         'flex h-8 w-8 items-center justify-center rounded-md border text-[13px]',
                         pageNum === waitingMonitorPage
-                          ? 'border-[#8fe0d2] bg-[#effbf8] text-[#18bca2]'
+                          ? 'border-[#96b8ff] bg-[#e8f1ff] text-[#216BFF]'
                           : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50'
                       )}
                     >
@@ -6646,14 +6645,14 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                   <tbody className="text-slate-600">
                     {paginatedRows.map((row, index) => (
                       <tr key={row.id} className={cn(index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]')}>
-                        <td className="px-4 py-4">{row.channelName}</td>
-                        <td className="px-4 py-4">{row.productName}</td>
-                        <td className="px-4 py-4">{row.transferHumanCount}</td>
-                        <td className="px-4 py-4">{row.realtimeQueueCount}</td>
-                        <td className="px-4 py-4">{row.queueFailCount}</td>
-                        <td className="px-4 py-4">{row.answerRate}</td>
-                        <td className="px-4 py-4">{row.serviceLevel20s}</td>
-                        <td className="px-4 py-4">{row.serviceLevel30s}</td>
+                        <td className="px-4 py-3">{row.channelName}</td>
+                        <td className="px-4 py-3">{row.productName}</td>
+                        <td className="px-4 py-3">{row.transferHumanCount}</td>
+                        <td className="px-4 py-3">{row.realtimeQueueCount}</td>
+                        <td className="px-4 py-3">{row.queueFailCount}</td>
+                        <td className="px-4 py-3">{row.answerRate}</td>
+                        <td className="px-4 py-3">{row.serviceLevel20s}</td>
+                        <td className="px-4 py-3">{row.serviceLevel30s}</td>
                       </tr>
                     ))}
                     {paginatedRows.length === 0 ? (
@@ -6685,7 +6684,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                       className={cn(
                         'flex h-8 w-8 items-center justify-center rounded-md border text-[13px]',
                         pageNum === channelMonitorPage
-                          ? 'border-[#8fe0d2] bg-[#effbf8] text-[#18bca2]'
+                          ? 'border-[#96b8ff] bg-[#e8f1ff] text-[#216BFF]'
                           : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50'
                       )}
                     >
@@ -6744,7 +6743,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                   setWaitingTransferSkillGroup(event.target.value);
                   setWaitingTransferSelectedAgentId(null);
                 }}
-                className="h-10 w-[260px] rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-600 outline-none focus:border-[#12b89f]"
+                className="h-10 w-[260px] rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-600 outline-none focus:border-[#216BFF]"
               >
                 {waitingMonitorSkillGroupOptions.map((option) => (
                   <option key={option} value={option}>
@@ -6769,7 +6768,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                       className={cn(
                         'cursor-pointer',
                         index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]',
-                        waitingTransferSelectedAgentId === agent.id ? 'bg-[#effbf8]' : ''
+                        waitingTransferSelectedAgentId === agent.id ? 'bg-[#e8f1ff]' : ''
                       )}
                       onClick={() => setWaitingTransferSelectedAgentId(agent.id)}
                     >
@@ -7098,16 +7097,16 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
               <tbody className="text-slate-600">
                 {appointmentTransferHistoryRows.map((record, index) => (
                   <tr key={record.id} className={cn(index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]')}>
-                    <td className="px-4 py-4">{index + 1}</td>
-                    <td className="px-4 py-4">{record.operator}</td>
-                    <td className="px-4 py-4">{record.transferredAt}</td>
+                    <td className="px-4 py-3">{index + 1}</td>
+                    <td className="px-4 py-3">{record.operator}</td>
+                    <td className="px-4 py-3">{record.transferredAt}</td>
                     {appointmentTab === 'message' ? (
                       <>
-                        <td className="px-4 py-4">{record.group}</td>
-                        <td className="px-4 py-4">{record.skillGroup}</td>
+                        <td className="px-4 py-3">{record.group}</td>
+                        <td className="px-4 py-3">{record.skillGroup}</td>
                       </>
                     ) : (
-                      <td className="px-4 py-4">{record.department}</td>
+                      <td className="px-4 py-3">{record.department}</td>
                     )}
                   </tr>
                 ))}
@@ -7262,7 +7261,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                       type="button"
                       className={cn(
                         'rounded-md px-3 py-1.5 text-[13px] transition-colors',
-                        index === 0 ? 'bg-[#effbf8] text-[#18bca2]' : 'text-slate-500 hover:bg-slate-50'
+                        index === 0 ? 'bg-[#e8f1ff] text-[#216BFF]' : 'text-slate-500 hover:bg-slate-50'
                       )}
                     >
                       {tab}
@@ -7304,7 +7303,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                   maxLength={100}
                   onChange={(event) => setSampleSubmitForm((current) => ({ ...current, description: event.target.value }))}
                   placeholder="请输入100字以内录音描述"
-                  className="h-12 w-full rounded-xl border border-slate-200 px-4 pr-20 text-[15px] text-slate-600 outline-none focus:border-[#12b89f]"
+                  className="h-12 w-full rounded-xl border border-slate-200 px-4 pr-20 text-[15px] text-slate-600 outline-none focus:border-[#216BFF]"
                 />
                 <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[14px] text-slate-400">
                   {sampleSubmitForm.description.length} / 100
@@ -7320,7 +7319,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                 <select
                   value={sampleSubmitForm.quality}
                   onChange={(event) => setSampleSubmitForm((current) => ({ ...current, quality: event.target.value }))}
-                  className="h-12 rounded-xl border border-slate-200 bg-white px-4 text-[15px] text-slate-600 outline-none focus:border-[#12b89f]"
+                  className="h-12 rounded-xl border border-slate-200 bg-white px-4 text-[15px] text-slate-600 outline-none focus:border-[#216BFF]"
                 >
                   <option value="">请选择录音品质</option>
                   <option value="优质录音">优质录音</option>
@@ -7366,7 +7365,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                   maxLength={500}
                   onChange={(event) => setSampleSubmitForm((current) => ({ ...current, reason: event.target.value }))}
                   placeholder="请输入500字以内提交理由"
-                  className="min-h-[120px] w-full rounded-xl border border-slate-200 px-4 py-3 text-[15px] text-slate-600 outline-none focus:border-[#12b89f]"
+                  className="min-h-[120px] w-full rounded-xl border border-slate-200 px-4 py-3 text-[15px] text-slate-600 outline-none focus:border-[#216BFF]"
                 />
                 <div className="mt-2 text-right text-[14px] text-slate-400">{sampleSubmitForm.reason.length} / 500</div>
               </div>
@@ -7396,7 +7395,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                   maxLength={20}
                   onChange={(event) => setWebchatHistorySampleSubmitForm((current) => ({ ...current, description: event.target.value }))}
                   placeholder="请输入20字以内聊天描述"
-                  className="h-12 w-full rounded-xl border border-slate-200 px-4 pr-20 text-[15px] text-slate-600 outline-none focus:border-[#12b89f]"
+                  className="h-12 w-full rounded-xl border border-slate-200 px-4 pr-20 text-[15px] text-slate-600 outline-none focus:border-[#216BFF]"
                 />
                 <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[14px] text-slate-400">
                   {webchatHistorySampleSubmitForm.description.length} / 20
@@ -7422,7 +7421,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
               <select
                 value={webchatHistorySampleSubmitForm.quality}
                 onChange={(event) => setWebchatHistorySampleSubmitForm((current) => ({ ...current, quality: event.target.value }))}
-                className="h-12 rounded-xl border border-slate-200 bg-white px-4 text-[15px] text-slate-600 outline-none focus:border-[#12b89f]"
+                className="h-12 rounded-xl border border-slate-200 bg-white px-4 text-[15px] text-slate-600 outline-none focus:border-[#216BFF]"
               >
                 <option value="">请选择聊天品质</option>
                 <option value="优质聊天">优质聊天</option>
@@ -7441,7 +7440,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                   maxLength={500}
                   onChange={(event) => setWebchatHistorySampleSubmitForm((current) => ({ ...current, reason: event.target.value }))}
                   placeholder="请输入500字以内提交理由"
-                  className="min-h-[140px] w-full rounded-xl border border-slate-200 px-4 py-3 text-[15px] text-slate-600 outline-none focus:border-[#12b89f]"
+                  className="min-h-[140px] w-full rounded-xl border border-slate-200 px-4 py-3 text-[15px] text-slate-600 outline-none focus:border-[#216BFF]"
                 />
                 <div className="mt-2 text-right text-[14px] text-slate-400">{webchatHistorySampleSubmitForm.reason.length} / 500</div>
               </div>
@@ -7471,7 +7470,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                   maxLength={500}
                   onChange={(event) => setWebchatHistoryMessageContent(event.target.value)}
                   placeholder="请输入500字以内留言内容"
-                  className="min-h-[160px] w-full rounded-xl border border-slate-200 px-4 py-3 text-[15px] text-slate-600 outline-none focus:border-[#12b89f]"
+                  className="min-h-[160px] w-full rounded-xl border border-slate-200 px-4 py-3 text-[15px] text-slate-600 outline-none focus:border-[#216BFF]"
                 />
                 <div className="mt-2 text-right text-[14px] text-slate-400">{webchatHistoryMessageContent.length} / 500</div>
               </div>
@@ -7561,7 +7560,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                   checked={auditDecision === 'agree'}
                   onChange={() => setAuditDecision('agree')}
                   className="h-5 w-5 cursor-pointer"
-                  style={{ accentColor: '#14b8a6' }}
+                  style={{ accentColor: '#216BFF' }}
                 />
                 <span>同意</span>
               </label>
@@ -7572,7 +7571,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                   checked={auditDecision === 'reject'}
                   onChange={() => setAuditDecision('reject')}
                   className="h-5 w-5 cursor-pointer"
-                  style={{ accentColor: '#14b8a6' }}
+                  style={{ accentColor: '#216BFF' }}
                 />
                 <span>拒绝</span>
               </label>
@@ -7586,7 +7585,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                 <select
                   value={auditCategory}
                   onChange={(event) => setAuditCategory(event.target.value)}
-                  className="h-11 rounded-xl border border-slate-200 bg-white px-4 text-[15px] text-slate-600 outline-none focus:border-[#12b89f]"
+                  className="h-11 rounded-xl border border-slate-200 bg-white px-4 text-[15px] text-slate-600 outline-none focus:border-[#216BFF]"
                 >
                   <option value="">请选择分类</option>
                   <option value="咨询类">咨询类</option>
@@ -7605,7 +7604,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                     maxLength={500}
                     onChange={(event) => setAuditOpinion(event.target.value)}
                     placeholder="请输入500字以内意见"
-                    className="min-h-[110px] w-full rounded-xl border border-slate-200 px-4 py-3 text-[15px] text-slate-600 outline-none focus:border-[#12b89f]"
+                    className="min-h-[110px] w-full rounded-xl border border-slate-200 px-4 py-3 text-[15px] text-slate-600 outline-none focus:border-[#216BFF]"
                   />
                   <div className="mt-2 text-right text-[14px] text-slate-400">{auditOpinion.length} / 500</div>
                 </div>
@@ -7662,7 +7661,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                     <span
                       className={cn(
                         'inline-flex h-7 w-7 items-center justify-center rounded-full text-[16px] font-semibold',
-                        checked ? 'bg-[#14b8a6] text-white' : 'border border-slate-300 bg-white text-transparent'
+                        checked ? 'bg-[#216BFF] text-white' : 'border border-slate-300 bg-white text-transparent'
                       )}
                     >
                       ✓
@@ -7692,7 +7691,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                 );
                 setShowMonitorDepartmentDialog(false);
               }}
-              className="inline-flex h-12 min-w-[88px] items-center justify-center rounded-full bg-[#14b8a6] px-6 text-[18px] font-medium text-white"
+              className="inline-flex h-12 min-w-[88px] items-center justify-center rounded-full bg-[#216BFF] px-6 text-[18px] font-medium text-white"
             >
               确认
             </button>
@@ -7805,7 +7804,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                         key={session.id}
                         onClick={() => setSelectedSupportSessionId(session.id)}
                         className={cn(
-                          'mt-3 flex cursor-pointer items-start gap-3 rounded-r-xl px-4 py-4 text-left transition-colors first:mt-0',
+                          'mt-3 flex cursor-pointer items-start gap-3 rounded-r-xl px-4 py-3 text-left transition-colors first:mt-0',
                           isActive ? 'bg-[#efefef]' : 'hover:bg-slate-100'
                         )}
                       >
@@ -7903,7 +7902,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
               </div>
               <div className="flex items-center justify-between gap-3 bg-slate-900 px-5 py-3 text-[12px] text-white/80">
                 <div className="flex items-center gap-3">
-                  <button type="button" className="text-white transition-colors hover:text-[#40d6c0]">
+                  <button type="button" className="text-white transition-colors hover:text-[#216BFF]">
                     <Play size={16} />
                   </button>
                   <span>00:00:00 / {previewDuration}</span>
@@ -7987,10 +7986,10 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
               <tbody className="text-slate-600">
                 {appointmentTransferHistoryRows.map((row, index) => (
                   <tr key={row.id} className={cn(index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]')}>
-                    <td className="px-4 py-4">{index + 1}</td>
-                    <td className="px-4 py-4">{row.operator}</td>
-                    <td className="px-4 py-4">{row.transferredAt}</td>
-                    <td className="px-4 py-4">{row.department}</td>
+                    <td className="px-4 py-3">{index + 1}</td>
+                    <td className="px-4 py-3">{row.operator}</td>
+                    <td className="px-4 py-3">{row.transferredAt}</td>
+                    <td className="px-4 py-3">{row.department}</td>
                   </tr>
                 ))}
               </tbody>
@@ -8153,7 +8152,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                       type="button"
                       className={cn(
                         'rounded-md px-3 py-1.5 text-[13px] transition-colors',
-                        index === 0 ? 'bg-[#effbf8] text-[#18bca2]' : 'text-slate-500 hover:bg-slate-50'
+                        index === 0 ? 'bg-[#e8f1ff] text-[#216BFF]' : 'text-slate-500 hover:bg-slate-50'
                       )}
                     >
                       {tab}

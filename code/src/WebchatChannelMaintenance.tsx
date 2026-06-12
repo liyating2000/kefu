@@ -244,8 +244,8 @@ const chatFeatureItems = [
   { label: '强认证', description: '开启后对访客进行强认证', defaultChecked: false },
 ] as const;
 const gradientAngleOptions = [0, 45, 90, 135] as const;
-const themeColorPresets = ['#F04438', '#FF8A00', '#FACC15', '#22C55E', '#14B8A6', '#3B82F6', '#D946EF', '#A855F7', '#16A34A', '#0EA5E9'];
-const backgroundColorPresets = ['#F5F7FB', '#F1F5F9', '#EEF8FF', '#EEF8F3', '#F4F3FF', '#FFF7ED'];
+const themeColorPresets = ['#F04438', '#FF8A00', '#FACC15', '#22C55E', '#216BFF', '#3B82F6', '#D946EF', '#A855F7', '#16A34A', '#0EA5E9'];
+const backgroundColorPresets = ['#F5F7FB', '#F1F5F9', '#EEF8FF', '#e8f1ff', '#F4F3FF', '#FFF7ED'];
 const mockTimestamp = '2026-04-15 09:30:12';
 const imageUploadAccept = 'image/png,image/jpeg,image/webp,image/svg+xml';
 const visitorLogoSpec = { width: 144, height: 48 };
@@ -257,7 +257,7 @@ function createId(prefix: string) {
 
 function Switch({ checked, onChange }: { checked: boolean; onChange: (next: boolean) => void }) {
   return (
-    <button type="button" onClick={() => onChange(!checked)} className={cn('relative h-6 w-11 rounded-full', checked ? 'bg-[#18c2a7]' : 'bg-slate-200')}>
+    <button type="button" onClick={() => onChange(!checked)} className={cn('relative h-6 w-11 rounded-full', checked ? 'bg-[#216BFF]' : 'bg-slate-200')}>
       <span className={cn('absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all', checked ? 'left-[22px]' : 'left-0.5')} />
     </button>
   );
@@ -304,7 +304,7 @@ function getColorStops(value: string) {
 
 function getAccentColor(value: string) {
   if (!isGradientValue(value)) return value;
-  return getColorStops(value)[0] ?? '#18C2A7';
+  return getColorStops(value)[0] ?? '#216BFF';
 }
 
 function getFillStyle(value: string) {
@@ -332,8 +332,8 @@ function getColorValueLabel(
 }
 
 const baseConfig = (businessType: BusinessType): Row['config'] => ({
-  themeColor: '#18c2a7',
-  backgroundColor: '#eefcf8',
+  themeColor: '#216BFF',
+  backgroundColor: '#e8f1ff',
   customThemeColor: '#7545E8',
   customBackgroundColor: '#7545E8',
   customThemeMode: 'solid',
@@ -603,7 +603,7 @@ export default function WebchatChannelMaintenance() {
   const active = rows.find((row) => row.id === activeId) ?? null;
   const target = rows.find((row) => row.id === targetId) ?? null;
   const allSelected = filtered.length > 0 && filtered.every((row) => selectedIds.includes(row.id));
-  const themeAccentColor = active ? getAccentColor(active.config.themeColor) : '#18C2A7';
+  const themeAccentColor = active ? getAccentColor(active.config.themeColor) : '#216BFF';
   const previewThemeStyle = active ? getFillStyle(active.config.themeColor) : undefined;
   const previewBackgroundStyle = active ? getFillStyle(active.config.backgroundColor) : undefined;
 
@@ -868,7 +868,7 @@ export default function WebchatChannelMaintenance() {
         <div className={cn('mb-3 text-center font-medium text-slate-700', isPc ? 'text-[14px]' : 'text-[11px]')}>请对本次服务做出评价</div>
         {styleKey === '分值显示（1-5）' ? (
           <div className={cn('mb-3', isPc ? 'px-3' : 'px-1')}>
-            <input type="range" min={1} max={5} step={1} value={cardRating || 3} onChange={(e) => !disabled && setCardRating(Number(e.target.value))} disabled={disabled} className="w-full accent-[#18c2a7]" style={{ accentColor: themeAccentColor }} />
+            <input type="range" min={1} max={5} step={1} value={cardRating || 3} onChange={(e) => !disabled && setCardRating(Number(e.target.value))} disabled={disabled} className="w-full accent-[#216BFF]" style={{ accentColor: themeAccentColor }} />
             <div className={cn('mt-1 flex justify-between text-slate-400', isPc ? 'text-[12px]' : 'text-[10px]')}>
               {[1, 2, 3, 4, 5].map((n) => (
                 <span key={n} className={cn(cardRating === n ? 'font-semibold' : '')} style={cardRating === n ? { color: themeAccentColor } : undefined}>{n}</span>
@@ -1059,11 +1059,11 @@ export default function WebchatChannelMaintenance() {
         <div key={key} className={cn('flex items-center gap-2', isPc ? 'px-2 py-1' : 'px-1 py-1')}>
           {productSelected ? (
             <>
-              <span className={cn('inline-flex items-center rounded-full border border-[#8fe0d2] bg-[#effbf8] font-medium text-[#18bca2]', isPc ? 'px-4 py-2 text-[13px]' : 'px-3 py-1.5 text-[11px]')}>{selectedProductName}</span>
-              <button type="button" onClick={() => { setProductSelected(false); setSelectedProductName(''); setSelectedProductCategory(null); openProductPicker(); }} className={cn('font-medium text-[#18bca2] hover:underline', isPc ? 'text-[12px]' : 'text-[10px]')}>切换</button>
+              <span className={cn('inline-flex items-center rounded-full border border-[#96b8ff] bg-[#e8f1ff] font-medium text-[#216BFF]', isPc ? 'px-4 py-2 text-[13px]' : 'px-3 py-1.5 text-[11px]')}>{selectedProductName}</span>
+              <button type="button" onClick={() => { setProductSelected(false); setSelectedProductName(''); setSelectedProductCategory(null); openProductPicker(); }} className={cn('font-medium text-[#216BFF] hover:underline', isPc ? 'text-[12px]' : 'text-[10px]')}>切换</button>
             </>
           ) : (
-            <button type="button" onClick={() => openProductPicker()} className={cn('rounded-full border border-[#8fe0d2] bg-[#effbf8] font-medium text-[#18bca2] transition-colors hover:bg-[#e2f8f3]', isPc ? 'px-4 py-2 text-[13px]' : 'px-3 py-1.5 text-[11px]')}>{msg.text}</button>
+            <button type="button" onClick={() => openProductPicker()} className={cn('rounded-full border border-[#96b8ff] bg-[#e8f1ff] font-medium text-[#216BFF] transition-colors hover:bg-[#c9dcff]', isPc ? 'px-4 py-2 text-[13px]' : 'px-3 py-1.5 text-[11px]')}>{msg.text}</button>
           )}
         </div>
       );
@@ -1358,7 +1358,7 @@ export default function WebchatChannelMaintenance() {
         {productSelected && (transferEnabled && !chatTransferred && robotEnabled || !chatTransferred || showSatisfaction || active.config.quickButtons.length > 0) ? (
           <div className="flex items-center gap-2 overflow-x-auto border-t border-slate-100 bg-white px-5 py-2 scrollbar-none">
             {transferEnabled && !chatTransferred && robotEnabled ? (
-              <button type="button" onClick={transferToAgent} className="shrink-0 rounded-full border border-[#8fe0d2] bg-[#effbf8] px-4 py-1 text-[12px] font-medium text-[#18bca2]">转人工</button>
+              <button type="button" onClick={transferToAgent} className="shrink-0 rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-4 py-1 text-[12px] font-medium text-[#216BFF]">转人工</button>
             ) : null}
             {!chatTransferred ? (
               <button type="button" onClick={() => { setLeaveMessageOpen(true); setLeaveMessageResult(null); setLeaveMessageForm({ name: '', phone: '', code: '', content: '' }); setLeaveMessageFile(null); setLeaveMessageCountdown(0); }} className="shrink-0 rounded-full border border-[#93b5cf] bg-[#f0f5fa] px-4 py-1 text-[12px] font-medium text-[#5b8db5]">留言</button>
@@ -1411,13 +1411,13 @@ export default function WebchatChannelMaintenance() {
             {/* Product tags */}
             {productSelected ? (
               <div className="flex flex-wrap items-center gap-1.5">
-                <span className="rounded-full border border-[#18bca2] bg-[#effbf8] px-3 py-1 text-[10px] font-medium text-[#18bca2]">
-                  <span className="mr-1 inline-block h-1.5 w-1.5 rounded-full bg-[#18bca2]" />{selectedProductName}
+                <span className="rounded-full border border-[#216BFF] bg-[#e8f1ff] px-3 py-1 text-[10px] font-medium text-[#216BFF]">
+                  <span className="mr-1 inline-block h-1.5 w-1.5 rounded-full bg-[#216BFF]" />{selectedProductName}
                 </span>
-                <button type="button" onClick={() => openProductPicker()} className="text-[10px] font-medium text-[#18bca2] hover:underline">切换</button>
+                <button type="button" onClick={() => openProductPicker()} className="text-[10px] font-medium text-[#216BFF] hover:underline">切换</button>
               </div>
             ) : (
-              <button type="button" onClick={() => openProductPicker()} className="rounded-full border border-[#8fe0d2] bg-[#effbf8] px-3 py-1.5 text-[11px] font-medium text-[#18bca2] transition-colors hover:bg-[#e2f8f3]">请选择您要咨询的产品</button>
+              <button type="button" onClick={() => openProductPicker()} className="rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-3 py-1.5 text-[11px] font-medium text-[#216BFF] transition-colors hover:bg-[#c9dcff]">请选择您要咨询的产品</button>
             )}
 
             {/* Resolve card */}
@@ -1472,7 +1472,7 @@ export default function WebchatChannelMaintenance() {
           {productSelected && (transferEnabled && !chatTransferred && robotEnabled || !chatTransferred || showSatisfaction || active.config.quickButtons.length > 0) ? (
             <div className="relative z-10 flex items-center gap-1.5 overflow-x-auto border-t border-white/70 bg-white/60 px-3 py-1.5 scrollbar-none">
               {transferEnabled && !chatTransferred && robotEnabled ? (
-                <button type="button" onClick={transferToAgent} className="shrink-0 rounded-full border border-white bg-white/90 px-3 py-1 text-[10px] font-medium text-[#18bca2] shadow-sm">转人工</button>
+                <button type="button" onClick={transferToAgent} className="shrink-0 rounded-full border border-white bg-white/90 px-3 py-1 text-[10px] font-medium text-[#216BFF] shadow-sm">转人工</button>
               ) : null}
               {!chatTransferred ? (
                 <button type="button" onClick={() => { setLeaveMessageOpen(true); setLeaveMessageResult(null); setLeaveMessageForm({ name: '', phone: '', code: '', content: '' }); setLeaveMessageFile(null); setLeaveMessageCountdown(0); }} className="shrink-0 rounded-full border border-white bg-white/90 px-3 py-1 text-[10px] font-medium text-[#5b8db5] shadow-sm">留言</button>
@@ -2200,14 +2200,14 @@ export default function WebchatChannelMaintenance() {
                 </label>
               </div>
               <div className="flex items-center gap-3">
-                <button type="button" className="rounded-md border border-[#8fe0d2] bg-[#effbf8] px-4 py-2 text-[13px] font-medium text-[#18bca2]">查询</button>
+                <button type="button" className="rounded-md border border-[#96b8ff] bg-[#e8f1ff] px-4 py-2 text-[13px] font-medium text-[#216BFF]">查询</button>
                 <button type="button" onClick={() => { setKeyword(''); setChannelIdKeyword(''); setUserSystemFilter(''); }} className="rounded-md border border-slate-200 bg-white px-4 py-2 text-[13px] font-medium text-slate-500">重置</button>
               </div>
             </div>
             <div className="mt-4 flex items-center gap-3">
-              <button type="button" onClick={openAdd} className="rounded-md bg-[#18c2a7] px-5 py-2 text-[13px] font-medium text-white">新增</button>
+              <button type="button" onClick={openAdd} className="rounded-md bg-[#216BFF] px-5 py-2 text-[13px] font-medium text-white">新增</button>
               <div className="relative">
-                <button type="button" onClick={() => setBatchOpen((v) => !v)} className="flex items-center gap-2 rounded-md border border-[#8fe0d2] bg-white px-4 py-2 text-[13px] font-medium text-[#18bca2]">批量操作<ChevronDown size={14} /></button>
+                <button type="button" onClick={() => setBatchOpen((v) => !v)} className="flex items-center gap-2 rounded-md border border-[#96b8ff] bg-white px-4 py-2 text-[13px] font-medium text-[#216BFF]">批量操作<ChevronDown size={14} /></button>
                 {batchOpen ? (
                   <div className="absolute left-0 top-[44px] z-10 min-w-[170px] rounded-md border border-slate-200 bg-white p-1 shadow-lg">
                     <button type="button" onClick={() => { setBatchOpen(false); setBatchBusinessType(''); setDialog('batch-business'); }} className="block w-full rounded px-3 py-2 text-left text-[13px] text-slate-600 hover:bg-slate-50">批量配置业务类型</button>
@@ -2222,35 +2222,35 @@ export default function WebchatChannelMaintenance() {
           <div className="min-h-0 flex-1 overflow-auto px-5 pb-5 pt-4 custom-scrollbar">
             <div className="overflow-hidden rounded-[10px] border border-slate-100">
               <table className="min-w-full table-auto text-left">
-                <thead className="bg-[#f5f7fb] text-[13px] text-slate-600">
+                <thead className="bg-[#fafafa] text-[13px] text-slate-600">
                   <tr>
-                    <th className="w-[54px] px-4 py-3"><input type="checkbox" checked={allSelected} onChange={() => setSelectedIds(allSelected ? [] : filtered.map((row) => row.id))} className="h-4 w-4 accent-[#18c2a7]" /></th>
-                    <th className="px-2 py-3">序号</th>
-                    <th className="px-2 py-3">渠道名称</th>
-                    <th className="px-2 py-3">渠道id</th>
-                    <th className="px-2 py-3">用户体系</th>
-                    <th className="px-2 py-3">接入类型</th>
-                    <th className="px-2 py-3">创建时间</th>
-                    <th className="px-2 py-3">更新时间</th>
-                    <th className="px-2 py-3">操作</th>
+                    <th className="w-[54px] px-4 py-3"><input type="checkbox" checked={allSelected} onChange={() => setSelectedIds(allSelected ? [] : filtered.map((row) => row.id))} className="h-4 w-4 accent-[#216BFF]" /></th>
+                    <th className="px-4 py-3">序号</th>
+                    <th className="px-4 py-3">渠道名称</th>
+                    <th className="px-4 py-3">渠道id</th>
+                    <th className="px-4 py-3">用户体系</th>
+                    <th className="px-4 py-3">接入类型</th>
+                    <th className="px-4 py-3">创建时间</th>
+                    <th className="px-4 py-3">更新时间</th>
+                    <th className="px-4 py-3">操作</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-[13px] text-slate-600">
                   {filtered.map((row, index) => (
                     <tr key={row.id} className="bg-white hover:bg-slate-50/60">
-                      <td className="px-4 py-4"><input type="checkbox" checked={selectedIds.includes(row.id)} onChange={() => setSelectedIds((current) => current.includes(row.id) ? current.filter((id) => id !== row.id) : [...current, row.id])} className="h-4 w-4 accent-[#18c2a7]" /></td>
-                      <td className="px-2 py-4">{index + 1}</td>
-                      <td className="px-2 py-4">{row.name}</td>
-                      <td className="px-2 py-4">{row.channelId}</td>
-                      <td className="px-2 py-4">{row.userSystem}</td>
-                      <td className="px-2 py-4">{row.accessType}</td>
-                      <td className="px-2 py-4">{row.createdAt}</td>
-                      <td className="px-2 py-4">{row.updatedAt}</td>
-                      <td className="px-2 py-4">
-                        <div className="flex flex-wrap items-center gap-4 text-[13px] font-medium text-[#5a8cff]">
-                          <button type="button" onClick={() => openEdit(row.id)}>编辑</button>
-                          <button type="button" onClick={() => { setActiveId(row.id); setSection('客户端属性'); setTagIndex(0); setView('config'); }}>配置</button>
-                          <button type="button" onClick={() => { setRows((current) => current.filter((item) => item.id !== row.id)); setToast('渠道已删除'); }}>删除</button>
+                      <td className="px-4 py-3"><input type="checkbox" checked={selectedIds.includes(row.id)} onChange={() => setSelectedIds((current) => current.includes(row.id) ? current.filter((id) => id !== row.id) : [...current, row.id])} className="h-4 w-4 accent-[#216BFF]" /></td>
+                      <td className="px-4 py-3">{index + 1}</td>
+                      <td className="px-4 py-3">{row.name}</td>
+                      <td className="px-4 py-3">{row.channelId}</td>
+                      <td className="px-4 py-3">{row.userSystem}</td>
+                      <td className="px-4 py-3">{row.accessType}</td>
+                      <td className="px-4 py-3">{row.createdAt}</td>
+                      <td className="px-4 py-3">{row.updatedAt}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex flex-wrap items-center gap-4 text-[13px] font-medium text-[#216BFF]">
+                          <button type="button" onClick={() => openEdit(row.id)} className="hover:text-[#1a5ce6]">编辑</button>
+                          <button type="button" onClick={() => { setActiveId(row.id); setSection('客户端属性'); setTagIndex(0); setView('config'); }} className="hover:text-[#1a5ce6]">配置</button>
+                          <button type="button" onClick={() => { setRows((current) => current.filter((item) => item.id !== row.id)); setToast('渠道已删除'); }} className="text-[#ff6f6f] hover:text-[#ff4d4f]">删除</button>
                           <button type="button" onClick={() => { setTargetId(row.id); setDialog(row.connectType === '授权链接' ? 'auth' : 'link'); }}>{row.connectType}</button>
                         </div>
                       </td>
@@ -2291,11 +2291,11 @@ export default function WebchatChannelMaintenance() {
             <button type="button" onClick={() => setView('list')} className="flex items-center gap-2 border-b border-slate-100 px-6 py-4 text-left text-[14px] font-medium text-slate-600"><ArrowLeft size={16} />返回渠道列表</button>
             <div className="px-3 py-3">
               {sections.map((item) => (
-                <button key={item} type="button" onClick={() => setSection(item)} className={cn('flex w-full items-center border-r-[3px] px-4 py-3 text-left text-[14px]', section === item ? 'border-[#0fc1a5] bg-[#e8f6ff] font-medium text-[#1c9dfa]' : 'border-transparent text-slate-600 hover:bg-slate-50')}>{item}</button>
+                <button key={item} type="button" onClick={() => setSection(item)} className={cn('flex w-full items-center border-r-[3px] px-4 py-3 text-left text-[14px]', section === item ? 'border-[#216BFF] bg-[#e8f6ff] font-medium text-[#1c9dfa]' : 'border-transparent text-slate-600 hover:bg-slate-50')}>{item}</button>
               ))}
             </div>
           </div>
-          <div className="flex min-h-0 min-w-0 flex-1 overflow-auto bg-[#fbfcff] p-5 custom-scrollbar">
+          <div className="flex min-h-0 min-w-0 flex-1 overflow-auto bg-[#f7f9ff] p-5 custom-scrollbar">
             {!active ? null : section === '客户端属性' ? (
               <div className="grid min-h-full min-w-0 w-full grid-cols-[minmax(0,1fr)_520px] gap-5">
                 <div className="min-h-0 min-w-0 pr-2 pb-10">
@@ -2306,7 +2306,7 @@ export default function WebchatChannelMaintenance() {
                       <button
                         type="button"
                         onClick={() => setPreviewOpen(true)}
-                        className="inline-flex items-center gap-1 rounded-md border border-[#8fe0d2] bg-[#effbf8] px-3 py-1.5 text-[12px] font-medium text-[#18bca2] hover:bg-[#dff5ee]"
+                        className="inline-flex items-center gap-1 rounded-md border border-[#96b8ff] bg-[#e8f1ff] px-3 py-1.5 text-[12px] font-medium text-[#216BFF] hover:bg-[#c9dcff]"
                       >
                         打开<ArrowUpRight size={14} />
                       </button>
@@ -2357,8 +2357,8 @@ export default function WebchatChannelMaintenance() {
                         {activeColorPicker === 'theme' ? (
                           <div className="mt-3 rounded-2xl border border-slate-200 bg-[#fafcff] p-4">
                             <div className="flex items-center gap-2">
-                              <button type="button" onClick={() => applyCustomTheme({ customThemeMode: 'solid' })} className={cn('rounded-full px-3 py-1.5 text-[12px] font-medium', active.config.customThemeMode === 'solid' ? 'bg-[#18c2a7] text-white' : 'bg-white text-slate-500 border border-slate-200')}>纯色</button>
-                              <button type="button" onClick={() => applyCustomTheme({ customThemeMode: 'gradient' })} className={cn('rounded-full px-3 py-1.5 text-[12px] font-medium', active.config.customThemeMode === 'gradient' ? 'bg-[#18c2a7] text-white' : 'bg-white text-slate-500 border border-slate-200')}>渐变</button>
+                              <button type="button" onClick={() => applyCustomTheme({ customThemeMode: 'solid' })} className={cn('rounded-full px-3 py-1.5 text-[12px] font-medium', active.config.customThemeMode === 'solid' ? 'bg-[#216BFF] text-white' : 'bg-white text-slate-500 border border-slate-200')}>纯色</button>
+                              <button type="button" onClick={() => applyCustomTheme({ customThemeMode: 'gradient' })} className={cn('rounded-full px-3 py-1.5 text-[12px] font-medium', active.config.customThemeMode === 'gradient' ? 'bg-[#216BFF] text-white' : 'bg-white text-slate-500 border border-slate-200')}>渐变</button>
                             </div>
                             {active.config.customThemeMode === 'solid' ? (
                               <div className="mt-3 space-y-3">
@@ -2371,7 +2371,7 @@ export default function WebchatChannelMaintenance() {
                                     <span>透明度</span>
                                     <span className="text-slate-600">{active.config.customThemeSolidAlpha}%</span>
                                   </div>
-                                  <input type="range" min={0} max={100} value={active.config.customThemeSolidAlpha} onChange={(e) => applyCustomTheme({ customThemeSolidAlpha: Number(e.target.value) })} className="mt-1 w-full accent-[#18c2a7]" />
+                                  <input type="range" min={0} max={100} value={active.config.customThemeSolidAlpha} onChange={(e) => applyCustomTheme({ customThemeSolidAlpha: Number(e.target.value) })} className="mt-1 w-full accent-[#216BFF]" />
                                 </label>
                               </div>
                             ) : (
@@ -2384,7 +2384,7 @@ export default function WebchatChannelMaintenance() {
                                         <span>透明度</span>
                                         <span className="text-slate-600">{active.config.customThemeGradientFromAlpha}%</span>
                                       </div>
-                                      <input type="range" min={0} max={100} value={active.config.customThemeGradientFromAlpha} onChange={(e) => applyCustomTheme({ customThemeGradientFromAlpha: Number(e.target.value) })} className="mt-1 w-full accent-[#18c2a7]" />
+                                      <input type="range" min={0} max={100} value={active.config.customThemeGradientFromAlpha} onChange={(e) => applyCustomTheme({ customThemeGradientFromAlpha: Number(e.target.value) })} className="mt-1 w-full accent-[#216BFF]" />
                                     </label>
                                   </div>
                                   <div>
@@ -2394,7 +2394,7 @@ export default function WebchatChannelMaintenance() {
                                         <span>透明度</span>
                                         <span className="text-slate-600">{active.config.customThemeGradientToAlpha}%</span>
                                       </div>
-                                      <input type="range" min={0} max={100} value={active.config.customThemeGradientToAlpha} onChange={(e) => applyCustomTheme({ customThemeGradientToAlpha: Number(e.target.value) })} className="mt-1 w-full accent-[#18c2a7]" />
+                                      <input type="range" min={0} max={100} value={active.config.customThemeGradientToAlpha} onChange={(e) => applyCustomTheme({ customThemeGradientToAlpha: Number(e.target.value) })} className="mt-1 w-full accent-[#216BFF]" />
                                     </label>
                                   </div>
                                 </div>
@@ -2414,18 +2414,18 @@ export default function WebchatChannelMaintenance() {
                               key={color}
                               type="button"
                               onClick={() => updateActive((row) => ({ ...row, config: { ...row.config, backgroundColor: color } }))}
-                              className={cn('relative h-7 w-7 rounded-full border border-white shadow-sm ring-2 ring-offset-2 ring-offset-white', active.config.backgroundColor.toUpperCase() === color ? 'ring-[#18c2a7]' : 'ring-transparent')}
+                              className={cn('relative h-7 w-7 rounded-full border border-white shadow-sm ring-2 ring-offset-2 ring-offset-white', active.config.backgroundColor.toUpperCase() === color ? 'ring-[#216BFF]' : 'ring-transparent')}
                               style={{ backgroundColor: color }}
                               aria-label={`选择聊天背景 ${color}`}
                             >
-                              {active.config.backgroundColor.toUpperCase() === color ? <span className="absolute inset-[7px] rounded-full border-2 border-[#18c2a7]" /> : null}
+                              {active.config.backgroundColor.toUpperCase() === color ? <span className="absolute inset-[7px] rounded-full border-2 border-[#216BFF]" /> : null}
                             </button>
                           ))}
                           {active.accessType !== 'PC' ? (
                             <button
                               type="button"
                               onClick={() => updateActive((row) => ({ ...row, config: { ...row.config, backgroundColor: 'transparent' } }))}
-                              className={cn('relative h-7 w-7 overflow-hidden rounded-full border border-slate-200 shadow-sm ring-2 ring-offset-2 ring-offset-white', active.config.backgroundColor === 'transparent' ? 'ring-[#18c2a7]' : 'ring-transparent')}
+                              className={cn('relative h-7 w-7 overflow-hidden rounded-full border border-slate-200 shadow-sm ring-2 ring-offset-2 ring-offset-white', active.config.backgroundColor === 'transparent' ? 'ring-[#216BFF]' : 'ring-transparent')}
                               style={{
                                 backgroundImage:
                                   'linear-gradient(45deg, #d1d5db 25%, transparent 25%), linear-gradient(-45deg, #d1d5db 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #d1d5db 75%), linear-gradient(-45deg, transparent 75%, #d1d5db 75%)',
@@ -2436,13 +2436,13 @@ export default function WebchatChannelMaintenance() {
                               aria-label="选择透明聊天背景"
                               title="透明"
                             >
-                              {active.config.backgroundColor === 'transparent' ? <span className="absolute inset-[7px] rounded-full border-2 border-[#18c2a7]" /> : null}
+                              {active.config.backgroundColor === 'transparent' ? <span className="absolute inset-[7px] rounded-full border-2 border-[#216BFF]" /> : null}
                             </button>
                           ) : null}
                           <button
                             type="button"
                             onClick={() => setActiveColorPicker((current) => current === 'background' ? null : 'background')}
-                            className={cn('inline-flex items-center gap-2 rounded-full border bg-white px-3 py-1.5 text-[12px] font-medium text-slate-600 shadow-sm transition-colors hover:border-slate-300', active.config.backgroundColor === active.config.customBackgroundColor ? 'border-[#18c2a7]' : 'border-slate-200')}
+                            className={cn('inline-flex items-center gap-2 rounded-full border bg-white px-3 py-1.5 text-[12px] font-medium text-slate-600 shadow-sm transition-colors hover:border-slate-300', active.config.backgroundColor === active.config.customBackgroundColor ? 'border-[#216BFF]' : 'border-slate-200')}
                           >
                             <span className="h-4 w-4 rounded-full border border-slate-200 shadow-sm" style={getFillStyle(active.config.customBackgroundColor)} />
                             <span>{getColorValueLabel(active.config.customBackgroundMode, active.config.customBackgroundSolid, active.config.customBackgroundGradientFrom, active.config.customBackgroundGradientTo, active.config.customBackgroundGradientAngle, active.config.customBackgroundSolidAlpha, active.config.customBackgroundGradientFromAlpha, active.config.customBackgroundGradientToAlpha)}</span>
@@ -2451,8 +2451,8 @@ export default function WebchatChannelMaintenance() {
                         {activeColorPicker === 'background' ? (
                           <div className="mt-3 rounded-2xl border border-slate-200 bg-[#fafcff] p-4">
                             <div className="flex items-center gap-2">
-                              <button type="button" onClick={() => applyCustomBackground({ customBackgroundMode: 'solid' })} className={cn('rounded-full px-3 py-1.5 text-[12px] font-medium', active.config.customBackgroundMode === 'solid' ? 'bg-[#18c2a7] text-white' : 'bg-white text-slate-500 border border-slate-200')}>纯色</button>
-                              <button type="button" onClick={() => applyCustomBackground({ customBackgroundMode: 'gradient' })} className={cn('rounded-full px-3 py-1.5 text-[12px] font-medium', active.config.customBackgroundMode === 'gradient' ? 'bg-[#18c2a7] text-white' : 'bg-white text-slate-500 border border-slate-200')}>渐变</button>
+                              <button type="button" onClick={() => applyCustomBackground({ customBackgroundMode: 'solid' })} className={cn('rounded-full px-3 py-1.5 text-[12px] font-medium', active.config.customBackgroundMode === 'solid' ? 'bg-[#216BFF] text-white' : 'bg-white text-slate-500 border border-slate-200')}>纯色</button>
+                              <button type="button" onClick={() => applyCustomBackground({ customBackgroundMode: 'gradient' })} className={cn('rounded-full px-3 py-1.5 text-[12px] font-medium', active.config.customBackgroundMode === 'gradient' ? 'bg-[#216BFF] text-white' : 'bg-white text-slate-500 border border-slate-200')}>渐变</button>
                             </div>
                             {active.config.customBackgroundMode === 'solid' ? (
                               <div className="mt-3 space-y-3">
@@ -2465,7 +2465,7 @@ export default function WebchatChannelMaintenance() {
                                     <span>透明度</span>
                                     <span className="text-slate-600">{active.config.customBackgroundSolidAlpha}%</span>
                                   </div>
-                                  <input type="range" min={0} max={100} value={active.config.customBackgroundSolidAlpha} onChange={(e) => applyCustomBackground({ customBackgroundSolidAlpha: Number(e.target.value) })} className="mt-1 w-full accent-[#18c2a7]" />
+                                  <input type="range" min={0} max={100} value={active.config.customBackgroundSolidAlpha} onChange={(e) => applyCustomBackground({ customBackgroundSolidAlpha: Number(e.target.value) })} className="mt-1 w-full accent-[#216BFF]" />
                                 </label>
                               </div>
                             ) : (
@@ -2478,7 +2478,7 @@ export default function WebchatChannelMaintenance() {
                                         <span>透明度</span>
                                         <span className="text-slate-600">{active.config.customBackgroundGradientFromAlpha}%</span>
                                       </div>
-                                      <input type="range" min={0} max={100} value={active.config.customBackgroundGradientFromAlpha} onChange={(e) => applyCustomBackground({ customBackgroundGradientFromAlpha: Number(e.target.value) })} className="mt-1 w-full accent-[#18c2a7]" />
+                                      <input type="range" min={0} max={100} value={active.config.customBackgroundGradientFromAlpha} onChange={(e) => applyCustomBackground({ customBackgroundGradientFromAlpha: Number(e.target.value) })} className="mt-1 w-full accent-[#216BFF]" />
                                     </label>
                                   </div>
                                   <div>
@@ -2488,7 +2488,7 @@ export default function WebchatChannelMaintenance() {
                                         <span>透明度</span>
                                         <span className="text-slate-600">{active.config.customBackgroundGradientToAlpha}%</span>
                                       </div>
-                                      <input type="range" min={0} max={100} value={active.config.customBackgroundGradientToAlpha} onChange={(e) => applyCustomBackground({ customBackgroundGradientToAlpha: Number(e.target.value) })} className="mt-1 w-full accent-[#18c2a7]" />
+                                      <input type="range" min={0} max={100} value={active.config.customBackgroundGradientToAlpha} onChange={(e) => applyCustomBackground({ customBackgroundGradientToAlpha: Number(e.target.value) })} className="mt-1 w-full accent-[#216BFF]" />
                                     </label>
                                   </div>
                                 </div>
@@ -2502,9 +2502,9 @@ export default function WebchatChannelMaintenance() {
                       </div>
                     </div>
                     <div className="mt-4 grid grid-cols-2 gap-4">
-                      <div className="rounded-lg border border-dashed border-slate-200 bg-[#fbfcff] px-4 py-4">
+                      <div className="rounded-lg border border-dashed border-slate-200 bg-[#f7f9ff] px-4 py-3">
                         <div className="text-[13px] font-medium text-slate-600">访客端顶部Logo</div>
-                        <label className="mt-3 flex cursor-pointer items-center gap-3 text-[13px] text-[#18bca2]">
+                        <label className="mt-3 flex cursor-pointer items-center gap-3 text-[13px] text-[#216BFF]">
                           <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg border border-dashed border-slate-300 bg-white">
                             {active.config.visitorLogoUrl ? (
                               <img src={active.config.visitorLogoUrl} alt="访客端顶部Logo" className="h-full w-full object-cover" />
@@ -2547,9 +2547,9 @@ export default function WebchatChannelMaintenance() {
                         <label className="col-span-2 block text-[13px] text-slate-600">机器人配置<textarea value={active.config.robotConfig} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, robotConfig: e.target.value } }))} rows={6} className="mt-2 w-full rounded-lg border border-slate-200 px-3 py-2 font-mono text-[12px] outline-none" placeholder='{"key": "value"}' /></label>
                       )}
                     </div>
-                    <div className="mt-4 rounded-lg border border-dashed border-slate-200 bg-[#fbfcff] px-4 py-4">
+                    <div className="mt-4 rounded-lg border border-dashed border-slate-200 bg-[#f7f9ff] px-4 py-3">
                       <div className="text-[13px] font-medium text-slate-600">机器人头像</div>
-                      <label className="mt-3 flex cursor-pointer items-center gap-3 text-[13px] text-[#18bca2]">
+                      <label className="mt-3 flex cursor-pointer items-center gap-3 text-[13px] text-[#216BFF]">
                         <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg border border-dashed border-slate-300 bg-white">
                           {active.config.robotAvatarUrl ? (
                             <img src={active.config.robotAvatarUrl} alt="机器人头像" className="h-full w-full object-cover" />
@@ -2577,23 +2577,23 @@ export default function WebchatChannelMaintenance() {
                         />
                       </label>
                     </div>
-                    <div className="mt-4 rounded-lg border border-dashed border-slate-200 bg-[#fbfcff] px-4 py-4">
+                    <div className="mt-4 rounded-lg border border-dashed border-slate-200 bg-[#f7f9ff] px-4 py-3">
                       <div className="text-[13px] font-medium text-slate-600">机器人静默提醒</div>
                       <div className="mt-3 grid grid-cols-2 gap-4">
                         <label className="block text-[13px] text-slate-600">静默时间（秒）
-                          <input type="number" defaultValue={60} min={10} max={600} className="mt-2 h-10 w-full rounded-lg border border-slate-200 px-3 text-[13px] outline-none focus:border-[#18bca2]" />
+                          <input type="number" defaultValue={60} min={10} max={600} className="mt-2 h-10 w-full rounded-lg border border-slate-200 px-3 text-[13px] outline-none focus:border-[#216BFF]" />
                         </label>
                         <div className="block text-[13px] text-slate-600">启用状态
                           <div className="mt-2 flex h-10 items-center">
                             <label className="relative inline-flex cursor-pointer items-center">
                               <input type="checkbox" defaultChecked className="peer sr-only" />
-                              <div className="h-6 w-11 rounded-full bg-slate-200 transition-colors after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow after:transition-all peer-checked:bg-[#19c5aa] peer-checked:after:translate-x-5" />
+                              <div className="h-6 w-11 rounded-full bg-slate-200 transition-colors after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow after:transition-all peer-checked:bg-[#216BFF] peer-checked:after:translate-x-5" />
                             </label>
                           </div>
                         </div>
                       </div>
                       <label className="mt-3 block text-[13px] text-slate-600">提醒内容
-                        <textarea defaultValue="您好，请问还在吗？如需继续咨询请回复消息。" rows={3} className="mt-2 w-full rounded-lg border border-slate-200 px-3 py-2 text-[13px] outline-none focus:border-[#18bca2]" />
+                        <textarea defaultValue="您好，请问还在吗？如需继续咨询请回复消息。" rows={3} className="mt-2 w-full rounded-lg border border-slate-200 px-3 py-2 text-[13px] outline-none focus:border-[#216BFF]" />
                       </label>
                     </div>
                   </div>
@@ -2625,7 +2625,7 @@ export default function WebchatChannelMaintenance() {
                     <div className="mb-4 text-[15px] font-semibold text-slate-700">聊天功能组件控制</div>
                     <div className="grid grid-cols-2 gap-4">
                       {chatFeatureItems.map(({ label, description }) => (
-                        <div key={label} className="flex items-center justify-between rounded-xl border border-slate-100 bg-[#fbfcff] px-4 py-4">
+                        <div key={label} className="flex items-center justify-between rounded-xl border border-slate-100 bg-[#f7f9ff] px-4 py-3">
                           <div>
                             <div className="text-[14px] font-medium text-slate-700">{label}</div>
                             <div className="text-[12px] text-slate-400">{description}</div>
@@ -2639,7 +2639,7 @@ export default function WebchatChannelMaintenance() {
                     <button
                       type="button"
                       onClick={() => { setRows((current) => current.map((row) => (row.id === active.id ? { ...row, updatedAt: mockTimestamp } : row))); setToast('客户端属性已保存'); }}
-                      className="rounded-full border border-[#8fe0d2] bg-[#effbf8] px-6 py-2 text-[13px] font-medium text-[#18bca2]"
+                      className="rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-6 py-2 text-[13px] font-medium text-[#216BFF]"
                     >
                       保存
                     </button>
@@ -2654,7 +2654,7 @@ export default function WebchatChannelMaintenance() {
                   </div>
                 </div>
                 <div className="sticky top-0 self-start overflow-hidden rounded-[12px] border border-slate-100 bg-white shadow-sm" style={{ height: 'calc(100vh - 120px)' }}>
-                  <div className="rounded-t-[12px] px-4 py-4 text-[15px] font-semibold text-white" style={previewThemeStyle}>效果预览</div>
+                  <div className="rounded-t-[12px] px-4 py-3 text-[15px] font-semibold text-white" style={previewThemeStyle}>效果预览</div>
                   <div className="flex h-[calc(100%-56px)] items-start justify-center px-7 pb-7 pt-4">
                     {clientPreviewFrame}
                   </div>
@@ -2697,7 +2697,7 @@ export default function WebchatChannelMaintenance() {
                           message: '确定删除当前配置下的全部快捷按钮吗？',
                         })
                       }
-                      className="rounded border border-[#ffc8c8] px-3 py-1.5 text-[12px] font-medium text-[#ff7f7f]"
+                      className="rounded border border-[#ffc8c8] px-3 py-1.5 text-[12px] font-medium text-[#ff6f6f]"
                     >
                       删除全部
                     </button>
@@ -2729,7 +2729,7 @@ export default function WebchatChannelMaintenance() {
                 </div>
                 <div className="grid min-h-0 flex-1 grid-cols-[320px_1fr] overflow-hidden">
                   <div className="border-r border-slate-100">
-                    <div className="flex items-center justify-between border-b border-slate-100 bg-[#fafafa] px-4 py-4">
+                    <div className="flex items-center justify-between border-b border-slate-100 bg-[#fafafa] px-4 py-3">
                       <div className="text-[14px] font-semibold text-slate-700">高频内容标签</div>
                       <button
                         type="button"
@@ -2772,7 +2772,7 @@ export default function WebchatChannelMaintenance() {
                               setFormErrors({});
                               setDialog('content-tag');
                             }}
-                            className="text-[#5a8cff] hover:text-[#3f74ff]"
+                            className="text-[#216BFF] hover:text-[#1a5ce6]"
                           >
                             编辑
                           </button>
@@ -2791,7 +2791,7 @@ export default function WebchatChannelMaintenance() {
                                 message: `确定删除高频内容标签“${tag.name}”吗？`,
                               });
                             }}
-                            className="text-[#ff8a8a] hover:text-[#ff6e6e]"
+                            className="text-[#ff6f6f] hover:text-[#ff4d4f]"
                           >
                             删除
                           </button>
@@ -2800,7 +2800,7 @@ export default function WebchatChannelMaintenance() {
                     ))}
                   </div>
                   <div className="flex min-h-0 flex-col">
-                    <div className="flex items-center justify-between border-b border-slate-100 bg-[#fafafa] px-4 py-4">
+                    <div className="flex items-center justify-between border-b border-slate-100 bg-[#fafafa] px-4 py-3">
                       <div className="text-[14px] font-semibold text-slate-700">高频内容管理</div>
                       <div className="flex items-center gap-3">
                         <button
@@ -2837,7 +2837,7 @@ export default function WebchatChannelMaintenance() {
                         <div className="flex h-full items-center justify-center text-[13px] text-slate-400">请先新增高频内容标签</div>
                       ) : (
                         <table className="min-w-full table-fixed text-left">
-                          <thead className="bg-[#f5f7fb] text-[13px] text-slate-600">
+                          <thead className="bg-[#fafafa] text-[13px] text-slate-600">
                             <tr>
                               <th className="w-[72px] px-4 py-3">序号</th>
                               <th className="px-4 py-3">内容名称</th>
@@ -2849,11 +2849,11 @@ export default function WebchatChannelMaintenance() {
                           <tbody className="divide-y divide-slate-100 text-[13px] text-slate-600">
                             {tagView.items.map((item, index) => (
                               <tr key={item.id}>
-                                <td className="px-4 py-4">{index + 1}</td>
-                                <td className="px-4 py-4">{item.title}</td>
-                                <td className="px-4 py-4">{item.createdAt}</td>
-                                <td className="px-4 py-4">{item.updatedAt}</td>
-                                <td className="px-4 py-4">
+                                <td className="px-4 py-3">{index + 1}</td>
+                                <td className="px-4 py-3">{item.title}</td>
+                                <td className="px-4 py-3">{item.createdAt}</td>
+                                <td className="px-4 py-3">{item.updatedAt}</td>
+                                <td className="px-4 py-3">
                                   <div className="flex items-center gap-5">
                                     <button
                                       type="button"
@@ -2863,7 +2863,7 @@ export default function WebchatChannelMaintenance() {
                                         setFormErrors({});
                                         setDialog('content-item');
                                       }}
-                                      className="font-medium text-[#5a8cff]"
+                                      className="font-medium text-[#216BFF]"
                                     >
                                       编辑
                                     </button>
@@ -2877,7 +2877,7 @@ export default function WebchatChannelMaintenance() {
                                           message: `确定删除高频内容“${item.title}”吗？`,
                                         })
                                       }
-                                      className="font-medium text-[#ff8a8a]"
+                                      className="font-medium text-[#ff6f6f]"
                                     >
                                       删除
                                     </button>
@@ -2904,7 +2904,7 @@ export default function WebchatChannelMaintenance() {
                         ['人工无效会话推送', 'manualInvalidPush', '开启后在人工无效会话结束后系统自动向访客发送评价邀请'],
                         ['机器人无效会话推送', 'robotInvalidPush', '开启后在机器人无效会话结束后系统自动向访客发送评价邀请'],
                       ].map(([label, key, desc]) => (
-                        <div key={key} className="flex items-center justify-between rounded-xl border border-slate-100 bg-[#fbfcff] px-4 py-4">
+                        <div key={key} className="flex items-center justify-between rounded-xl border border-slate-100 bg-[#f7f9ff] px-4 py-3">
                           <div><div className="text-[14px] font-medium text-slate-700">{label}</div><div className="text-[12px] text-slate-400">{desc}</div></div>
                           <Switch checked={active.config.satisfactionToggles[key as keyof Row['config']['satisfactionToggles']]} onChange={(next) => updateActive((row) => ({ ...row, config: { ...row.config, satisfactionToggles: { ...row.config.satisfactionToggles, [key]: next } } }))} />
                         </div>
@@ -2913,7 +2913,7 @@ export default function WebchatChannelMaintenance() {
                   </div>
                   <div className="rounded-[12px] border border-slate-100 bg-white p-5 shadow-sm">
                     <div className="text-[15px] font-semibold text-slate-700">满意度评分展示形式</div>
-                    <div className="mt-4 flex flex-wrap gap-5 text-[13px] text-slate-600">{['五星制', '表现小花', '经典笑脸', '分值显示（1-5）'].map((item) => <label key={item} className="flex items-center gap-2"><input type="radio" checked={active.config.satisfactionStyle === item} onChange={() => updateActive((row) => ({ ...row, config: { ...row.config, satisfactionStyle: item } }))} className="h-4 w-4 accent-[#18c2a7]" />{item}</label>)}</div>
+                    <div className="mt-4 flex flex-wrap gap-5 text-[13px] text-slate-600">{['五星制', '表现小花', '经典笑脸', '分值显示（1-5）'].map((item) => <label key={item} className="flex items-center gap-2"><input type="radio" checked={active.config.satisfactionStyle === item} onChange={() => updateActive((row) => ({ ...row, config: { ...row.config, satisfactionStyle: item } }))} className="h-4 w-4 accent-[#216BFF]" />{item}</label>)}</div>
                     {(() => {
                       const styleKey = active.config.satisfactionStyle;
                       const isFaceStyle = styleKey === '经典笑脸';
@@ -2977,7 +2977,7 @@ export default function WebchatChannelMaintenance() {
                               return (
                                 <div
                                   key={label}
-                                  className="rounded-xl border border-slate-100 bg-[#fafafa] px-3 py-4 text-center transition-colors duration-150 hover:border-[#8fded1] hover:bg-[#f1fbf8]"
+                                  className="rounded-xl border border-slate-100 bg-[#fafafa] px-3 py-4 text-center transition-colors duration-150 hover:border-[#96b8ff] hover:bg-[#e8f1ff]"
                                 >
                                   <div className="mb-2 flex items-center justify-center gap-0.5">
                                     {Array.from({ length: totalGlyphs }).map((_, i) => {
@@ -3039,13 +3039,13 @@ export default function WebchatChannelMaintenance() {
                   <div className="rounded-[12px] border border-slate-100 bg-white p-5 shadow-sm">
                     <div className="text-[15px] font-semibold text-slate-700">不满意原因词典</div>
                     <div className="mt-4 space-y-4">
-                      <div className="rounded-xl border border-slate-100 bg-[#fbfcff] px-4 py-4">
+                      <div className="rounded-xl border border-slate-100 bg-[#f7f9ff] px-4 py-3">
                         <div className="mb-3 flex items-center justify-between"><div className="text-[14px] font-medium text-slate-700">人工不满意原因词典</div><Switch checked={active.config.satisfactionToggles.manualReasonEnabled} onChange={(next) => updateActive((row) => ({ ...row, config: { ...row.config, satisfactionToggles: { ...row.config.satisfactionToggles, manualReasonEnabled: next } } }))} /></div>
-                        <div className="flex flex-wrap gap-2">{active.config.reasons.map((item) => <span key={item} className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-3 py-1 text-[12px] text-slate-500">{item}<button type="button" onClick={() => updateActive((row) => ({ ...row, config: { ...row.config, reasons: row.config.reasons.filter((reason) => reason !== item) } }))}><X size={12} /></button></span>)}{reasonInput !== null ? (<input autoFocus value={reasonInput} onChange={(event) => setReasonInput(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter') { const value = reasonInput.trim(); if (value && !active.config.reasons.includes(value)) { updateActive((row) => ({ ...row, config: { ...row.config, reasons: [...row.config.reasons, value] } })); setToast('标签已添加'); } setReasonInput(null); } else if (event.key === 'Escape') { setReasonInput(null); } }} onBlur={() => setReasonInput(null)} placeholder="输入后回车" className="h-[26px] w-32 rounded-md border border-[#8fded1] px-2 text-[12px] text-slate-600 outline-none" />) : (<button type="button" onClick={() => setReasonInput('')} className="rounded-md border border-dashed border-[#8fded1] px-3 py-1 text-[12px] text-[#18bca2]">+ 添加</button>)}</div>
+                        <div className="flex flex-wrap gap-2">{active.config.reasons.map((item) => <span key={item} className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-3 py-1 text-[12px] text-slate-500">{item}<button type="button" onClick={() => updateActive((row) => ({ ...row, config: { ...row.config, reasons: row.config.reasons.filter((reason) => reason !== item) } }))}><X size={12} /></button></span>)}{reasonInput !== null ? (<input autoFocus value={reasonInput} onChange={(event) => setReasonInput(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter') { const value = reasonInput.trim(); if (value && !active.config.reasons.includes(value)) { updateActive((row) => ({ ...row, config: { ...row.config, reasons: [...row.config.reasons, value] } })); setToast('标签已添加'); } setReasonInput(null); } else if (event.key === 'Escape') { setReasonInput(null); } }} onBlur={() => setReasonInput(null)} placeholder="输入后回车" className="h-[26px] w-32 rounded-md border border-[#96b8ff] px-2 text-[12px] text-slate-600 outline-none" />) : (<button type="button" onClick={() => setReasonInput('')} className="rounded-md border border-dashed border-[#96b8ff] px-3 py-1 text-[12px] text-[#216BFF]">+ 添加</button>)}</div>
                       </div>
-                      <div className="rounded-xl border border-slate-100 bg-[#fbfcff] px-4 py-4">
+                      <div className="rounded-xl border border-slate-100 bg-[#f7f9ff] px-4 py-3">
                         <div className="mb-3 flex items-center justify-between"><div className="text-[14px] font-medium text-slate-700">机器人不满意原因词典</div><Switch checked={active.config.satisfactionToggles.robotReasonEnabled} onChange={(next) => updateActive((row) => ({ ...row, config: { ...row.config, satisfactionToggles: { ...row.config.satisfactionToggles, robotReasonEnabled: next } } }))} /></div>
-                        <div className="flex flex-wrap gap-2">{active.config.robotReasons.map((item) => <span key={item} className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-3 py-1 text-[12px] text-slate-500">{item}<button type="button" onClick={() => updateActive((row) => ({ ...row, config: { ...row.config, robotReasons: row.config.robotReasons.filter((reason) => reason !== item) } }))}><X size={12} /></button></span>)}{robotReasonInput !== null ? (<input autoFocus value={robotReasonInput} onChange={(event) => setRobotReasonInput(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter') { const value = robotReasonInput.trim(); if (value && !active.config.robotReasons.includes(value)) { updateActive((row) => ({ ...row, config: { ...row.config, robotReasons: [...row.config.robotReasons, value] } })); setToast('标签已添加'); } setRobotReasonInput(null); } else if (event.key === 'Escape') { setRobotReasonInput(null); } }} onBlur={() => setRobotReasonInput(null)} placeholder="输入后回车" className="h-[26px] w-32 rounded-md border border-[#8fded1] px-2 text-[12px] text-slate-600 outline-none" />) : (<button type="button" onClick={() => setRobotReasonInput('')} className="rounded-md border border-dashed border-[#8fded1] px-3 py-1 text-[12px] text-[#18bca2]">+ 添加</button>)}</div>
+                        <div className="flex flex-wrap gap-2">{active.config.robotReasons.map((item) => <span key={item} className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-3 py-1 text-[12px] text-slate-500">{item}<button type="button" onClick={() => updateActive((row) => ({ ...row, config: { ...row.config, robotReasons: row.config.robotReasons.filter((reason) => reason !== item) } }))}><X size={12} /></button></span>)}{robotReasonInput !== null ? (<input autoFocus value={robotReasonInput} onChange={(event) => setRobotReasonInput(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter') { const value = robotReasonInput.trim(); if (value && !active.config.robotReasons.includes(value)) { updateActive((row) => ({ ...row, config: { ...row.config, robotReasons: [...row.config.robotReasons, value] } })); setToast('标签已添加'); } setRobotReasonInput(null); } else if (event.key === 'Escape') { setRobotReasonInput(null); } }} onBlur={() => setRobotReasonInput(null)} placeholder="输入后回车" className="h-[26px] w-32 rounded-md border border-[#96b8ff] px-2 text-[12px] text-slate-600 outline-none" />) : (<button type="button" onClick={() => setRobotReasonInput('')} className="rounded-md border border-dashed border-[#96b8ff] px-3 py-1 text-[12px] text-[#216BFF]">+ 添加</button>)}</div>
                       </div>
                     </div>
                   </div>
@@ -3056,7 +3056,7 @@ export default function WebchatChannelMaintenance() {
                         ['人工服务未解决', 'manualUnresolvedEnabled', '开启后访客在人工服务结束时可勾选未解决并选择原因'],
                         ['机器人服务未解决', 'robotUnresolvedEnabled', '开启后访客在机器人服务中可点踩并选择未解决原因'],
                       ].map(([label, key, desc]) => (
-                        <div key={key} className="flex items-center justify-between rounded-xl border border-slate-100 bg-[#fbfcff] px-4 py-4">
+                        <div key={key} className="flex items-center justify-between rounded-xl border border-slate-100 bg-[#f7f9ff] px-4 py-3">
                           <div><div className="text-[14px] font-medium text-slate-700">{label}</div><div className="text-[12px] text-slate-400">{desc}</div></div>
                           <Switch checked={active.config.satisfactionToggles[key as keyof Row['config']['satisfactionToggles']]} onChange={(next) => updateActive((row) => ({ ...row, config: { ...row.config, satisfactionToggles: { ...row.config.satisfactionToggles, [key]: next } } }))} />
                         </div>
@@ -3083,7 +3083,7 @@ export default function WebchatChannelMaintenance() {
                           </div>
                           <div className="overflow-hidden rounded-xl border border-slate-100">
                             <table className="min-w-full text-left text-[13px]">
-                              <thead className="bg-[#f5f7fb] text-slate-600">
+                              <thead className="bg-[#fafafa] text-slate-600">
                                 <tr>
                                   <th className="px-4 py-3 font-medium">原因描述</th>
                                   <th className="w-[180px] px-4 py-3 font-medium">操作</th>
@@ -3106,7 +3106,7 @@ export default function WebchatChannelMaintenance() {
                                               setFormErrors({});
                                               setDialog('unresolved-reason');
                                             }}
-                                            className="text-[#5a8cff] hover:text-[#3f74ff]"
+                                            className="text-[#216BFF] hover:text-[#1a5ce6]"
                                           >
                                             编辑
                                           </button>
@@ -3114,7 +3114,7 @@ export default function WebchatChannelMaintenance() {
                                             type="button"
                                             disabled={index === groupReasons.length - 1}
                                             onClick={() => moveUnresolvedReason(reason.id, 'down')}
-                                            className="text-[#5a8cff] hover:text-[#3f74ff] disabled:cursor-not-allowed disabled:text-slate-300"
+                                            className="text-[#216BFF] hover:text-[#1a5ce6] disabled:cursor-not-allowed disabled:text-slate-300"
                                           >
                                             下移
                                           </button>
@@ -3122,7 +3122,7 @@ export default function WebchatChannelMaintenance() {
                                             type="button"
                                             disabled={index === 0}
                                             onClick={() => moveUnresolvedReason(reason.id, 'up')}
-                                            className="text-[#5a8cff] hover:text-[#3f74ff] disabled:cursor-not-allowed disabled:text-slate-300"
+                                            className="text-[#216BFF] hover:text-[#1a5ce6] disabled:cursor-not-allowed disabled:text-slate-300"
                                           >
                                             上移
                                           </button>
@@ -3136,7 +3136,7 @@ export default function WebchatChannelMaintenance() {
                                                 message: `确定删除原因条目“${reason.description}”吗？`,
                                               })
                                             }
-                                            className="text-[#ff8a8a] hover:text-[#ff6e6e]"
+                                            className="text-[#ff6f6f] hover:text-[#ff4d4f]"
                                           >
                                             删除
                                           </button>
@@ -3163,7 +3163,7 @@ export default function WebchatChannelMaintenance() {
                                         }}
                                         onBlur={() => commitUnresolvedReasonAdd()}
                                         placeholder="请输入原因描述，回车保存"
-                                        className="h-9 w-full rounded border border-[#8fded1] px-3 text-[13px] text-slate-600 outline-none"
+                                        className="h-9 w-full rounded border border-[#96b8ff] px-3 text-[13px] text-slate-600 outline-none"
                                       />
                                     </td>
                                     <td className="px-4 py-3 text-[12px] text-slate-400">回车保存 / Esc 取消</td>
@@ -3206,7 +3206,7 @@ export default function WebchatChannelMaintenance() {
                   </div>
                 </div>
                 <div className="rounded-[12px] border border-slate-100 bg-white shadow-sm">
-                  <div className="rounded-t-[12px] px-4 py-4 text-[15px] font-semibold text-white" style={previewThemeStyle}>交互示例（访客端展示）</div>
+                  <div className="rounded-t-[12px] px-4 py-3 text-[15px] font-semibold text-white" style={previewThemeStyle}>交互示例（访客端展示）</div>
                   <div className="p-6 text-center text-[13px] text-slate-500">
                     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_2px_10px_rgba(15,23,42,0.04)]">
                       <div className="mb-4 text-[14px] font-medium text-slate-700">请对本次服务做出评价</div>
@@ -3249,7 +3249,7 @@ export default function WebchatChannelMaintenance() {
                                 step={1}
                                 value={previewRating}
                                 onChange={(event) => setPreviewRating(Number(event.target.value))}
-                                className="w-full accent-[#18c2a7]"
+                                className="w-full accent-[#216BFF]"
                                 style={{ accentColor: themeAccentColor }}
                               />
                               <div className="mt-1 flex justify-between text-[12px] text-slate-400">
@@ -3347,7 +3347,7 @@ export default function WebchatChannelMaintenance() {
                     <div className="mt-4 text-[12px] text-slate-400">上方为实时预览区域<br />修改配置后将通过此处展示实际效果</div>
                     <div className="mt-6 flex gap-3">
                       <button type="button" className="flex-1 rounded-full border border-slate-200 px-4 py-2">重置</button>
-                      <button type="button" className="flex-1 rounded-full border border-[#8fe0d2] bg-[#effbf8] px-4 py-2 text-[#18bca2]">保存配置</button>
+                      <button type="button" className="flex-1 rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-4 py-2 text-[#216BFF]">保存配置</button>
                     </div>
                   </div>
                 </div>
@@ -3368,7 +3368,7 @@ export default function WebchatChannelMaintenance() {
                         message: '切换后将清除当前已有配置，确定要切换吗？',
                       });
                     }}
-                    className="h-8 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 focus:border-[#18c2a7] focus:outline-none"
+                    className="h-8 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 focus:border-[#216BFF] focus:outline-none"
                   >
                     {['按产品配置', '按菜单配置'].map((item) => (
                       <option key={item} value={item}>{item}</option>
@@ -3384,7 +3384,7 @@ export default function WebchatChannelMaintenance() {
                       }
                       setAssociateProductChecked(existing);
                       setDialog('associate-product');
-                    }} className="ml-2 flex items-center gap-1 rounded-full border border-[#8fe0d2] bg-[#effbf8] px-4 py-1.5 text-[13px] font-medium text-[#18bca2]">
+                    }} className="ml-2 flex items-center gap-1 rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-4 py-1.5 text-[13px] font-medium text-[#216BFF]">
                       <ArrowUpRight size={14} /> 关联产品
                     </button>
                   ) : null}
@@ -3473,7 +3473,7 @@ export default function WebchatChannelMaintenance() {
                       onClick={() => updateActive((row) => ({ ...row, config: { ...row.config, activeTransferMenuId: 'transfer-menu-root' } }))}
                       className={cn(
                         'flex cursor-pointer items-center gap-2 border-b border-slate-100 px-3 py-2',
-                        active.config.activeTransferMenuId === 'transfer-menu-root' ? 'bg-[#ecfaf7]' : 'bg-[#fafcff]'
+                        active.config.activeTransferMenuId === 'transfer-menu-root' ? 'bg-[#e8f1ff]' : 'bg-[#fafcff]'
                       )}
                     >
                       <FileText size={14} className="text-slate-400" />
@@ -3485,7 +3485,7 @@ export default function WebchatChannelMaintenance() {
                             event.stopPropagation();
                             setTransferMenuAddOpen(transferMenuAddOpen === 'transfer-menu-root' ? null : 'transfer-menu-root');
                           }}
-                          className="text-[#18bca2] hover:text-[#12a38c]"
+                          className="text-[#216BFF] hover:text-[#1a5ce6]"
                         >
                           <PlusCircle size={16} />
                         </button>
@@ -3494,14 +3494,14 @@ export default function WebchatChannelMaintenance() {
                             <button
                               type="button"
                               onClick={() => { addTransferMenuChild('transfer-menu-root'); setTransferMenuAddOpen(null); }}
-                              className="block w-full px-3 py-2 text-left text-[13px] text-slate-700 hover:bg-[#ecfaf7]"
+                              className="block w-full px-3 py-2 text-left text-[13px] text-slate-700 hover:bg-[#e8f1ff]"
                             >
                               添加同级菜单
                             </button>
                             <button
                               type="button"
                               onClick={() => { addTransferMenuChild('transfer-menu-root'); setTransferMenuAddOpen(null); }}
-                              className="block w-full px-3 py-2 text-left text-[13px] text-slate-700 hover:bg-[#ecfaf7]"
+                              className="block w-full px-3 py-2 text-left text-[13px] text-slate-700 hover:bg-[#e8f1ff]"
                             >
                               添加子级菜单
                             </button>
@@ -3522,7 +3522,7 @@ export default function WebchatChannelMaintenance() {
                           }
                           removeTransferMenu(id);
                         }}
-                        className="text-slate-400 hover:text-[#ff8a8a] disabled:opacity-40"
+                        className="text-slate-400 hover:text-[#ff6f6f] disabled:opacity-40"
                       >
                         <MinusCircle size={16} />
                       </button>
@@ -3539,7 +3539,7 @@ export default function WebchatChannelMaintenance() {
                               onClick={() => updateActive((row) => ({ ...row, config: { ...row.config, activeTransferMenuId: menu.id } }))}
                               className={cn(
                                 'flex cursor-pointer items-center gap-2 border-b border-slate-100 px-3 py-2',
-                                active.config.activeTransferMenuId === menu.id ? 'bg-[#ecfaf7]' : 'bg-white hover:bg-[#f5faff]'
+                                active.config.activeTransferMenuId === menu.id ? 'bg-[#e8f1ff]' : 'bg-white hover:bg-[#f5faff]'
                               )}
                             >
                               <FileText size={14} className="text-slate-400" />
@@ -3551,7 +3551,7 @@ export default function WebchatChannelMaintenance() {
                                     event.stopPropagation();
                                     setTransferMenuAddOpen(transferMenuAddOpen === menu.id ? null : menu.id);
                                   }}
-                                  className="text-[#18bca2] hover:text-[#12a38c]"
+                                  className="text-[#216BFF] hover:text-[#1a5ce6]"
                                 >
                                   <PlusCircle size={14} />
                                 </button>
@@ -3560,14 +3560,14 @@ export default function WebchatChannelMaintenance() {
                                     <button
                                       type="button"
                                       onClick={() => { addTransferMenuSibling(menu.id); setTransferMenuAddOpen(null); }}
-                                      className="block w-full px-3 py-2 text-left text-[13px] text-slate-700 hover:bg-[#ecfaf7]"
+                                      className="block w-full px-3 py-2 text-left text-[13px] text-slate-700 hover:bg-[#e8f1ff]"
                                     >
                                       添加同级菜单
                                     </button>
                                     <button
                                       type="button"
                                       onClick={() => { addTransferMenuChild(menu.id); setTransferMenuAddOpen(null); }}
-                                      className="block w-full px-3 py-2 text-left text-[13px] text-slate-700 hover:bg-[#ecfaf7]"
+                                      className="block w-full px-3 py-2 text-left text-[13px] text-slate-700 hover:bg-[#e8f1ff]"
                                     >
                                       添加子级菜单
                                     </button>
@@ -3586,7 +3586,7 @@ export default function WebchatChannelMaintenance() {
                                   }
                                   removeTransferMenu(menu.id);
                                 }}
-                                className="text-slate-400 hover:text-[#ff8a8a] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:text-slate-400"
+                                className="text-slate-400 hover:text-[#ff6f6f] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:text-slate-400"
                               >
                                 <MinusCircle size={14} />
                               </button>
@@ -3600,7 +3600,7 @@ export default function WebchatChannelMaintenance() {
                                     onClick={() => updateActive((row) => ({ ...row, config: { ...row.config, activeTransferMenuId: child.id } }))}
                                     className={cn(
                                       'flex cursor-pointer items-center gap-2 border-b border-slate-100 px-3 py-2 pl-8',
-                                      active.config.activeTransferMenuId === child.id ? 'bg-[#ecfaf7]' : 'bg-white hover:bg-[#f5faff]'
+                                      active.config.activeTransferMenuId === child.id ? 'bg-[#e8f1ff]' : 'bg-white hover:bg-[#f5faff]'
                                     )}
                                   >
                                     <FileText size={14} className="text-slate-400" />
@@ -3612,7 +3612,7 @@ export default function WebchatChannelMaintenance() {
                                           event.stopPropagation();
                                           setTransferMenuAddOpen(transferMenuAddOpen === child.id ? null : child.id);
                                         }}
-                                        className="text-[#18bca2] hover:text-[#12a38c]"
+                                        className="text-[#216BFF] hover:text-[#1a5ce6]"
                                       >
                                         <PlusCircle size={14} />
                                       </button>
@@ -3621,14 +3621,14 @@ export default function WebchatChannelMaintenance() {
                                           <button
                                             type="button"
                                             onClick={() => { addTransferMenuSibling(child.id); setTransferMenuAddOpen(null); }}
-                                            className="block w-full px-3 py-2 text-left text-[13px] text-slate-700 hover:bg-[#ecfaf7]"
+                                            className="block w-full px-3 py-2 text-left text-[13px] text-slate-700 hover:bg-[#e8f1ff]"
                                           >
                                             添加同级菜单
                                           </button>
                                         </div>
                                       ) : null}
                                     </div>
-                                    <button type="button" onClick={(event) => { event.stopPropagation(); removeTransferMenu(child.id); }} className="text-slate-400 hover:text-[#ff8a8a]">
+                                    <button type="button" onClick={(event) => { event.stopPropagation(); removeTransferMenu(child.id); }} className="text-slate-400 hover:text-[#ff6f6f]">
                                       <MinusCircle size={14} />
                                     </button>
                                   </div>
@@ -3641,7 +3641,7 @@ export default function WebchatChannelMaintenance() {
                   </div>
                     {active.config.transferMode === '按产品配置' ? (
                       <div className="flex justify-center gap-3">
-                        <button type="button" onClick={() => setToast('转人工设置已保存')} className="rounded-full border border-[#8fe0d2] bg-[#effbf8] px-6 py-2 text-[13px] font-medium text-[#18bca2]">保存</button>
+                        <button type="button" onClick={() => setToast('转人工设置已保存')} className="rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-6 py-2 text-[13px] font-medium text-[#216BFF]">保存</button>
                         <button
                           type="button"
                           onClick={() => updateActive((row) => ({
@@ -3726,7 +3726,7 @@ export default function WebchatChannelMaintenance() {
                 </div>
                 {active.config.transferMode === '按菜单配置' ? (
                   <div className="mt-6 flex justify-center gap-4">
-                    <button type="button" onClick={() => setToast('转人工设置已保存')} className="rounded-full border border-[#8fe0d2] bg-[#effbf8] px-6 py-2 text-[13px] font-medium text-[#18bca2]">保存</button>
+                    <button type="button" onClick={() => setToast('转人工设置已保存')} className="rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-6 py-2 text-[13px] font-medium text-[#216BFF]">保存</button>
                     <button
                       type="button"
                       onClick={() => updateActive((row) => ({
@@ -3764,7 +3764,7 @@ export default function WebchatChannelMaintenance() {
                       ['是否弹屏评价', 'popupEvaluation', '开启后，问卷以弹窗形式在访客界面显示'],
                       ['访客超时不弹屏', 'timeoutNoPopup', '开启后，访客超时关闭会话后不以弹屏方式弹出问卷'],
                     ].map(([label, key, desc]) => (
-                      <div key={key} className="flex items-center justify-between rounded-xl border border-slate-100 bg-[#fbfcff] px-4 py-4">
+                      <div key={key} className="flex items-center justify-between rounded-xl border border-slate-100 bg-[#f7f9ff] px-4 py-3">
                         <div><div className="text-[14px] font-medium text-slate-700">{label}</div><div className="text-[12px] text-slate-400">{desc}</div></div>
                         <Switch checked={active.config.surveyToggles[key as keyof Row['config']['surveyToggles']]} onChange={(next) => updateActive((row) => ({ ...row, config: { ...row.config, surveyToggles: { ...row.config.surveyToggles, [key]: next } } }))} />
                       </div>
@@ -3778,21 +3778,21 @@ export default function WebchatChannelMaintenance() {
                     <label className="block text-[13px] text-slate-600">机器人调研问卷推送时间（分钟）<input value={active.config.surveyRobotDelay} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, surveyRobotDelay: e.target.value } }))} className="mt-2 h-10 w-full rounded-lg border border-slate-200 px-3 outline-none" /></label>
                     <div><label className="block text-[13px] text-slate-600">人工推送有效范围/天<input value={active.config.surveyDays} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, surveyDays: e.target.value } }))} className={`mt-2 h-10 w-full rounded-lg border px-3 outline-none ${(() => { const n = Number(active.config.surveyDays); return active.config.surveyDays !== '' && (!Number.isInteger(n) || n >= 60000 || n < 0) ? 'border-rose-400' : 'border-slate-200'; })()}`} /></label>{(() => { const n = Number(active.config.surveyDays); return active.config.surveyDays !== '' && (!Number.isInteger(n) || n >= 60000 || n < 0) ? <div className="mt-1 text-[12px] text-rose-500">推送有效范围应小于60000的整数</div> : null; })()}</div>
                     <label className="block text-[13px] text-slate-600">机器人调研问卷开始时间<input type="datetime-local" step={1} value={active.config.surveyRobotStart} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, surveyRobotStart: e.target.value } }))} className="mt-2 h-10 w-full rounded-lg border border-slate-200 px-3 outline-none" /></label>
-                    <div className="space-y-2"><label className="block text-[13px] text-slate-600">人工调研问卷链接</label><div className="flex gap-2"><input placeholder="链接网址" value={active.config.surveyLink} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, surveyLink: e.target.value } }))} className="h-10 flex-1 rounded-lg border border-slate-200 px-3 outline-none" /><input placeholder="展示文字" value={active.config.surveyLinkText ?? ''} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, surveyLinkText: e.target.value } }))} className="h-10 flex-1 rounded-lg border border-slate-200 px-3 outline-none" /></div>{active.config.surveyLink && (active.config.surveyLinkText ?? '') ? <div className="rounded-lg bg-slate-50 px-3 py-2 text-[12px] text-slate-400">预览：<a href={/^https?:\/\//.test(active.config.surveyLink) ? active.config.surveyLink : `https://${active.config.surveyLink}`} target="_blank" rel="noreferrer" className="text-[#2f7bff] hover:underline">{active.config.surveyLinkText}</a></div> : null}</div>
+                    <div className="space-y-2"><label className="block text-[13px] text-slate-600">人工调研问卷链接</label><div className="flex gap-2"><input placeholder="链接网址" value={active.config.surveyLink} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, surveyLink: e.target.value } }))} className="h-10 flex-1 rounded-lg border border-slate-200 px-3 outline-none" /><input placeholder="展示文字" value={active.config.surveyLinkText ?? ''} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, surveyLinkText: e.target.value } }))} className="h-10 flex-1 rounded-lg border border-slate-200 px-3 outline-none" /></div>{active.config.surveyLink && (active.config.surveyLinkText ?? '') ? <div className="rounded-lg bg-slate-50 px-3 py-2 text-[12px] text-slate-400">预览：<a href={/^https?:\/\//.test(active.config.surveyLink) ? active.config.surveyLink : `https://${active.config.surveyLink}`} target="_blank" rel="noreferrer" className="text-[#216BFF] hover:underline">{active.config.surveyLinkText}</a></div> : null}</div>
                     <div><label className="block text-[13px] text-slate-600">机器人推送有效范围/天<input value={active.config.surveyRobotDays} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, surveyRobotDays: e.target.value } }))} className={`mt-2 h-10 w-full rounded-lg border px-3 outline-none ${(() => { const n = Number(active.config.surveyRobotDays); return active.config.surveyRobotDays !== '' && (!Number.isInteger(n) || n >= 60000 || n < 0) ? 'border-rose-400' : 'border-slate-200'; })()}`} /></label>{(() => { const n = Number(active.config.surveyRobotDays); return active.config.surveyRobotDays !== '' && (!Number.isInteger(n) || n >= 60000 || n < 0) ? <div className="mt-1 text-[12px] text-rose-500">推送有效范围应小于60000的整数</div> : null; })()}</div>
-                    <div className="space-y-2"><label className="block text-[13px] text-slate-600">机器人调研问卷链接</label><div className="flex gap-2"><input placeholder="链接网址" value={active.config.surveyRobotLink} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, surveyRobotLink: e.target.value } }))} className="h-10 flex-1 rounded-lg border border-slate-200 px-3 outline-none" /><input placeholder="展示文字" value={active.config.surveyRobotLinkText ?? ''} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, surveyRobotLinkText: e.target.value } }))} className="h-10 flex-1 rounded-lg border border-slate-200 px-3 outline-none" /></div>{active.config.surveyRobotLink && (active.config.surveyRobotLinkText ?? '') ? <div className="rounded-lg bg-slate-50 px-3 py-2 text-[12px] text-slate-400">预览：<a href={/^https?:\/\//.test(active.config.surveyRobotLink) ? active.config.surveyRobotLink : `https://${active.config.surveyRobotLink}`} target="_blank" rel="noreferrer" className="text-[#2f7bff] hover:underline">{active.config.surveyRobotLinkText}</a></div> : null}</div>
+                    <div className="space-y-2"><label className="block text-[13px] text-slate-600">机器人调研问卷链接</label><div className="flex gap-2"><input placeholder="链接网址" value={active.config.surveyRobotLink} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, surveyRobotLink: e.target.value } }))} className="h-10 flex-1 rounded-lg border border-slate-200 px-3 outline-none" /><input placeholder="展示文字" value={active.config.surveyRobotLinkText ?? ''} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, surveyRobotLinkText: e.target.value } }))} className="h-10 flex-1 rounded-lg border border-slate-200 px-3 outline-none" /></div>{active.config.surveyRobotLink && (active.config.surveyRobotLinkText ?? '') ? <div className="rounded-lg bg-slate-50 px-3 py-2 text-[12px] text-slate-400">预览：<a href={/^https?:\/\//.test(active.config.surveyRobotLink) ? active.config.surveyRobotLink : `https://${active.config.surveyRobotLink}`} target="_blank" rel="noreferrer" className="text-[#216BFF] hover:underline">{active.config.surveyRobotLinkText}</a></div> : null}</div>
                   </div>
-                  <div className="mt-6 flex justify-center gap-4"><button type="button" className="rounded-full border border-[#8fe0d2] bg-[#effbf8] px-6 py-2 text-[13px] font-medium text-[#18bca2]">保存</button><button type="button" className="rounded-full border border-slate-200 bg-white px-6 py-2 text-[13px] font-medium text-slate-500">重置</button></div>
+                  <div className="mt-6 flex justify-center gap-4"><button type="button" className="rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-6 py-2 text-[13px] font-medium text-[#216BFF]">保存</button><button type="button" className="rounded-full border border-slate-200 bg-white px-6 py-2 text-[13px] font-medium text-slate-500">重置</button></div>
                 </div>
               </div>
             ) : (
-              <div className="w-full rounded-[12px] border border-slate-100 bg-white shadow-sm"><div className="flex items-center justify-between border-b border-slate-100 px-5 py-4"><div className="text-[15px] font-semibold text-slate-700">参数设置</div><button type="button" onClick={() => { setParamForm({ name: '', remark: '' }); setFormErrors({}); setDialog('param'); }} className="rounded bg-[#18c2a7] px-4 py-2 text-[13px] font-medium text-white">新增</button></div><div className="p-5"><table className="min-w-full table-fixed text-left"><thead className="bg-[#f5f7fb] text-[13px] text-slate-600"><tr><th className="w-[90px] px-4 py-3">序号</th><th className="px-4 py-3">参数名称</th><th className="px-4 py-3">参数备注</th><th className="w-[140px] px-4 py-3">操作</th></tr></thead><tbody className="divide-y divide-slate-100 text-[13px] text-slate-600">{active.config.params.map((item, index) => <tr key={`${item.name}-${index}`}><td className="px-4 py-4">{index + 1}</td><td className="px-4 py-4">{item.name}</td><td className="px-4 py-4">{item.remark}</td><td className="px-4 py-4"><button type="button" onClick={() => { setEditingParamIndex(index); setParamForm({ name: item.name, remark: item.remark }); setFormErrors({}); setDialog('param'); }} className="font-medium text-[#2f7bff]">编辑</button><button type="button" onClick={() => setConfirmAction({ type: 'delete-param', paramIndex: index, title: '删除参数', message: `确定删除参数 “${item.name}” 吗？删除后不可恢复。` })} className="ml-3 font-medium text-[#ff8a8a]">删除</button></td></tr>)}</tbody></table></div></div>
+              <div className="w-full rounded-[12px] border border-slate-100 bg-white shadow-sm"><div className="flex items-center justify-between border-b border-slate-100 px-5 py-4"><div className="text-[15px] font-semibold text-slate-700">参数设置</div><button type="button" onClick={() => { setParamForm({ name: '', remark: '' }); setFormErrors({}); setDialog('param'); }} className="rounded bg-[#216BFF] px-4 py-2 text-[13px] font-medium text-white">新增</button></div><div className="p-5"><table className="min-w-full table-fixed text-left"><thead className="bg-[#fafafa] text-[13px] text-slate-600"><tr><th className="w-[90px] px-4 py-3">序号</th><th className="px-4 py-3">参数名称</th><th className="px-4 py-3">参数备注</th><th className="w-[140px] px-4 py-3">操作</th></tr></thead><tbody className="divide-y divide-slate-100 text-[13px] text-slate-600">{active.config.params.map((item, index) => <tr key={`${item.name}-${index}`}><td className="px-4 py-3">{index + 1}</td><td className="px-4 py-3">{item.name}</td><td className="px-4 py-3">{item.remark}</td><td className="px-4 py-3"><button type="button" onClick={() => { setEditingParamIndex(index); setParamForm({ name: item.name, remark: item.remark }); setFormErrors({}); setDialog('param'); }} className="font-medium text-[#216BFF]">编辑</button><button type="button" onClick={() => setConfirmAction({ type: 'delete-param', paramIndex: index, title: '删除参数', message: `确定删除参数 “${item.name}” 吗？删除后不可恢复。` })} className="ml-3 font-medium text-[#ff6f6f]">删除</button></td></tr>)}</tbody></table></div></div>
             )}
           </div>
         </div>
       )}
 
-      <AnimatePresence>{toast ? <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} className="fixed right-6 top-6 z-[124] rounded-lg bg-[#12b89f] px-4 py-3 text-[13px] font-medium text-white shadow-lg">{toast}</motion.div> : null}</AnimatePresence>
+      <AnimatePresence>{toast ? <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} className="fixed right-6 top-6 z-[124] rounded-lg bg-[#216BFF] px-4 py-3 text-[13px] font-medium text-white shadow-lg">{toast}</motion.div> : null}</AnimatePresence>
       <AnimatePresence>
         {dialog ? (
           <div className="fixed inset-0 z-[123] flex items-center justify-center p-4">
@@ -3944,7 +3944,7 @@ export default function WebchatChannelMaintenance() {
                   </div>
                   <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
                     <button type="button" onClick={closeDialog} className="rounded border border-slate-200 bg-white px-5 py-2 text-[13px] font-medium text-slate-500">取消</button>
-                    <button type="button" onClick={saveForm} className="rounded bg-[#12b89f] px-5 py-2 text-[13px] font-medium text-white">确定</button>
+                    <button type="button" onClick={saveForm} className="rounded bg-[#216BFF] px-5 py-2 text-[13px] font-medium text-white">确定</button>
                   </div>
                 </>
               ) : null}
@@ -3954,7 +3954,7 @@ export default function WebchatChannelMaintenance() {
                     <span className="text-right font-medium">{dialog === 'auth' ? '授权链接:' : (target?.connectType === '引用插件' ? '引用插件:' : '引用链接:')}</span>
                     <input readOnly value={dialog === 'auth' ? target?.authUrl ?? '' : target?.linkUrl ?? ''} className="h-12 w-full rounded border border-slate-200 bg-[#fafafa] px-3 outline-none" />
                   </div>
-                  <button type="button" onClick={() => copyLink(dialog === 'auth' ? target?.authUrl ?? '' : target?.linkUrl ?? '')} className="rounded bg-[#12b89f] px-6 py-2 text-[13px] font-medium text-white">复制</button>
+                  <button type="button" onClick={() => copyLink(dialog === 'auth' ? target?.authUrl ?? '' : target?.linkUrl ?? '')} className="rounded bg-[#216BFF] px-6 py-2 text-[13px] font-medium text-white">复制</button>
                 </div>
               ) : null}
               {dialog === 'batch-business' ? (
@@ -3979,7 +3979,7 @@ export default function WebchatChannelMaintenance() {
                         closeDialog();
                         setToast('已批量更新业务类型');
                       }}
-                      className="rounded bg-[#12b89f] px-5 py-2 text-[13px] font-medium text-white disabled:cursor-not-allowed disabled:bg-slate-300"
+                      className="rounded bg-[#216BFF] px-5 py-2 text-[13px] font-medium text-white disabled:cursor-not-allowed disabled:bg-slate-300"
                     >
                       确定
                     </button>
@@ -3993,7 +3993,7 @@ export default function WebchatChannelMaintenance() {
                   </div>
                   <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
                     <button type="button" onClick={closeDialog} className="rounded border border-slate-200 bg-white px-5 py-2 text-[13px] font-medium text-slate-500">取消</button>
-                    <button type="button" onClick={() => { setRows((current) => current.map((row) => selectedIds.includes(row.id) ? { ...row, strongAuth: true } : row)); closeDialog(); setToast('已批量开启强认证'); }} className="rounded bg-[#12b89f] px-5 py-2 text-[13px] font-medium text-white">确定</button>
+                    <button type="button" onClick={() => { setRows((current) => current.map((row) => selectedIds.includes(row.id) ? { ...row, strongAuth: true } : row)); closeDialog(); setToast('已批量开启强认证'); }} className="rounded bg-[#216BFF] px-5 py-2 text-[13px] font-medium text-white">确定</button>
                   </div>
                 </>
               ) : null}
@@ -4030,7 +4030,7 @@ export default function WebchatChannelMaintenance() {
                         closeDialog();
                         setToast('已批量更新工作时间');
                       }}
-                      className="rounded bg-[#12b89f] px-5 py-2 text-[13px] font-medium text-white disabled:cursor-not-allowed disabled:bg-slate-300"
+                      className="rounded bg-[#216BFF] px-5 py-2 text-[13px] font-medium text-white disabled:cursor-not-allowed disabled:bg-slate-300"
                     >
                       确定
                     </button>
@@ -4056,7 +4056,7 @@ export default function WebchatChannelMaintenance() {
                         closeDialog();
                         setToast('已一键引用快捷按钮');
                       }}
-                      className="rounded bg-[#12b89f] px-5 py-2 text-[13px] font-medium text-white"
+                      className="rounded bg-[#216BFF] px-5 py-2 text-[13px] font-medium text-white"
                     >
                       确定
                     </button>
@@ -4069,7 +4069,7 @@ export default function WebchatChannelMaintenance() {
                     <div className="grid grid-cols-[108px_1fr] items-start gap-4 text-[14px] text-slate-600">
                       <span className="pt-2 text-right font-medium"><span className="mr-1 text-[#ff6f6f]">*</span>快捷按钮名称:</span>
                       <div>
-                        <input value={quickButtonForm.name} onChange={(e) => setQuickButtonForm((current) => ({ ...current, name: e.target.value }))} placeholder="请输入快捷按钮名称" className={cn('h-9 w-full rounded border px-3 outline-none', formErrors.quickButtonName ? 'border-[#ff8b8b]' : 'border-slate-200')} />
+                        <input value={quickButtonForm.name} onChange={(e) => setQuickButtonForm((current) => ({ ...current, name: e.target.value }))} placeholder="请输入快捷按钮名称" className={cn('h-9 w-full rounded border px-3 outline-none', formErrors.quickButtonName ? 'border-[#ff6f6f]' : 'border-slate-200')} />
                         {formErrors.quickButtonName ? <div className="mt-1 text-[12px] text-[#ff6f6f]">{formErrors.quickButtonName}</div> : null}
                       </div>
                     </div>
@@ -4088,7 +4088,7 @@ export default function WebchatChannelMaintenance() {
                       <div className="grid grid-cols-[108px_1fr] items-start gap-4 text-[14px] text-slate-600">
                         <span className="pt-2 text-right font-medium"><span className="mr-1 text-[#ff6f6f]">*</span>链接地址:</span>
                         <div>
-                          <input value={quickButtonForm.linkUrl} onChange={(e) => setQuickButtonForm((current) => ({ ...current, linkUrl: e.target.value }))} placeholder="请输入链接地址" className={cn('h-9 w-full rounded border px-3 outline-none', formErrors.quickButtonLinkUrl ? 'border-[#ff8b8b]' : 'border-slate-200')} />
+                          <input value={quickButtonForm.linkUrl} onChange={(e) => setQuickButtonForm((current) => ({ ...current, linkUrl: e.target.value }))} placeholder="请输入链接地址" className={cn('h-9 w-full rounded border px-3 outline-none', formErrors.quickButtonLinkUrl ? 'border-[#ff6f6f]' : 'border-slate-200')} />
                           {formErrors.quickButtonLinkUrl ? <div className="mt-1 text-[12px] text-[#ff6f6f]">{formErrors.quickButtonLinkUrl}</div> : null}
                         </div>
                       </div>
@@ -4096,7 +4096,7 @@ export default function WebchatChannelMaintenance() {
                   </div>
                   <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
                     <button type="button" onClick={closeDialog} className="rounded border border-slate-200 bg-white px-5 py-2 text-[13px] font-medium text-slate-500">取消</button>
-                    <button type="button" onClick={saveQuickButton} className="rounded bg-[#12b89f] px-5 py-2 text-[13px] font-medium text-white">确定</button>
+                    <button type="button" onClick={saveQuickButton} className="rounded bg-[#216BFF] px-5 py-2 text-[13px] font-medium text-white">确定</button>
                   </div>
                 </>
               ) : null}
@@ -4106,14 +4106,14 @@ export default function WebchatChannelMaintenance() {
                     <div className="grid grid-cols-[120px_1fr] items-start gap-4 text-[14px] text-slate-600">
                       <span className="pt-2 text-right font-medium"><span className="mr-1 text-[#ff6f6f]">*</span>高频内容标签:</span>
                       <div>
-                        <input value={contentTagFormName} onChange={(e) => setContentTagFormName(e.target.value)} placeholder="请输入高频内容标签" className={cn('h-9 w-full rounded border px-3 outline-none', formErrors.contentTag ? 'border-[#ff8b8b]' : 'border-slate-200')} />
+                        <input value={contentTagFormName} onChange={(e) => setContentTagFormName(e.target.value)} placeholder="请输入高频内容标签" className={cn('h-9 w-full rounded border px-3 outline-none', formErrors.contentTag ? 'border-[#ff6f6f]' : 'border-slate-200')} />
                         {formErrors.contentTag ? <div className="mt-1 text-[12px] text-[#ff6f6f]">{formErrors.contentTag}</div> : null}
                       </div>
                     </div>
                   </div>
                   <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
                     <button type="button" onClick={closeDialog} className="rounded border border-slate-200 bg-white px-5 py-2 text-[13px] font-medium text-slate-500">取消</button>
-                    <button type="button" onClick={saveContentTag} className="rounded bg-[#12b89f] px-5 py-2 text-[13px] font-medium text-white">确定</button>
+                    <button type="button" onClick={saveContentTag} className="rounded bg-[#216BFF] px-5 py-2 text-[13px] font-medium text-white">确定</button>
                   </div>
                 </>
               ) : null}
@@ -4123,14 +4123,14 @@ export default function WebchatChannelMaintenance() {
                     <div className="grid grid-cols-[108px_1fr] items-start gap-4 text-[14px] text-slate-600">
                       <span className="pt-2 text-right font-medium"><span className="mr-1 text-[#ff6f6f]">*</span>高频内容:</span>
                       <div>
-                        <textarea value={contentItemFormName} onChange={(e) => setContentItemFormName(e.target.value)} rows={4} placeholder="请输入高频内容" className={cn('w-full rounded border px-3 py-2 outline-none', formErrors.contentItem ? 'border-[#ff8b8b]' : 'border-slate-200')} />
+                        <textarea value={contentItemFormName} onChange={(e) => setContentItemFormName(e.target.value)} rows={4} placeholder="请输入高频内容" className={cn('w-full rounded border px-3 py-2 outline-none', formErrors.contentItem ? 'border-[#ff6f6f]' : 'border-slate-200')} />
                         {formErrors.contentItem ? <div className="mt-1 text-[12px] text-[#ff6f6f]">{formErrors.contentItem}</div> : null}
                       </div>
                     </div>
                   </div>
                   <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
                     <button type="button" onClick={closeDialog} className="rounded border border-slate-200 bg-white px-5 py-2 text-[13px] font-medium text-slate-500">取消</button>
-                    <button type="button" onClick={saveContentItem} className="rounded bg-[#12b89f] px-5 py-2 text-[13px] font-medium text-white">确定</button>
+                    <button type="button" onClick={saveContentItem} className="rounded bg-[#216BFF] px-5 py-2 text-[13px] font-medium text-white">确定</button>
                   </div>
                 </>
               ) : null}
@@ -4143,7 +4143,7 @@ export default function WebchatChannelMaintenance() {
                         <select
                           value={unresolvedReasonForm.category}
                           onChange={(event) => setUnresolvedReasonForm((current) => ({ ...current, category: event.target.value as UnresolvedReasonCategory | '' }))}
-                          className={cn('h-9 w-full rounded border px-3 outline-none', formErrors.unresolvedCategory ? 'border-[#ff8b8b]' : 'border-slate-200')}
+                          className={cn('h-9 w-full rounded border px-3 outline-none', formErrors.unresolvedCategory ? 'border-[#ff6f6f]' : 'border-slate-200')}
                         >
                           <option value="">请选择类型</option>
                           <option value="人工服务">人工服务</option>
@@ -4159,7 +4159,7 @@ export default function WebchatChannelMaintenance() {
                           value={unresolvedReasonForm.description}
                           onChange={(event) => setUnresolvedReasonForm((current) => ({ ...current, description: event.target.value }))}
                           placeholder="请输入原因"
-                          className={cn('h-9 w-full rounded border px-3 outline-none', formErrors.unresolvedDescription ? 'border-[#ff8b8b]' : 'border-slate-200')}
+                          className={cn('h-9 w-full rounded border px-3 outline-none', formErrors.unresolvedDescription ? 'border-[#ff6f6f]' : 'border-slate-200')}
                         />
                         {formErrors.unresolvedDescription ? <div className="mt-1 text-[12px] text-[#ff6f6f]">{formErrors.unresolvedDescription}</div> : null}
                       </div>
@@ -4167,7 +4167,7 @@ export default function WebchatChannelMaintenance() {
                   </div>
                   <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
                     <button type="button" onClick={closeDialog} className="rounded border border-slate-200 bg-white px-5 py-2 text-[13px] font-medium text-slate-500">取消</button>
-                    <button type="button" onClick={saveUnresolvedReason} className="rounded bg-[#12b89f] px-5 py-2 text-[13px] font-medium text-white">确定</button>
+                    <button type="button" onClick={saveUnresolvedReason} className="rounded bg-[#216BFF] px-5 py-2 text-[13px] font-medium text-white">确定</button>
                   </div>
                 </>
               ) : null}
@@ -4177,21 +4177,21 @@ export default function WebchatChannelMaintenance() {
                     <div className="grid grid-cols-[92px_1fr] items-center gap-4 text-[14px] text-slate-600">
                       <span className="text-right font-medium"><span className="mr-1 text-[#ff6f6f]">*</span>参数名称:</span>
                       <div>
-                        <input value={paramForm.name} onChange={(e) => setParamForm((current) => ({ ...current, name: e.target.value }))} placeholder="请输入参数名称" className={cn('h-9 w-full rounded border px-3 outline-none', formErrors.paramName ? 'border-[#ff8b8b]' : 'border-slate-200')} />
+                        <input value={paramForm.name} onChange={(e) => setParamForm((current) => ({ ...current, name: e.target.value }))} placeholder="请输入参数名称" className={cn('h-9 w-full rounded border px-3 outline-none', formErrors.paramName ? 'border-[#ff6f6f]' : 'border-slate-200')} />
                         {formErrors.paramName ? <div className="mt-1 text-[12px] text-[#ff6f6f]">{formErrors.paramName}</div> : null}
                       </div>
                     </div>
                     <div className="grid grid-cols-[92px_1fr] items-center gap-4 text-[14px] text-slate-600">
                       <span className="text-right font-medium">参数备注:</span>
                       <div>
-                        <input value={paramForm.remark} onChange={(e) => setParamForm((current) => ({ ...current, remark: e.target.value }))} placeholder="请输入参数备注" className={cn('h-9 w-full rounded border px-3 outline-none', formErrors.paramRemark ? 'border-[#ff8b8b]' : 'border-slate-200')} />
+                        <input value={paramForm.remark} onChange={(e) => setParamForm((current) => ({ ...current, remark: e.target.value }))} placeholder="请输入参数备注" className={cn('h-9 w-full rounded border px-3 outline-none', formErrors.paramRemark ? 'border-[#ff6f6f]' : 'border-slate-200')} />
                         {formErrors.paramRemark ? <div className="mt-1 text-[12px] text-[#ff6f6f]">{formErrors.paramRemark}</div> : null}
                       </div>
                     </div>
                   </div>
                   <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
                     <button type="button" onClick={closeDialog} className="rounded border border-slate-200 bg-white px-5 py-2 text-[13px] font-medium text-slate-500">取消</button>
-                    <button type="button" onClick={saveParam} className="rounded bg-[#12b89f] px-5 py-2 text-[13px] font-medium text-white">确定</button>
+                    <button type="button" onClick={saveParam} className="rounded bg-[#216BFF] px-5 py-2 text-[13px] font-medium text-white">确定</button>
                   </div>
                 </>
               ) : null}
@@ -4202,7 +4202,7 @@ export default function WebchatChannelMaintenance() {
                       value={associateProductSearch}
                       onChange={(e) => setAssociateProductSearch(e.target.value)}
                       placeholder="搜索产品"
-                      className="mb-4 h-9 w-full rounded border border-slate-200 px-3 text-[13px] outline-none focus:border-[#18c2a7]"
+                      className="mb-4 h-9 w-full rounded border border-slate-200 px-3 text-[13px] outline-none focus:border-[#216BFF]"
                     />
                     <div className="max-h-[380px] overflow-auto custom-scrollbar">
                       {allProductCatalog
@@ -4237,7 +4237,7 @@ export default function WebchatChannelMaintenance() {
                                       return next;
                                     });
                                   }}
-                                  className="h-4 w-4 accent-[#12b89f]"
+                                  className="h-4 w-4 accent-[#216BFF]"
                                 />
                                 <span className="text-[14px] font-medium text-slate-700">{cat.name}</span>
                               </label>
@@ -4261,7 +4261,7 @@ export default function WebchatChannelMaintenance() {
                                           return next;
                                         });
                                       }}
-                                      className="h-4 w-4 accent-[#12b89f]"
+                                      className="h-4 w-4 accent-[#216BFF]"
                                     />
                                     <span className="text-[13px] text-slate-600">{child.name}</span>
                                   </label>
@@ -4291,7 +4291,7 @@ export default function WebchatChannelMaintenance() {
                         closeDialog();
                         setToast('关联产品已保存');
                       }}
-                      className="rounded bg-[#12b89f] px-5 py-2 text-[13px] font-medium text-white"
+                      className="rounded bg-[#216BFF] px-5 py-2 text-[13px] font-medium text-white"
                     >
                       确定
                     </button>
@@ -4311,7 +4311,7 @@ export default function WebchatChannelMaintenance() {
                 <div className="text-[14px] font-semibold text-slate-700">访客端预览 · {active.accessType === 'PC' ? 'PC 桌面' : '移动端'}</div>
                 <button type="button" onClick={() => setPreviewOpen(false)} className="text-slate-400 hover:text-slate-600"><X size={20} /></button>
               </div>
-              <div className="flex items-start justify-center bg-[#f5f7fb] p-6">
+              <div className="flex items-start justify-center bg-[#fafafa] p-6">
                 {liveChatFrame}
               </div>
             </motion.div>
@@ -4330,7 +4330,7 @@ export default function WebchatChannelMaintenance() {
               <div className="px-10 py-7 text-[14px] text-slate-600">确定要关闭当前对话吗？</div>
               <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
                 <button type="button" onClick={() => setCloseDialogOpen(false)} className="rounded border border-slate-200 bg-white px-5 py-2 text-[13px] font-medium text-slate-500">取消</button>
-                <button type="button" onClick={confirmCloseChat} className="rounded bg-[#12b89f] px-5 py-2 text-[13px] font-medium text-white">确定</button>
+                <button type="button" onClick={confirmCloseChat} className="rounded bg-[#216BFF] px-5 py-2 text-[13px] font-medium text-white">确定</button>
               </div>
             </motion.div>
           </div>
@@ -4358,7 +4358,7 @@ export default function WebchatChannelMaintenance() {
                   <label className="mb-1 block text-[13px] font-medium text-slate-600">验证码 <span className="text-[#ef4444]">*</span></label>
                   <div className="flex gap-2">
                     <input value={leaveMessageForm.code} onChange={(e) => setLeaveMessageForm((f) => ({ ...f, code: e.target.value }))} placeholder="请输入验证码" className="h-9 flex-1 rounded border border-slate-200 px-3 text-[13px] outline-none focus:border-slate-400" />
-                    <button type="button" onClick={() => { if (leaveMessageCountdown > 0) return; setLeaveMessageCountdown(60); }} className={cn('shrink-0 rounded px-3 text-[12px] font-medium text-white', leaveMessageCountdown > 0 ? 'bg-slate-300' : 'bg-[#12b89f]')}>{leaveMessageCountdown > 0 ? `${leaveMessageCountdown}s后重新获取` : '获取验证码'}</button>
+                    <button type="button" onClick={() => { if (leaveMessageCountdown > 0) return; setLeaveMessageCountdown(60); }} className={cn('shrink-0 rounded px-3 text-[12px] font-medium text-white', leaveMessageCountdown > 0 ? 'bg-slate-300' : 'bg-[#216BFF]')}>{leaveMessageCountdown > 0 ? `${leaveMessageCountdown}s后重新获取` : '获取验证码'}</button>
                   </div>
                 </div>
                 <div>
@@ -4376,7 +4376,7 @@ export default function WebchatChannelMaintenance() {
                 </div>
               </div>
               <div className="flex justify-center border-t border-slate-100 px-6 py-4">
-                <button type="button" onClick={() => { if (!leaveMessageForm.name.trim() || !leaveMessageForm.phone.trim() || !leaveMessageForm.code.trim() || !leaveMessageForm.content.trim()) return; setLeaveMessageOpen(false); setLeaveMessageResult('success'); }} className="rounded bg-[#12b89f] px-8 py-2 text-[13px] font-medium text-white">提交留言</button>
+                <button type="button" onClick={() => { if (!leaveMessageForm.name.trim() || !leaveMessageForm.phone.trim() || !leaveMessageForm.code.trim() || !leaveMessageForm.content.trim()) return; setLeaveMessageOpen(false); setLeaveMessageResult('success'); }} className="rounded bg-[#216BFF] px-8 py-2 text-[13px] font-medium text-white">提交留言</button>
               </div>
             </motion.div>
           </div>
@@ -4384,7 +4384,7 @@ export default function WebchatChannelMaintenance() {
       </AnimatePresence>
       <AnimatePresence>
         {leaveMessageResult ? (
-          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className={cn('fixed left-1/2 top-8 z-[130] -translate-x-1/2 rounded-lg px-5 py-3 text-[13px] font-medium shadow-lg', leaveMessageResult === 'success' ? 'bg-[#ecfdf5] text-[#059669] border border-[#a7f3d0]' : 'bg-[#fef2f2] text-[#dc2626] border border-[#fecaca]')}>
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className={cn('fixed left-1/2 top-8 z-[130] -translate-x-1/2 rounded-lg px-5 py-3 text-[13px] font-medium shadow-lg', leaveMessageResult === 'success' ? 'bg-[#e8f1ff] text-[#059669] border border-[#c9dcff]' : 'bg-[#fef2f2] text-[#dc2626] border border-[#fecaca]')}>
             {leaveMessageResult === 'success' ? '留言提交成功，我们会尽快联系您' : '留言提交失败，请稍后重试'}
           </motion.div>
         ) : null}
@@ -4403,7 +4403,7 @@ export default function WebchatChannelMaintenance() {
               <div className="px-10 py-7 text-[14px] text-slate-600">{confirmAction.message}</div>
               <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
                 <button type="button" onClick={() => setConfirmAction(null)} className="rounded border border-slate-200 bg-white px-5 py-2 text-[13px] font-medium text-slate-500">取消</button>
-                <button type="button" onClick={handleConfirmAction} className="rounded bg-[#12b89f] px-5 py-2 text-[13px] font-medium text-white">确定</button>
+                <button type="button" onClick={handleConfirmAction} className="rounded bg-[#216BFF] px-5 py-2 text-[13px] font-medium text-white">确定</button>
               </div>
             </motion.div>
           </div>

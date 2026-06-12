@@ -49,7 +49,7 @@ export default function TicketSummaryModal({
 
   const confidenceTone = (v: number) =>
     v >= 0.9
-      ? 'bg-emerald-50 text-emerald-600 border-emerald-200'
+      ? 'bg-brand-50 text-brand-600 border-brand-200'
       : v >= 0.8
         ? 'bg-amber-50 text-amber-600 border-amber-200'
         : 'bg-rose-50 text-rose-600 border-rose-200';

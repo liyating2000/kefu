@@ -4,30 +4,31 @@ import { Search, RotateCcw, Trash2, ChevronDown, X } from 'lucide-react';
 interface Attachment {
   id: number;
   link: string;
+  uploadChannel: '短信短链接' | '公众号';
   receiverNumber: string;
   senderName: string;
   domainAccount: string;
   sendTime: string;
   invalidStatus: '有效' | '已失效';
-  uploadStatus: '已上传' | '未上传' | '上传失败' | '已删除';
+  uploadStatus: '已上传' | '未上传' | '已删除';
   latestUploadTime: string;
 }
 
 const initialAttachments: Attachment[] = [
-  { id: 1, link: 'https://oss.example.com/file/report_20260401.pdf', receiverNumber: '15026256480', senderName: '张三', domainAccount: 'zhangsan', sendTime: '2026-04-01 09:15:30', invalidStatus: '有效', uploadStatus: '已上传', latestUploadTime: '2026-04-01 09:16:00' },
-  { id: 2, link: 'https://oss.example.com/file/invoice_0328.png', receiverNumber: '13061026065', senderName: '李四', domainAccount: 'lisi01', sendTime: '2026-03-28 14:22:10', invalidStatus: '有效', uploadStatus: '已上传', latestUploadTime: '2026-03-28 14:23:05' },
-  { id: 3, link: 'https://oss.example.com/file/contract_v2.docx', receiverNumber: '18700001111', senderName: '王五', domainAccount: 'wangwu', sendTime: '2026-03-20 10:05:00', invalidStatus: '已失效', uploadStatus: '已上传', latestUploadTime: '2026-03-20 10:06:30' },
-  { id: 4, link: 'https://oss.example.com/file/log_20260315.txt', receiverNumber: '13912345678', senderName: '赵六', domainAccount: 'zhaoliu', sendTime: '2026-03-15 16:40:20', invalidStatus: '有效', uploadStatus: '上传失败', latestUploadTime: '-' },
-  { id: 5, link: 'https://oss.example.com/file/data_export.xlsx', receiverNumber: '15500002222', senderName: '钱七', domainAccount: 'qianqi', sendTime: '2026-03-10 08:30:00', invalidStatus: '已失效', uploadStatus: '未上传', latestUploadTime: '-' },
-  { id: 6, link: 'https://oss.example.com/file/old_backup.zip', receiverNumber: '13800001234', senderName: '孙八', domainAccount: 'sunba', sendTime: '2026-03-05 11:20:00', invalidStatus: '已失效', uploadStatus: '已删除', latestUploadTime: '2026-03-05 11:21:00' },
+  { id: 1, link: 'http://mobilexfkftest.iflytek.com/f/l7Rr2y', uploadChannel: '短信短链接', receiverNumber: '15026256480', senderName: '张三', domainAccount: 'zhangsan', sendTime: '2026-04-01 09:15:30', invalidStatus: '有效', uploadStatus: '已上传', latestUploadTime: '2026-04-01 09:16:00' },
+  { id: 2, link: 'http://mobilexfkftest.iflytek.com/f/k9Tx4m', uploadChannel: '公众号', receiverNumber: '13061026065', senderName: '李四', domainAccount: 'lisi01', sendTime: '2026-03-28 14:22:10', invalidStatus: '有效', uploadStatus: '已上传', latestUploadTime: '2026-03-28 14:23:05' },
+  { id: 3, link: 'http://mobilexfkftest.iflytek.com/f/p3Hn8w', uploadChannel: '短信短链接', receiverNumber: '18700001111', senderName: '王五', domainAccount: 'wangwu', sendTime: '2026-03-20 10:05:00', invalidStatus: '已失效', uploadStatus: '已上传', latestUploadTime: '2026-03-20 10:06:30' },
+  { id: 4, link: 'http://mobilexfkftest.iflytek.com/f/q5Wj6v', uploadChannel: '公众号', receiverNumber: '13912345678', senderName: '赵六', domainAccount: 'zhaoliu', sendTime: '2026-03-15 16:40:20', invalidStatus: '有效', uploadStatus: '未上传', latestUploadTime: '-' },
+  { id: 5, link: 'http://mobilexfkftest.iflytek.com/f/m2Fg3t', uploadChannel: '短信短链接', receiverNumber: '15500002222', senderName: '钱七', domainAccount: 'qianqi', sendTime: '2026-03-10 08:30:00', invalidStatus: '已失效', uploadStatus: '未上传', latestUploadTime: '-' },
+  { id: 6, link: 'http://mobilexfkftest.iflytek.com/f/n8Ks1r', uploadChannel: '公众号', receiverNumber: '13800001234', senderName: '孙八', domainAccount: 'sunba', sendTime: '2026-03-05 11:20:00', invalidStatus: '已失效', uploadStatus: '已删除', latestUploadTime: '2026-03-05 11:21:00' },
 ];
 
 const invalidStatusOptions = ['全部', '有效', '已失效'];
-const uploadStatusOptions = ['全部', '已上传', '未上传', '上传失败', '已删除'];
+const uploadStatusOptions = ['全部', '已上传', '未上传', '已删除'];
 
 const pageWrapperClass = 'flex min-h-0 flex-1 flex-col overflow-hidden bg-[#f7f9fc]';
 const inputClass =
-  'h-9 min-w-0 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-600 outline-none transition-colors placeholder:text-slate-400 focus:border-[#12b89f]';
+  'h-9 min-w-0 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-600 outline-none transition-colors placeholder:text-slate-400 focus:border-[#216BFF]';
 
 function SelectField({ label, value, options, onChange, width = 130 }: {
   label: string; value: string; options: string[]; onChange: (v: string) => void; width?: number;
@@ -39,7 +40,7 @@ function SelectField({ label, value, options, onChange, width = 130 }: {
         <select
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="h-9 w-full appearance-none rounded-md border border-slate-200 bg-white pl-3 pr-8 text-[13px] text-slate-600 outline-none focus:border-[#12b89f]"
+          className="h-9 w-full appearance-none rounded-md border border-slate-200 bg-white pl-3 pr-8 text-[13px] text-slate-600 outline-none focus:border-[#216BFF]"
         >
           {options.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
         </select>
@@ -131,12 +132,10 @@ export default function AttachmentManagement() {
             <SelectField label="失效状态" value={filterInvalidStatus} options={invalidStatusOptions} onChange={setFilterInvalidStatus} />
             <SelectField label="上传状态" value={filterUploadStatus} options={uploadStatusOptions} onChange={setFilterUploadStatus} />
             <div className="flex items-center gap-2">
-              <button type="button" className="inline-flex h-9 items-center gap-1.5 rounded-md bg-[#12b89f] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#0da88f]">
-                <Search size={14} />
+              <button type="button" className="inline-flex h-9 items-center gap-1.5 rounded-md bg-[#216BFF] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#1a5ce6]">
                 查询
               </button>
               <button type="button" onClick={handleReset} className="inline-flex h-9 items-center gap-1.5 rounded-md border border-slate-200 bg-white px-4 text-[13px] font-medium text-slate-500 transition-colors hover:bg-slate-50">
-                <RotateCcw size={14} />
                 重置
               </button>
             </div>
@@ -157,7 +156,7 @@ export default function AttachmentManagement() {
                 <thead className="sticky top-0 bg-[#fafafa] text-slate-600">
                   <tr>
                     <th className="w-[44px] px-3 py-3 text-center font-medium">
-                      <input type="checkbox" checked={selectedIds.size === attachments.length && attachments.length > 0} onChange={toggleSelectAll} className="h-4 w-4 rounded border-slate-300 accent-[#12b89f]" />
+                      <input type="checkbox" checked={selectedIds.size === attachments.length && attachments.length > 0} onChange={toggleSelectAll} className="h-4 w-4 rounded border-slate-300 accent-[#216BFF]" />
                     </th>
                     <th className="w-[50px] whitespace-nowrap px-4 py-3 font-medium">序号</th>
                     <th className="whitespace-nowrap px-4 py-3 font-medium">链接</th>
@@ -172,23 +171,23 @@ export default function AttachmentManagement() {
                 </thead>
                 <tbody className="text-slate-600">
                   {filtered.map((row, i) => (
-                    <tr key={row.id} onDoubleClick={() => setDetailTarget(row)} className={(i % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]') + ' cursor-pointer transition-colors hover:bg-[#f7fffd]'}>
+                    <tr key={row.id} onDoubleClick={() => setDetailTarget(row)} className={(i % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]') + ' cursor-pointer transition-colors hover:bg-[#e8f1ff]'}>
                       <td className="px-3 py-3 text-center">
-                        <input type="checkbox" checked={selectedIds.has(row.id)} onChange={() => toggleSelect(row.id)} className="h-4 w-4 rounded border-slate-300 accent-[#12b89f]" />
+                        <input type="checkbox" checked={selectedIds.has(row.id)} onChange={() => toggleSelect(row.id)} className="h-4 w-4 rounded border-slate-300 accent-[#216BFF]" />
                       </td>
                       <td className="px-4 py-3">{row.id}</td>
-                      <td className="max-w-[260px] truncate px-4 py-3 text-[#18bca2] hover:underline" title={row.link}>{row.link}</td>
+                      <td className="max-w-[260px] truncate px-4 py-3 text-[#216BFF] hover:underline" title={row.uploadChannel === '公众号' ? '公众号上传' : row.link}>{row.uploadChannel === '公众号' ? '公众号上传' : row.link}</td>
                       <td className="px-4 py-3">{row.receiverNumber}</td>
                       <td className="px-4 py-3">{row.senderName}</td>
                       <td className="px-4 py-3">{row.domainAccount}</td>
                       <td className="whitespace-nowrap px-4 py-3">{row.sendTime}</td>
                       <td className="px-4 py-3">
-                        <span className={'rounded-full px-2 py-0.5 text-[12px] font-medium ' + (row.invalidStatus === '有效' ? 'bg-[#e8fbf4] text-[#14956f]' : 'bg-slate-100 text-slate-400')}>
+                        <span className={'rounded-full px-2 py-0.5 text-[12px] font-medium ' + (row.invalidStatus === '有效' ? 'bg-[#e8f1ff] text-[#216BFF]' : 'bg-slate-100 text-slate-400')}>
                           {row.invalidStatus}
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <span className={'rounded-full px-2 py-0.5 text-[12px] font-medium ' + (row.uploadStatus === '已上传' ? 'bg-[#e8fbf4] text-[#14956f]' : row.uploadStatus === '上传失败' ? 'bg-red-50 text-red-400' : row.uploadStatus === '已删除' ? 'bg-slate-100 text-slate-400' : 'bg-amber-50 text-amber-500')}>
+                        <span className={'rounded-full px-2 py-0.5 text-[12px] font-medium ' + (row.uploadStatus === '已上传' ? 'bg-[#e8f1ff] text-[#216BFF]' : row.uploadStatus === '已删除' ? 'bg-slate-100 text-slate-400' : 'bg-amber-50 text-amber-500')}>
                           {row.uploadStatus}
                         </span>
                       </td>
@@ -228,12 +227,12 @@ export default function AttachmentManagement() {
                 </thead>
                 <tbody className="text-slate-600">
                   {detailTarget.uploadStatus === '已上传' ? (
-                    <tr className="bg-white transition-colors hover:bg-[#f7fffd]">
+                    <tr className="bg-white transition-colors hover:bg-[#e8f1ff]">
                       <td className="px-4 py-3">1</td>
-                      <td className="max-w-[280px] truncate px-4 py-3 text-[#18bca2]" title={detailTarget.link}>
+                      <td className="max-w-[280px] truncate px-4 py-3 text-[#216BFF]" title={detailTarget.link}>
                         {detailTarget.link.split('/').pop() || detailTarget.link}
                       </td>
-                      <td className="px-4 py-3">{detailTarget.id % 2 === 0 ? '公众号上传的附件' : '短链接上传的附件'}</td>
+                      <td className="px-4 py-3">{detailTarget.uploadChannel === '公众号' ? '公众号上传的附件' : '短链接上传的附件'}</td>
                       <td className="whitespace-nowrap px-4 py-3 text-slate-500">{detailTarget.latestUploadTime}</td>
                     </tr>
                   ) : (
@@ -249,7 +248,7 @@ export default function AttachmentManagement() {
             </div>
             <div className="flex items-center justify-end gap-3 border-t border-slate-100 px-5 py-3">
               {detailTarget.uploadStatus === '已上传' && (
-                <button type="button" onClick={() => { setDetailTarget(null); showToast('附件下载中...'); }} className="inline-flex h-9 items-center rounded-md bg-[#12b89f] px-5 text-[13px] font-medium text-white transition-colors hover:bg-[#0da88f]">
+                <button type="button" onClick={() => { setDetailTarget(null); showToast('附件下载中...'); }} className="inline-flex h-9 items-center rounded-md bg-[#216BFF] px-5 text-[13px] font-medium text-white transition-colors hover:bg-[#1a5ce6]">
                   下载
                 </button>
               )}

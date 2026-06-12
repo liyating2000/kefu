@@ -72,7 +72,7 @@ export default function CreateTpdWorkOrderModal({
         {/* Header */}
         <header className="flex items-center justify-between border-b border-hairline px-6 py-4">
           <div className="flex min-w-0 items-center gap-3">
-            <span className="h-5 w-1 flex-shrink-0 rounded-full bg-gradient-to-b from-emerald-500 to-emerald-400" />
+            <span className="h-5 w-1 flex-shrink-0 rounded-full bg-gradient-to-b from-brand-500 to-brand-400" />
             <h2
               id="create-tpd-title"
               className="truncate text-[16px] font-bold tracking-tight text-slate-800"

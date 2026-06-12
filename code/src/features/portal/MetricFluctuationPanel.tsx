@@ -361,7 +361,7 @@ export default function MetricFluctuationPanel({ channel = '在线' }: { channel
             x2={CHART_WIDTH - PADDING.right}
             y1={yScale(cfg.target)}
             y2={yScale(cfg.target)}
-            stroke="#10b981"
+            stroke="#216BFF"
             strokeDasharray="5 4"
             strokeWidth="1.5"
           />
@@ -370,7 +370,7 @@ export default function MetricFluctuationPanel({ channel = '在线' }: { channel
             y={yScale(cfg.target) - 3}
             textAnchor="end"
             fontSize="8"
-            fill="#10b981"
+            fill="#216BFF"
             fontWeight="600"
           >
             目标 {cfg.format(cfg.target)}
@@ -534,7 +534,7 @@ export default function MetricFluctuationPanel({ channel = '在线' }: { channel
                       isHidden
                         ? 'bg-slate-100 text-slate-400'
                         : positive
-                          ? 'bg-emerald-50 text-emerald-600'
+                          ? 'bg-brand-50 text-brand-600'
                           : 'bg-rose-50 text-rose-600'
                     )}
                   >
@@ -766,7 +766,7 @@ function FocusStat({
   trendUp?: boolean;
 }) {
   const toneColor: Record<NonNullable<typeof tone>, string> = {
-    emerald: 'text-emerald-600',
+    emerald: 'text-brand-600',
     rose: 'text-rose-600',
     violet: 'text-violet-600',
     amber: 'text-amber-600',
@@ -805,7 +805,7 @@ function SummaryCard({
 }) {
   const toneMap: Record<typeof tone, string> = {
     sky: 'from-sky-50 to-sky-50/30 text-sky-700 border-sky-100',
-    emerald: 'from-emerald-50 to-emerald-50/30 text-emerald-700 border-emerald-100',
+    emerald: 'from-brand-50 to-brand-50/30 text-brand-700 border-brand-100',
     violet: 'from-violet-50 to-violet-50/30 text-violet-700 border-violet-100',
     amber: 'from-amber-50 to-amber-50/30 text-amber-700 border-amber-100',
   };

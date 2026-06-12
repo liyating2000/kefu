@@ -17,6 +17,7 @@ import { helpDocContent } from './helpDocContent';
 import GroupMaintenance from './GroupMaintenance';
 import TargetValueMaintenance from './TargetValueMaintenance';
 import BrandMaintenance from './BrandMaintenance';
+import FormMaintenance from './FormMaintenance';
 import AttachmentManagement from './AttachmentManagement';
 import ProductModuleMaintenance from './ProductModuleMaintenance';
 import channelMobileIcon from './assets/channel-icons/移动端.png';
@@ -392,7 +393,8 @@ type MainTab =
   | '产品模块维护'
   | '小结管理'
   | '业务字段上线审核'
-  | '账号管理';
+  | '账号管理'
+  | '表单维护';
 type ManagerPortalPage = 'dashboard' | 'overview-detail';
 
 // 繁忙公告管理类型定义
@@ -585,7 +587,7 @@ const callWorkbenchInboundProfile: CallWorkbenchInboundProfile = {
     { label: '运营商', value: '电信' },
   ],
   tags: [
-    { label: '二次元', cls: 'border-emerald-200 bg-emerald-50 text-emerald-500' },
+    { label: '二次元', cls: 'border-brand-200 bg-brand-50 text-brand-500' },
     { label: '00后', cls: 'border-orange-200 bg-orange-50 text-orange-500' },
     { label: '性格A', cls: 'border-blue-200 bg-blue-50 text-blue-500' },
     { label: 'VIP客户', cls: 'border-indigo-200 bg-indigo-50 text-indigo-500' },
@@ -613,7 +615,7 @@ const callWorkbenchInboundProfile: CallWorkbenchInboundProfile = {
   },
 };
 const onlineVisitorTagClasses = {
-  emerald: 'border-emerald-200 bg-emerald-50 text-emerald-500',
+  emerald: 'border-brand-200 bg-brand-50 text-brand-500',
   orange: 'border-orange-200 bg-orange-50 text-orange-500',
   blue: 'border-blue-200 bg-blue-50 text-blue-500',
   indigo: 'border-indigo-200 bg-indigo-50 text-indigo-500',
@@ -623,7 +625,7 @@ const onlineVisitorTagClasses = {
   yellow: 'border-yellow-200 bg-yellow-50 text-yellow-600',
 } as const;
 const onlineConversationSummaryClasses = {
-  history: 'border-l-[3px] border-l-[#7cd9cb] bg-[#f2fcf8]',
+  history: 'border-l-[3px] border-l-[#96b8ff] bg-[#e8f1ff]',
   transfer: 'border-l-[3px] border-l-[#f4b988] bg-[#fff7ee]',
   opener: 'border-l-[3px] border-l-[#d7e2ef] bg-[#f8fbff]',
 } as const;
@@ -775,7 +777,7 @@ const onlineSessionBaseDetails: Record<string, OnlineSessionCoreDetail> = {
     summaryCards: [
       {
         title: '历史会话纪要',
-        body: '用户上周浏览过学习机详情页和套餐对比页，曾短暂咨询过“标准版和旗舰版区别”，未完成留资。',
+        body: '用户上周浏览过学习机详情页和套餐对比页，曾短暂咨询过"标准版和旗舰版区别"，未完成留资。',
         cls: onlineConversationSummaryClasses.history,
       },
       {
@@ -785,7 +787,7 @@ const onlineSessionBaseDetails: Record<string, OnlineSessionCoreDetail> = {
       },
       {
         title: '开口问',
-        body: '您好，我可以按“学习功能、硬件配置、适用年级”三个维度帮您对比，您更关注哪一块？',
+        body: '您好，我可以按"学习功能、硬件配置、适用年级"三个维度帮您对比，您更关注哪一块？',
         cls: onlineConversationSummaryClasses.opener,
       },
     ],
@@ -813,7 +815,7 @@ const onlineSessionBaseDetails: Record<string, OnlineSessionCoreDetail> = {
     summaryCards: [
       {
         title: '历史会话纪要',
-        body: '用户来自企业微信小程序入口，曾查看“客户管理”“知识库服务”和“权限协同”相关页面，对 SaaS 方案有初步了解。',
+        body: '用户来自企业微信小程序入口，曾查看"客户管理""知识库服务"和"权限协同"相关页面，对 SaaS 方案有初步了解。',
         cls: onlineConversationSummaryClasses.history,
       },
       {
@@ -851,7 +853,7 @@ const onlineSessionBaseDetails: Record<string, OnlineSessionCoreDetail> = {
     summaryCards: [
       {
         title: '历史会话纪要',
-        body: '用户最近一周多次通过公众号查询订单物流，曾创建一条“补发配件”工单，目前处于仓储发货阶段。',
+        body: '用户最近一周多次通过公众号查询订单物流，曾创建一条"补发配件"工单，目前处于仓储发货阶段。',
         cls: onlineConversationSummaryClasses.history,
       },
       {
@@ -979,13 +981,13 @@ const onlineSessionRightPanelDetails: Record<string, OnlineSessionRightPanelDeta
       insights: [
         {
           id: '#1',
-          content: '已识别到用户为学习机老客，近 30 天内两次咨询续航与电池健康问题，本次诉求为“充满电后使用 2 小时即掉电”。',
+          content: '已识别到用户为学习机老客，近 30 天内两次咨询续航与电池健康问题，本次诉求为"充满电后使用 2 小时即掉电"。',
           duration: '8.4s',
           time: '09:06:23',
         },
         {
           id: '#2',
-          content: '机器人已关联设备型号 T10，并命中“续航异常排查”和“售后检测建议”两条服务策略。',
+          content: '机器人已关联设备型号 T10，并命中"续航异常排查"和"售后检测建议"两条服务策略。',
           duration: '9.1s',
           time: '09:06:25',
         },
@@ -1109,7 +1111,7 @@ const onlineSessionRightPanelDetails: Record<string, OnlineSessionRightPanelDeta
       insights: [
         {
           id: '#1',
-          content: '机器人识别到本次诉求与“提现限额不足”相关，用户已尝试自助调整失败，需要人工补充规则解释。',
+          content: '机器人识别到本次诉求与"提现限额不足"相关，用户已尝试自助调整失败，需要人工补充规则解释。',
           duration: '8.9s',
           time: '09:10:22',
         },
@@ -1239,7 +1241,7 @@ const onlineSessionRightPanelDetails: Record<string, OnlineSessionRightPanelDeta
       insights: [
         {
           id: '#1',
-          content: '用户来自快手直播间，重点关注活动价、赠品和免息分期，机器人已命中“直播活动咨询”场景。',
+          content: '用户来自快手直播间，重点关注活动价、赠品和免息分期，机器人已命中"直播活动咨询"场景。',
           duration: '8.1s',
           time: '09:12:11',
         },
@@ -1369,13 +1371,13 @@ const onlineSessionRightPanelDetails: Record<string, OnlineSessionRightPanelDeta
       insights: [
         {
           id: '#1',
-          content: '用户主要关注学习机英语学习场景，当前问题集中在“离线使用”和“口语评测”两项能力。',
+          content: '用户主要关注学习机英语学习场景，当前问题集中在"离线使用"和"口语评测"两项能力。',
           duration: '8.6s',
           time: '09:14:14',
         },
         {
           id: '#2',
-          content: '系统已关联用户曾浏览套餐对比页，可优先使用“标准版/旗舰版差异说明”模板。',
+          content: '系统已关联用户曾浏览套餐对比页，可优先使用"标准版/旗舰版差异说明"模板。',
           duration: '9.0s',
           time: '09:14:16',
         },
@@ -1505,7 +1507,7 @@ const onlineSessionRightPanelDetails: Record<string, OnlineSessionRightPanelDeta
         },
         {
           id: '#2',
-          content: '机器人已推送客户管理页面说明，本轮建议补充“字段权限”和“协同流程”两个关键场景。',
+          content: '机器人已推送客户管理页面说明，本轮建议补充"字段权限"和"协同流程"两个关键场景。',
           duration: '9.4s',
           time: '09:18:20',
         },
@@ -1629,7 +1631,7 @@ const onlineSessionRightPanelDetails: Record<string, OnlineSessionRightPanelDeta
       insights: [
         {
           id: '#1',
-          content: '用户围绕补发配件物流持续追问，当前核心问题是“补发件与主订单是否同包裹发出”。',
+          content: '用户围绕补发配件物流持续追问，当前核心问题是"补发件与主订单是否同包裹发出"。',
           duration: '8.3s',
           time: '09:21:13',
         },
@@ -1889,7 +1891,7 @@ const onlineSessionRightPanelDetails: Record<string, OnlineSessionRightPanelDeta
       insights: [
         {
           id: '#1',
-          content: '该会话已结束，当前保留的关键诉求为“退款状态查询”和“人工审核加急”。',
+          content: '该会话已结束，当前保留的关键诉求为"退款状态查询"和"人工审核加急"。',
           duration: '7.9s',
           time: '18:16:10',
         },
@@ -2514,10 +2516,10 @@ function DirectorExpressButton({
     <button
       type="button"
       onClick={onClick}
-      className="group relative flex min-h-[52px] items-center gap-3 rounded-[20px] border border-slate-200/90 bg-[linear-gradient(135deg,rgba(255,255,255,0.98)_0%,rgba(240,253,250,0.94)_100%)] px-4 py-3 text-left shadow-[0_12px_30px_rgba(15,23,42,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-[0_18px_36px_rgba(16,185,129,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+      className="group relative flex min-h-[52px] items-center gap-3 rounded-[20px] border border-slate-200/90 bg-[linear-gradient(135deg,rgba(255,255,255,0.98)_0%,rgba(240,253,250,0.94)_100%)] px-4 py-3 text-left shadow-[0_12px_30px_rgba(15,23,42,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-[0_18px_36px_rgba(16,185,129,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/70"
       aria-label="打开总监直通车"
     >
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#10b981_0%,#0f9f89_100%)] text-white shadow-[0_12px_22px_rgba(16,185,129,0.28)]">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#216BFF_0%,#1a5ce6_100%)] text-white shadow-[0_12px_22px_rgba(16,185,129,0.28)]">
         <Mail size={17} strokeWidth={2.1} />
       </div>
       <div className="min-w-0 flex-1">
@@ -2536,7 +2538,7 @@ function DirectorExpressButton({
       <ArrowUpRight
         size={15}
         strokeWidth={2.1}
-        className="shrink-0 text-slate-400 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-emerald-600"
+        className="shrink-0 text-slate-400 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-brand-600"
       />
     </button>
   );
@@ -2559,7 +2561,7 @@ function OverviewDeltaInline({
     <span
       className={cn(
         "inline-flex flex-nowrap items-center gap-1 whitespace-nowrap rounded-full px-1.5 py-0.5 text-[11px] font-medium",
-        isRiskState ? "bg-rose-50 text-rose-600" : "bg-emerald-50 text-emerald-600"
+        isRiskState ? "bg-rose-50 text-rose-600" : "bg-brand-50 text-brand-600"
       )}
     >
       <Icon size={10} strokeWidth={2.4} />
@@ -2670,7 +2672,7 @@ const onlineSuggestionGroups = [
   },
   {
     label: '服务等待话',
-    panelCls: 'border-[#dff4ef] bg-[#eefaf7]',
+    panelCls: 'border-[#c9dcff] bg-[#e8f1ff]',
     items: [
       '请稍等，正在帮您查询中~',
       '感谢您的耐心等待，我马上为您核实。',
@@ -2968,7 +2970,7 @@ const agentPortalKnowledgeRecommendations = {
       title: '退款进度解释模板',
       match: '命中 95%',
       scene: '订单退款咨询',
-      summary: '按“已提交-审核中-到账中”三段式回复，降低用户继续追问概率。',
+      summary: '按"已提交-审核中-到账中"三段式回复，降低用户继续追问概率。',
       tags: ['模板', '退款'],
     },
     {
@@ -3069,6 +3071,7 @@ const operationDeskMenus: SubMenuItem[] = [
   { label: '用户体系管理', action: { type: 'tab', tab: '用户体系管理' } },
   { label: '业务字段管理', action: { type: 'tab', tab: '业务字段管理' } },
   { label: '业务字段上线审核', action: { type: 'tab', tab: '业务字段上线审核' } },
+  { label: '表单维护', action: { type: 'tab', tab: '表单维护' } },
   { label: '发件人邮箱配置', action: { type: 'none' } },
   { label: '消息维护', action: { type: 'none' } },
   { label: '短信/邮件模板管理', action: { type: 'none' } },
@@ -3925,7 +3928,7 @@ function HelpSidebarContent({ onClose }: { onClose: () => void }) {
         contentBlocks.push(
           <div key={`tbl-${i}`} className="my-3 overflow-x-auto rounded-lg border border-slate-200">
             <table className="min-w-full text-left text-[14px]">
-              <thead className="bg-[#eef9f6]">
+              <thead className="bg-[#e8f1ff]">
                 <tr>{headerCells.map((c, ci) => <th key={ci} className="whitespace-nowrap border-b border-slate-200 px-3 py-2 font-semibold text-slate-700">{c}</th>)}</tr>
               </thead>
               <tbody>
@@ -4183,7 +4186,7 @@ function HelpSidebarContent({ onClose }: { onClose: () => void }) {
                       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }}
                     className={cn(
-                      'rounded px-2 py-1 text-slate-600 transition-colors hover:bg-[#eef9f6] hover:text-[#18bca2]',
+                      'rounded px-2 py-1 text-slate-600 transition-colors hover:bg-[#e8f1ff] hover:text-[#216BFF]',
                       entry.level === 1 ? 'text-[14px] font-bold' : '',
                       entry.level === 2 ? 'pl-4 text-[13px] font-medium' : '',
                       entry.level === 3 ? 'pl-7 text-[12px]' : '',
@@ -4253,6 +4256,7 @@ export default function App() {
   const [isBrandMaintenanceTabVisible, setIsBrandMaintenanceTabVisible] = useState(false);
   const [isAttachmentManagementTabVisible, setIsAttachmentManagementTabVisible] = useState(false);
   const [isProductModuleMaintenanceTabVisible, setIsProductModuleMaintenanceTabVisible] = useState(false);
+  const [isFormMaintenanceTabVisible, setIsFormMaintenanceTabVisible] = useState(false);
   const [isBusyAnnouncementManagementTabVisible, setIsBusyAnnouncementManagementTabVisible] = useState(false);
   const [isPrivacyStatementManagementTabVisible, setIsPrivacyStatementManagementTabVisible] = useState(false);
   const [isUserSystemManagementTabVisible, setIsUserSystemManagementTabVisible] = useState(false);
@@ -4839,6 +4843,12 @@ export default function App() {
       setActiveTab('业务字段上线审核');
       return;
     }
+    if (tab === '表单维护') {
+      setIsFormMaintenanceTabVisible(true);
+      setIsOperationDeskExpanded(true);
+      setActiveTab('表单维护');
+      return;
+    }
     if (tab === '组别维护') {
       setIsGroupMaintenanceTabVisible(true);
       setIsOperationDeskExpanded(true);
@@ -4941,6 +4951,13 @@ export default function App() {
     setActiveLegacyModulePage(null);
     setIsBusinessFieldLaunchReviewTabVisible(false);
     if (activeTab === '业务字段上线审核') {
+      setActiveTab(lastPrimaryTab);
+    }
+  };
+  const handleCloseFormMaintenanceTab = () => {
+    setActiveLegacyModulePage(null);
+    setIsFormMaintenanceTabVisible(false);
+    if (activeTab === '表单维护') {
       setActiveTab(lastPrimaryTab);
     }
   };
@@ -5333,12 +5350,12 @@ export default function App() {
       { label: '工单新建', icon: FileText, accent: 'text-sky-500', bg: 'bg-sky-50' },
       { label: '待办工单', icon: BookOpen, accent: 'text-indigo-500', bg: 'bg-indigo-50' },
       { label: '升级工单', icon: ShieldCheck, accent: 'text-amber-500', bg: 'bg-amber-50' },
-      { label: '工单查询', icon: Search, accent: 'text-emerald-500', bg: 'bg-emerald-50' },
+      { label: '工单查询', icon: Search, accent: 'text-brand-500', bg: 'bg-brand-50' },
       { label: '回访计划', icon: Calendar, accent: 'text-violet-500', bg: 'bg-violet-50' },
       { label: '工单报表', icon: BarChart3, accent: 'text-orange-500', bg: 'bg-orange-50' },
     ],
     '知识库': [
-      { label: '产品知识', icon: BookOpen, accent: 'text-emerald-500', bg: 'bg-emerald-50' },
+      { label: '产品知识', icon: BookOpen, accent: 'text-brand-500', bg: 'bg-brand-50' },
       { label: '流程标准', icon: ShieldCheck, accent: 'text-sky-500', bg: 'bg-sky-50' },
       { label: '质检话术', icon: MessageSquare, accent: 'text-orange-500', bg: 'bg-orange-50' },
       { label: '公告制度', icon: Bell, accent: 'text-violet-500', bg: 'bg-violet-50' },
@@ -5357,7 +5374,7 @@ export default function App() {
       { label: 'CRM系统', icon: Monitor, accent: 'text-sky-500', bg: 'bg-sky-50' },
       { label: '物流平台', icon: ExternalLink, accent: 'text-orange-500', bg: 'bg-orange-50' },
       { label: '短信平台', icon: MessageSquare, accent: 'text-violet-500', bg: 'bg-violet-50' },
-      { label: '支付中心', icon: Phone, accent: 'text-emerald-500', bg: 'bg-emerald-50' },
+      { label: '支付中心', icon: Phone, accent: 'text-brand-500', bg: 'bg-brand-50' },
       { label: '外呼平台', icon: PhoneForwarded, accent: 'text-indigo-500', bg: 'bg-indigo-50' },
       { label: '邮件系统', icon: Mail, accent: 'text-rose-500', bg: 'bg-rose-50' },
     ],
@@ -5448,7 +5465,7 @@ export default function App() {
   const robotInsightEntries = [
     {
       id: '#1',
-      content: '用户输入“hjkhkhlkhinh”为无意义字符，无法提取任何有效工单信息，由于是首次处理。',
+      content: '用户输入"hjkhkhlkhinh"为无意义字符，无法提取任何有效工单信息，由于是首次处理。',
       duration: '9.5s',
       time: '17:26:37',
     },
@@ -5500,7 +5517,7 @@ export default function App() {
                 className={cn(
                   "rounded-xl border px-3 py-3",
                   card.emphasized
-                    ? "border-[#8adccd] bg-[#f1fbf8]"
+                    ? "border-[#96b8ff] bg-[#e8f1ff]"
                     : "border-[#eef1f5] bg-[#fafbfc]"
                 )}
               >
@@ -5520,7 +5537,7 @@ export default function App() {
             <div className="space-y-2.5">
               {robotTroubleshootingSteps.map((step) => (
                 <div key={step} className="flex items-center gap-2 text-[12px] text-slate-600">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-50 text-emerald-500">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-50 text-brand-500">
                     <Check size={12} strokeWidth={2.6} />
                   </span>
                   <span>{step}</span>
@@ -5529,8 +5546,8 @@ export default function App() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-[#8adccd] bg-[#f4fbf8] p-4">
-            <div className="mb-3 flex items-center gap-2 text-[13px] font-semibold text-[#18a058]">
+          <div className="rounded-xl border border-[#96b8ff] bg-[#e8f1ff] p-4">
+            <div className="mb-3 flex items-center gap-2 text-[13px] font-semibold text-[#216BFF]">
               <Check size={15} strokeWidth={2.6} />
               <span>查询完成</span>
             </div>
@@ -5539,7 +5556,7 @@ export default function App() {
               <p className="mt-2 text-[12px] leading-5 text-slate-700">感谢您的来电，祝您生活愉快，再见。</p>
             </div>
             <div className="mt-4 flex justify-end gap-2">
-              <button className="rounded-full border border-[#8adccd] bg-[#e1f7f1] px-4 py-1.5 text-[12px] font-medium text-[#17b89c] transition-colors hover:bg-[#d5f3eb]">
+              <button className="rounded-full border border-[#96b8ff] bg-[#c9dcff] px-4 py-1.5 text-[12px] font-medium text-[#216BFF] transition-colors hover:bg-[#c9dcff]">
                 采纳发送
               </button>
               <button className="rounded-full border border-slate-200 bg-white px-4 py-1.5 text-[12px] text-slate-500 transition-colors hover:bg-slate-50">
@@ -5859,7 +5876,7 @@ export default function App() {
                 className={cn(
                   "min-w-[92px] px-6 py-1.5 text-[12px] font-medium transition-colors",
                   onlineThirdPartyScope === scope
-                    ? "bg-[#dff6f0] text-[#19b69f]"
+                    ? "bg-[#e8f1ff] text-[#216BFF]"
                     : "text-slate-500 hover:bg-slate-50"
                 )}
               >
@@ -5878,7 +5895,7 @@ export default function App() {
           className={cn(
             "flex h-8 w-8 items-center justify-center rounded-full transition-colors",
             isOnlineThirdPartySettingsOpen
-              ? "bg-[#eefaf7] text-[#19b69f]"
+              ? "bg-[#e8f1ff] text-[#216BFF]"
               : "text-slate-400 hover:bg-slate-50 hover:text-slate-500"
           )}
         >
@@ -5937,7 +5954,7 @@ export default function App() {
                       className={cn(
                         "flex w-full items-center justify-between gap-4 rounded-[10px] border px-4 py-3 text-left text-[13px] transition-colors",
                         isSelected
-                          ? "border-[#8ee8db] bg-[#ecfbf8] text-[#11c5ab]"
+                          ? "border-[#96b8ff] bg-[#e8f1ff] text-[#216BFF]"
                           : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
                       )}
                     >
@@ -5946,7 +5963,7 @@ export default function App() {
                         className={cn(
                           "flex h-5 w-5 items-center justify-center rounded-full border transition-colors",
                           isSelected
-                            ? "border-[#11c5ab] bg-[#11c5ab] text-white"
+                            ? "border-[#216BFF] bg-[#216BFF] text-white"
                             : "border-slate-300 bg-white text-transparent"
                         )}
                       >
@@ -5967,7 +5984,7 @@ export default function App() {
                 <button
                   type="button"
                   onClick={handleApplyOnlineThirdPartySettings}
-                  className="flex h-[32px] min-w-[78px] items-center justify-center rounded-full border border-[#8ee8db] bg-[#ecfbf8] px-4 text-[12px] font-medium text-[#11c5ab] transition-colors hover:bg-[#dff8f3]"
+                  className="flex h-[32px] min-w-[78px] items-center justify-center rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-4 text-[12px] font-medium text-[#216BFF] transition-colors hover:bg-[#c9dcff]"
                 >
                   确定
                 </button>
@@ -6142,7 +6159,7 @@ export default function App() {
                   <div
                     className={cn(
                       "mt-0.5 flex h-7 w-7 items-center justify-center rounded-full text-white shadow-sm",
-                      item.side === 'right' ? "bg-orange-400" : "bg-emerald-500"
+                      item.side === 'right' ? "bg-orange-400" : "bg-brand-500"
                     )}
                   >
                     <MessageSquare size={14} />
@@ -6151,7 +6168,7 @@ export default function App() {
                     className={cn(
                       "rounded-2xl px-4 py-2 text-[12px] leading-5 shadow-[0_2px_6px_rgba(15,23,42,0.03)]",
                       item.side === 'right'
-                        ? "rounded-tr-md bg-[#e9f9f4] text-slate-700"
+                        ? "rounded-tr-md bg-[#e8f1ff] text-slate-700"
                         : "rounded-tl-md bg-slate-50 text-slate-700"
                     )}
                   >
@@ -6182,11 +6199,11 @@ export default function App() {
                 onClick={() => setWorkbenchToolTab(tab)}
                 className={cn(
                   "relative py-3 text-[12px] font-semibold transition-colors",
-                  resolvedToolTab === tab ? "text-emerald-500" : "text-slate-500 hover:text-slate-700"
+                  resolvedToolTab === tab ? "text-brand-500" : "text-slate-500 hover:text-slate-700"
                 )}
               >
                 {tab}
-                {resolvedToolTab === tab ? <span className="absolute inset-x-0 bottom-0 h-0.5 bg-emerald-500" /> : null}
+                {resolvedToolTab === tab ? <span className="absolute inset-x-0 bottom-0 h-0.5 bg-brand-500" /> : null}
               </button>
             ))}
           </div>
@@ -6364,7 +6381,7 @@ export default function App() {
           sideActionIconWrapCls: 'border-white/90 text-white',
           showOnlineStatusSelector: true,
           statusText: '已准备好',
-          statusCls: 'text-emerald-500',
+          statusCls: 'text-brand-500',
           callDuration: '10:05:00',
           statusDuration: '25:00',
           incomingNumber: callWorkbenchInboundProfile.customerFieldValues['来电号码'],
@@ -6376,7 +6393,7 @@ export default function App() {
           sideActionLabel: '签入',
           sideActionIcon: ArrowRight,
           sideActionButtonCls:
-            'bg-[linear-gradient(180deg,#12cfaf_0%,#09c39f_100%)] text-white shadow-[0_10px_18px_rgba(18,207,175,0.2)] hover:brightness-[0.98]',
+            'bg-[linear-gradient(180deg,#3d78ff_0%,#216BFF_100%)] text-white shadow-[0_10px_18px_rgba(33,107,255,0.2)] hover:brightness-[0.98]',
           sideActionIconWrapCls: 'border-white/90 text-white',
           showOnlineStatusSelector: false,
           statusText: '已签出',
@@ -7332,7 +7349,7 @@ export default function App() {
       { label: 'CRM', icon: LayoutGrid, note: '客户信息', accent: 'text-sky-500', bg: 'bg-sky-50' },
       { label: '工单系统', icon: ExternalLink, note: '售后流转', accent: 'text-orange-500', bg: 'bg-orange-50' },
       { label: '物流系统', icon: Search, note: '订单查询', accent: 'text-violet-500', bg: 'bg-violet-50' },
-      { label: '营销系统', icon: BarChart3, note: '活动配置', accent: 'text-emerald-500', bg: 'bg-emerald-50' },
+      { label: '营销系统', icon: BarChart3, note: '活动配置', accent: 'text-brand-500', bg: 'bg-brand-50' },
     ],
   };
   const onlineThirdPartyLinks: Record<OnlineThirdPartyScope, OnlineThirdPartyLinkGroup[]> = {
@@ -7735,7 +7752,7 @@ export default function App() {
                           className={cn(
                             "flex w-full items-center px-3 py-2 text-left text-[12px] transition-colors",
                             activeRegionSelection.province === province.name
-                              ? "bg-emerald-50 text-emerald-600"
+                              ? "bg-brand-50 text-brand-600"
                               : "text-slate-600 hover:bg-slate-50"
                           )}
                         >
@@ -7758,7 +7775,7 @@ export default function App() {
                           className={cn(
                             "flex w-full items-center px-3 py-2 text-left text-[12px] transition-colors",
                             activeRegionSelection.city === city.name
-                              ? "bg-emerald-50 text-emerald-600"
+                              ? "bg-brand-50 text-brand-600"
                               : "text-slate-600 hover:bg-slate-50"
                           )}
                         >
@@ -7787,7 +7804,7 @@ export default function App() {
                           className={cn(
                             "flex w-full items-center justify-between px-3 py-2 text-left text-[12px] transition-colors",
                             activeRegionSelection.district === district
-                              ? "bg-emerald-50 text-emerald-600"
+                              ? "bg-brand-50 text-brand-600"
                               : "text-slate-600 hover:bg-slate-50"
                           )}
                         >
@@ -7818,7 +7835,7 @@ export default function App() {
                       className={cn(
                         "flex w-full items-center px-3 py-2 text-left text-[12px] transition-colors",
                         fieldValues[field.label] === option
-                          ? "bg-emerald-50 text-emerald-600"
+                          ? "bg-brand-50 text-brand-600"
                           : "text-slate-600 hover:bg-slate-50"
                       )}
                     >
@@ -7910,9 +7927,9 @@ export default function App() {
           <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
             <h2 className="text-[14px] font-bold text-slate-800">客户信息</h2>
             <div className="flex items-center gap-2">
-              <input type="text" placeholder="输入手机号查询" className="h-8 w-[132px] rounded-full border border-slate-200 bg-[#fcfcfd] px-3 text-[12px] text-slate-400 outline-none focus:border-emerald-400" />
+              <input type="text" placeholder="输入手机号查询" className="h-8 w-[132px] rounded-full border border-slate-200 bg-[#fcfcfd] px-3 text-[12px] text-slate-400 outline-none focus:border-brand-400" />
               <button type="button" className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-50 hover:text-slate-600"><Search size={14} /></button>
-              <button type="button" className="flex h-7 items-center gap-1 rounded-md bg-emerald-500 px-2.5 text-[11px] text-white hover:bg-emerald-600"><span>新建客户</span></button>
+              <button type="button" className="flex h-7 items-center gap-1 rounded-md bg-brand-500 px-2.5 text-[11px] text-white hover:bg-brand-600"><span>新建客户</span></button>
             </div>
           </div>
           <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
@@ -7957,7 +7974,7 @@ export default function App() {
                 <span className="text-[11px] font-medium text-slate-400">客户标签</span>
                 <div className="flex flex-wrap gap-1">
                   <span className="inline-flex items-center rounded-full border border-indigo-200 bg-indigo-50 px-2 py-0.5 text-[10px] font-medium text-indigo-500">VIP客户</span>
-                  <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-500">高净值</span>
+                  <span className="inline-flex items-center rounded-full border border-brand-200 bg-brand-50 px-2 py-0.5 text-[10px] font-medium text-brand-500">高净值</span>
                 </div>
               </div>
               <div className="col-span-3 mt-1 border-t border-dashed border-slate-100 pt-3">
@@ -7972,9 +7989,9 @@ export default function App() {
         <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-hairline bg-white shadow-card">
           <div className="flex items-center border-b border-slate-100">
             {['通话历史', '短信历史', '邮件历史'].map((tab, idx) => (
-              <button key={tab} type="button" className={cn("relative px-4 py-3 text-[13px] font-medium transition-colors", idx === 0 ? "text-emerald-600" : "text-slate-400 hover:text-slate-600")}>
+              <button key={tab} type="button" className={cn("relative px-4 py-3 text-[13px] font-medium transition-colors", idx === 0 ? "text-brand-600" : "text-slate-400 hover:text-slate-600")}>
                 {tab}
-                {idx === 0 && <span className="absolute bottom-0 left-4 right-4 h-[2px] rounded-full bg-emerald-500" />}
+                {idx === 0 && <span className="absolute bottom-0 left-4 right-4 h-[2px] rounded-full bg-brand-500" />}
               </button>
             ))}
             <div className="ml-auto flex items-center gap-1 pr-3">
@@ -7987,32 +8004,32 @@ export default function App() {
               <thead className="sticky top-0 z-[1] bg-slate-50/90 backdrop-blur-sm">
                 <tr className="text-[11px] font-medium text-slate-400">
                   <th className="px-4 py-2.5">时间</th>
-                  <th className="px-2 py-2.5">类型</th>
-                  <th className="px-2 py-2.5">时长</th>
-                  <th className="px-2 py-2.5">坐席</th>
-                  <th className="px-2 py-2.5">状态</th>
+                  <th className="px-4 py-3">类型</th>
+                  <th className="px-4 py-3">时长</th>
+                  <th className="px-4 py-3">坐席</th>
+                  <th className="px-4 py-3">状态</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {[
-                  { time: '2025-06-07 14:32', type: '呼入', duration: '05:23', agent: '李明', status: '已完成', statusCls: 'text-emerald-500' },
-                  { time: '2025-06-05 09:15', type: '呼出', duration: '03:41', agent: '王芳', status: '已完成', statusCls: 'text-emerald-500' },
+                  { time: '2025-06-07 14:32', type: '呼入', duration: '05:23', agent: '李明', status: '已完成', statusCls: 'text-brand-500' },
+                  { time: '2025-06-05 09:15', type: '呼出', duration: '03:41', agent: '王芳', status: '已完成', statusCls: 'text-brand-500' },
                   { time: '2025-06-02 16:48', type: '呼入', duration: '08:12', agent: '刘洋', status: '已转接', statusCls: 'text-amber-500' },
                   { time: '2025-05-28 11:03', type: '呼入', duration: '02:15', agent: '赵倩', status: '未接通', statusCls: 'text-red-400' },
-                  { time: '2025-05-25 10:20', type: '呼出', duration: '06:33', agent: '李明', status: '已完成', statusCls: 'text-emerald-500' },
-                  { time: '2025-05-20 15:47', type: '呼入', duration: '04:50', agent: '王芳', status: '已完成', statusCls: 'text-emerald-500' },
+                  { time: '2025-05-25 10:20', type: '呼出', duration: '06:33', agent: '李明', status: '已完成', statusCls: 'text-brand-500' },
+                  { time: '2025-05-20 15:47', type: '呼入', duration: '04:50', agent: '王芳', status: '已完成', statusCls: 'text-brand-500' },
                 ].map((row, idx) => (
                   <tr key={idx} className="transition-colors hover:bg-slate-50/60">
                     <td className="px-4 py-2.5 text-slate-500">{row.time}</td>
-                    <td className="px-2 py-2.5">
+                    <td className="px-4 py-3">
                       <span className={cn("inline-flex items-center gap-1 text-[11px]", row.type === '呼入' ? "text-blue-500" : "text-orange-500")}>
                         {row.type === '呼入' ? <LogIn size={11} /> : <LogOut size={11} />}
                         {row.type}
                       </span>
                     </td>
-                    <td className="px-2 py-2.5 text-slate-600">{row.duration}</td>
-                    <td className="px-2 py-2.5 text-slate-600">{row.agent}</td>
-                    <td className={cn("px-2 py-2.5 text-[11px] font-medium", row.statusCls)}>{row.status}</td>
+                    <td className="px-4 py-3 text-slate-600">{row.duration}</td>
+                    <td className="px-4 py-3 text-slate-600">{row.agent}</td>
+                    <td className={cn("px-4 py-3 text-[11px] font-medium", row.statusCls)}>{row.status}</td>
                   </tr>
                 ))}
               </tbody>
@@ -8053,7 +8070,7 @@ export default function App() {
               <span className="inline-flex items-center rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-0.5 text-[11px] font-medium text-indigo-500">VIP客户</span>
               <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[11px] font-medium text-amber-500">高净值</span>
               <span className="inline-flex items-center rounded-full border border-sky-200 bg-sky-50 px-2.5 py-0.5 text-[11px] font-medium text-sky-500">售后咨询</span>
-              <button type="button" className="ml-1 flex h-5 w-5 items-center justify-center rounded-full border border-dashed border-slate-300 text-slate-400 hover:border-emerald-400 hover:text-emerald-500">
+              <button type="button" className="ml-1 flex h-5 w-5 items-center justify-center rounded-full border border-dashed border-slate-300 text-slate-400 hover:border-brand-400 hover:text-brand-500">
                 <span className="text-[13px] leading-none">+</span>
               </button>
             </div>
@@ -8065,7 +8082,7 @@ export default function App() {
                 <span className="text-slate-300">→</span>
                 <span className="rounded bg-slate-100 px-1.5 py-0.5">3</span>
                 <span className="text-slate-300">→</span>
-                <span className="rounded bg-emerald-50 px-1.5 py-0.5 text-emerald-600">人工服务</span>
+                <span className="rounded bg-brand-50 px-1.5 py-0.5 text-brand-600">人工服务</span>
               </div>
             </div>
             {/* Queue Table */}
@@ -8090,7 +8107,7 @@ export default function App() {
                     <tr key={q.name} className="border-t border-slate-50">
                       <td className="py-2 pr-3 font-medium">{q.name}</td>
                       <td className="py-2 pr-3">
-                        <span className={cn("inline-flex min-w-[20px] items-center justify-center rounded-full px-1.5 py-0.5 text-[10px] font-bold text-white", q.waiting > 8 ? "bg-red-400" : q.waiting > 4 ? "bg-amber-400" : "bg-emerald-400")}>{q.waiting}</span>
+                        <span className={cn("inline-flex min-w-[20px] items-center justify-center rounded-full px-1.5 py-0.5 text-[10px] font-bold text-white", q.waiting > 8 ? "bg-red-400" : q.waiting > 4 ? "bg-amber-400" : "bg-brand-400")}>{q.waiting}</span>
                       </td>
                       <td className="py-2 pr-3">{q.agents}</td>
                       <td className="py-2 text-slate-400">{q.eta}</td>
@@ -8108,7 +8125,7 @@ export default function App() {
         <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-hairline bg-white shadow-card">
           <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
             <h2 className="text-[14px] font-bold text-slate-800">业务小结</h2>
-            <button type="button" className="flex h-7 items-center gap-1 rounded-md bg-emerald-500 px-2.5 text-[11px] text-white hover:bg-emerald-600">保存小结</button>
+            <button type="button" className="flex h-7 items-center gap-1 rounded-md bg-brand-500 px-2.5 text-[11px] text-white hover:bg-brand-600">保存小结</button>
           </div>
           <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
             <div className="space-y-3">
@@ -8141,13 +8158,13 @@ export default function App() {
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-[11px] font-medium text-slate-400">通话小结</label>
-                <textarea rows={4} className="w-full resize-none rounded-lg border border-slate-200 bg-[#fcfcfd] px-3 py-2 text-[12px] leading-relaxed text-slate-600 outline-none focus:border-emerald-400" defaultValue="客户张伟来电咨询其购买的XX系列产品出现异常故障，产品仍在保修期内。已确认故障情况，安排技术人员48小时内上门检修。客户对处理方案表示满意。" />
+                <textarea rows={4} className="w-full resize-none rounded-lg border border-slate-200 bg-[#fcfcfd] px-3 py-2 text-[12px] leading-relaxed text-slate-600 outline-none focus:border-brand-400" defaultValue="客户张伟来电咨询其购买的XX系列产品出现异常故障，产品仍在保修期内。已确认故障情况，安排技术人员48小时内上门检修。客户对处理方案表示满意。" />
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-[11px] font-medium text-slate-400">后续跟进</label>
-                <div className="flex items-center gap-2 rounded-lg border border-emerald-100 bg-emerald-50/50 px-3 py-2">
-                  <Calendar size={13} className="text-emerald-500" />
-                  <span className="text-[12px] text-emerald-700">2025-06-10 回访确认维修结果</span>
+                <div className="flex items-center gap-2 rounded-lg border border-brand-100 bg-brand-50/50 px-3 py-2">
+                  <Calendar size={13} className="text-brand-500" />
+                  <span className="text-[12px] text-brand-700">2025-06-10 回访确认维修结果</span>
                 </div>
               </div>
             </div>
@@ -8174,9 +8191,9 @@ export default function App() {
           {/* Presence & Status bar */}
           <div className="flex items-center justify-between border-b border-slate-100 px-3 py-2.5">
             <div className="flex items-center gap-2">
-              <span className="relative flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 text-[12px] font-bold text-emerald-600">
+              <span className="relative flex h-7 w-7 items-center justify-center rounded-full bg-brand-100 text-[12px] font-bold text-brand-600">
                 坐
-                <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-400" />
+                <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-brand-400" />
               </span>
               <div className="flex flex-col">
                 <span className="text-[12px] font-medium text-slate-700">在线</span>
@@ -8192,10 +8209,10 @@ export default function App() {
           </div>
           {/* Session tabs */}
           <div className="flex border-b border-slate-100">
-            <button type="button" className="relative flex-1 py-2.5 text-center text-[12px] font-medium text-emerald-600">
+            <button type="button" className="relative flex-1 py-2.5 text-center text-[12px] font-medium text-brand-600">
               活动会话
-              <span className="ml-1 inline-flex min-w-[18px] items-center justify-center rounded-full bg-emerald-500 px-1 py-0.5 text-[10px] font-bold leading-none text-white">6</span>
-              <span className="absolute bottom-0 left-3 right-3 h-[2px] rounded-full bg-emerald-500" />
+              <span className="ml-1 inline-flex min-w-[18px] items-center justify-center rounded-full bg-brand-500 px-1 py-0.5 text-[10px] font-bold leading-none text-white">6</span>
+              <span className="absolute bottom-0 left-3 right-3 h-[2px] rounded-full bg-brand-500" />
             </button>
             <button type="button" className="flex-1 py-2.5 text-center text-[12px] font-medium text-slate-400 hover:text-slate-600">
               历史会话
@@ -8215,7 +8232,7 @@ export default function App() {
                 key={idx}
                 className={cn(
                   "group flex cursor-pointer items-start gap-2.5 border-b border-slate-50 px-3 py-3 transition-colors hover:bg-slate-50/80",
-                  idx === 0 && "bg-emerald-50/40"
+                  idx === 0 && "bg-brand-50/40"
                 )}
               >
                 <div className="relative flex-shrink-0">
@@ -8223,7 +8240,7 @@ export default function App() {
                     {session.name.slice(-2)}
                   </div>
                   {session.status === 'active' && (
-                    <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-400" />
+                    <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-brand-400" />
                   )}
                   {session.status === 'waiting' && (
                     <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-amber-400" />
@@ -8255,7 +8272,7 @@ export default function App() {
           {/* Conversation header */}
           <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-100 text-[12px] font-bold text-emerald-600">小明</div>
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-100 text-[12px] font-bold text-brand-600">小明</div>
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-[14px] font-bold text-slate-800">王小明</span>
@@ -8265,7 +8282,7 @@ export default function App() {
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <span className="inline-flex items-center rounded-full border border-indigo-200 bg-indigo-50 px-1.5 py-0.5 text-[9px] font-medium text-indigo-500">VIP客户</span>
                   <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[9px] font-medium text-amber-500">高净值</span>
-                  <button type="button" className="flex h-4 w-4 items-center justify-center rounded-full border border-dashed border-slate-300 text-[10px] text-slate-400 hover:border-emerald-400 hover:text-emerald-500">+</button>
+                  <button type="button" className="flex h-4 w-4 items-center justify-center rounded-full border border-dashed border-slate-300 text-[10px] text-slate-400 hover:border-brand-400 hover:text-brand-500">+</button>
                 </div>
               </div>
             </div>
@@ -8294,7 +8311,7 @@ export default function App() {
             </div>
           </div>
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto px-4 py-4 custom-scrollbar">
+          <div className="flex-1 overflow-y-auto px-4 py-3 custom-scrollbar">
             <div className="space-y-4">
               {/* System message */}
               <div className="flex justify-center">
@@ -8311,18 +8328,18 @@ export default function App() {
               {/* Agent message 1 */}
               <div className="flex items-start justify-end gap-2.5">
                 <div className="max-w-[70%]">
-                  <div className="rounded-2xl rounded-tr-md bg-emerald-500 px-3.5 py-2.5 text-[13px] leading-relaxed text-white">您好王先生，感谢您的来电！我帮您查询一下订单 ORD-20250601-8847 的物流状态，请稍等。</div>
+                  <div className="rounded-2xl rounded-tr-md bg-brand-500 px-3.5 py-2.5 text-[13px] leading-relaxed text-white">您好王先生，感谢您的来电！我帮您查询一下订单 ORD-20250601-8847 的物流状态，请稍等。</div>
                   <span className="mt-1 block text-right text-[10px] text-slate-300">14:29</span>
                 </div>
-                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[11px] font-bold text-emerald-600">客服</div>
+                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-brand-100 text-[11px] font-bold text-brand-600">客服</div>
               </div>
               {/* Agent message 2 */}
               <div className="flex items-start justify-end gap-2.5">
                 <div className="max-w-[70%]">
-                  <div className="rounded-2xl rounded-tr-md bg-emerald-500 px-3.5 py-2.5 text-[13px] leading-relaxed text-white">已为您查询到，您的订单已于今天上午出库，预计明天下午送达。快递单号为 SF1234567890，您可以在官网或顺丰APP中实时追踪。</div>
+                  <div className="rounded-2xl rounded-tr-md bg-brand-500 px-3.5 py-2.5 text-[13px] leading-relaxed text-white">已为您查询到，您的订单已于今天上午出库，预计明天下午送达。快递单号为 SF1234567890，您可以在官网或顺丰APP中实时追踪。</div>
                   <span className="mt-1 block text-right text-[10px] text-slate-300">14:30</span>
                 </div>
-                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[11px] font-bold text-emerald-600">客服</div>
+                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-brand-100 text-[11px] font-bold text-brand-600">客服</div>
               </div>
               {/* Visitor message 2 */}
               <div className="flex items-start gap-2.5">
@@ -8335,10 +8352,10 @@ export default function App() {
               {/* Agent message 3 */}
               <div className="flex items-start justify-end gap-2.5">
                 <div className="max-w-[70%]">
-                  <div className="rounded-2xl rounded-tr-md bg-emerald-500 px-3.5 py-2.5 text-[13px] leading-relaxed text-white">当然可以！我们支持7天无理由退换和15天质量问题换新。如有问题您可以直接联系我们，我们会优先为VIP客户处理。😊</div>
+                  <div className="rounded-2xl rounded-tr-md bg-brand-500 px-3.5 py-2.5 text-[13px] leading-relaxed text-white">当然可以！我们支持7天无理由退换和15天质量问题换新。如有问题您可以直接联系我们，我们会优先为VIP客户处理。😊</div>
                   <span className="mt-1 block text-right text-[10px] text-slate-300">14:32</span>
                 </div>
-                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[11px] font-bold text-emerald-600">客服</div>
+                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-brand-100 text-[11px] font-bold text-brand-600">客服</div>
               </div>
               {/* Visitor message 3 */}
               <div className="flex items-start gap-2.5">
@@ -8374,7 +8391,7 @@ export default function App() {
                 placeholder="输入消息内容，Enter发送..."
                 defaultValue=""
               />
-              <button type="button" className="flex h-8 items-center gap-1 rounded-lg bg-emerald-500 px-3 text-[12px] font-medium text-white hover:bg-emerald-600">
+              <button type="button" className="flex h-8 items-center gap-1 rounded-lg bg-brand-500 px-3 text-[12px] font-medium text-white hover:bg-brand-600">
                 <Send size={13} />
                 发送
               </button>
@@ -9037,7 +9054,7 @@ export default function App() {
                 className={cn(
                   "flex w-full items-center border-r-[3px] px-5 py-4 text-left text-[14px] transition-colors",
                   activeMessageServiceMailbox === item
-                    ? "border-[#1cc7ad] bg-[#eefaf7] font-medium text-[#1ab89f]"
+                    ? "border-[#216BFF] bg-[#e8f1ff] font-medium text-[#216BFF]"
                     : "border-transparent text-slate-700 hover:bg-slate-50"
                 )}
               >
@@ -9062,12 +9079,12 @@ export default function App() {
                 <Search size={15} className="text-slate-400" />
               </div>
             </div>
-            <button type="button" className="text-[13px] font-medium text-[#1ab89f] transition-colors hover:text-[#0ea88c]">
+            <button type="button" className="text-[13px] font-medium text-[#216BFF] transition-colors hover:text-[#1a5ce6]">
               全部标记为已读
             </button>
           </div>
           <div className="px-4 pb-2">
-            <span className="inline-flex h-7 items-center rounded-full border border-[#7be3d1] px-3 text-[13px] font-medium text-[#18bea4]">
+            <span className="inline-flex h-7 items-center rounded-full border border-[#96b8ff] px-3 text-[13px] font-medium text-[#216BFF]">
               全部
             </span>
           </div>
@@ -9084,9 +9101,9 @@ export default function App() {
               <div className="flex flex-col items-center gap-2 text-slate-300">
                 <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-slate-100 bg-slate-50">
                   <FileText size={26} className="text-slate-200" />
-                  <span className="absolute left-[14px] top-[12px] h-2 w-2 rounded-full bg-[#4fd7c0]" />
-                  <span className="absolute right-[16px] top-[10px] h-1.5 w-1.5 rounded-full bg-[#97eadc]" />
-                  <span className="absolute right-[11px] top-[17px] h-2 w-2 rounded-full bg-[#2ec7ad]" />
+                  <span className="absolute left-[14px] top-[12px] h-2 w-2 rounded-full bg-[#6394ff]" />
+                  <span className="absolute right-[16px] top-[10px] h-1.5 w-1.5 rounded-full bg-[#96b8ff]" />
+                  <span className="absolute right-[11px] top-[17px] h-2 w-2 rounded-full bg-[#216BFF]" />
                 </div>
                 <span className="text-[13px]">暂无数据</span>
               </div>
@@ -9113,7 +9130,7 @@ export default function App() {
           <button type="button" className="border-b-2 border-transparent py-3 text-slate-500 transition-colors hover:text-slate-700">
             日历模式
           </button>
-          <button type="button" className="border-b-2 border-[#18c2a7] py-3 font-medium text-[#18c2a7]">
+          <button type="button" className="border-b-2 border-[#216BFF] py-3 font-medium text-[#216BFF]">
             列表模式
           </button>
         </div>
@@ -9130,12 +9147,12 @@ export default function App() {
                 <Calendar size={14} className="ml-auto text-slate-300" />
               </div>
               <label className="ml-2 flex items-center gap-2 text-[13px] text-slate-600">
-                <input type="checkbox" className="h-3.5 w-3.5 accent-[#19c5aa]" />
+                <input type="checkbox" className="h-3.5 w-3.5 accent-[#216BFF]" />
                 仅查询正常值班信息
               </label>
             </div>
             <div className="flex items-center gap-3">
-              <button type="button" className="rounded-full border border-[#89dccd] bg-[#f1fbf8] px-5 py-1.5 text-[13px] font-medium text-[#18bda3] transition-colors hover:bg-[#e5f8f3]">
+              <button type="button" className="rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-5 py-1.5 text-[13px] font-medium text-[#216BFF] transition-colors hover:bg-[#e8f1ff]">
                 查询
               </button>
               <button type="button" className="rounded-full border border-slate-200 bg-white px-5 py-1.5 text-[13px] font-medium text-slate-500 transition-colors hover:bg-slate-50">
@@ -9185,7 +9202,7 @@ export default function App() {
           </div>
           <div className="flex items-center justify-end gap-2 px-6 py-3 text-[13px] text-slate-500">
             <span>共53条记录</span>
-            <button type="button" className="flex h-7 min-w-[28px] items-center justify-center rounded-md border border-[#8fe0d2] bg-[#f0fbf8] px-2 text-[#19bca2]">
+            <button type="button" className="flex h-7 min-w-[28px] items-center justify-center rounded-md border border-[#96b8ff] bg-[#e8f1ff] px-2 text-[#216BFF]">
               1
             </button>
             <button type="button" className="flex h-7 min-w-[28px] items-center justify-center rounded-md border border-slate-200 bg-white px-2 hover:bg-slate-50">
@@ -9218,7 +9235,7 @@ export default function App() {
 
   const webchatProductListContent = (
     <div className="flex min-h-0 flex-1 overflow-hidden">
-      <div className="flex w-[308px] shrink-0 flex-col border-r border-slate-100 bg-[#fbfcff]">
+      <div className="flex w-[308px] shrink-0 flex-col border-r border-slate-100 bg-[#f7f9ff]">
         <div className="border-b border-slate-100 px-4 py-3">
           <div className="mt-3 flex items-center gap-3">
             <div className="flex h-10 flex-1 items-center rounded-md border border-slate-200 bg-white pl-3 pr-2 text-[13px] text-slate-500">
@@ -9320,7 +9337,7 @@ export default function App() {
             <div className="flex items-center gap-3">
               <button
                 type="button"
-                className="rounded-md border border-[#8fe0d2] bg-[#effbf8] px-4 py-2 text-[13px] font-medium text-[#18bca2] transition-colors hover:bg-[#e2f8f3]"
+                className="rounded-md border border-[#96b8ff] bg-[#e8f1ff] px-4 py-2 text-[13px] font-medium text-[#216BFF] transition-colors hover:bg-[#c9dcff]"
               >
                 查询
               </button>
@@ -9338,14 +9355,14 @@ export default function App() {
             <button
               type="button"
               onClick={openAddWebchatProductDialog}
-              className="rounded-md bg-[#18c2a7] px-5 py-2 text-[13px] font-medium text-white transition-colors hover:bg-[#10b398]"
+              className="rounded-md bg-[#216BFF] px-5 py-2 text-[13px] font-medium text-white transition-colors hover:bg-[#216BFF]"
             >
               新增
             </button>
             <button
               type="button"
               onClick={() => setWebchatProductDialog('sync')}
-              className="rounded-md border border-[#8fe0d2] bg-white px-5 py-2 text-[13px] font-medium text-[#18bca2] transition-colors hover:bg-[#f4fcfa]"
+              className="rounded-md border border-[#96b8ff] bg-white px-5 py-2 text-[13px] font-medium text-[#216BFF] transition-colors hover:bg-[#e8f1ff]"
             >
               同步
             </button>
@@ -9353,7 +9370,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setShowWebchatBatchActionMenu((open) => !open)}
-                className="flex items-center gap-2 rounded-md border border-[#8fe0d2] bg-white px-4 py-2 text-[13px] font-medium text-[#18bca2] transition-colors hover:bg-[#f4fcfa]"
+                className="flex items-center gap-2 rounded-md border border-[#96b8ff] bg-white px-4 py-2 text-[13px] font-medium text-[#216BFF] transition-colors hover:bg-[#e8f1ff]"
               >
                 批量操作
                 <ChevronDown size={14} />
@@ -9384,61 +9401,61 @@ export default function App() {
         <div className="min-h-0 flex-1 overflow-auto px-6 pb-5 pt-4 custom-scrollbar">
           <div className="overflow-hidden rounded-[10px] border border-slate-100">
             <table className="min-w-full table-auto text-left">
-              <thead className="bg-[#f5f7fb] text-[13px] text-slate-600">
+              <thead className="sticky top-0 bg-[#fafafa] text-[13px] text-slate-600">
                 <tr>
                   <th className="w-[54px] px-4 py-3 font-medium">
                     <input
                       type="checkbox"
                       checked={isAllWebchatProductsSelected}
                       onChange={handleToggleAllWebchatProducts}
-                      className="h-4 w-4 rounded border-slate-300 accent-[#18c2a7]"
+                      className="h-4 w-4 rounded border-slate-300 accent-[#216BFF]"
                     />
                   </th>
-                  <th className="px-2 py-3 font-medium">序号</th>
-                  <th className="px-2 py-3 font-medium">产品名称</th>
-                  <th className="px-2 py-3 font-medium">产品图片</th>
-                  <th className="px-2 py-3 font-medium">来源</th>
-                  <th className="px-2 py-3 font-medium">机器人名称</th>
-                  <th className="px-2 py-3 font-medium">机器人种类</th>
-                  <th className="px-2 py-3 font-medium">操作</th>
+                  <th className="px-4 py-3 font-medium">序号</th>
+                  <th className="px-4 py-3 font-medium">产品名称</th>
+                  <th className="px-4 py-3 font-medium">产品图片</th>
+                  <th className="px-4 py-3 font-medium">来源</th>
+                  <th className="px-4 py-3 font-medium">机器人名称</th>
+                  <th className="px-4 py-3 font-medium">机器人种类</th>
+                  <th className="px-4 py-3 font-medium">操作</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-[13px] text-slate-600">
                 {visibleWebchatProductRows.map((row, index) => (
                   <tr key={row.id} className="bg-white transition-colors hover:bg-slate-50/60">
-                    <td className="px-4 py-4">
+                    <td className="px-4 py-3">
                       <input
                         type="checkbox"
                         checked={selectedWebchatProductIds.includes(row.id)}
                         onChange={() => handleToggleWebchatProduct(row.id)}
-                        className="h-4 w-4 rounded border-slate-300 accent-[#18c2a7]"
+                        className="h-4 w-4 rounded border-slate-300 accent-[#216BFF]"
                       />
                     </td>
-                    <td className="px-2 py-4">{index + 1}</td>
-                    <td className="px-2 py-4">{row.name}</td>
-                    <td className="px-2 py-4">
+                    <td className="px-4 py-3">{index + 1}</td>
+                    <td className="px-4 py-3">{row.name}</td>
+                    <td className="px-4 py-3">
                       {row.image && row.image.startsWith('data:') ? (
                         <img src={row.image} alt={row.name} className="h-10 w-10 rounded border border-slate-200 object-cover" />
                       ) : (
                         <div className="flex h-10 w-10 items-center justify-center rounded border border-dashed border-slate-200 bg-slate-50 text-[11px] text-slate-400">无图</div>
                       )}
                     </td>
-                    <td className="px-2 py-4">{row.source}</td>
-                    <td className="px-2 py-4">{row.robotName}</td>
-                    <td className="px-2 py-4">{row.robotType}</td>
-                    <td className="px-2 py-4">
-                      <div className="flex items-center gap-4 text-[13px] font-medium text-[#5a8cff]">
+                    <td className="px-4 py-3">{row.source}</td>
+                    <td className="px-4 py-3">{row.robotName}</td>
+                    <td className="px-4 py-3">{row.robotType}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-4 text-[13px] font-medium text-[#216BFF]">
                         <button
                           type="button"
                           onClick={() => openEditWebchatProductDialog(row.id)}
-                          className="transition-colors hover:text-[#3f74ff]"
+                          className="transition-colors hover:text-[#1a5ce6]"
                         >
                           编辑
                         </button>
                         <button
                           type="button"
                           onClick={() => openWebchatConfigView([row.id])}
-                          className="transition-colors hover:text-[#3f74ff]"
+                          className="transition-colors hover:text-[#1a5ce6]"
                         >
                           配置
                         </button>
@@ -9450,10 +9467,10 @@ export default function App() {
                                 type: 'delete-product',
                                 productId: row.id,
                                 title: '删除产品',
-                                message: `确定删除产品“${row.name}”吗？删除后将解除关联关系。`,
+                                message: `确定删除产品"${row.name}"吗？删除后将解除关联关系。`,
                               })
                             }
-                            className="transition-colors hover:text-[#3f74ff]"
+                            className="text-[#ff6f6f] transition-colors hover:text-[#ff4d4f]"
                           >
                             删除
                           </button>
@@ -9529,7 +9546,7 @@ export default function App() {
 
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
           <>
-            <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4">
+            <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
               <div className="text-[14px] font-semibold text-slate-700">快捷按钮</div>
               <div className="flex items-center gap-3">
                 <button
@@ -9564,14 +9581,14 @@ export default function App() {
                       message: '确定删除当前配置下的全部快捷按钮吗？',
                     })
                   }
-                  className="rounded border border-[#ffc8c8] px-3 py-1.5 text-[12px] font-medium text-[#ff7f7f] transition-colors hover:bg-[#fff5f5]"
+                  className="rounded border border-[#ffc8c8] px-3 py-1.5 text-[12px] font-medium text-[#ff6f6f] transition-colors hover:bg-[#fff5f5]"
                 >
                   删除全部
                 </button>
               </div>
             </div>
 
-            <div className="border-b border-slate-100 px-4 py-4">
+            <div className="border-b border-slate-100 px-4 py-3">
               <div className="flex flex-wrap gap-2">
                 {activeWebchatConfig.quickButtons.map((button) => (
                   <span
@@ -9602,7 +9619,7 @@ export default function App() {
 
             <div className="grid min-h-0 flex-1 grid-cols-[320px_1fr]">
               <div className="border-r border-slate-100">
-                <div className="flex items-center justify-between border-b border-slate-100 bg-[#fafafa] px-4 py-4">
+                <div className="flex items-center justify-between border-b border-slate-100 bg-[#fafafa] px-4 py-3">
                   <div className="text-[14px] font-semibold text-slate-700">高频内容标签</div>
                   <button
                     type="button"
@@ -9645,7 +9662,7 @@ export default function App() {
                           setWebchatFormErrors({});
                           setWebchatProductDialog('content-tag');
                         }}
-                        className="text-[#5a8cff] hover:text-[#3f74ff]"
+                        className="text-[#216BFF] hover:text-[#1a5ce6]"
                       >
                         编辑
                       </button>
@@ -9661,10 +9678,10 @@ export default function App() {
                             type: 'delete-tag',
                             tagId: tag.id,
                             title: '删除高频内容标签',
-                            message: `确定删除高频内容标签“${tag.name}”吗？`,
+                            message: `确定删除高频内容标签"${tag.name}"吗？`,
                           });
                         }}
-                        className="text-[#ff8a8a] hover:text-[#ff6e6e]"
+                        className="text-[#ff6f6f] hover:text-[#ff4d4f]"
                       >
                         删除
                       </button>
@@ -9674,7 +9691,7 @@ export default function App() {
               </div>
 
               <div className="flex min-h-0 flex-col">
-                <div className="flex items-center justify-between border-b border-slate-100 bg-[#fafafa] px-4 py-4">
+                <div className="flex items-center justify-between border-b border-slate-100 bg-[#fafafa] px-4 py-3">
                   <div className="text-[14px] font-semibold text-slate-700">高频内容管理</div>
                   <div className="flex items-center gap-3">
                     <button
@@ -9720,11 +9737,11 @@ export default function App() {
                       {activeWebchatConfigTag && activeWebchatConfigTag.items.length > 0 ? (
                         activeWebchatConfigTag.items.map((item, index) => (
                           <tr key={item.id}>
-                            <td className="px-4 py-4">{index + 1}</td>
-                            <td className="px-4 py-4">{item.title}</td>
-                            <td className="px-4 py-4">{item.createdAt}</td>
-                            <td className="px-4 py-4">{item.updatedAt}</td>
-                            <td className="px-4 py-4">
+                            <td className="px-4 py-3">{index + 1}</td>
+                            <td className="px-4 py-3">{item.title}</td>
+                            <td className="px-4 py-3">{item.createdAt}</td>
+                            <td className="px-4 py-3">{item.updatedAt}</td>
+                            <td className="px-4 py-3">
                               <div className="flex items-center gap-5">
                                 <button
                                   type="button"
@@ -9734,7 +9751,7 @@ export default function App() {
                                     setWebchatFormErrors({});
                                     setWebchatProductDialog('content-item');
                                   }}
-                                  className="font-medium text-[#5a8cff] transition-colors hover:text-[#3f74ff]"
+                                  className="font-medium text-[#216BFF] transition-colors hover:text-[#1a5ce6]"
                                 >
                                   编辑
                                 </button>
@@ -9745,10 +9762,10 @@ export default function App() {
                                       type: 'delete-content',
                                       itemId: item.id,
                                       title: '删除高频内容',
-                                      message: `确定删除高频内容“${item.title}”吗？`,
+                                      message: `确定删除高频内容"${item.title}"吗？`,
                                     })
                                   }
-                                  className="font-medium text-[#ff8a8a] transition-colors hover:text-[#ff6e6e]"
+                                  className="font-medium text-[#ff6f6f] transition-colors hover:text-[#ff4d4f]"
                                 >
                                   删除
                                 </button>
@@ -9779,7 +9796,7 @@ export default function App() {
                     <button
                       type="button"
                       onClick={handleSaveWebchatConfig}
-                      className="rounded bg-[#12b89f] px-5 py-2 text-[13px] font-medium text-white transition-colors hover:bg-[#08aa91]"
+                      className="rounded bg-[#216BFF] px-5 py-2 text-[13px] font-medium text-white transition-colors hover:bg-[#1a5ce6]"
                     >
                       保存
                     </button>
@@ -9868,12 +9885,12 @@ export default function App() {
               <div className="flex items-center gap-2">
                 <div className="flex h-10 w-[260px] items-center rounded-md border border-slate-200 bg-white text-[13px]">
                   <input type="text" placeholder="模糊查找工号/姓名/域账号" className="min-w-0 flex-1 border-none bg-transparent px-3 text-slate-600 outline-none placeholder:text-slate-400" />
-                  <button type="button" className="flex h-full w-10 shrink-0 items-center justify-center border-l border-slate-200 text-slate-400 transition-colors hover:text-[#18bca2]"><Search size={15} /></button>
+                  <button type="button" className="flex h-full w-10 shrink-0 items-center justify-center border-l border-slate-200 text-slate-400 transition-colors hover:text-[#216BFF]"><Search size={15} /></button>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <span className="shrink-0 text-[13px] text-slate-500">工作状态</span>
-                <select defaultValue="工作" className="h-10 min-w-[110px] rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-600 outline-none focus:border-[#12b89f]">
+                <select defaultValue="工作" className="h-10 min-w-[110px] rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-600 outline-none focus:border-[#216BFF]">
                   <option value="工作">工作</option>
                   <option value="锁定">锁定</option>
                   <option value="密码过期">密码过期</option>
@@ -9886,27 +9903,27 @@ export default function App() {
                     <span className="shrink-0 text-[13px] text-slate-500">默认部门</span>
                     <div className="flex h-10 w-[200px] items-center rounded-md border border-slate-200 bg-white text-[13px]">
                       <input type="text" placeholder="输入部门名称" className="min-w-0 flex-1 border-none bg-transparent px-3 text-slate-600 outline-none placeholder:text-slate-400" />
-                      <button type="button" className="flex h-full w-10 shrink-0 items-center justify-center border-l border-slate-200 text-slate-400 transition-colors hover:text-[#18bca2]"><Search size={15} /></button>
+                      <button type="button" className="flex h-full w-10 shrink-0 items-center justify-center border-l border-slate-200 text-slate-400 transition-colors hover:text-[#216BFF]"><Search size={15} /></button>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="shrink-0 text-[13px] text-slate-500">入职日期</span>
-                    <input type="date" className="h-10 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-600 outline-none focus:border-[#12b89f]" />
+                    <input type="date" className="h-10 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-600 outline-none focus:border-[#216BFF]" />
                     <span className="text-slate-400">-</span>
-                    <input type="date" className="h-10 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-600 outline-none focus:border-[#12b89f]" />
+                    <input type="date" className="h-10 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-600 outline-none focus:border-[#216BFF]" />
                   </div>
                 </>
               ) : null}
-              <button type="button" className="h-10 rounded-md border border-[#8fe0d2] bg-[#effbf8] px-5 text-[13px] font-medium text-[#18bca2] transition-colors hover:bg-[#e2f8f3]">查询</button>
+              <button type="button" className="h-10 rounded-md border border-[#96b8ff] bg-[#e8f1ff] px-5 text-[13px] font-medium text-[#216BFF] transition-colors hover:bg-[#c9dcff]">查询</button>
               <button type="button" className="h-10 rounded-md border border-slate-200 bg-white px-5 text-[13px] font-medium text-slate-500 transition-colors hover:bg-slate-50">重置</button>
-              <button type="button" onClick={() => setIsAccountFiltersExpanded((v) => !v)} className="ml-auto text-[13px] text-[#18bca2]">{isAccountFiltersExpanded ? '收起' : '展开'}</button>
+              <button type="button" onClick={() => setIsAccountFiltersExpanded((v) => !v)} className="ml-auto text-[13px] text-[#216BFF]">{isAccountFiltersExpanded ? '收起' : '展开'}</button>
             </div>
             <div className="mt-3 flex flex-wrap items-center gap-3">
-              <button type="button" onClick={() => { setAccountAddForm({ domainAccount: '', employeeName: '', employeeId: String(accountNextId), extensionNo: '', phone: '', defaultDept: '', chatRole: '坐席', role: '' }); setShowAccountAddModal(true); }} className="h-9 rounded-md bg-[#18c2a7] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#15b39a]">新增</button>
-              <button type="button" className="h-9 rounded-md bg-[#18c2a7] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#15b39a]">导入</button>
-              <button type="button" className="h-9 rounded-md border border-[#8fe0d2] bg-[#effbf8] px-4 text-[13px] font-medium text-[#18bca2] transition-colors hover:bg-[#e2f8f3]">权限刷新</button>
-              <button type="button" className="h-9 rounded-md border border-[#8fe0d2] bg-[#effbf8] px-4 text-[13px] font-medium text-[#18bca2] transition-colors hover:bg-[#e2f8f3]">权限导出</button>
-              <button type="button" className="h-9 rounded-md bg-[#18c2a7] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#15b39a]">部门/角色管理</button>
+              <button type="button" onClick={() => { setAccountAddForm({ domainAccount: '', employeeName: '', employeeId: String(accountNextId), extensionNo: '', phone: '', defaultDept: '', chatRole: '坐席', role: '' }); setShowAccountAddModal(true); }} className="h-9 rounded-md bg-[#216BFF] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#1a5ce6]">新增</button>
+              <button type="button" className="h-9 rounded-md bg-[#216BFF] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#1a5ce6]">导入</button>
+              <button type="button" className="h-9 rounded-md border border-[#96b8ff] bg-[#e8f1ff] px-4 text-[13px] font-medium text-[#216BFF] transition-colors hover:bg-[#c9dcff]">权限刷新</button>
+              <button type="button" className="h-9 rounded-md border border-[#96b8ff] bg-[#e8f1ff] px-4 text-[13px] font-medium text-[#216BFF] transition-colors hover:bg-[#c9dcff]">权限导出</button>
+              <button type="button" className="h-9 rounded-md bg-[#216BFF] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#1a5ce6]">部门/角色管理</button>
             </div>
           </div>
           <div className="min-h-0 overflow-auto px-4 custom-scrollbar">
@@ -9921,16 +9938,16 @@ export default function App() {
               <tbody className="text-slate-600">
                 {accountManagementRows.map((row, index) => (
                   <tr key={row.id} className={cn(index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]')}>
-                    <td className="whitespace-nowrap px-4 py-4">{row.id}</td>
-                    <td className="whitespace-nowrap px-4 py-4"><button type="button" className="text-[#18bca2] hover:underline">{row.loginName}</button></td>
-                    <td className="whitespace-nowrap px-4 py-4">{row.employeeName}</td>
-                    <td className="whitespace-nowrap px-4 py-4">{row.employeeId}</td>
-                    <td className="whitespace-nowrap px-4 py-4">{row.extensionNo}</td>
-                    <td className="whitespace-nowrap px-4 py-4">{row.defaultDept}</td>
-                    <td className="whitespace-nowrap px-4 py-4">{row.phone}</td>
-                    <td className="whitespace-nowrap px-4 py-4">{row.entryDate}</td>
-                    <td className="whitespace-nowrap px-4 py-4">{row.workStatus}</td>
-                    <td className="whitespace-nowrap px-4 py-4">{row.suitablePeriod || '-'}</td>
+                    <td className="whitespace-nowrap px-4 py-3">{row.id}</td>
+                    <td className="whitespace-nowrap px-4 py-3"><button type="button" className="text-[#216BFF] hover:underline">{row.loginName}</button></td>
+                    <td className="whitespace-nowrap px-4 py-3">{row.employeeName}</td>
+                    <td className="whitespace-nowrap px-4 py-3">{row.employeeId}</td>
+                    <td className="whitespace-nowrap px-4 py-3">{row.extensionNo}</td>
+                    <td className="whitespace-nowrap px-4 py-3">{row.defaultDept}</td>
+                    <td className="whitespace-nowrap px-4 py-3">{row.phone}</td>
+                    <td className="whitespace-nowrap px-4 py-3">{row.entryDate}</td>
+                    <td className="whitespace-nowrap px-4 py-3">{row.workStatus}</td>
+                    <td className="whitespace-nowrap px-4 py-3">{row.suitablePeriod || '-'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -9951,27 +9968,27 @@ export default function App() {
                 <div className="grid grid-cols-2 gap-x-4 gap-y-4">
                   <div className="flex items-center gap-2">
                     <label className="w-[70px] shrink-0 text-right text-[13px] text-slate-600"><span className="mr-0.5 text-red-500">*</span>域账号</label>
-                    <input type="text" value={accountAddForm.domainAccount} onChange={(e) => setAccountAddForm((f) => ({ ...f, domainAccount: e.target.value }))} placeholder="请输入域账号" className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 outline-none placeholder:text-slate-400 focus:border-[#18c2a7]" />
+                    <input type="text" value={accountAddForm.domainAccount} onChange={(e) => setAccountAddForm((f) => ({ ...f, domainAccount: e.target.value }))} placeholder="请输入域账号" className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 outline-none placeholder:text-slate-400 focus:border-[#216BFF]" />
                   </div>
                   <div className="flex items-center gap-2">
                     <label className="w-[70px] shrink-0 text-right text-[13px] text-slate-600"><span className="mr-0.5 text-red-500">*</span>员工姓名</label>
-                    <input type="text" value={accountAddForm.employeeName} onChange={(e) => setAccountAddForm((f) => ({ ...f, employeeName: e.target.value }))} placeholder="请输入员工姓名" className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 outline-none placeholder:text-slate-400 focus:border-[#18c2a7]" />
+                    <input type="text" value={accountAddForm.employeeName} onChange={(e) => setAccountAddForm((f) => ({ ...f, employeeName: e.target.value }))} placeholder="请输入员工姓名" className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 outline-none placeholder:text-slate-400 focus:border-[#216BFF]" />
                   </div>
                   <div className="flex items-center gap-2">
                     <label className="w-[70px] shrink-0 text-right text-[13px] text-slate-600"><span className="mr-0.5 text-red-500">*</span>员工工号</label>
-                    <input type="text" value={accountAddForm.employeeId} onChange={(e) => setAccountAddForm((f) => ({ ...f, employeeId: e.target.value }))} placeholder="请输入员工工号" className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 outline-none placeholder:text-slate-400 focus:border-[#18c2a7]" />
+                    <input type="text" value={accountAddForm.employeeId} onChange={(e) => setAccountAddForm((f) => ({ ...f, employeeId: e.target.value }))} placeholder="请输入员工工号" className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 outline-none placeholder:text-slate-400 focus:border-[#216BFF]" />
                   </div>
                   <div className="flex items-center gap-2">
                     <label className="w-[70px] shrink-0 text-right text-[13px] text-slate-600"><span className="mr-0.5 text-red-500">*</span>分机号</label>
-                    <input type="text" value={accountAddForm.extensionNo} onChange={(e) => setAccountAddForm((f) => ({ ...f, extensionNo: e.target.value }))} placeholder="请输入分机号" className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 outline-none placeholder:text-slate-400 focus:border-[#18c2a7]" />
+                    <input type="text" value={accountAddForm.extensionNo} onChange={(e) => setAccountAddForm((f) => ({ ...f, extensionNo: e.target.value }))} placeholder="请输入分机号" className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 outline-none placeholder:text-slate-400 focus:border-[#216BFF]" />
                   </div>
                   <div className="flex items-center gap-2">
                     <label className="w-[70px] shrink-0 text-right text-[13px] text-slate-600"><span className="mr-0.5 text-red-500">*</span>手机号</label>
-                    <input type="text" value={accountAddForm.phone} onChange={(e) => setAccountAddForm((f) => ({ ...f, phone: e.target.value }))} placeholder="请输入手机号" className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 outline-none placeholder:text-slate-400 focus:border-[#18c2a7]" />
+                    <input type="text" value={accountAddForm.phone} onChange={(e) => setAccountAddForm((f) => ({ ...f, phone: e.target.value }))} placeholder="请输入手机号" className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 outline-none placeholder:text-slate-400 focus:border-[#216BFF]" />
                   </div>
                   <div className="flex items-center gap-2">
                     <label className="w-[70px] shrink-0 text-right text-[13px] text-slate-600"><span className="mr-0.5 text-red-500">*</span>默认部门</label>
-                    <select value={accountAddForm.defaultDept} onChange={(e) => setAccountAddForm((f) => ({ ...f, defaultDept: e.target.value }))} className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 outline-none focus:border-[#18c2a7]">
+                    <select value={accountAddForm.defaultDept} onChange={(e) => setAccountAddForm((f) => ({ ...f, defaultDept: e.target.value }))} className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 outline-none focus:border-[#216BFF]">
                       <option value="">请选择默认部门</option>
                       <option value="公司总部/管理部">公司总部/管理部</option>
                       <option value="客服部/区">客服部/区</option>
@@ -9979,11 +9996,11 @@ export default function App() {
                   </div>
                   <div className="flex items-center gap-2">
                     <label className="w-[70px] shrink-0 text-right text-[13px] text-slate-600">会话限制</label>
-                    <input type="number" placeholder="请输入会话限制" min={1} max={20} className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 outline-none placeholder:text-slate-400 focus:border-[#18c2a7]" />
+                    <input type="number" placeholder="请输入会话限制" min={1} max={20} className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 outline-none placeholder:text-slate-400 focus:border-[#216BFF]" />
                   </div>
                   <div className="col-span-2 flex items-center gap-2">
                     <label className="w-[70px] shrink-0 text-right text-[13px] text-slate-600"><span className="mr-0.5 text-red-500">*</span>角色</label>
-                    <select value={accountAddForm.role} onChange={(e) => setAccountAddForm((f) => ({ ...f, role: e.target.value }))} className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 outline-none focus:border-[#18c2a7]">
+                    <select value={accountAddForm.role} onChange={(e) => setAccountAddForm((f) => ({ ...f, role: e.target.value }))} className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 outline-none focus:border-[#216BFF]">
                       <option value="">请至少选择一个角色</option>
                       <option value="坐席">坐席</option>
                       <option value="班组长">班组长</option>
@@ -10001,7 +10018,7 @@ export default function App() {
                   <div className="flex-1 space-y-2.5">
                     {['仅看自己', '所属部门', '所属部门及下属部门', '自定义'].map((opt) => (
                       <label key={opt} className="flex items-center gap-2 text-[13px] text-slate-600">
-                        <input type="radio" name="account-data-perm" defaultChecked={opt === '仅看自己'} className="h-4 w-4 accent-[#18c2a7]" />
+                        <input type="radio" name="account-data-perm" defaultChecked={opt === '仅看自己'} className="h-4 w-4 accent-[#216BFF]" />
                         {opt}
                       </label>
                     ))}
@@ -10011,7 +10028,7 @@ export default function App() {
             </div>
             <div className="flex items-center justify-end gap-2 border-t border-slate-100 px-5 py-4">
               <button type="button" onClick={() => setShowAccountAddModal(false)} className="h-9 rounded-md border border-slate-200 bg-white px-5 text-[13px] font-medium text-slate-500 transition-colors hover:bg-slate-50">取消</button>
-              <button type="button" onClick={() => { setAccountNextId((n) => n + 1); setShowAccountAddModal(false); }} className="h-9 rounded-md bg-[#18c2a7] px-5 text-[13px] font-medium text-white transition-colors hover:bg-[#15b39a]">确定</button>
+              <button type="button" onClick={() => { setAccountNextId((n) => n + 1); setShowAccountAddModal(false); }} className="h-9 rounded-md bg-[#216BFF] px-5 text-[13px] font-medium text-white transition-colors hover:bg-[#1a5ce6]">确定</button>
             </div>
           </div>
         </div>
@@ -10031,11 +10048,11 @@ export default function App() {
                 onClick={() => setDeptRoleMainTab(tab.key)}
                 className={cn(
                   "relative py-3.5 text-[14px] font-semibold transition-colors",
-                  deptRoleMainTab === tab.key ? "text-[#18bca2]" : "text-slate-500 hover:text-slate-700"
+                  deptRoleMainTab === tab.key ? "text-[#216BFF]" : "text-slate-500 hover:text-slate-700"
                 )}
               >
                 {tab.label}
-                {deptRoleMainTab === tab.key && <span className="absolute inset-x-0 bottom-0 h-0.5 bg-[#18bca2]" />}
+                {deptRoleMainTab === tab.key && <span className="absolute inset-x-0 bottom-0 h-0.5 bg-[#216BFF]" />}
               </button>
             ))}
           </div>
@@ -10062,7 +10079,7 @@ export default function App() {
                         onClick={() => setDeptRoleSelectedRole(role.name)}
                         className={cn(
                           "flex w-full items-center gap-2 rounded-md px-3 py-2 text-[13px] transition-colors",
-                          deptRoleSelectedRole === role.name ? "bg-[#18bca2] text-white" : "text-slate-600 hover:bg-slate-50"
+                          deptRoleSelectedRole === role.name ? "bg-[#216BFF] text-white" : "text-slate-600 hover:bg-slate-50"
                         )}
                       >
                         <span>⭐</span>
@@ -10075,7 +10092,7 @@ export default function App() {
                           onClick={() => setDeptRoleSelectedRole(child)}
                           className={cn(
                             "flex w-full items-center gap-2 rounded-md py-2 pl-8 pr-3 text-[13px] transition-colors",
-                            deptRoleSelectedRole === child ? "bg-[#18bca2] text-white" : "text-slate-600 hover:bg-slate-50"
+                            deptRoleSelectedRole === child ? "bg-[#216BFF] text-white" : "text-slate-600 hover:bg-slate-50"
                           )}
                         >
                           <span>◆</span>
@@ -10097,11 +10114,11 @@ export default function App() {
                       onClick={() => setDeptRoleInnerTab(tab.key)}
                       className={cn(
                         "relative py-3 text-[13px] font-semibold transition-colors",
-                        deptRoleInnerTab === tab.key ? "text-[#18bca2]" : "text-slate-500 hover:text-slate-700"
+                        deptRoleInnerTab === tab.key ? "text-[#216BFF]" : "text-slate-500 hover:text-slate-700"
                       )}
                     >
                       {tab.label}
-                      {deptRoleInnerTab === tab.key && <span className="absolute inset-x-0 bottom-0 h-0.5 bg-[#18bca2]" />}
+                      {deptRoleInnerTab === tab.key && <span className="absolute inset-x-0 bottom-0 h-0.5 bg-[#216BFF]" />}
                     </button>
                   ))}
                 </div>
@@ -10116,7 +10133,7 @@ export default function App() {
                           value={deptRoleChannelFilters.channelName}
                           onChange={(e) => setDeptRoleChannelFilters((f) => ({ ...f, channelName: e.target.value }))}
                           placeholder="请输入渠道名称"
-                          className="h-[32px] w-[150px] rounded-md border border-slate-200 bg-[#fcfcfd] px-2.5 text-[12px] outline-none focus:border-[#12b89f]"
+                          className="h-[32px] w-[150px] rounded-md border border-slate-200 bg-[#fcfcfd] px-2.5 text-[12px] outline-none focus:border-[#216BFF]"
                         />
                       </label>
                       <label className="flex items-center gap-1.5 text-[13px] text-slate-600">
@@ -10125,7 +10142,7 @@ export default function App() {
                           value={deptRoleChannelFilters.channelId}
                           onChange={(e) => setDeptRoleChannelFilters((f) => ({ ...f, channelId: e.target.value }))}
                           placeholder="请输入渠道id"
-                          className="h-[32px] w-[150px] rounded-md border border-slate-200 bg-[#fcfcfd] px-2.5 text-[12px] outline-none focus:border-[#12b89f]"
+                          className="h-[32px] w-[150px] rounded-md border border-slate-200 bg-[#fcfcfd] px-2.5 text-[12px] outline-none focus:border-[#216BFF]"
                         />
                       </label>
                       <label className="flex items-center gap-1.5 text-[13px] text-slate-600">
@@ -10133,7 +10150,7 @@ export default function App() {
                         <select
                           value={deptRoleChannelFilters.userSystem}
                           onChange={(e) => setDeptRoleChannelFilters((f) => ({ ...f, userSystem: e.target.value }))}
-                          className="h-[32px] w-[150px] rounded-md border border-slate-200 bg-[#fcfcfd] px-2.5 text-[12px] outline-none focus:border-[#12b89f]"
+                          className="h-[32px] w-[150px] rounded-md border border-slate-200 bg-[#fcfcfd] px-2.5 text-[12px] outline-none focus:border-[#216BFF]"
                         >
                           <option value="">请选择用户体系</option>
                           <option value="体系1">体系1</option>
@@ -10143,7 +10160,7 @@ export default function App() {
                       <button
                         type="button"
                         onClick={() => setDeptRoleChannelPage(1)}
-                        className="rounded-md border border-[#18bca2] bg-white px-4 py-1.5 text-[12px] font-medium text-[#18bca2] transition-colors hover:bg-[#f0fbf8]"
+                        className="rounded-md border border-[#216BFF] bg-white px-4 py-1.5 text-[12px] font-medium text-[#216BFF] transition-colors hover:bg-[#e8f1ff]"
                       >
                         查 询
                       </button>
@@ -10161,7 +10178,7 @@ export default function App() {
                       <button
                         type="button"
                         onClick={() => { setDeptRoleAddChannelModalOpen(true); setDeptRoleAddChannelSelected([]); setDeptRoleAddChannelFilters({ channelName: '', channelId: '', userSystem: '' }); setDeptRoleAddChannelPage(1); }}
-                        className="rounded-md bg-[#18bca2] px-4 py-1.5 text-[12px] font-medium text-white transition-colors hover:bg-[#15a892]"
+                        className="rounded-md bg-[#216BFF] px-4 py-1.5 text-[12px] font-medium text-white transition-colors hover:bg-[#1a5ce6]"
                       >
                         添 加
                       </button>
@@ -10172,7 +10189,7 @@ export default function App() {
                           setDeptRoleAssignedChannels((prev) => prev.filter((ch) => !deptRoleSelectedChannelIds.includes(ch.id)));
                           setDeptRoleSelectedChannelIds([]);
                         }}
-                        className="rounded-md border border-[#18bca2] bg-white px-4 py-1.5 text-[12px] font-medium text-[#18bca2] transition-colors hover:bg-[#f0fbf8]"
+                        className="rounded-md border border-[#216BFF] bg-white px-4 py-1.5 text-[12px] font-medium text-[#216BFF] transition-colors hover:bg-[#e8f1ff]"
                       >
                         批量移除
                       </button>
@@ -10182,14 +10199,14 @@ export default function App() {
                     <div className="min-h-0 flex-1 overflow-hidden rounded-lg border border-slate-100">
                       <div className="h-full overflow-auto custom-scrollbar">
                         <table className="min-w-full table-auto text-left">
-                          <thead className="sticky top-0 z-10 bg-[#eef9f6] text-[13px] text-slate-700">
+                          <thead className="sticky top-0 z-10 bg-[#e8f1ff] text-[13px] text-slate-700">
                             <tr>
                               <th className="w-10 px-3 py-3 font-medium">
                                 <input
                                   type="checkbox"
                                   checked={deptRoleSelectedChannelIds.length === deptRoleChannelRows.length && deptRoleChannelRows.length > 0}
                                   onChange={(e) => setDeptRoleSelectedChannelIds(e.target.checked ? deptRoleChannelRows.map((r) => r.id) : [])}
-                                  className="accent-[#18bca2]"
+                                  className="accent-[#216BFF]"
                                 />
                               </th>
                               <th className="px-3 py-3 font-medium">序号</th>
@@ -10210,7 +10227,7 @@ export default function App() {
                                     type="checkbox"
                                     checked={deptRoleSelectedChannelIds.includes(row.id)}
                                     onChange={(e) => setDeptRoleSelectedChannelIds((prev) => e.target.checked ? [...prev, row.id] : prev.filter((id) => id !== row.id))}
-                                    className="accent-[#18bca2]"
+                                    className="accent-[#216BFF]"
                                   />
                                 </td>
                                 <td className="px-3 py-3">{(deptRoleChannelPage - 1) * deptRoleChannelPageSize + idx + 1}</td>
@@ -10231,18 +10248,18 @@ export default function App() {
                       <span>共 {deptRoleTotalChannels} 条记录</span>
                       <button type="button" disabled={deptRoleChannelPage <= 1} onClick={() => setDeptRoleChannelPage((p) => p - 1)} className="rounded border border-slate-200 px-2 py-1 disabled:opacity-40">&lt;</button>
                       {[1].map((p) => (
-                        <button key={p} type="button" onClick={() => setDeptRoleChannelPage(p)} className={cn("rounded border px-2 py-1", deptRoleChannelPage === p ? "border-[#18bca2] text-[#18bca2]" : "border-slate-200")}>
+                        <button key={p} type="button" onClick={() => setDeptRoleChannelPage(p)} className={cn("rounded border px-2 py-1", deptRoleChannelPage === p ? "border-[#216BFF] text-[#216BFF]" : "border-slate-200")}>
                           {p}
                         </button>
                       ))}
                       <span>...</span>
                       {[deptRoleChannelPage - 1, deptRoleChannelPage, deptRoleChannelPage + 1].filter((p) => p > 1 && p < deptRoleTotalPages).map((p) => (
-                        <button key={p} type="button" onClick={() => setDeptRoleChannelPage(p)} className={cn("rounded border px-2 py-1", deptRoleChannelPage === p ? "border-[#18bca2] text-[#18bca2]" : "border-slate-200")}>
+                        <button key={p} type="button" onClick={() => setDeptRoleChannelPage(p)} className={cn("rounded border px-2 py-1", deptRoleChannelPage === p ? "border-[#216BFF] text-[#216BFF]" : "border-slate-200")}>
                           {p}
                         </button>
                       ))}
                       {deptRoleChannelPage + 1 < deptRoleTotalPages && <span>...</span>}
-                      <button type="button" onClick={() => setDeptRoleChannelPage(deptRoleTotalPages)} className={cn("rounded border px-2 py-1", deptRoleChannelPage === deptRoleTotalPages ? "border-[#18bca2] text-[#18bca2]" : "border-slate-200")}>{deptRoleTotalPages}</button>
+                      <button type="button" onClick={() => setDeptRoleChannelPage(deptRoleTotalPages)} className={cn("rounded border px-2 py-1", deptRoleChannelPage === deptRoleTotalPages ? "border-[#216BFF] text-[#216BFF]" : "border-slate-200")}>{deptRoleTotalPages}</button>
                       <button type="button" disabled={deptRoleChannelPage >= deptRoleTotalPages} onClick={() => setDeptRoleChannelPage((p) => p + 1)} className="rounded border border-slate-200 px-2 py-1 disabled:opacity-40">&gt;</button>
                       <select value={deptRoleChannelPageSize} onChange={(e) => { setDeptRoleChannelPageSize(Number(e.target.value)); setDeptRoleChannelPage(1); }} className="rounded border border-slate-200 px-1 py-1 text-[12px]">
                         <option value={10}>10条/页</option>
@@ -10292,7 +10309,7 @@ export default function App() {
                     value={deptRoleAddChannelFilters.channelName}
                     onChange={(e) => setDeptRoleAddChannelFilters((f) => ({ ...f, channelName: e.target.value }))}
                     placeholder="请输入渠道名称"
-                    className="h-[32px] w-[150px] rounded-md border border-slate-200 bg-[#fcfcfd] px-2.5 text-[12px] outline-none focus:border-[#12b89f]"
+                    className="h-[32px] w-[150px] rounded-md border border-slate-200 bg-[#fcfcfd] px-2.5 text-[12px] outline-none focus:border-[#216BFF]"
                   />
                 </label>
                 <label className="flex items-center gap-1.5 text-[13px] text-slate-600">
@@ -10301,7 +10318,7 @@ export default function App() {
                     value={deptRoleAddChannelFilters.channelId}
                     onChange={(e) => setDeptRoleAddChannelFilters((f) => ({ ...f, channelId: e.target.value }))}
                     placeholder="请输入渠道id"
-                    className="h-[32px] w-[150px] rounded-md border border-slate-200 bg-[#fcfcfd] px-2.5 text-[12px] outline-none focus:border-[#12b89f]"
+                    className="h-[32px] w-[150px] rounded-md border border-slate-200 bg-[#fcfcfd] px-2.5 text-[12px] outline-none focus:border-[#216BFF]"
                   />
                 </label>
                 <label className="flex items-center gap-1.5 text-[13px] text-slate-600">
@@ -10309,7 +10326,7 @@ export default function App() {
                   <select
                     value={deptRoleAddChannelFilters.userSystem}
                     onChange={(e) => setDeptRoleAddChannelFilters((f) => ({ ...f, userSystem: e.target.value }))}
-                    className="h-[32px] w-[150px] rounded-md border border-slate-200 bg-[#fcfcfd] px-2.5 text-[12px] outline-none focus:border-[#12b89f]"
+                    className="h-[32px] w-[150px] rounded-md border border-slate-200 bg-[#fcfcfd] px-2.5 text-[12px] outline-none focus:border-[#216BFF]"
                   >
                     <option value="">请选择用户体系</option>
                     <option value="体系1">体系1</option>
@@ -10319,7 +10336,7 @@ export default function App() {
                 <button
                   type="button"
                   onClick={() => setDeptRoleAddChannelPage(1)}
-                  className="rounded-md border border-[#18bca2] bg-white px-4 py-1.5 text-[12px] font-medium text-[#18bca2] transition-colors hover:bg-[#f0fbf8]"
+                  className="rounded-md border border-[#216BFF] bg-white px-4 py-1.5 text-[12px] font-medium text-[#216BFF] transition-colors hover:bg-[#e8f1ff]"
                 >
                   查 询
                 </button>
@@ -10335,14 +10352,14 @@ export default function App() {
               {/* Modal table */}
               <div className="overflow-hidden rounded-lg border border-slate-100">
                 <table className="min-w-full table-auto text-left">
-                  <thead className="bg-[#eef9f6] text-[13px] text-slate-700">
+                  <thead className="bg-[#e8f1ff] text-[13px] text-slate-700">
                     <tr>
                       <th className="w-10 px-3 py-3 font-medium">
                         <input
                           type="checkbox"
                           checked={deptRoleAddChannelRows.length > 0 && deptRoleAddChannelRows.every((r) => deptRoleAddChannelSelected.includes(r.id))}
                           onChange={(e) => setDeptRoleAddChannelSelected((prev) => e.target.checked ? [...new Set([...prev, ...deptRoleAddChannelRows.map((r) => r.id)])] : prev.filter((id) => !deptRoleAddChannelRows.some((r) => r.id === id)))}
-                          className="accent-[#18bca2]"
+                          className="accent-[#216BFF]"
                         />
                       </th>
                       <th className="px-3 py-3 font-medium">序号</th>
@@ -10363,7 +10380,7 @@ export default function App() {
                             type="checkbox"
                             checked={deptRoleAddChannelSelected.includes(row.id)}
                             onChange={(e) => setDeptRoleAddChannelSelected((prev) => e.target.checked ? [...prev, row.id] : prev.filter((id) => id !== row.id))}
-                            className="accent-[#18bca2]"
+                            className="accent-[#216BFF]"
                           />
                         </td>
                         <td className="px-3 py-3">{(deptRoleAddChannelPage - 1) * 10 + idx + 1}</td>
@@ -10383,17 +10400,17 @@ export default function App() {
                 <span>共 {deptRoleAddAvailableChannels.length} 条记录</span>
                 <button type="button" disabled={deptRoleAddChannelPage <= 1} onClick={() => setDeptRoleAddChannelPage((p) => p - 1)} className="rounded border border-slate-200 px-2 py-1 disabled:opacity-40">&lt;</button>
                 {deptRoleAddTotalPages <= 7 ? Array.from({ length: deptRoleAddTotalPages }, (_, i) => i + 1).map((p) => (
-                  <button key={p} type="button" onClick={() => setDeptRoleAddChannelPage(p)} className={cn("rounded border px-2 py-1", deptRoleAddChannelPage === p ? "border-[#18bca2] text-[#18bca2]" : "border-slate-200")}>{p}</button>
+                  <button key={p} type="button" onClick={() => setDeptRoleAddChannelPage(p)} className={cn("rounded border px-2 py-1", deptRoleAddChannelPage === p ? "border-[#216BFF] text-[#216BFF]" : "border-slate-200")}>{p}</button>
                 )) : (<>
                   {[1].map((p) => (
-                    <button key={p} type="button" onClick={() => setDeptRoleAddChannelPage(p)} className={cn("rounded border px-2 py-1", deptRoleAddChannelPage === p ? "border-[#18bca2] text-[#18bca2]" : "border-slate-200")}>{p}</button>
+                    <button key={p} type="button" onClick={() => setDeptRoleAddChannelPage(p)} className={cn("rounded border px-2 py-1", deptRoleAddChannelPage === p ? "border-[#216BFF] text-[#216BFF]" : "border-slate-200")}>{p}</button>
                   ))}
                   <span>...</span>
                   {[deptRoleAddChannelPage - 1, deptRoleAddChannelPage, deptRoleAddChannelPage + 1].filter((p) => p > 1 && p < deptRoleAddTotalPages).map((p) => (
-                    <button key={p} type="button" onClick={() => setDeptRoleAddChannelPage(p)} className={cn("rounded border px-2 py-1", deptRoleAddChannelPage === p ? "border-[#18bca2] text-[#18bca2]" : "border-slate-200")}>{p}</button>
+                    <button key={p} type="button" onClick={() => setDeptRoleAddChannelPage(p)} className={cn("rounded border px-2 py-1", deptRoleAddChannelPage === p ? "border-[#216BFF] text-[#216BFF]" : "border-slate-200")}>{p}</button>
                   ))}
                   {deptRoleAddChannelPage + 1 < deptRoleAddTotalPages && <span>...</span>}
-                  <button type="button" onClick={() => setDeptRoleAddChannelPage(deptRoleAddTotalPages)} className={cn("rounded border px-2 py-1", deptRoleAddChannelPage === deptRoleAddTotalPages ? "border-[#18bca2] text-[#18bca2]" : "border-slate-200")}>{deptRoleAddTotalPages}</button>
+                  <button type="button" onClick={() => setDeptRoleAddChannelPage(deptRoleAddTotalPages)} className={cn("rounded border px-2 py-1", deptRoleAddChannelPage === deptRoleAddTotalPages ? "border-[#216BFF] text-[#216BFF]" : "border-slate-200")}>{deptRoleAddTotalPages}</button>
                 </>)}
                 <button type="button" disabled={deptRoleAddChannelPage >= deptRoleAddTotalPages} onClick={() => setDeptRoleAddChannelPage((p) => p + 1)} className="rounded border border-slate-200 px-2 py-1 disabled:opacity-40">&gt;</button>
                 <select value={10} className="rounded border border-slate-200 px-1 py-1 text-[12px]">
@@ -10423,7 +10440,7 @@ export default function App() {
                   setDeptRoleAddChannelSelected([]);
                   setDeptRoleAddChannelModalOpen(false);
                 }}
-                className="rounded-md bg-[#18bca2] px-5 py-1.5 text-[13px] font-medium text-white transition-colors hover:bg-[#15a892]"
+                className="rounded-md bg-[#216BFF] px-5 py-1.5 text-[13px] font-medium text-white transition-colors hover:bg-[#1a5ce6]"
               >
                 确 定
               </button>
@@ -10443,7 +10460,7 @@ export default function App() {
               <button
                 key={item}
                 type="button"
-                className="rounded-full border border-[#88dfd0] bg-white px-4 py-2 text-[13px] font-medium text-[#17bda3] transition-colors hover:bg-[#eefbf8]"
+                className="rounded-full border border-[#96b8ff] bg-white px-4 py-2 text-[13px] font-medium text-[#216BFF] transition-colors hover:bg-[#e8f1ff]"
               >
                 {item}
               </button>
@@ -10459,7 +10476,7 @@ export default function App() {
                 className={cn(
                   "border-b-2 py-4 font-medium transition-colors",
                   activeWebchatMaintenanceSection === section
-                    ? "border-[#19c5aa] text-[#19c5aa]"
+                    ? "border-[#216BFF] text-[#216BFF]"
                     : "border-transparent text-slate-600 hover:text-slate-800"
                 )}
               >
@@ -10472,7 +10489,7 @@ export default function App() {
             <div className="flex min-h-0 flex-1">
               <div className="w-[200px] shrink-0 border-r border-slate-100 bg-[#fafbfc]">
                 {['应用程序属性维护', '工作组默认属性维护', '队列默认属性维护', '其它属性维护'].map((item) => (
-                  <button key={item} type="button" className={cn('block w-full px-5 py-4 text-left text-[13px] transition-colors', item === '其它属性维护' ? 'border-l-[3px] border-[#19c5aa] bg-white font-semibold text-[#19c5aa]' : 'text-slate-600 hover:bg-white')}>
+                  <button key={item} type="button" className={cn('block w-full px-5 py-4 text-left text-[13px] transition-colors', item === '其它属性维护' ? 'border-l-[3px] border-[#216BFF] bg-white font-semibold text-[#216BFF]' : 'text-slate-600 hover:bg-white')}>
                     {item}
                   </button>
                 ))}
@@ -10489,8 +10506,8 @@ export default function App() {
                     <div key={sound.label} className="flex items-center gap-4 px-5 py-4">
                       <span className="w-[130px] shrink-0 text-[13px] font-medium text-slate-700">{sound.label}</span>
                       <span className="min-w-0 flex-1 truncate text-[13px] text-slate-500">{sound.file}</span>
-                      <button type="button" className="text-[13px] font-medium text-[#19c5aa] hover:underline">试听</button>
-                      <button type="button" className="text-[13px] font-medium text-red-400 hover:underline">删除</button>
+                      <button type="button" className="text-[13px] font-medium text-[#216BFF] hover:underline">试听</button>
+                      <button type="button" className="text-[13px] font-medium text-[#ff6f6f] hover:text-[#ff4d4f]">删除</button>
                       <button type="button" className="rounded border border-slate-200 bg-white px-3 py-1 text-[13px] text-slate-600 transition-colors hover:bg-slate-50">导 入</button>
                     </div>
                   ))}
@@ -10512,13 +10529,13 @@ export default function App() {
                     <span className="w-[130px] shrink-0 text-[13px] font-medium text-slate-700">显示水印</span>
                     <label className="relative inline-flex cursor-pointer items-center">
                       <input type="checkbox" defaultChecked className="peer sr-only" />
-                      <div className="h-6 w-11 rounded-full bg-slate-200 transition-colors after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow after:transition-all peer-checked:bg-[#19c5aa] peer-checked:after:translate-x-5" />
+                      <div className="h-6 w-11 rounded-full bg-slate-200 transition-colors after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow after:transition-all peer-checked:bg-[#216BFF] peer-checked:after:translate-x-5" />
                     </label>
                     <span className="text-[12px] text-slate-400">开启后将显示域账号水印</span>
                   </div>
                 </div>
                 <div className="mt-8 flex justify-end">
-                  <button type="button" className="rounded-full bg-[#19c5aa] px-8 py-2 text-[14px] font-medium text-white transition-colors hover:bg-[#15b39a]">保 存</button>
+                  <button type="button" className="rounded-full bg-[#216BFF] px-8 py-2 text-[14px] font-medium text-white transition-colors hover:bg-[#1a5ce6]">保 存</button>
                 </div>
               </div>
             </div>
@@ -10535,11 +10552,11 @@ export default function App() {
           ) : activeWebchatMaintenanceSection === '用户体系管理' ? (
             userSystemManagementContent
           ) : (
-            <div className="flex min-h-0 flex-1 items-center justify-center bg-[#fbfcff] p-6">
+            <div className="flex min-h-0 flex-1 items-center justify-center bg-[#f7f9ff] p-6">
               <div className="rounded-2xl border border-dashed border-slate-200 bg-white px-10 py-12 text-center shadow-sm">
                 <div className="text-[18px] font-semibold text-slate-700">{activeWebchatMaintenanceSection}</div>
                 <p className="mt-3 max-w-[360px] text-[13px] leading-6 text-slate-500">
-                  当前仅按参考图实现“产品维护”视图，其余二级页签先保留为占位。
+                  当前仅按参考图实现"产品维护"视图，其余二级页签先保留为占位。
                 </p>
               </div>
             </div>
@@ -10576,7 +10593,7 @@ export default function App() {
               </button>
               <button
                 type="button"
-                className="inline-flex h-10 items-center gap-2 rounded-md border border-[#8fe0d2] bg-[#effbf8] px-4 text-[13px] font-medium text-[#18bca2] transition-colors hover:bg-[#e2f8f3]"
+                className="inline-flex h-10 items-center gap-2 rounded-md border border-[#96b8ff] bg-[#e8f1ff] px-4 text-[13px] font-medium text-[#216BFF] transition-colors hover:bg-[#c9dcff]"
               >
                 <FilePen size={14} />
                 新增字段
@@ -10586,7 +10603,7 @@ export default function App() {
 
           <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
             {businessFieldManagementSummaryCards.map((item) => (
-              <div key={item.label} className="rounded-2xl border border-slate-100 bg-[#fbfcfe] px-4 py-4">
+              <div key={item.label} className="rounded-2xl border border-slate-100 bg-[#fbfcfe] px-4 py-3">
                 <div className="text-[13px] text-slate-400">{item.label}</div>
                 <div className="mt-2 text-[28px] font-semibold leading-none text-slate-800">{item.value}</div>
                 <div className="mt-3 text-[12px] text-slate-500">{item.hint}</div>
@@ -10618,7 +10635,7 @@ export default function App() {
             <div className="flex items-center gap-3">
               <button
                 type="button"
-                className="rounded-md border border-[#8fe0d2] bg-[#effbf8] px-4 py-2 text-[13px] font-medium text-[#18bca2] transition-colors hover:bg-[#e2f8f3]"
+                className="rounded-md border border-[#96b8ff] bg-[#e8f1ff] px-4 py-2 text-[13px] font-medium text-[#216BFF] transition-colors hover:bg-[#c9dcff]"
               >
                 查询
               </button>
@@ -10632,7 +10649,7 @@ export default function App() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3 border-b border-slate-100 px-5 py-3 text-[13px] text-slate-500">
-            <span className="inline-flex items-center gap-1 rounded-full bg-[#f1fbf8] px-3 py-1 font-medium text-[#18bca2]">
+            <span className="inline-flex items-center gap-1 rounded-full bg-[#e8f1ff] px-3 py-1 font-medium text-[#216BFF]">
               <Check size={12} />
               当前版本已发布
             </span>
@@ -10662,26 +10679,26 @@ export default function App() {
               <tbody className="text-[13px] text-slate-600">
                 {businessFieldManagementRows.map((row, index) => (
                   <tr key={row.id} className={cn(index % 2 === 0 ? "bg-white" : "bg-[#fcfcfc]")}>
-                    <td className="px-4 py-4">{row.id}</td>
-                    <td className="px-4 py-4 font-medium text-slate-700">{row.fieldName}</td>
-                    <td className="px-4 py-4">{row.businessModule}</td>
-                    <td className="px-4 py-4">{row.fieldType}</td>
-                    <td className="px-4 py-4">{row.scope}</td>
-                    <td className="px-4 py-4">
+                    <td className="px-4 py-3">{row.id}</td>
+                    <td className="px-4 py-3 font-medium text-slate-700">{row.fieldName}</td>
+                    <td className="px-4 py-3">{row.businessModule}</td>
+                    <td className="px-4 py-3">{row.fieldType}</td>
+                    <td className="px-4 py-3">{row.scope}</td>
+                    <td className="px-4 py-3">
                       <span className={cn("inline-flex rounded-full px-2.5 py-1 text-[12px]", row.required === '是' ? "bg-[#fff5e8] text-[#f08a24]" : "bg-slate-100 text-slate-500")}>
                         {row.required}
                       </span>
                     </td>
-                    <td className="px-4 py-4">
-                      <span className={cn("inline-flex rounded-full px-2.5 py-1 text-[12px]", row.status === '启用' ? "bg-[#eefaf7] text-[#18bca2]" : "bg-[#fef3f2] text-[#f97366]")}>
+                    <td className="px-4 py-3">
+                      <span className={cn("inline-flex rounded-full px-2.5 py-1 text-[12px]", row.status === '启用' ? "bg-[#e8f1ff] text-[#216BFF]" : "bg-[#fef3f2] text-[#f97366]")}>
                         {row.status}
                       </span>
                     </td>
-                    <td className="px-4 py-4">{row.sortOrder}</td>
-                    <td className="px-4 py-4">{row.updatedAt}</td>
-                    <td className="px-4 py-4">
+                    <td className="px-4 py-3">{row.sortOrder}</td>
+                    <td className="px-4 py-3">{row.updatedAt}</td>
+                    <td className="px-4 py-3">
                       <div className="flex items-center gap-4">
-                        <button type="button" className="text-[#18bca2] transition-colors hover:text-[#12a58e]">
+                        <button type="button" className="text-[#216BFF] transition-colors hover:text-[#1a5ce6]">
                           编辑
                         </button>
                         <button type="button" className="text-slate-500 transition-colors hover:text-slate-700">
@@ -10736,7 +10753,7 @@ export default function App() {
             <div className="flex items-center gap-3">
               <button
                 type="button"
-                className="rounded-md border border-[#8fe0d2] bg-[#effbf8] px-4 py-2 text-[13px] font-medium text-[#18bca2]"
+                className="rounded-md border border-[#96b8ff] bg-[#e8f1ff] px-4 py-2 text-[13px] font-medium text-[#216BFF]"
               >
                 查询
               </button>
@@ -10752,14 +10769,14 @@ export default function App() {
           <div className="flex flex-wrap items-center gap-3 border-b border-slate-100 px-5 py-4">
             <button
               type="button"
-              className="rounded-md bg-[#12b89f] px-4 py-2 text-[13px] font-medium text-white"
+              className="rounded-md bg-[#216BFF] px-4 py-2 text-[13px] font-medium text-white"
             >
               新增
             </button>
             {showBatchDelete ? (
               <button
                 type="button"
-                className="rounded-md border border-[#89dfd0] bg-white px-4 py-2 text-[13px] font-medium text-[#18bca2]"
+                className="rounded-md border border-[#96b8ff] bg-white px-4 py-2 text-[13px] font-medium text-[#216BFF]"
               >
                 批量删除
               </button>
@@ -10783,7 +10800,7 @@ export default function App() {
                     {row.map((cell, cellIndex) => (
                       <td
                         key={`${title}-${row[0]}-${columns[cellIndex]}`}
-                        className={cn("px-4 py-4", cellIndex === 1 ? "font-medium text-slate-700" : "")}
+                        className={cn("px-4 py-3", cellIndex === 1 ? "font-medium text-slate-700" : "")}
                       >
                         {cell}
                       </td>
@@ -11032,7 +11049,7 @@ export default function App() {
               </button>
               <button
                 type="button"
-                className="rounded-md border border-[#8fe0d2] bg-[#effbf8] px-4 py-2 text-[13px] font-medium text-[#18bca2]"
+                className="rounded-md border border-[#96b8ff] bg-[#e8f1ff] px-4 py-2 text-[13px] font-medium text-[#216BFF]"
               >
                 查询
               </button>
@@ -11044,7 +11061,7 @@ export default function App() {
             <button
               type="button"
               onClick={handleOpenBusyAnnouncementAdd}
-              className="rounded-md bg-[#12b89f] px-4 py-2 text-[13px] font-medium text-white hover:bg-[#10a08a]"
+              className="rounded-md bg-[#216BFF] px-4 py-2 text-[13px] font-medium text-white hover:bg-[#1a5ce6]"
             >
               新增
             </button>
@@ -11055,7 +11072,7 @@ export default function App() {
               className={cn(
                 "rounded-md border px-4 py-2 text-[13px] font-medium",
                 selectedBusyAnnouncementIds.length > 0
-                  ? "border-[#89dfd0] bg-white text-[#18bca2] hover:bg-[#f0fdf9]"
+                  ? "border-[#96b8ff] bg-white text-[#216BFF] hover:bg-[#e8f1ff]"
                   : "border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed"
               )}
             >
@@ -11073,7 +11090,7 @@ export default function App() {
                       type="checkbox"
                       checked={filteredAnnouncements.length > 0 && selectedBusyAnnouncementIds.length === filteredAnnouncements.length}
                       onChange={(e) => handleToggleSelectAll(e.target.checked)}
-                      className="h-4 w-4 cursor-pointer rounded border-slate-300 text-[#12b89f] focus:ring-[#12b89f]"
+                      className="h-4 w-4 cursor-pointer rounded border-slate-300 text-[#216BFF] focus:ring-[#216BFF]"
                     />
                   </th>
                   <th className="w-16 px-4 py-3 font-medium">序号</th>
@@ -11088,25 +11105,25 @@ export default function App() {
               <tbody className="text-[13px] text-slate-600">
                 {filteredAnnouncements.map((item, index) => (
                   <tr key={item.id} className={cn(index % 2 === 0 ? "bg-white" : "bg-[#fcfcfc]")}>
-                    <td className="px-4 py-4">
+                    <td className="px-4 py-3">
                       <input
                         type="checkbox"
                         checked={selectedBusyAnnouncementIds.includes(item.id)}
                         onChange={(e) => handleToggleSelectItem(item.id, e.target.checked)}
-                        className="h-4 w-4 cursor-pointer rounded border-slate-300 text-[#12b89f] focus:ring-[#12b89f]"
+                        className="h-4 w-4 cursor-pointer rounded border-slate-300 text-[#216BFF] focus:ring-[#216BFF]"
                       />
                     </td>
-                    <td className="px-4 py-4">{item.id}</td>
-                    <td className="px-4 py-4 font-medium text-slate-700">{item.title}</td>
-                    <td className="px-4 py-4">{item.createdAt}</td>
-                    <td className="px-4 py-4">{item.updatedAt}</td>
-                    <td className="px-4 py-4">
+                    <td className="px-4 py-3">{item.id}</td>
+                    <td className="px-4 py-3 font-medium text-slate-700">{item.title}</td>
+                    <td className="px-4 py-3">{item.createdAt}</td>
+                    <td className="px-4 py-3">{item.updatedAt}</td>
+                    <td className="px-4 py-3">
                       <button
                         type="button"
                         onClick={() => handleToggleBusyAnnouncementStatus(item.id)}
                         className={cn(
                           "relative inline-flex h-6 w-11 items-center rounded-full transition-colors",
-                          item.status ? "bg-[#12b89f]" : "bg-slate-300"
+                          item.status ? "bg-[#216BFF]" : "bg-slate-300"
                         )}
                       >
                         <span
@@ -11117,34 +11134,34 @@ export default function App() {
                         />
                       </button>
                     </td>
-                    <td className="px-4 py-4">{item.scope}</td>
-                    <td className="px-4 py-4">
+                    <td className="px-4 py-3">{item.scope}</td>
+                    <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         <button
                           type="button"
                           onClick={() => handleOpenBusyAnnouncementEdit(item.id)}
-                          className="text-[#18bca2] transition-colors hover:text-[#12a08a]"
+                          className="text-[#216BFF] transition-colors hover:text-[#1a5ce6]"
                         >
                           编辑
                         </button>
                         <button
                           type="button"
                           onClick={() => handleOpenBusyAnnouncementApply(item.id)}
-                          className="text-[#18bca2] transition-colors hover:text-[#12a08a]"
+                          className="text-[#216BFF] transition-colors hover:text-[#1a5ce6]"
                         >
                           应用
                         </button>
                         <button
                           type="button"
                           onClick={() => handleOpenBusyAnnouncementView(item.id)}
-                          className="text-[#18bca2] transition-colors hover:text-[#12a08a]"
+                          className="text-[#216BFF] transition-colors hover:text-[#1a5ce6]"
                         >
                           查看
                         </button>
                         <button
                           type="button"
                           onClick={() => handleDeleteBusyAnnouncement(item.id)}
-                          className="text-[#18bca2] transition-colors hover:text-[#12a08a]"
+                          className="text-[#216BFF] transition-colors hover:text-[#1a5ce6]"
                         >
                           删除
                         </button>
@@ -11405,7 +11422,7 @@ export default function App() {
               </button>
               <button
                 type="button"
-                className="rounded-md border border-[#8fe0d2] bg-[#effbf8] px-4 py-2 text-[13px] font-medium text-[#18bca2]"
+                className="rounded-md border border-[#96b8ff] bg-[#e8f1ff] px-4 py-2 text-[13px] font-medium text-[#216BFF]"
               >
                 查询
               </button>
@@ -11417,7 +11434,7 @@ export default function App() {
             <button
               type="button"
               onClick={handleOpenPrivacyStatementAdd}
-              className="rounded-md bg-[#12b89f] px-4 py-2 text-[13px] font-medium text-white hover:bg-[#10a08a]"
+              className="rounded-md bg-[#216BFF] px-4 py-2 text-[13px] font-medium text-white hover:bg-[#1a5ce6]"
             >
               新增
             </button>
@@ -11428,7 +11445,7 @@ export default function App() {
               className={cn(
                 "rounded-md border px-4 py-2 text-[13px] font-medium",
                 selectedPrivacyStatementIds.length > 0
-                  ? "border-[#89dfd0] bg-white text-[#18bca2] hover:bg-[#f0fdf9]"
+                  ? "border-[#96b8ff] bg-white text-[#216BFF] hover:bg-[#e8f1ff]"
                   : "border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed"
               )}
             >
@@ -11446,7 +11463,7 @@ export default function App() {
                       type="checkbox"
                       checked={filteredPrivacyStatements.length > 0 && selectedPrivacyStatementIds.length === filteredPrivacyStatements.length}
                       onChange={(e) => handleTogglePrivacySelectAll(e.target.checked)}
-                      className="h-4 w-4 cursor-pointer rounded border-slate-300 text-[#12b89f] focus:ring-[#12b89f]"
+                      className="h-4 w-4 cursor-pointer rounded border-slate-300 text-[#216BFF] focus:ring-[#216BFF]"
                     />
                   </th>
                   <th className="w-16 px-4 py-3 font-medium">序号</th>
@@ -11461,25 +11478,25 @@ export default function App() {
               <tbody className="text-[13px] text-slate-600">
                 {filteredPrivacyStatements.map((item, index) => (
                   <tr key={item.id} className={cn(index % 2 === 0 ? "bg-white" : "bg-[#fcfcfc]")}>
-                    <td className="px-4 py-4">
+                    <td className="px-4 py-3">
                       <input
                         type="checkbox"
                         checked={selectedPrivacyStatementIds.includes(item.id)}
                         onChange={(e) => handleTogglePrivacySelectItem(item.id, e.target.checked)}
-                        className="h-4 w-4 cursor-pointer rounded border-slate-300 text-[#12b89f] focus:ring-[#12b89f]"
+                        className="h-4 w-4 cursor-pointer rounded border-slate-300 text-[#216BFF] focus:ring-[#216BFF]"
                       />
                     </td>
-                    <td className="px-4 py-4">{item.id}</td>
-                    <td className="px-4 py-4 font-medium text-slate-700">{item.title}</td>
-                    <td className="px-4 py-4">{item.createdAt}</td>
-                    <td className="px-4 py-4">{item.updatedAt}</td>
-                    <td className="px-4 py-4">
+                    <td className="px-4 py-3">{item.id}</td>
+                    <td className="px-4 py-3 font-medium text-slate-700">{item.title}</td>
+                    <td className="px-4 py-3">{item.createdAt}</td>
+                    <td className="px-4 py-3">{item.updatedAt}</td>
+                    <td className="px-4 py-3">
                       <button
                         type="button"
                         onClick={() => handleTogglePrivacyStatementStatus(item.id)}
                         className={cn(
                           "relative inline-flex h-6 w-11 items-center rounded-full transition-colors",
-                          item.status ? "bg-[#12b89f]" : "bg-slate-300"
+                          item.status ? "bg-[#216BFF]" : "bg-slate-300"
                         )}
                       >
                         <span
@@ -11490,34 +11507,34 @@ export default function App() {
                         />
                       </button>
                     </td>
-                    <td className="px-4 py-4">{item.scope}</td>
-                    <td className="px-4 py-4">
+                    <td className="px-4 py-3">{item.scope}</td>
+                    <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         <button
                           type="button"
                           onClick={() => handleOpenPrivacyStatementEdit(item.id)}
-                          className="text-[#18bca2] transition-colors hover:text-[#12a08a]"
+                          className="text-[#216BFF] transition-colors hover:text-[#1a5ce6]"
                         >
                           编辑
                         </button>
                         <button
                           type="button"
                           onClick={() => handleOpenPrivacyStatementApply(item.id)}
-                          className="text-[#18bca2] transition-colors hover:text-[#12a08a]"
+                          className="text-[#216BFF] transition-colors hover:text-[#1a5ce6]"
                         >
                           应用
                         </button>
                         <button
                           type="button"
                           onClick={() => handleOpenPrivacyStatementView(item.id)}
-                          className="text-[#18bca2] transition-colors hover:text-[#12a08a]"
+                          className="text-[#216BFF] transition-colors hover:text-[#1a5ce6]"
                         >
                           查看
                         </button>
                         <button
                           type="button"
                           onClick={() => handleDeletePrivacyStatement(item.id)}
-                          className="text-[#18bca2] transition-colors hover:text-[#12a08a]"
+                          className="text-[#216BFF] transition-colors hover:text-[#1a5ce6]"
                         >
                           删除
                         </button>
@@ -11579,12 +11596,12 @@ export default function App() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <button type="button" className="rounded-md border border-[#8fe0d2] bg-[#effbf8] px-4 py-2 text-[13px] font-medium text-[#18bca2]">查询</button>
+              <button type="button" className="rounded-md border border-[#96b8ff] bg-[#e8f1ff] px-4 py-2 text-[13px] font-medium text-[#216BFF]">查询</button>
               <button type="button" onClick={() => setUserSystemSearchKeyword('')} className="rounded-md border border-slate-200 bg-white px-4 py-2 text-[13px] font-medium text-slate-500">重置</button>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-3 border-b border-slate-100 px-5 py-4">
-            <button type="button" onClick={() => { setUserSystemForm({ name: '', blacklistDays: '' }); setEditingUserSystemId(null); setUserSystemFormErrors({}); setUserSystemDialog('add'); }} className="rounded-md bg-[#12b89f] px-4 py-2 text-[13px] font-medium text-white">新增</button>
+            <button type="button" onClick={() => { setUserSystemForm({ name: '', blacklistDays: '' }); setEditingUserSystemId(null); setUserSystemFormErrors({}); setUserSystemDialog('add'); }} className="rounded-md bg-[#216BFF] px-4 py-2 text-[13px] font-medium text-white">新增</button>
           </div>
           <div className="min-h-0 overflow-auto px-5 pb-4 pt-3 custom-scrollbar">
             <table className="min-w-full table-fixed text-left">
@@ -11601,15 +11618,15 @@ export default function App() {
               <tbody className="text-[13px] text-slate-600">
                 {filteredUserSystems.map((item, index) => (
                   <tr key={item.id} className={cn(index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]')}>
-                    <td className="px-4 py-4">{index + 1}</td>
-                    <td className="px-4 py-4 font-medium text-slate-700">{item.name}</td>
-                    <td className="px-4 py-4">{item.blacklistDays}</td>
-                    <td className="px-4 py-4">{item.createdAt}</td>
-                    <td className="px-4 py-4">{item.updatedAt}</td>
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-4 text-[13px] font-medium text-[#5a8cff]">
-                        <button type="button" onClick={() => { setUserSystemForm({ name: item.name, blacklistDays: item.blacklistDays }); setEditingUserSystemId(item.id); setUserSystemFormErrors({}); setUserSystemDialog('edit'); }}>编辑</button>
-                        <button type="button" onClick={() => handleDeleteUserSystem(item.id)} className="text-[#ff8a8a]">删除</button>
+                    <td className="px-4 py-3">{index + 1}</td>
+                    <td className="px-4 py-3 font-medium text-slate-700">{item.name}</td>
+                    <td className="px-4 py-3">{item.blacklistDays}</td>
+                    <td className="px-4 py-3">{item.createdAt}</td>
+                    <td className="px-4 py-3">{item.updatedAt}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-4 text-[13px] font-medium text-[#216BFF]">
+                        <button type="button" onClick={() => { setUserSystemForm({ name: item.name, blacklistDays: item.blacklistDays }); setEditingUserSystemId(item.id); setUserSystemFormErrors({}); setUserSystemDialog('edit'); }} className="hover:text-[#1a5ce6]">编辑</button>
+                        <button type="button" onClick={() => handleDeleteUserSystem(item.id)} className="text-[#ff6f6f] hover:text-[#ff4d4f]">删除</button>
                       </div>
                     </td>
                   </tr>
@@ -11633,21 +11650,21 @@ export default function App() {
               <div className="grid grid-cols-[110px_1fr] items-start gap-4 text-[14px] text-slate-600">
                 <span className="pt-2 text-right font-medium"><span className="mr-1 text-[#ff6f6f]">*</span>用户体系名称:</span>
                 <div>
-                  <input type="text" value={userSystemForm.name} onChange={(e) => { setUserSystemForm((prev) => ({ ...prev, name: e.target.value })); setUserSystemFormErrors((prev) => { const n = { ...prev }; delete n.name; return n; }); }} placeholder="请输入用户体系名称" className={cn('h-9 w-full rounded border px-3 text-[13px] outline-none', userSystemFormErrors.name ? 'border-[#ff8b8b]' : 'border-slate-200 focus:border-[#12b89f]')} />
+                  <input type="text" value={userSystemForm.name} onChange={(e) => { setUserSystemForm((prev) => ({ ...prev, name: e.target.value })); setUserSystemFormErrors((prev) => { const n = { ...prev }; delete n.name; return n; }); }} placeholder="请输入用户体系名称" className={cn('h-9 w-full rounded border px-3 text-[13px] outline-none', userSystemFormErrors.name ? 'border-[#ff6f6f]' : 'border-slate-200 focus:border-[#216BFF]')} />
                   {userSystemFormErrors.name && <div className="mt-1 text-[12px] text-[#ff6f6f]">{userSystemFormErrors.name}</div>}
                 </div>
               </div>
               <div className="grid grid-cols-[110px_1fr] items-start gap-4 text-[14px] text-slate-600">
                 <span className="pt-2 text-right font-medium"><span className="mr-1 text-[#ff6f6f]">*</span>黑名单天数:</span>
                 <div>
-                  <input type="text" value={userSystemForm.blacklistDays} onChange={(e) => { setUserSystemForm((prev) => ({ ...prev, blacklistDays: e.target.value })); setUserSystemFormErrors((prev) => { const n = { ...prev }; delete n.blacklistDays; return n; }); }} placeholder="请输入黑名单天数" className={cn('h-9 w-full rounded border px-3 text-[13px] outline-none', userSystemFormErrors.blacklistDays ? 'border-[#ff8b8b]' : 'border-slate-200 focus:border-[#12b89f]')} />
+                  <input type="text" value={userSystemForm.blacklistDays} onChange={(e) => { setUserSystemForm((prev) => ({ ...prev, blacklistDays: e.target.value })); setUserSystemFormErrors((prev) => { const n = { ...prev }; delete n.blacklistDays; return n; }); }} placeholder="请输入黑名单天数" className={cn('h-9 w-full rounded border px-3 text-[13px] outline-none', userSystemFormErrors.blacklistDays ? 'border-[#ff6f6f]' : 'border-slate-200 focus:border-[#216BFF]')} />
                   {userSystemFormErrors.blacklistDays && <div className="mt-1 text-[12px] text-[#ff6f6f]">{userSystemFormErrors.blacklistDays}</div>}
                 </div>
               </div>
             </div>
             <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
               <button type="button" onClick={() => { setUserSystemDialog(null); setUserSystemFormErrors({}); }} className="rounded border border-slate-200 bg-white px-5 py-2 text-[13px] font-medium text-slate-500">取消</button>
-              <button type="button" onClick={handleSaveUserSystem} className="rounded bg-[#12b89f] px-5 py-2 text-[13px] font-medium text-white">确定</button>
+              <button type="button" onClick={handleSaveUserSystem} className="rounded bg-[#216BFF] px-5 py-2 text-[13px] font-medium text-white">确定</button>
             </div>
           </div>
         </div>
@@ -11665,7 +11682,7 @@ export default function App() {
             <div className="px-6 py-6 text-[14px] text-slate-600">{userSystemConfirm.message}</div>
             <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
               {usedUserSystems.has(userSystems.find((s) => s.id === userSystemConfirm.id)?.name ?? '') ? (
-                <button type="button" onClick={() => setUserSystemConfirm(null)} className="rounded bg-[#12b89f] px-5 py-2 text-[13px] font-medium text-white">知道了</button>
+                <button type="button" onClick={() => setUserSystemConfirm(null)} className="rounded bg-[#216BFF] px-5 py-2 text-[13px] font-medium text-white">知道了</button>
               ) : (
                 <>
                   <button type="button" onClick={() => setUserSystemConfirm(null)} className="rounded border border-slate-200 bg-white px-5 py-2 text-[13px] font-medium text-slate-500">取消</button>
@@ -11692,7 +11709,7 @@ export default function App() {
         </button>
         <button
           type="button"
-          className="flex items-center gap-1 rounded-md border border-[#8fd6c8] bg-[#f0fbf8] px-3 py-1.5 text-[13px] font-medium text-[#26aa8e] transition-colors hover:bg-[#e5f8f3]"
+          className="flex items-center gap-1 rounded-md border border-[#96b8ff] bg-[#e8f1ff] px-3 py-1.5 text-[13px] font-medium text-[#3d78ff] transition-colors hover:bg-[#e8f1ff]"
         >
           <Download size={14} />
           导出
@@ -11716,7 +11733,7 @@ export default function App() {
         ].map((table) => (
           <div key={table.key} className="min-h-0 overflow-auto rounded-2xl bg-white custom-scrollbar">
             <table className="min-w-full table-auto text-left">
-              <thead className="sticky top-0 z-10 bg-[#eef9f1] text-[14px] text-slate-700">
+              <thead className="sticky top-0 z-10 bg-[#e8f1ff] text-[14px] text-slate-700">
                 <tr>
                   <th className="px-4 py-3 font-medium">排名</th>
                   <th className="px-4 py-3 font-medium">工作组</th>
@@ -11780,7 +11797,7 @@ export default function App() {
                   value={busyAnnouncementForm.title}
                   onChange={(e) => setBusyAnnouncementForm((prev) => ({ ...prev, title: e.target.value }))}
                   placeholder="请输入公告标题"
-                  className="w-full rounded-md border border-slate-200 px-3 py-2 text-[13px] outline-none focus:border-[#12b89f]"
+                  className="w-full rounded-md border border-slate-200 px-3 py-2 text-[13px] outline-none focus:border-[#216BFF]"
                 />
               </div>
               
@@ -11909,7 +11926,7 @@ export default function App() {
                 className={cn(
                   "rounded-md px-5 py-2 text-[13px] font-medium",
                   busyAnnouncementForm.title.trim()
-                    ? "bg-[#12b89f] text-white hover:bg-[#10a08a]"
+                    ? "bg-[#216BFF] text-white hover:bg-[#1a5ce6]"
                     : "bg-slate-300 text-white cursor-not-allowed"
                 )}
               >
@@ -12009,7 +12026,7 @@ export default function App() {
                 className={cn(
                   "pb-3 text-[14px] transition-colors relative",
                   busyAnnouncementApplyTab === 'channel'
-                    ? "text-[#12b89f] font-medium"
+                    ? "text-[#216BFF] font-medium"
                     : "text-slate-500 hover:text-slate-700"
                 )}
               >
@@ -12018,12 +12035,12 @@ export default function App() {
                     type="radio"
                     checked={busyAnnouncementApplyTab === 'channel'}
                     onChange={() => setBusyAnnouncementApplyTab('channel')}
-                    className="h-4 w-4 text-[#12b89f]"
+                    className="h-4 w-4 text-[#216BFF]"
                   />
                   按渠道
                 </span>
                 {busyAnnouncementApplyTab === 'channel' && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#12b89f]" />
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#216BFF]" />
                 )}
               </button>
               <button
@@ -12032,7 +12049,7 @@ export default function App() {
                 className={cn(
                   "pb-3 text-[14px] transition-colors relative",
                   busyAnnouncementApplyTab === 'product'
-                    ? "text-[#12b89f] font-medium"
+                    ? "text-[#216BFF] font-medium"
                     : "text-slate-500 hover:text-slate-700"
                 )}
               >
@@ -12041,12 +12058,12 @@ export default function App() {
                     type="radio"
                     checked={busyAnnouncementApplyTab === 'product'}
                     onChange={() => setBusyAnnouncementApplyTab('product')}
-                    className="h-4 w-4 text-[#12b89f]"
+                    className="h-4 w-4 text-[#216BFF]"
                   />
                   按产品
                 </span>
                 {busyAnnouncementApplyTab === 'product' && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#12b89f]" />
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#216BFF]" />
                 )}
               </button>
             </div>
@@ -12280,7 +12297,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={handleApplyBusyAnnouncement}
-                className="rounded-md bg-[#12b89f] px-5 py-2 text-[13px] font-medium text-white hover:bg-[#10a08a]"
+                className="rounded-md bg-[#216BFF] px-5 py-2 text-[13px] font-medium text-white hover:bg-[#1a5ce6]"
               >
                 确定
               </button>
@@ -12324,7 +12341,7 @@ export default function App() {
                     value={privacyStatementForm.title}
                     onChange={(e) => { setPrivacyStatementForm((prev) => ({ ...prev, title: e.target.value })); setPrivacyStatementFormErrors((prev) => { const next = { ...prev }; delete next.title; return next; }); }}
                     placeholder="请输入隐私声明标题"
-                    className={cn("h-9 w-full rounded border px-3 text-[13px] outline-none", privacyStatementFormErrors.title ? "border-[#ff8b8b]" : "border-slate-200 focus:border-[#12b89f]")}
+                    className={cn("h-9 w-full rounded border px-3 text-[13px] outline-none", privacyStatementFormErrors.title ? "border-[#ff6f6f]" : "border-slate-200 focus:border-[#216BFF]")}
                   />
                   {privacyStatementFormErrors.title && <div className="mt-1 text-[12px] text-[#ff6f6f]">{privacyStatementFormErrors.title}</div>}
                 </div>
@@ -12335,7 +12352,7 @@ export default function App() {
                 <select
                   value={privacyStatementForm.contentType}
                   onChange={(e) => { setPrivacyStatementForm((prev) => ({ ...prev, contentType: e.target.value as 'link' | 'detail' })); setPrivacyStatementFormErrors((prev) => { const next = { ...prev }; delete next.content; delete next.detailContent; return next; }); }}
-                  className="h-9 w-full rounded border border-slate-200 px-3 text-[13px] outline-none focus:border-[#12b89f]"
+                  className="h-9 w-full rounded border border-slate-200 px-3 text-[13px] outline-none focus:border-[#216BFF]"
                 >
                   <option value="link">链接类型</option>
                   <option value="detail">详情类型</option>
@@ -12350,7 +12367,7 @@ export default function App() {
                     value={privacyStatementForm.privacyType}
                     onChange={(e) => { setPrivacyStatementForm((prev) => ({ ...prev, privacyType: e.target.value })); setPrivacyStatementFormErrors((prev) => { const next = { ...prev }; delete next.privacyType; return next; }); }}
                     placeholder="请输入隐私类型"
-                    className={cn("h-9 w-full rounded border px-3 text-[13px] outline-none", privacyStatementFormErrors.privacyType ? "border-[#ff8b8b]" : "border-slate-200 focus:border-[#12b89f]")}
+                    className={cn("h-9 w-full rounded border px-3 text-[13px] outline-none", privacyStatementFormErrors.privacyType ? "border-[#ff6f6f]" : "border-slate-200 focus:border-[#216BFF]")}
                   />
                   {privacyStatementFormErrors.privacyType && <div className="mt-1 text-[12px] text-[#ff6f6f]">{privacyStatementFormErrors.privacyType}</div>}
                   {privacyStatementForm.privacyType && (
@@ -12368,7 +12385,7 @@ export default function App() {
                       value={privacyStatementForm.content}
                       onChange={(e) => { setPrivacyStatementForm((prev) => ({ ...prev, content: e.target.value })); setPrivacyStatementFormErrors((prev) => { const next = { ...prev }; delete next.content; return next; }); }}
                       placeholder="请输入链接地址，如 https://example.com"
-                      className={cn("h-9 w-full rounded border px-3 text-[13px] outline-none", privacyStatementFormErrors.content ? "border-[#ff8b8b]" : "border-slate-200 focus:border-[#12b89f]")}
+                      className={cn("h-9 w-full rounded border px-3 text-[13px] outline-none", privacyStatementFormErrors.content ? "border-[#ff6f6f]" : "border-slate-200 focus:border-[#216BFF]")}
                     />
                     {privacyStatementFormErrors.content && <div className="mt-1 text-[12px] text-[#ff6f6f]">{privacyStatementFormErrors.content}</div>}
                   </div>
@@ -12379,7 +12396,7 @@ export default function App() {
                 <div className="grid grid-cols-[120px_1fr] items-start gap-4 text-[14px] text-slate-600">
                   <span className="pt-2 text-right font-medium"><span className="mr-1 text-[#ff6f6f]">*</span>详情内容:</span>
                   <div>
-                    <div className={cn("rounded border", privacyStatementFormErrors.detailContent ? "border-[#ff8b8b]" : "border-slate-200")}>
+                    <div className={cn("rounded border", privacyStatementFormErrors.detailContent ? "border-[#ff6f6f]" : "border-slate-200")}>
                       <div className="flex items-center gap-1 border-b border-slate-200 bg-slate-50 px-3 py-2">
                         <select className="mr-2 rounded border border-slate-200 bg-white px-2 py-1 text-[12px] outline-none">
                           <option>段落</option>
@@ -12425,7 +12442,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={handleSavePrivacyStatement}
-                className="rounded bg-[#12b89f] px-5 py-2 text-[13px] font-medium text-white hover:bg-[#10a08a]"
+                className="rounded bg-[#216BFF] px-5 py-2 text-[13px] font-medium text-white hover:bg-[#1a5ce6]"
               >
                 确定
               </button>
@@ -12548,7 +12565,7 @@ export default function App() {
                 className={cn(
                   "pb-3 text-[14px] transition-colors relative",
                   privacyStatementApplyTab === 'channel'
-                    ? "text-[#12b89f] font-medium"
+                    ? "text-[#216BFF] font-medium"
                     : "text-slate-500 hover:text-slate-700"
                 )}
               >
@@ -12557,12 +12574,12 @@ export default function App() {
                     type="radio"
                     checked={privacyStatementApplyTab === 'channel'}
                     onChange={() => setPrivacyStatementApplyTab('channel')}
-                    className="h-4 w-4 text-[#12b89f]"
+                    className="h-4 w-4 text-[#216BFF]"
                   />
                   按渠道
                 </span>
                 {privacyStatementApplyTab === 'channel' && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#12b89f]" />
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#216BFF]" />
                 )}
               </button>
               <button
@@ -12571,7 +12588,7 @@ export default function App() {
                 className={cn(
                   "pb-3 text-[14px] transition-colors relative",
                   privacyStatementApplyTab === 'product'
-                    ? "text-[#12b89f] font-medium"
+                    ? "text-[#216BFF] font-medium"
                     : "text-slate-500 hover:text-slate-700"
                 )}
               >
@@ -12580,12 +12597,12 @@ export default function App() {
                     type="radio"
                     checked={privacyStatementApplyTab === 'product'}
                     onChange={() => setPrivacyStatementApplyTab('product')}
-                    className="h-4 w-4 text-[#12b89f]"
+                    className="h-4 w-4 text-[#216BFF]"
                   />
                   按产品
                 </span>
                 {privacyStatementApplyTab === 'product' && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#12b89f]" />
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#216BFF]" />
                 )}
               </button>
             </div>
@@ -12819,7 +12836,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={handleApplyPrivacyStatement}
-                className="rounded-md bg-[#12b89f] px-5 py-2 text-[13px] font-medium text-white hover:bg-[#10a08a]"
+                className="rounded-md bg-[#216BFF] px-5 py-2 text-[13px] font-medium text-white hover:bg-[#1a5ce6]"
               >
                 确定
               </button>
@@ -12849,19 +12866,19 @@ export default function App() {
             <div className="mt-6 space-y-5">
               <div>
                 <label className="text-[13px] font-medium text-slate-600">账号</label>
-                <input type="text" value={loginForm.account} onChange={(e) => setLoginForm((f) => ({ ...f, account: e.target.value }))} placeholder="请输入账号" className="mt-1.5 h-11 w-full rounded-lg border border-slate-200 bg-slate-50/60 px-4 text-[14px] text-slate-700 outline-none transition-colors placeholder:text-slate-400 focus:border-[#18c2a7] focus:bg-white" />
+                <input type="text" value={loginForm.account} onChange={(e) => setLoginForm((f) => ({ ...f, account: e.target.value }))} placeholder="请输入账号" className="mt-1.5 h-11 w-full rounded-lg border border-slate-200 bg-slate-50/60 px-4 text-[14px] text-slate-700 outline-none transition-colors placeholder:text-slate-400 focus:border-[#216BFF] focus:bg-white" />
               </div>
               <div>
                 <label className="text-[13px] font-medium text-slate-600">密码</label>
-                <input type="password" value={loginForm.password} onChange={(e) => setLoginForm((f) => ({ ...f, password: e.target.value }))} placeholder="请输入密码" className="mt-1.5 h-11 w-full rounded-lg border border-slate-200 bg-slate-50/60 px-4 text-[14px] text-slate-700 outline-none transition-colors placeholder:text-slate-400 focus:border-[#18c2a7] focus:bg-white" />
+                <input type="password" value={loginForm.password} onChange={(e) => setLoginForm((f) => ({ ...f, password: e.target.value }))} placeholder="请输入密码" className="mt-1.5 h-11 w-full rounded-lg border border-slate-200 bg-slate-50/60 px-4 text-[14px] text-slate-700 outline-none transition-colors placeholder:text-slate-400 focus:border-[#216BFF] focus:bg-white" />
               </div>
               <div className="flex items-center justify-between text-[13px]">
                 <label className="flex items-center gap-2 text-slate-500">
-                  <input type="checkbox" checked={loginForm.remember} onChange={(e) => setLoginForm((f) => ({ ...f, remember: e.target.checked }))} className="h-4 w-4 rounded border-slate-300 accent-[#18c2a7]" />
+                  <input type="checkbox" checked={loginForm.remember} onChange={(e) => setLoginForm((f) => ({ ...f, remember: e.target.checked }))} className="h-4 w-4 rounded border-slate-300 accent-[#216BFF]" />
                   记住密码
                 </label>
               </div>
-              <button type="button" onClick={() => setIsLoggedIn(true)} className="h-11 w-full rounded-lg bg-gradient-to-r from-[#18c2a7] to-[#15b39a] text-[15px] font-semibold text-white shadow-md transition-shadow hover:shadow-lg">登 录</button>
+              <button type="button" onClick={() => setIsLoggedIn(true)} className="h-11 w-full rounded-lg bg-gradient-to-r from-[#216BFF] to-[#1a5ce6] text-[15px] font-semibold text-white shadow-md transition-shadow hover:shadow-lg">登 录</button>
               <button type="button" onClick={() => setIsLoggedIn(true)} className="h-11 w-full rounded-lg border border-slate-200 bg-white text-[15px] font-semibold text-slate-600 transition-colors hover:bg-slate-50">SSO 登录</button>
             </div>
           </div>
@@ -13027,6 +13044,7 @@ export default function App() {
             ...(isScheduleDisplayTabVisible ? (['排班信息展示'] as MainTab[]) : []),
             ...(isBusinessFieldManagementTabVisible ? (['业务字段管理'] as MainTab[]) : []),
             ...(isBusinessFieldLaunchReviewTabVisible ? (['业务字段上线审核'] as MainTab[]) : []),
+            ...(isFormMaintenanceTabVisible ? (['表单维护'] as MainTab[]) : []),
             ...(isGroupMaintenanceTabVisible ? (['组别维护'] as MainTab[]) : []),
             ...(isTargetValueMaintenanceTabVisible ? (['目标值维护'] as MainTab[]) : []),
             ...(isBrandMaintenanceTabVisible ? (['品牌维护'] as MainTab[]) : []),
@@ -13073,6 +13091,7 @@ export default function App() {
             else if (tab === '排班信息展示') handleCloseScheduleDisplayTab();
             else if (tab === '业务字段管理') handleCloseBusinessFieldManagementTab();
             else if (tab === '业务字段上线审核') handleCloseBusinessFieldLaunchReviewTab();
+            else if (tab === '表单维护') handleCloseFormMaintenanceTab();
             else if (tab === '组别维护') handleCloseGroupMaintenanceTab();
             else if (tab === '目标值维护') handleCloseTargetValueMaintenanceTab();
             else if (tab === '品牌维护') handleCloseBrandMaintenanceTab();
@@ -13099,7 +13118,7 @@ export default function App() {
 
         {/* old header removed - now using MainHeader */}
 
-        {activeLegacyModulePage ? <LegacyModulesPanel page={activeLegacyModulePage} onOpenMainTab={handleOpenMainTab} onOpenLegacyModulePage={handleOpenLegacyModulePage} initialState={legacyModuleInitialState} onClearInitialState={() => setLegacyModuleInitialState(null)} /> : activeTab === '呼叫工作台' ? callWorkbenchContent : activeTab === '在线工作台' ? onlineWorkbenchContent : activeTab === '消息服务' ? messageServiceContent : activeTab === '排班信息展示' ? scheduleDisplayContent : activeTab === '业务字段管理' ? businessFieldManagementContent : activeTab === '业务字段上线审核' ? <BusinessFieldLaunchReviewContent /> : activeTab === '组别维护' ? <GroupMaintenance /> : activeTab === '目标值维护' ? <TargetValueMaintenance /> : activeTab === '品牌维护' ? <BrandMaintenance /> : activeTab === '附件管理' ? <AttachmentManagement /> : activeTab === '产品模块维护' ? <ProductModuleMaintenance /> : activeTab === '繁忙公告管理' ? busyAnnouncementManagementContent : activeTab === '隐私声明管理' ? privacyStatementManagementContent : activeTab === '用户体系管理' ? userSystemManagementContent : activeTab === '网聊维护' ? renderWebchatMaintenanceContent() : activeTab === '部门角色管理' ? renderDeptRoleManagementContent() : activeTab === '账号管理' ? accountManagementContent : (
+        {activeLegacyModulePage ? <LegacyModulesPanel page={activeLegacyModulePage} onOpenMainTab={handleOpenMainTab} onOpenLegacyModulePage={handleOpenLegacyModulePage} initialState={legacyModuleInitialState} onClearInitialState={() => setLegacyModuleInitialState(null)} /> : activeTab === '呼叫工作台' ? callWorkbenchContent : activeTab === '在线工作台' ? onlineWorkbenchContent : activeTab === '消息服务' ? messageServiceContent : activeTab === '排班信息展示' ? scheduleDisplayContent : activeTab === '业务字段管理' ? businessFieldManagementContent : activeTab === '业务字段上线审核' ? <BusinessFieldLaunchReviewContent /> : activeTab === '组别维护' ? <GroupMaintenance /> : activeTab === '目标值维护' ? <TargetValueMaintenance /> : activeTab === '品牌维护' ? <BrandMaintenance /> : activeTab === '附件管理' ? <AttachmentManagement /> : activeTab === '产品模块维护' ? <ProductModuleMaintenance /> : activeTab === '表单维护' ? <FormMaintenance /> : activeTab === '繁忙公告管理' ? busyAnnouncementManagementContent : activeTab === '隐私声明管理' ? privacyStatementManagementContent : activeTab === '用户体系管理' ? userSystemManagementContent : activeTab === '网聊维护' ? renderWebchatMaintenanceContent() : activeTab === '部门角色管理' ? renderDeptRoleManagementContent() : activeTab === '账号管理' ? accountManagementContent : (
         <>
           {viewMode === 'manager' && managerPortalPage === 'overview-detail' ? (
             <div className="flex-1 p-6 text-slate-500">概览详情页面（开发中）</div>
@@ -13185,7 +13204,7 @@ export default function App() {
             exit={{ opacity: 0, y: -12 }}
             className={cn(
               "fixed right-6 top-6 z-[122] rounded-lg px-4 py-3 text-[13px] font-medium shadow-lg",
-              webchatToast.type === 'success' ? "bg-[#12b89f] text-white" : "bg-[#ff7f7f] text-white"
+              webchatToast.type === 'success' ? "bg-[#216BFF] text-white" : "bg-[#ff6f6f] text-white"
             )}
           >
             {webchatToast.message}
@@ -13231,7 +13250,7 @@ export default function App() {
                 <button
                   type="button"
                   onClick={handleConfirmWebchatAction}
-                  className="rounded bg-[#12b89f] px-5 py-2 text-[13px] font-medium text-white"
+                  className="rounded bg-[#216BFF] px-5 py-2 text-[13px] font-medium text-white"
                 >
                   确定
                 </button>
@@ -13301,7 +13320,7 @@ export default function App() {
                     <button
                       type="button"
                       onClick={handleSyncWebchatProducts}
-                      className="rounded bg-[#12b89f] px-5 py-2 text-[13px] font-medium text-white"
+                      className="rounded bg-[#216BFF] px-5 py-2 text-[13px] font-medium text-white"
                     >
                       确定
                     </button>
@@ -13333,7 +13352,7 @@ export default function App() {
                               value={webchatProductForm.name}
                               onChange={(event) => setWebchatProductForm((current) => ({ ...current, name: event.target.value }))}
                               placeholder="请输入产品名称"
-                              className={cn("h-9 w-full rounded border px-3 outline-none", webchatFormErrors.name ? "border-[#ff8b8b]" : "border-slate-200")}
+                              className={cn("h-9 w-full rounded border px-3 outline-none", webchatFormErrors.name ? "border-[#ff6f6f]" : "border-slate-200")}
                             />
                             {webchatFormErrors.name ? <div className="mt-1 text-[12px] text-[#ff6f6f]">{webchatFormErrors.name}</div> : null}
                           </div>
@@ -13345,7 +13364,7 @@ export default function App() {
                               value={webchatProductForm.description}
                               onChange={(event) => setWebchatProductForm((current) => ({ ...current, description: event.target.value }))}
                               placeholder="请输入产品描述"
-                              className={cn("h-9 w-full rounded border px-3 outline-none", webchatFormErrors.description ? "border-[#ff8b8b]" : "border-slate-200")}
+                              className={cn("h-9 w-full rounded border px-3 outline-none", webchatFormErrors.description ? "border-[#ff6f6f]" : "border-slate-200")}
                             />
                             {webchatFormErrors.description ? <div className="mt-1 text-[12px] text-[#ff6f6f]">{webchatFormErrors.description}</div> : null}
                           </div>
@@ -13361,7 +13380,7 @@ export default function App() {
                                 <button
                                   type="button"
                                   onClick={() => webchatProductImageInputRef.current?.click()}
-                                  className="text-[13px] font-medium text-[#5a8cff]"
+                                  className="text-[13px] font-medium text-[#216BFF]"
                                 >
                                   上传图片
                                 </button>
@@ -13380,7 +13399,7 @@ export default function App() {
                               value={webchatProductForm.robotName}
                               onChange={(event) => setWebchatProductForm((current) => ({ ...current, robotName: event.target.value }))}
                               placeholder="请输入机器人名称"
-                              className={cn("h-9 w-full rounded border px-3 outline-none", webchatFormErrors.robotName ? "border-[#ff8b8b]" : "border-slate-200")}
+                              className={cn("h-9 w-full rounded border px-3 outline-none", webchatFormErrors.robotName ? "border-[#ff6f6f]" : "border-slate-200")}
                             />
                             {webchatFormErrors.robotName ? <div className="mt-1 text-[12px] text-[#ff6f6f]">{webchatFormErrors.robotName}</div> : null}
                           </div>
@@ -13391,7 +13410,7 @@ export default function App() {
                             <select
                               value={webchatProductForm.robotType}
                               onChange={(event) => setWebchatProductForm((current) => ({ ...current, robotType: event.target.value }))}
-                              className={cn("h-9 w-full rounded border px-3 outline-none", webchatFormErrors.robotType ? "border-[#ff8b8b]" : "border-slate-200")}
+                              className={cn("h-9 w-full rounded border px-3 outline-none", webchatFormErrors.robotType ? "border-[#ff6f6f]" : "border-slate-200")}
                             >
                               <option value="">请选择机器人种类</option>
                               <option value="数智机器人">数智机器人</option>
@@ -13408,7 +13427,7 @@ export default function App() {
                               onChange={(event) => setWebchatProductForm((current) => ({ ...current, robotConfig: event.target.value }))}
                               placeholder='{"key": "value"}'
                               rows={6}
-                              className={cn("w-full rounded border px-3 py-2 font-mono text-[12px] outline-none", webchatFormErrors.robotConfig ? "border-[#ff8b8b]" : "border-slate-200")}
+                              className={cn("w-full rounded border px-3 py-2 font-mono text-[12px] outline-none", webchatFormErrors.robotConfig ? "border-[#ff6f6f]" : "border-slate-200")}
                             />
                             {webchatFormErrors.robotConfig ? <div className="mt-1 text-[12px] text-[#ff6f6f]">{webchatFormErrors.robotConfig}</div> : null}
                           </div>
@@ -13428,7 +13447,7 @@ export default function App() {
                                 <button
                                   type="button"
                                   onClick={() => webchatProductRobotAvatarInputRef.current?.click()}
-                                  className="text-[13px] font-medium text-[#5a8cff]"
+                                  className="text-[13px] font-medium text-[#216BFF]"
                                 >
                                   {webchatProductForm.robotAvatar ? '重新上传' : '上传图片'}
                                 </button>
@@ -13452,7 +13471,7 @@ export default function App() {
                               value={webchatQuickButtonForm.name}
                               onChange={(event) => setWebchatQuickButtonForm((current) => ({ ...current, name: event.target.value }))}
                               placeholder="请输入快捷按钮名称"
-                              className={cn("h-9 w-full rounded border px-3 outline-none", webchatFormErrors.quickButtonName ? "border-[#ff8b8b]" : "border-slate-200")}
+                              className={cn("h-9 w-full rounded border px-3 outline-none", webchatFormErrors.quickButtonName ? "border-[#ff6f6f]" : "border-slate-200")}
                             />
                             {webchatFormErrors.quickButtonName ? <div className="mt-1 text-[12px] text-[#ff6f6f]">{webchatFormErrors.quickButtonName}</div> : null}
                           </div>
@@ -13481,7 +13500,7 @@ export default function App() {
                                 value={webchatQuickButtonForm.linkUrl}
                                 onChange={(event) => setWebchatQuickButtonForm((current) => ({ ...current, linkUrl: event.target.value }))}
                                 placeholder="请输入链接地址"
-                                className={cn("h-9 w-full rounded border px-3 outline-none", webchatFormErrors.quickButtonLinkUrl ? "border-[#ff8b8b]" : "border-slate-200")}
+                                className={cn("h-9 w-full rounded border px-3 outline-none", webchatFormErrors.quickButtonLinkUrl ? "border-[#ff6f6f]" : "border-slate-200")}
                               />
                               {webchatFormErrors.quickButtonLinkUrl ? <div className="mt-1 text-[12px] text-[#ff6f6f]">{webchatFormErrors.quickButtonLinkUrl}</div> : null}
                             </div>
@@ -13498,7 +13517,7 @@ export default function App() {
                             value={webchatContentTagFormName}
                             onChange={(event) => setWebchatContentTagFormName(event.target.value)}
                             placeholder="请输入高频内容标签"
-                            className={cn("h-9 w-full rounded border px-3 outline-none", webchatFormErrors.contentTag ? "border-[#ff8b8b]" : "border-slate-200")}
+                            className={cn("h-9 w-full rounded border px-3 outline-none", webchatFormErrors.contentTag ? "border-[#ff6f6f]" : "border-slate-200")}
                           />
                           {webchatFormErrors.contentTag ? <div className="mt-1 text-[12px] text-[#ff6f6f]">{webchatFormErrors.contentTag}</div> : null}
                         </div>
@@ -13513,7 +13532,7 @@ export default function App() {
                             value={webchatContentItemFormName}
                             onChange={(event) => setWebchatContentItemFormName(event.target.value)}
                             placeholder="请输入高频内容"
-                            className={cn("h-28 w-full rounded border px-3 py-3 outline-none", webchatFormErrors.contentItem ? "border-[#ff8b8b]" : "border-slate-200")}
+                            className={cn("h-28 w-full rounded border px-3 py-3 outline-none", webchatFormErrors.contentItem ? "border-[#ff6f6f]" : "border-slate-200")}
                           />
                           {webchatFormErrors.contentItem ? <div className="mt-1 text-[12px] text-[#ff6f6f]">{webchatFormErrors.contentItem}</div> : null}
                         </div>
@@ -13527,7 +13546,7 @@ export default function App() {
                           <select
                             value={webchatQuoteProductId}
                             onChange={(event) => setWebchatQuoteProductId(event.target.value)}
-                            className={cn("h-9 w-full rounded border px-3 outline-none", webchatFormErrors.quoteProductId ? "border-[#ff8b8b]" : "border-slate-200")}
+                            className={cn("h-9 w-full rounded border px-3 outline-none", webchatFormErrors.quoteProductId ? "border-[#ff6f6f]" : "border-slate-200")}
                           >
                             <option value="">请选择要引用的产品</option>
                             {webchatProducts
@@ -13573,7 +13592,7 @@ export default function App() {
                         }
                         handleQuoteWebchatQuickButtons();
                       }}
-                      className="rounded bg-[#12b89f] px-5 py-2 text-[13px] font-medium text-white"
+                      className="rounded bg-[#216BFF] px-5 py-2 text-[13px] font-medium text-white"
                     >
                       确定
                     </button>
@@ -13636,7 +13655,7 @@ export default function App() {
                 <button
                   type="button"
                   onClick={handleConfirmCreateCategory}
-                  className="rounded bg-[#12b89f] px-5 py-2 text-[13px] font-medium text-white"
+                  className="rounded bg-[#216BFF] px-5 py-2 text-[13px] font-medium text-white"
                 >
                   确定
                 </button>
@@ -13697,7 +13716,7 @@ export default function App() {
                 <button
                   type="button"
                   onClick={handleConfirmEditCategory}
-                  className="rounded bg-[#12b89f] px-5 py-2 text-[13px] font-medium text-white"
+                  className="rounded bg-[#216BFF] px-5 py-2 text-[13px] font-medium text-white"
                 >
                   确定
                 </button>
@@ -13777,7 +13796,7 @@ export default function App() {
                       handleConfirmDeleteCategory();
                     }
                   }}
-                  className="rounded bg-[#12b89f] px-5 py-2 text-[13px] font-medium text-white"
+                  className="rounded bg-[#216BFF] px-5 py-2 text-[13px] font-medium text-white"
                 >
                   确定
                 </button>
@@ -13879,7 +13898,7 @@ export default function App() {
                         onClick={() => setErrorModalPage(page)}
                         className={cn(
                           "min-w-[20px] text-center text-[14px]",
-                          errorModalPage === page ? "rounded-[6px] bg-[#d7f4ec] px-[12px] py-[5px] text-[#38b9a5]" : "text-[#b1b1b1]"
+                          errorModalPage === page ? "rounded-[6px] bg-[#c9dcff] px-[12px] py-[5px] text-[#216BFF]" : "text-[#b1b1b1]"
                         )}
                       >
                         {page}
@@ -14003,7 +14022,7 @@ export default function App() {
       <button
         type="button"
         onClick={() => setIsHelpSidebarOpen(true)}
-        className="fixed bottom-6 right-6 z-[60] flex h-12 w-12 items-center justify-center rounded-full bg-[#18bca2] text-white shadow-lg transition-transform hover:scale-110 hover:bg-[#15a892]"
+        className="fixed bottom-6 right-6 z-[60] flex h-12 w-12 items-center justify-center rounded-full bg-[#216BFF] text-white shadow-lg transition-transform hover:scale-110 hover:bg-[#1a5ce6]"
         aria-label="帮助文档"
       >
         <HelpCircle size={24} />

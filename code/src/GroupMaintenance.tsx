@@ -75,13 +75,13 @@ function createId(prefix: string) {
 const pageWrapperClass = 'flex min-h-0 flex-1 flex-col overflow-hidden bg-[#f7f9fc]';
 const pageScrollClass = 'flex min-h-0 flex-1 overflow-hidden px-4 pb-4 pt-3 gap-4';
 const inputClass =
-  'h-10 w-full min-w-0 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-600 outline-none transition-colors placeholder:text-slate-400 focus:border-[#12b89f]';
+  'h-10 w-full min-w-0 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-600 outline-none transition-colors placeholder:text-slate-400 focus:border-[#216BFF]';
 const solidButtonClass =
-  'inline-flex h-9 shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-[#12b89f] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#0da88f]';
+  'inline-flex h-9 shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-[#216BFF] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#1a5ce6]';
 const secondaryButtonClass =
   'inline-flex h-9 shrink-0 items-center justify-center whitespace-nowrap rounded-md border border-slate-200 bg-white px-4 text-[13px] font-medium text-slate-500 transition-colors hover:bg-slate-50';
 const primaryButtonClass =
-  'inline-flex h-9 shrink-0 items-center justify-center whitespace-nowrap rounded-md border border-[#8fe0d2] bg-[#effbf8] px-4 text-[13px] font-medium text-[#18bca2] transition-colors hover:bg-[#e3f8f3]';
+  'inline-flex h-9 shrink-0 items-center justify-center whitespace-nowrap rounded-md border border-[#96b8ff] bg-[#e8f1ff] px-4 text-[13px] font-medium text-[#216BFF] transition-colors hover:bg-[#c9dcff]';
 
 type DialogState =
   | { kind: 'add-group' }
@@ -187,7 +187,7 @@ export default function GroupMaintenance() {
             <button
               type="button"
               onClick={() => { setGroupNameInput(''); setFormError(''); setDialog({ kind: 'add-group' }); }}
-              className="inline-flex h-7 items-center gap-1 rounded-md bg-[#12b89f] px-2.5 text-[12px] font-medium text-white hover:bg-[#0da88f]"
+              className="inline-flex h-7 items-center gap-1 rounded-md bg-[#216BFF] px-2.5 text-[12px] font-medium text-white hover:bg-[#1a5ce6]"
             >
               <Plus size={13} />
               新增
@@ -201,7 +201,7 @@ export default function GroupMaintenance() {
                 className={
                   'group flex cursor-pointer items-center justify-between border-b border-slate-50 px-4 py-3 transition-colors' +
                   (selectedGroupId === group.id
-                    ? ' bg-[#effbf8] text-[#12b89f]'
+                    ? ' bg-[#e8f1ff] text-[#216BFF]'
                     : ' text-slate-600 hover:bg-slate-50')
                 }
               >
@@ -210,7 +210,7 @@ export default function GroupMaintenance() {
                   <span className={
                     'rounded-full px-2 py-0.5 text-[11px] font-medium' +
                     (selectedGroupId === group.id
-                      ? ' bg-[#d2f5ed] text-[#0da88f]'
+                      ? ' bg-[#c9dcff] text-[#1a5ce6]'
                       : ' bg-slate-100 text-slate-400')
                   }>
                     {group.skillGroups.length}
@@ -238,7 +238,7 @@ export default function GroupMaintenance() {
               <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3">
                 <div className="flex items-center gap-2">
                   <span className="text-[14px] font-semibold text-slate-700">{selectedGroup.name}</span>
-                  <span className="rounded-full bg-[#e8fbf4] px-2.5 py-0.5 text-[12px] font-medium text-[#14956f]">
+                  <span className="rounded-full bg-[#e8f1ff] px-2.5 py-0.5 text-[12px] font-medium text-[#216BFF]">
                     {selectedGroup.skillGroups.length} 个技能组
                   </span>
                 </div>
@@ -251,14 +251,14 @@ export default function GroupMaintenance() {
                   添加技能组
                 </button>
               </div>
-              <div className="flex-1 overflow-auto custom-scrollbar">
+              <div className="flex-1 overflow-auto px-5 py-4 custom-scrollbar">
                 {selectedGroup.skillGroups.length > 0 ? (
                   <table className="min-w-full text-left text-[13px]">
                     <thead className="sticky top-0 bg-[#fafafa] text-slate-600">
                       <tr>
-                        <th className="w-[64px] whitespace-nowrap px-5 py-3 font-medium">序号</th>
-                        <th className="whitespace-nowrap px-5 py-3 font-medium">技能组名称</th>
-                        <th className="w-[100px] whitespace-nowrap px-5 py-3 font-medium">操作</th>
+                        <th className="w-[64px] whitespace-nowrap px-4 py-3 font-medium">序号</th>
+                        <th className="whitespace-nowrap px-4 py-3 font-medium">技能组名称</th>
+                        <th className="w-[100px] whitespace-nowrap px-4 py-3 font-medium">操作</th>
                       </tr>
                     </thead>
                     <tbody className="text-slate-600">
@@ -267,16 +267,16 @@ export default function GroupMaintenance() {
                           key={sg.id}
                           className={
                             (i % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]') +
-                            ' transition-colors hover:bg-[#f7fffd]'
+                            ' transition-colors hover:bg-[#e8f1ff]'
                           }
                         >
-                          <td className="px-5 py-3.5">{i + 1}</td>
-                          <td className="px-5 py-3.5 font-medium text-slate-700">{sg.name}</td>
-                          <td className="px-5 py-3.5">
+                          <td className="px-4 py-3">{i + 1}</td>
+                          <td className="px-4 py-3 font-medium text-slate-700">{sg.name}</td>
+                          <td className="px-4 py-3">
                             <button
                               type="button"
                               onClick={() => setDialog({ kind: 'confirm-remove-skill-group', groupId: selectedGroup.id, skillGroupId: sg.id, skillGroupName: sg.name })}
-                              className="text-[#ff8a8a] hover:text-[#ff6e6e]"
+                              className="text-[#ff6f6f] hover:text-[#ff4d4f]"
                             >
                               移除
                             </button>
@@ -292,7 +292,7 @@ export default function GroupMaintenance() {
                     <button
                       type="button"
                       onClick={() => { setSelectedSkillGroupIds(new Set()); setDialog({ kind: 'add-skill-group', groupId: selectedGroup.id }); }}
-                      className="mt-3 text-[13px] text-[#18bca2] hover:underline"
+                      className="mt-3 text-[13px] text-[#216BFF] hover:underline"
                     >
                       + 添加技能组
                     </button>
@@ -359,13 +359,13 @@ export default function GroupMaintenance() {
                   {availableSkillGroups.map((sg) => (
                     <label
                       key={sg.id}
-                      className="flex cursor-pointer items-center gap-3 border-b border-slate-50 px-4 py-3 transition-colors hover:bg-[#f7fffd]"
+                      className="flex cursor-pointer items-center gap-3 border-b border-slate-50 px-4 py-3 transition-colors hover:bg-[#e8f1ff]"
                     >
                       <input
                         type="checkbox"
                         checked={selectedSkillGroupIds.has(sg.id)}
                         onChange={() => toggleSkillGroupSelection(sg.id)}
-                        className="h-4 w-4 rounded border-slate-300 accent-[#12b89f]"
+                        className="h-4 w-4 rounded border-slate-300 accent-[#216BFF]"
                       />
                       <span className="text-[13px] text-slate-700">{sg.name}</span>
                     </label>

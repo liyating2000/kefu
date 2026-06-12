@@ -117,6 +117,7 @@ type OnlineSidebarFeatureKey =
 type OnlineThirdPartyScope = 'public' | 'personal';
 type OnlineCallOverlay = 'audio' | 'video';
 type OnlineMessageTranslateLanguage = 'zh' | 'en';
+import { formTemplates, type FormItem } from '../../FormMaintenance';
 type OnlineFormFieldOption = '姓名' | '学校名称' | '学校省份' | '联系电话';
 type IconComponent = React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>;
 type AgentPresence = 'signed-in' | 'signed-out';
@@ -229,7 +230,7 @@ type OnlineUtilityItem = {
 // ─── Module-level data ──────────────────────────────────────────────
 
 const onlineVisitorTagClasses = {
-  emerald: 'border-emerald-200 bg-emerald-50 text-emerald-500',
+  emerald: 'border-brand-200 bg-brand-50 text-brand-500',
   orange: 'border-orange-200 bg-orange-50 text-orange-500',
   blue: 'border-blue-200 bg-blue-50 text-blue-500',
   indigo: 'border-indigo-200 bg-indigo-50 text-indigo-500',
@@ -495,13 +496,14 @@ const onlineUtilityItems: Record<string, OnlineUtilityItem[]> = {
     { label: '学习机价格', imageSrc: toolRepairPriceIcon, note: '产品报价' },
     { label: '配件价格', imageSrc: toolRepairPriceIcon, note: '配件报价' },
     { label: '家庭圈信息查询', imageSrc: toolAttachmentIcon, note: '成员档案' },
+    { label: '预约回电', imageSrc: toolSmsIcon, note: '回电预约' },
   ],
 };
 
 const DEFAULT_ONLINE_LEFT_PRESENCE: AgentPresence = 'signed-out';
 const agentPresenceMetaMap: Record<AgentPresence, AgentPresenceMeta> = {
   'signed-in': { sideActionLabel: '签出', sideActionIcon: ArrowLeft, sideActionButtonCls: 'bg-[linear-gradient(180deg,#ff9f21_0%,#ff8611_100%)] text-white shadow-[0_10px_18px_rgba(255,146,24,0.22)] hover:brightness-[0.98]', sideActionIconWrapCls: 'border-white/90 text-white', showOnlineStatusSelector: true },
-  'signed-out': { sideActionLabel: '签入', sideActionIcon: ArrowRight, sideActionButtonCls: 'bg-[linear-gradient(180deg,#12cfaf_0%,#09c39f_100%)] text-white shadow-[0_10px_18px_rgba(18,207,175,0.2)] hover:brightness-[0.98]', sideActionIconWrapCls: 'border-white/90 text-white', showOnlineStatusSelector: false },
+  'signed-out': { sideActionLabel: '签入', sideActionIcon: ArrowRight, sideActionButtonCls: 'bg-[linear-gradient(180deg,#3d78ff_0%,#216BFF_100%)] text-white shadow-[0_10px_18px_rgba(33,107,255,0.2)] hover:brightness-[0.98]', sideActionIconWrapCls: 'border-white/90 text-white', showOnlineStatusSelector: false },
 };
 
 const onlineStatusOptions = ['在线状态', '马上回来', '电话在线', '忙碌状态', '离开状态', '午餐状态', '隐身状态'] as const;
@@ -650,7 +652,7 @@ const onlineThirdPartyInitialDefaultScope: OnlineThirdPartyScope = 'public';
 
 const onlineSuggestionGroups = [
   { label: '开头话', panelCls: 'border-[#eef1f5] bg-[#f8fbfc]', items: ['您好，科大讯飞，请问有什么可以帮您？', '欢迎您，请问有什么问题需要协助处理？', '这里是科大讯飞在线客服，请问您想咨询什么内容？'] },
-  { label: '服务等待话', panelCls: 'border-[#dff4ef] bg-[#eefaf7]', items: ['请稍等，正在帮您查询中~', '感谢您的耐心等待，我马上为您核实。', '请您稍候，我这边确认好信息后立即回复您。'] },
+  { label: '服务等待话', panelCls: 'border-[#c9dcff] bg-[#e8f1ff]', items: ['请稍等，正在帮您查询中~', '感谢您的耐心等待，我马上为您核实。', '请您稍候，我这边确认好信息后立即回复您。'] },
   { label: '常用语', panelCls: 'border-[#eef1f5] bg-[#f8fbfc]', items: ['已为您记录该问题，我这边继续帮您跟进处理。', '为便于进一步核实，麻烦您提供一下设备型号或订单信息。', '您反馈的情况我已经了解，下面为您说明处理方式。'] },
   { label: '官方专用语', panelCls: 'border-[#eef1f5] bg-[#f8fbfc]', items: ['您好，这里是科大讯飞官方客服，请您放心咨询。', '当前回复内容以科大讯飞官方服务标准为准，请您留意。', '如需进一步协助，我们会按官方流程继续为您处理。'] },
   { label: '延伸用语', panelCls: 'border-[#eef1f5] bg-[#f8fbfc]', items: ['如果方便的话，您也可以补充一下使用场景，我帮您更准确判断。', '若您愿意，我也可以继续为您整理后续操作步骤。', '处理完成后如仍有疑问，您可以继续在当前会话中联系我。'] },
@@ -779,6 +781,9 @@ export default function OnlineWorkbenchPage() {
   const [activeOnlineMessageTranslateMenuId, setActiveOnlineMessageTranslateMenuId] = useState<string | null>(null);
   const [isOnlineFormSelectModalOpen, setIsOnlineFormSelectModalOpen] = useState(false);
   const [selectedOnlineFormFields, setSelectedOnlineFormFields] = useState<OnlineFormFieldOption[]>([]);
+  const [selectedFormId, setSelectedFormId] = useState<string | null>(null);
+  const [formSearchKeyword, setFormSearchKeyword] = useState('');
+  const [isFormDropdownOpen, setIsFormDropdownOpen] = useState(false);
   const [onlineComposerTranslateLanguage, setOnlineComposerTranslateLanguage] = useState<OnlineMessageTranslateLanguage>('zh');
   const [isOnlineComposerTranslateMenuOpen, setIsOnlineComposerTranslateMenuOpen] = useState(false);
   const [isOnlineSuggestionMenuOpen, setIsOnlineSuggestionMenuOpen] = useState(false);
@@ -1050,13 +1055,13 @@ export default function OnlineWorkbenchPage() {
   };
 
   const handleOnlineComposerPrimaryToolClick = (label: string) => {
-    if (label === '表单') { setSelectedOnlineFormFields([]); setIsOnlineFormSelectModalOpen(true); return; }
+    if (label === '表单') { setSelectedFormId(null); setIsOnlineFormSelectModalOpen(true); return; }
     if (label === '语音') { handleOpenOnlineCallOverlay('audio'); return; }
     if (label === '视频') handleOpenOnlineCallOverlay('video');
   };
-  const handleCloseOnlineFormSelectModal = () => { setIsOnlineFormSelectModalOpen(false); setSelectedOnlineFormFields([]); };
-  const handleToggleOnlineFormField = (field: OnlineFormFieldOption) => { setSelectedOnlineFormFields((p) => p.includes(field) ? p.filter((i) => i !== field) : [...p, field]); };
+  const handleCloseOnlineFormSelectModal = () => { setIsOnlineFormSelectModalOpen(false); setSelectedFormId(null); setFormSearchKeyword(''); setIsFormDropdownOpen(false); };
   const handleConfirmOnlineFormSelect = () => setIsOnlineFormSelectModalOpen(false);
+  const selectedFormItem = selectedFormId ? formTemplates.find((f) => f.id === selectedFormId) ?? null : null;
 
   const handleSubmitOnlineComposer = () => {
     const txt = activeOnlineComposerText.trim();
@@ -1222,16 +1227,16 @@ export default function OnlineWorkbenchPage() {
                   <div className="overflow-hidden rounded-md border border-slate-200 bg-white shadow-[0_10px_24px_rgba(15,23,42,0.12)]">
                     <div className="grid grid-cols-3 border-b border-slate-100 bg-slate-50/80 text-[11px] font-medium text-slate-500">{['省', '市', '区'].map((t) => <div key={t} className="px-3 py-2">{t}</div>)}</div>
                     <div className="grid grid-cols-3 divide-x divide-slate-100">
-                      <div className="max-h-56 overflow-y-auto py-1 custom-scrollbar">{chinaRegionOptions.map((prov) => <button key={prov.name} type="button" onClick={() => { const nc = prov.cities[0]; setRegionSelection!({ province: prov.name, city: nc.name, district: nc.districts[0] ?? '' }); }} className={cn('flex w-full items-center px-3 py-2 text-left text-[12px] transition-colors', activeRegion.province === prov.name ? 'bg-emerald-50 text-emerald-600' : 'text-slate-600 hover:bg-slate-50')}>{prov.name}</button>)}</div>
-                      <div className="max-h-56 overflow-y-auto py-1 custom-scrollbar">{activeProv.cities.map((city) => <button key={city.name} type="button" onClick={() => setRegionSelection!((p) => ({ province: activeProv.name, city: city.name, district: city.districts.includes(p.district) ? p.district : city.districts[0] ?? '' }))} className={cn('flex w-full items-center px-3 py-2 text-left text-[12px] transition-colors', activeRegion.city === city.name ? 'bg-emerald-50 text-emerald-600' : 'text-slate-600 hover:bg-slate-50')}>{city.name}</button>)}</div>
-                      <div className="max-h-56 overflow-y-auto py-1 custom-scrollbar">{activeCity.districts.map((d) => <button key={d} type="button" onClick={() => { const ns = { province: activeProv.name, city: activeCity.name, district: d }; setRegionSelection!(ns); setFieldValues((p) => ({ ...p, [field.label]: formatRegionValue(ns) })); setOpenSelect(null); }} className={cn('flex w-full items-center justify-between px-3 py-2 text-left text-[12px] transition-colors', activeRegion.district === d ? 'bg-emerald-50 text-emerald-600' : 'text-slate-600 hover:bg-slate-50')}><span>{d}</span>{activeRegion.district === d ? <Check size={12} /> : null}</button>)}</div>
+                      <div className="max-h-56 overflow-y-auto py-1 custom-scrollbar">{chinaRegionOptions.map((prov) => <button key={prov.name} type="button" onClick={() => { const nc = prov.cities[0]; setRegionSelection!({ province: prov.name, city: nc.name, district: nc.districts[0] ?? '' }); }} className={cn('flex w-full items-center px-3 py-2 text-left text-[12px] transition-colors', activeRegion.province === prov.name ? 'bg-brand-50 text-brand-600' : 'text-slate-600 hover:bg-slate-50')}>{prov.name}</button>)}</div>
+                      <div className="max-h-56 overflow-y-auto py-1 custom-scrollbar">{activeProv.cities.map((city) => <button key={city.name} type="button" onClick={() => setRegionSelection!((p) => ({ province: activeProv.name, city: city.name, district: city.districts.includes(p.district) ? p.district : city.districts[0] ?? '' }))} className={cn('flex w-full items-center px-3 py-2 text-left text-[12px] transition-colors', activeRegion.city === city.name ? 'bg-brand-50 text-brand-600' : 'text-slate-600 hover:bg-slate-50')}>{city.name}</button>)}</div>
+                      <div className="max-h-56 overflow-y-auto py-1 custom-scrollbar">{activeCity.districts.map((d) => <button key={d} type="button" onClick={() => { const ns = { province: activeProv.name, city: activeCity.name, district: d }; setRegionSelection!(ns); setFieldValues((p) => ({ ...p, [field.label]: formatRegionValue(ns) })); setOpenSelect(null); }} className={cn('flex w-full items-center justify-between px-3 py-2 text-left text-[12px] transition-colors', activeRegion.district === d ? 'bg-brand-50 text-brand-600' : 'text-slate-600 hover:bg-slate-50')}><span>{d}</span>{activeRegion.district === d ? <Check size={12} /> : null}</button>)}</div>
                     </div>
                   </div>,
                   { align: 'center', marginTop: 4, width: 420 }
                 ) : renderFloatingMenu(floatingSelectTriggerRefs.current[fieldKey],
                   <div className="max-h-44 overflow-auto rounded-md border border-slate-200 bg-white py-1 shadow-[0_10px_24px_rgba(15,23,42,0.12)] custom-scrollbar">
                     {(workbenchSelectOptions[field.label] ?? ['选项一', '选项二', '选项三']).map((opt) => (
-                      <button key={opt} type="button" onClick={() => { setFieldValues((p) => ({ ...p, [field.label]: opt })); setOpenSelect(null); }} className={cn('flex w-full items-center px-3 py-2 text-left text-[12px] transition-colors', fieldValues[field.label] === opt ? 'bg-emerald-50 text-emerald-600' : 'text-slate-600 hover:bg-slate-50')}>{opt}</button>
+                      <button key={opt} type="button" onClick={() => { setFieldValues((p) => ({ ...p, [field.label]: opt })); setOpenSelect(null); }} className={cn('flex w-full items-center px-3 py-2 text-left text-[12px] transition-colors', fieldValues[field.label] === opt ? 'bg-brand-50 text-brand-600' : 'text-slate-600 hover:bg-slate-50')}>{opt}</button>
                     ))}
                   </div>,
                   { marginTop: 4 }
@@ -1286,11 +1291,11 @@ export default function OnlineWorkbenchPage() {
           <h2 className="text-[14px] font-bold text-slate-800">{title}</h2>
           <div className="flex overflow-hidden rounded-[8px] border border-[#dce4ec] bg-white">
             {onlineThirdPartyScopes.map((scope) => (
-              <button key={scope} type="button" onClick={() => setOnlineThirdPartyScope(scope)} className={cn('min-w-[92px] px-6 py-1.5 text-[12px] font-medium transition-colors', onlineThirdPartyScope === scope ? 'bg-[#dff6f0] text-[#19b69f]' : 'text-slate-500 hover:bg-slate-50')}>{scope === 'public' ? '公共' : '个人'}</button>
+              <button key={scope} type="button" onClick={() => setOnlineThirdPartyScope(scope)} className={cn('min-w-[92px] px-6 py-1.5 text-[12px] font-medium transition-colors', onlineThirdPartyScope === scope ? 'bg-[#e8f1ff] text-[#216BFF]' : 'text-slate-500 hover:bg-slate-50')}>{scope === 'public' ? '公共' : '个人'}</button>
             ))}
           </div>
         </div>
-        <button ref={onlineThirdPartySettingsTriggerRef} type="button" aria-label="打开第三方网站默认设置" title="默认设置" data-dropdown-root="true" onClick={handleToggleOnlineThirdPartySettings} className={cn('flex h-8 w-8 items-center justify-center rounded-full transition-colors', isOnlineThirdPartySettingsOpen ? 'bg-[#eefaf7] text-[#19b69f]' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-500')}><Settings size={15} /></button>
+        <button ref={onlineThirdPartySettingsTriggerRef} type="button" aria-label="打开第三方网站默认设置" title="默认设置" data-dropdown-root="true" onClick={handleToggleOnlineThirdPartySettings} className={cn('flex h-8 w-8 items-center justify-center rounded-full transition-colors', isOnlineThirdPartySettingsOpen ? 'bg-[#e8f1ff] text-[#216BFF]' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-500')}><Settings size={15} /></button>
       </div>
       <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
         <div className="relative mb-4"><Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" /><input type="text" placeholder="搜索" className="h-9 w-full rounded-full border border-slate-200 bg-[#fcfcfd] pl-9 pr-8 text-[12px] text-slate-500 outline-none" /><Search size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300" /></div>
@@ -1315,12 +1320,12 @@ export default function OnlineWorkbenchPage() {
           <div className="space-y-4 px-5 pb-4">
             {([{ scope: 'public' as const, label: '默认选中公共部分' }, { scope: 'personal' as const, label: '默认选中个人部分' }]).map((item) => {
               const isSel = pendingOnlineThirdPartyDefaultScope === item.scope;
-              return <button key={item.scope} type="button" onClick={() => setPendingOnlineThirdPartyDefaultScope(item.scope)} className={cn('flex w-full items-center justify-between gap-4 rounded-[10px] border px-4 py-3 text-left text-[13px] transition-colors', isSel ? 'border-[#8ee8db] bg-[#ecfbf8] text-[#11c5ab]' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50')}><span>{item.label}</span><span className={cn('flex h-5 w-5 items-center justify-center rounded-full border transition-colors', isSel ? 'border-[#11c5ab] bg-[#11c5ab] text-white' : 'border-slate-300 bg-white text-transparent')}><Check size={12} strokeWidth={3} /></span></button>;
+              return <button key={item.scope} type="button" onClick={() => setPendingOnlineThirdPartyDefaultScope(item.scope)} className={cn('flex w-full items-center justify-between gap-4 rounded-[10px] border px-4 py-3 text-left text-[13px] transition-colors', isSel ? 'border-[#96b8ff] bg-[#e8f1ff] text-[#216BFF]' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50')}><span>{item.label}</span><span className={cn('flex h-5 w-5 items-center justify-center rounded-full border transition-colors', isSel ? 'border-[#216BFF] bg-[#216BFF] text-white' : 'border-slate-300 bg-white text-transparent')}><Check size={12} strokeWidth={3} /></span></button>;
             })}
           </div>
           <div className="flex items-center justify-end gap-3 border-t border-slate-100 px-5 py-3">
             <button type="button" onClick={handleCloseOnlineThirdPartySettings} className="flex h-[32px] min-w-[70px] items-center justify-center rounded-full border border-[#e4e8ef] bg-white px-4 text-[12px] text-[#6f7782] transition-colors hover:bg-slate-50">取消</button>
-            <button type="button" onClick={handleApplyOnlineThirdPartySettings} className="flex h-[32px] min-w-[78px] items-center justify-center rounded-full border border-[#8ee8db] bg-[#ecfbf8] px-4 text-[12px] font-medium text-[#11c5ab] transition-colors hover:bg-[#dff8f3]">确定</button>
+            <button type="button" onClick={handleApplyOnlineThirdPartySettings} className="flex h-[32px] min-w-[78px] items-center justify-center rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-4 text-[12px] font-medium text-[#216BFF] transition-colors hover:bg-[#c9dcff]">确定</button>
           </div>
         </div>,
         { align: 'right', marginTop: 12, width: 230, placement: 'bottom' }
@@ -1448,6 +1453,7 @@ export default function OnlineWorkbenchPage() {
               if (label === '附件查询') setShowAttachmentQuery(true);
               if (label === '短信') setShowSmsSendModal(true);
               if (label === '邮箱') setShowEmailSendModal(true);
+              if (label === '预约回电') setShowScheduleFollowUp(true);
             }}
           />
         </div>
@@ -1496,7 +1502,7 @@ export default function OnlineWorkbenchPage() {
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
                       <div className="text-[11px] font-medium text-slate-600">匿名</div>
-                      <button type="button" aria-pressed={activeOnlineCustomerAnonymous} onClick={handleToggleActiveOnlineCustomerAnonymous} className={cn('relative h-5 w-9 rounded-full transition-colors', activeOnlineCustomerAnonymous ? 'bg-[#34d399]' : 'bg-slate-300')}>
+                      <button type="button" aria-pressed={activeOnlineCustomerAnonymous} onClick={handleToggleActiveOnlineCustomerAnonymous} className={cn('relative h-5 w-9 rounded-full transition-colors', activeOnlineCustomerAnonymous ? 'bg-[#3d78ff]' : 'bg-slate-300')}>
                         <span className={cn('absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-all', activeOnlineCustomerAnonymous ? 'right-0.5' : 'left-0.5')} />
                       </button>
                       <div className="text-[11px] font-medium text-slate-600">业务类型</div>
@@ -1507,7 +1513,7 @@ export default function OnlineWorkbenchPage() {
                         </button>
                         {isOnlineBusinessTypeMenuOpen ? renderFloatingMenu(onlineBusinessTypeTriggerRef.current,
                           <div className="overflow-hidden rounded-md border border-slate-200 bg-white py-1 shadow-[0_10px_24px_rgba(15,23,42,0.12)]">
-                            {onlineBusinessTypeOptions.map((opt) => <button key={opt} type="button" onClick={() => handleSelectActiveOnlineBusinessType(opt)} className={cn('flex w-full items-center px-3 py-2 text-left text-[12px] transition-colors', activeOnlineBusinessType === opt ? 'bg-emerald-50 text-emerald-600' : 'text-slate-600 hover:bg-slate-50')}>{opt}</button>)}
+                            {onlineBusinessTypeOptions.map((opt) => <button key={opt} type="button" onClick={() => handleSelectActiveOnlineBusinessType(opt)} className={cn('flex w-full items-center px-3 py-2 text-left text-[12px] transition-colors', activeOnlineBusinessType === opt ? 'bg-brand-50 text-brand-600' : 'text-slate-600 hover:bg-slate-50')}>{opt}</button>)}
                           </div>,
                           { marginTop: 4, width: 120 }
                         ) : null}
@@ -1519,9 +1525,8 @@ export default function OnlineWorkbenchPage() {
                   </div>
                 </div>
                 <div className="flex justify-end gap-3 border-t border-slate-100 px-4 py-3">
-                  <button type="button" onClick={() => setShowScheduleFollowUp(true)} className="rounded-full border border-violet-200 bg-violet-50/80 px-6 py-1.5 text-[12px] font-medium text-violet-600 transition-colors hover:border-violet-300 hover:bg-violet-100/80">预约回电</button>
-                  <button type="button" className="rounded-full border border-[#7ee0d3] bg-[#f1fdfa] px-6 py-1.5 text-[12px] font-medium text-[#18a058]">保存</button>
-                  <button type="button" onClick={handleResetActiveOnlineCustomerProfile} className="rounded-full border border-[#7ee0d3] bg-[#f1fdfa] px-6 py-1.5 text-[12px] font-medium text-[#18a058]">重置</button>
+                  <button type="button" className="rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-6 py-1.5 text-[12px] font-medium text-[#216BFF]">保存</button>
+                  <button type="button" onClick={handleResetActiveOnlineCustomerProfile} className="rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-6 py-1.5 text-[12px] font-medium text-[#216BFF]">重置</button>
                 </div>
               </section>
             )}
@@ -1530,14 +1535,14 @@ export default function OnlineWorkbenchPage() {
               <section className="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm" style={{ height: `${onlineRightTopPanelHeight}px` }}>
                 <div className="flex items-center gap-6 border-b border-slate-100 px-4">
                   {(['会话历史', '通话历史', '短信历史', '邮件历史'] as WorkbenchHistoryTab[]).map((tab) => (
-                    <button key={tab} type="button" onClick={() => setOnlineWorkbenchHistoryTab(tab)} className={cn('relative py-3 text-[12px] font-semibold transition-colors', onlineWorkbenchHistoryTab === tab ? 'text-emerald-500' : 'text-slate-500 hover:text-slate-700')}>
-                      {tab}{onlineWorkbenchHistoryTab === tab && <span className="absolute inset-x-0 bottom-0 h-0.5 bg-emerald-500" />}
+                    <button key={tab} type="button" onClick={() => setOnlineWorkbenchHistoryTab(tab)} className={cn('relative py-3 text-[12px] font-semibold transition-colors', onlineWorkbenchHistoryTab === tab ? 'text-brand-500' : 'text-slate-500 hover:text-slate-700')}>
+                      {tab}{onlineWorkbenchHistoryTab === tab && <span className="absolute inset-x-0 bottom-0 h-0.5 bg-brand-500" />}
                     </button>
                   ))}
                 </div>
                 <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
                   <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                    <div className="text-[12px] text-slate-500"><span className="text-[#18a058]">{onlineHistorySummaryLabel}</span></div>
+                    <div className="text-[12px] text-slate-500"><span className="text-[#216BFF]">{onlineHistorySummaryLabel}</span></div>
                     <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-2">
                       <div className="relative min-w-[120px] flex-[1_1_120px] sm:flex-none"><Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" /><input type="text" placeholder={activeOnlineHistoryPanelMeta.filterPlaceholder} className="h-8 w-[120px] rounded-md border border-slate-200 bg-[#fcfcfd] pl-9 pr-3 text-[12px] text-slate-400 outline-none" /></div>
                       {isOnlineHistoryDateRangeTab ? (
@@ -1552,7 +1557,7 @@ export default function OnlineWorkbenchPage() {
                           </button>
                           {isOnlineHistoryTimeDropdownTab && activeOnlineHistoryTimeMenuTab === onlineWorkbenchHistoryTab ? renderFloatingMenu(onlineHistoryTimeTriggerRefs.current[onlineWorkbenchHistoryTab as HistoryTimeDropdownTab] ?? null,
                             <div className="overflow-hidden rounded-md border border-slate-200 bg-white py-1 shadow-[0_10px_24px_rgba(15,23,42,0.12)]">
-                              {onlineHistoryTimeDropdown.optionsByTab[onlineWorkbenchHistoryTab as HistoryTimeDropdownTab].map((time) => <button key={`${onlineWorkbenchHistoryTab}-${time}`} type="button" onClick={() => handleSelectOnlineHistoryTime(onlineWorkbenchHistoryTab as HistoryTimeDropdownTab, time)} className={cn('flex w-full items-center px-3 py-2 text-left text-[12px] transition-colors', activeOnlineHistoryTime === time ? 'bg-emerald-50 text-emerald-600' : 'text-slate-600 hover:bg-slate-50')}>{time}</button>)}
+                              {onlineHistoryTimeDropdown.optionsByTab[onlineWorkbenchHistoryTab as HistoryTimeDropdownTab].map((time) => <button key={`${onlineWorkbenchHistoryTab}-${time}`} type="button" onClick={() => handleSelectOnlineHistoryTime(onlineWorkbenchHistoryTab as HistoryTimeDropdownTab, time)} className={cn('flex w-full items-center px-3 py-2 text-left text-[12px] transition-colors', activeOnlineHistoryTime === time ? 'bg-brand-50 text-brand-600' : 'text-slate-600 hover:bg-slate-50')}>{time}</button>)}
                             </div>,
                             { marginTop: 4, width: 176 }
                           ) : null}
@@ -1589,10 +1594,10 @@ export default function OnlineWorkbenchPage() {
                           <div className={cn('max-w-[240px]', message.align === 'right' && 'items-end')}>
                             <div className={cn('mb-1 text-[11px] text-slate-400', message.align === 'right' ? 'text-right' : 'text-left')}>10-28 09:10:20</div>
                             <div className={cn('flex items-start gap-2', message.align === 'right' && 'flex-row-reverse')}>
-                              <div className={cn('mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-white', message.align === 'right' ? 'bg-orange-400' : 'bg-emerald-500')}><MessageSquare size={14} /></div>
+                              <div className={cn('mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-white', message.align === 'right' ? 'bg-orange-400' : 'bg-brand-500')}><MessageSquare size={14} /></div>
                               <div className="space-y-1">
-                                {message.badge && <div className="text-left"><span className="rounded-md bg-emerald-50 px-2 py-1 text-[10px] font-medium text-emerald-500">{message.badge}</span></div>}
-                                <div className={cn('rounded-2xl px-4 py-2 text-[12px] leading-5 shadow-[0_2px_6px_rgba(15,23,42,0.03)]', message.align === 'right' ? 'rounded-tr-md bg-[#e9f9f4] text-slate-700' : 'rounded-tl-md bg-slate-50 text-slate-700')}>{message.text}</div>
+                                {message.badge && <div className="text-left"><span className="rounded-md bg-brand-50 px-2 py-1 text-[10px] font-medium text-brand-500">{message.badge}</span></div>}
+                                <div className={cn('rounded-2xl px-4 py-2 text-[12px] leading-5 shadow-[0_2px_6px_rgba(15,23,42,0.03)]', message.align === 'right' ? 'rounded-tr-md bg-[#e8f1ff] text-slate-700' : 'rounded-tl-md bg-slate-50 text-slate-700')}>{message.text}</div>
                               </div>
                             </div>
                           </div>
@@ -1630,9 +1635,9 @@ export default function OnlineWorkbenchPage() {
                   actions={
                     <>
                       <button type="button" onClick={() => handleRemoveOnlineSummaryTab(onlineSummaryTab)} className="rounded-full border border-rose-300 bg-rose-50/60 px-5 py-1.5 text-[12px] font-medium text-rose-500 transition-colors hover:bg-rose-50">废弃</button>
-                      <button className="rounded-full border border-[#7ee0d3] bg-[#f1fdfa] px-5 py-1.5 text-[12px] font-medium text-[#18a058]">升级工单</button>
-                      {activeOnlineBusinessType === '教育' ? <button type="button" onClick={() => setShowCreateTpdModal(true)} className="rounded-full border border-[#7ee0d3] bg-[#f1fdfa] px-5 py-1.5 text-[12px] font-medium text-[#18a058]">创建TPD工单</button> : null}
-                      <button className="rounded-full border border-[#7ee0d3] bg-[#f1fdfa] px-5 py-1.5 text-[12px] font-medium text-[#18a058]">提交</button>
+                      <button className="rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-5 py-1.5 text-[12px] font-medium text-[#216BFF]">升级工单</button>
+                      {activeOnlineBusinessType === '教育' ? <button type="button" onClick={() => setShowCreateTpdModal(true)} className="rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-5 py-1.5 text-[12px] font-medium text-[#216BFF]">创建TPD工单</button> : null}
+                      <button className="rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-5 py-1.5 text-[12px] font-medium text-[#216BFF]">提交</button>
                     </>
                   }
                 />
@@ -1665,13 +1670,13 @@ export default function OnlineWorkbenchPage() {
         <div data-call-overlay className="absolute z-50" style={callOverlayPos.x >= 0 ? { left: callOverlayPos.x, top: callOverlayPos.y } : { left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }}>
           {activeOnlineCallOverlay === 'audio' ? (
             <div className="w-[258px] overflow-hidden rounded-[18px] border border-[#e7edf3] bg-white shadow-[0_24px_50px_rgba(15,23,42,0.16)]">
-              <div className="flex cursor-move items-center gap-2 border-b border-[#e4f3ef] bg-[#f2fbf8] px-4 py-[11px] text-[13px] font-semibold text-[#12b89d] select-none" onMouseDown={handleCallOverlayDragStart}>
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#dff8f2] text-[#14c4a6]"><Phone size={11} strokeWidth={2.2} /></span><span>语音通话进行中</span>
+              <div className="flex cursor-move items-center gap-2 border-b border-[#c9dcff] bg-[#e8f1ff] px-4 py-[11px] text-[13px] font-semibold text-[#216BFF] select-none" onMouseDown={handleCallOverlayDragStart}>
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#c9dcff] text-[#216BFF]"><Phone size={11} strokeWidth={2.2} /></span><span>语音通话进行中</span>
               </div>
               <div className="flex flex-col items-center px-5 pb-6 pt-7">
                 <img src={onlineAudioCallAvatar} alt={`${onlineCallContactName}头像`} className="h-[84px] w-[84px] rounded-full object-cover shadow-[0_12px_24px_rgba(125,144,255,0.2)]" />
                 <div className="mt-3.5 text-[18px] font-semibold tracking-[0.02em] text-slate-700">{onlineCallContactName}</div>
-                <div className="mt-1 text-[18px] font-semibold tracking-[0.08em] text-[#1cc9af]">{onlineAudioCallDuration}</div>
+                <div className="mt-1 text-[18px] font-semibold tracking-[0.08em] text-[#216BFF]">{onlineAudioCallDuration}</div>
                 <div className="mt-7 grid w-full grid-cols-3 gap-2.5 text-center">
                   {onlineAudioCallControls.map(({ label, iconSrc, onClick }) => (
                     <div key={`audio-ctrl-${label}`} className="flex flex-col items-center gap-2">
@@ -1721,7 +1726,7 @@ export default function OnlineWorkbenchPage() {
             <div className="mt-[18px] text-[12px] leading-[18px] text-[#5c6570]">是否立即结束会话?</div>
             <div className="mt-[18px] flex items-center justify-end gap-[10px]">
               <button type="button" onClick={() => setShowOnlineEndSessionConfirm(false)} className="flex h-[30px] min-w-[66px] items-center justify-center rounded-full border border-[#e4e8ef] bg-white px-[18px] text-[12px] text-[#6f7782] transition-colors hover:bg-slate-50">取消</button>
-              <button type="button" onClick={handleOnlineSessionDisconnectConfirm} className="flex h-[30px] min-w-[74px] items-center justify-center rounded-full border border-[#8ee8db] bg-[#ecfbf8] px-[18px] text-[12px] font-medium text-[#11c5ab] transition-colors hover:bg-[#dff8f3]">确定</button>
+              <button type="button" onClick={handleOnlineSessionDisconnectConfirm} className="flex h-[30px] min-w-[74px] items-center justify-center rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-[18px] text-[12px] font-medium text-[#216BFF] transition-colors hover:bg-[#c9dcff]">确定</button>
             </div>
           </div>
         </>
@@ -1730,17 +1735,57 @@ export default function OnlineWorkbenchPage() {
       {isOnlineFormSelectModalOpen && (
         <>
           <button type="button" aria-label="关闭表单选择弹窗" onClick={handleCloseOnlineFormSelectModal} className="absolute inset-0 z-20 bg-[rgba(245,247,251,0.58)]" />
-          <div className="absolute left-1/2 top-[73%] z-30 w-[376px] -translate-x-1/2 -translate-y-1/2 rounded-[10px] bg-white px-[20px] py-[16px] text-left shadow-[0_12px_28px_rgba(15,23,42,0.16)]">
+          <div className="absolute left-1/2 top-1/2 z-30 w-[380px] -translate-x-1/2 -translate-y-1/2 rounded-[10px] bg-white px-[20px] py-[16px] text-left shadow-[0_12px_28px_rgba(15,23,42,0.16)]">
             <div className="text-[14px] font-semibold leading-none text-[#3f434a]">表单选择</div>
-            <div className="mt-[16px] flex flex-wrap items-center gap-x-[22px] gap-y-[10px] text-[12px] text-[#3f434a]">
-              {onlineFormFieldOptions.map((field) => {
-                const isSel = selectedOnlineFormFields.includes(field);
-                return <button key={field} type="button" onClick={() => handleToggleOnlineFormField(field)} className="inline-flex items-center gap-[6px] transition-colors hover:text-[#18a058]"><span>{field}</span><span className={cn('flex h-[13px] w-[13px] items-center justify-center rounded-[3px] border transition-colors', isSel ? 'border-[#17c6aa] bg-[#17c6aa]' : 'border-[#d6dee7] bg-white')}>{isSel ? <Check size={10} strokeWidth={2.8} className="text-white" /> : null}</span></button>;
-              })}
+            <div className="relative mt-[16px]">
+              <div className="relative">
+                <input
+                  type="text"
+                  value={isFormDropdownOpen ? formSearchKeyword : (selectedFormItem?.name ?? '')}
+                  placeholder="请输入搜索或选择表单"
+                  onFocus={() => { setIsFormDropdownOpen(true); setFormSearchKeyword(''); }}
+                  onChange={(e) => { setFormSearchKeyword(e.target.value); if (!isFormDropdownOpen) setIsFormDropdownOpen(true); }}
+                  className="h-9 w-full rounded-md border border-slate-200 bg-white pl-3 pr-8 text-[13px] text-slate-700 outline-none focus:border-[#216BFF]"
+                />
+                <ChevronDown size={14} onClick={() => setIsFormDropdownOpen((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-slate-400" />
+              </div>
+              {isFormDropdownOpen && (() => {
+                const kw = formSearchKeyword.trim().toLowerCase();
+                const filtered = kw ? formTemplates.filter((f) => f.name.toLowerCase().includes(kw)) : formTemplates;
+                return (
+                  <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-10 max-h-[200px] overflow-auto rounded-md border border-slate-200 bg-white py-1 shadow-[0_10px_24px_rgba(15,23,42,0.12)] custom-scrollbar">
+                    {filtered.length > 0 ? filtered.map((form) => (
+                      <button
+                        key={form.id}
+                        type="button"
+                        onClick={() => { setSelectedFormId(form.id); setIsFormDropdownOpen(false); setFormSearchKeyword(''); }}
+                        className={cn('flex w-full items-center justify-between px-3 py-2 text-left text-[13px] transition-colors', selectedFormId === form.id ? 'bg-[#e8f1ff] text-[#216BFF]' : 'text-slate-600 hover:bg-slate-50')}
+                      >
+                        <span>{form.name}</span>
+                        <span className="text-[12px] text-slate-400">{form.fields.filter((f) => f.fieldName).length} 个字段</span>
+                      </button>
+                    )) : (
+                      <div className="px-3 py-4 text-center text-[12px] text-slate-400">无匹配表单</div>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
-            <div className="mt-[22px] flex items-center justify-end gap-[10px]">
+            {selectedFormItem && (
+              <div className="mt-3 rounded-lg border border-slate-100 bg-[#fafbfd] px-4 py-3">
+                <div className="mb-2 text-[12px] font-medium text-slate-500">包含字段</div>
+                <div className="flex flex-wrap gap-2">
+                  {selectedFormItem.fields.filter((f) => f.fieldName).map((f) => (
+                    <span key={f.id} className="rounded-full border border-slate-200 bg-white px-2.5 py-0.5 text-[12px] text-slate-600">
+                      {f.fieldName}{f.required ? <span className="ml-0.5 text-[#ff6f6f]">*</span> : null}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+            <div className="mt-[18px] flex items-center justify-end gap-[10px]">
               <button type="button" onClick={handleCloseOnlineFormSelectModal} className="flex h-[30px] min-w-[66px] items-center justify-center rounded-full border border-[#e4e8ef] bg-white px-[18px] text-[12px] text-[#6f7782] transition-colors hover:bg-slate-50">取消</button>
-              <button type="button" onClick={handleConfirmOnlineFormSelect} className="flex h-[30px] min-w-[74px] items-center justify-center rounded-full border border-[#8ee8db] bg-[#ecfbf8] px-[18px] text-[12px] font-medium text-[#11c5ab] transition-colors hover:bg-[#dff8f3]">确定</button>
+              <button type="button" onClick={handleConfirmOnlineFormSelect} disabled={!selectedFormId} className={'flex h-[30px] min-w-[74px] items-center justify-center rounded-full px-[18px] text-[12px] font-medium transition-colors ' + (selectedFormId ? 'border border-[#96b8ff] bg-[#e8f1ff] text-[#216BFF] hover:bg-[#c9dcff]' : 'cursor-not-allowed bg-slate-100 text-slate-400')}>确定</button>
             </div>
           </div>
         </>
@@ -1754,7 +1799,7 @@ export default function OnlineWorkbenchPage() {
             <div className="mt-[18px] text-[12px] leading-[18px] text-[#5c6570]">是否立即撤回消息?</div>
             <div className="mt-[18px] flex items-center justify-end gap-[10px]">
               <button type="button" onClick={handleCloseOnlineWithdrawConfirm} className="flex h-[30px] min-w-[66px] items-center justify-center rounded-full border border-[#e4e8ef] bg-white px-[18px] text-[12px] text-[#6f7782] transition-colors hover:bg-slate-50">取消</button>
-              <button type="button" onClick={handleConfirmWithdrawOnlineMessage} className="flex h-[30px] min-w-[74px] items-center justify-center rounded-full border border-[#8ee8db] bg-[#ecfbf8] px-[18px] text-[12px] font-medium text-[#11c5ab] transition-colors hover:bg-[#dff8f3]">确定</button>
+              <button type="button" onClick={handleConfirmWithdrawOnlineMessage} className="flex h-[30px] min-w-[74px] items-center justify-center rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-[18px] text-[12px] font-medium text-[#216BFF] transition-colors hover:bg-[#c9dcff]">确定</button>
             </div>
           </div>
         </>
@@ -1765,10 +1810,10 @@ export default function OnlineWorkbenchPage() {
           <button type="button" aria-label="关闭拉黑弹窗" onClick={handleCloseOnlineBlockConfirm} className="absolute inset-0 z-20 bg-transparent" />
           <div data-dropdown-root="true" className="fixed z-[81] w-[280px] rounded-[10px] border border-[#e8edf3] bg-white px-[16px] py-[14px] text-left shadow-[0_12px_28px_rgba(15,23,42,0.16)]" style={{ left: pendingBlockedOnlineSession.x, top: pendingBlockedOnlineSession.y }}>
             <div className="text-[14px] font-semibold leading-none text-[#3f434a]">拉黑原因</div>
-            <textarea value={onlineBlockReason} onChange={(e) => setOnlineBlockReason(e.target.value)} placeholder="请输入拉黑原因" className="mt-[18px] h-[70px] w-full resize-none rounded-[4px] border border-[#e8edf3] px-[10px] py-[8px] text-[12px] leading-[18px] text-[#3f434a] outline-none transition-colors placeholder:text-[#c3cad5] focus:border-[#8ee8db]" />
+            <textarea value={onlineBlockReason} onChange={(e) => setOnlineBlockReason(e.target.value)} placeholder="请输入拉黑原因" className="mt-[18px] h-[70px] w-full resize-none rounded-[4px] border border-[#e8edf3] px-[10px] py-[8px] text-[12px] leading-[18px] text-[#3f434a] outline-none transition-colors placeholder:text-[#c3cad5] focus:border-[#96b8ff]" />
             <div className="mt-[12px] flex items-center justify-end gap-[10px]">
               <button type="button" onClick={handleCloseOnlineBlockConfirm} className="flex h-[30px] min-w-[66px] items-center justify-center rounded-full border border-[#e4e8ef] bg-white px-[18px] text-[12px] text-[#6f7782] transition-colors hover:bg-slate-50">取消</button>
-              <button type="button" onClick={handleBlockOnlineSession} className="flex h-[30px] min-w-[74px] items-center justify-center rounded-full border border-[#8ee8db] bg-[#ecfbf8] px-[18px] text-[12px] font-medium text-[#11c5ab] transition-colors hover:bg-[#dff8f3]">确定</button>
+              <button type="button" onClick={handleBlockOnlineSession} className="flex h-[30px] min-w-[74px] items-center justify-center rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-[18px] text-[12px] font-medium text-[#216BFF] transition-colors hover:bg-[#c9dcff]">确定</button>
             </div>
           </div>
         </>
@@ -1947,7 +1992,7 @@ function OnlineTransferModal({
                     <td className="py-3 text-slate-700">{row.skillGroup}</td>
                     <td className="py-3 tabular-nums text-slate-700">{row.agentNumber}</td>
                     <td className="py-3">
-                      <span className="text-emerald-600">{row.status}</span>
+                      <span className="text-brand-600">{row.status}</span>
                     </td>
                     <td className="py-3">
                       <button
@@ -2048,7 +2093,7 @@ function OnlineTransferModal({
               </div>
               <div className="flex items-center justify-between">
                 <span>状态</span>
-                <span className="font-semibold text-emerald-600">{confirmAgentRow.status}</span>
+                <span className="font-semibold text-brand-600">{confirmAgentRow.status}</span>
               </div>
             </div>
             <p className="mt-3 text-center text-[13px] text-slate-500">是否确认转接到该坐席？</p>
@@ -2092,7 +2137,7 @@ function OnlineTransferModal({
               </div>
               <div className="flex items-center justify-between">
                 <span>当前就绪人数</span>
-                <span className="font-semibold tabular-nums text-emerald-600">{confirmRow.ready}</span>
+                <span className="font-semibold tabular-nums text-brand-600">{confirmRow.ready}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span>当前排队人数</span>

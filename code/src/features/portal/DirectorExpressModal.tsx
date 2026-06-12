@@ -156,7 +156,7 @@ export default function DirectorExpressModal({
                     <button
                       type="button"
                       onClick={() => onViewChange('new')}
-                      className="flex items-center gap-1 rounded border border-emerald-500 px-3 py-1 text-xs font-medium text-emerald-500 transition-colors hover:bg-emerald-50"
+                      className="flex items-center gap-1 rounded border border-brand-500 px-3 py-1 text-xs font-medium text-brand-500 transition-colors hover:bg-brand-50"
                     >
                       <span className="text-lg leading-none">+</span> 新建信件
                     </button>
@@ -193,8 +193,8 @@ export default function DirectorExpressModal({
                             key={message.id}
                             className="transition-colors hover:bg-slate-50/50"
                           >
-                            <td className="px-4 py-4 text-slate-600">{message.id}</td>
-                            <td className="px-4 py-4">
+                            <td className="px-4 py-3 text-slate-600">{message.id}</td>
+                            <td className="px-4 py-3">
                               <div className="flex items-center gap-2">
                                 <span className="text-slate-800">{message.title}</span>
                                 {message.hasNew ? (
@@ -204,22 +204,22 @@ export default function DirectorExpressModal({
                                 ) : null}
                               </div>
                             </td>
-                            <td className="px-4 py-4 text-slate-600">
+                            <td className="px-4 py-3 text-slate-600">
                               {isManagerPortalView
                                 ? getManagerSenderLabel(message)
                                 : message.isAnonymous
                                   ? '是'
                                   : '否'}
                             </td>
-                            <td className="px-4 py-4 text-slate-600">
+                            <td className="px-4 py-3 text-slate-600">
                               {isManagerPortalView ? getReplyStatusLabel(message) : message.createdAt}
                             </td>
-                            <td className="px-4 py-4 text-slate-600">{message.updatedAt}</td>
-                            <td className="px-4 py-4">
+                            <td className="px-4 py-3 text-slate-600">{message.updatedAt}</td>
+                            <td className="px-4 py-3">
                               <button
                                 type="button"
                                 onClick={() => onMessageSelect(message)}
-                                className="font-medium text-emerald-500 hover:text-emerald-600"
+                                className="font-medium text-brand-500 hover:text-brand-600"
                               >
                                 查看
                               </button>
@@ -248,7 +248,7 @@ export default function DirectorExpressModal({
                       </button>
                       <button
                         type="button"
-                        className="flex h-6 w-6 items-center justify-center rounded bg-emerald-500 font-bold text-white"
+                        className="flex h-6 w-6 items-center justify-center rounded bg-brand-500 font-bold text-white"
                       >
                         1
                       </button>
@@ -301,7 +301,7 @@ export default function DirectorExpressModal({
                         <div className="relative flex items-center">
                           <input
                             type="checkbox"
-                            className="peer h-4 w-4 appearance-none rounded border border-slate-300 bg-white transition-colors checked:border-[#00BFA5] checked:bg-[#00BFA5]"
+                            className="peer h-4 w-4 appearance-none rounded border border-slate-300 bg-white transition-colors checked:border-[#216BFF] checked:bg-[#216BFF]"
                             checked={isAnonymous}
                             onChange={(event) => onAnonymousChange(event.target.checked)}
                           />
@@ -319,7 +319,7 @@ export default function DirectorExpressModal({
                     <span className="w-20 text-sm text-slate-500">信件标题</span>
                     <input
                       type="text"
-                      className="flex-1 rounded border border-slate-200 px-3 py-1.5 text-sm text-slate-800 transition-colors focus:border-[#00BFA5] focus:outline-none"
+                      className="flex-1 rounded border border-slate-200 px-3 py-1.5 text-sm text-slate-800 transition-colors focus:border-[#216BFF] focus:outline-none"
                       placeholder="请输入信件标题"
                       value={newMessageTitle}
                       onChange={(event) => onNewMessageTitleChange(event.target.value)}
@@ -459,7 +459,7 @@ export default function DirectorExpressModal({
                     <button
                       type="button"
                       onClick={onSendMessage}
-                      className="rounded-full border border-[#B2EBE4] bg-[#E6F7F4] px-10 py-2 text-sm font-medium text-[#00BFA5] transition-colors hover:bg-[#D1F2ED]"
+                      className="rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-10 py-2 text-sm font-medium text-[#216BFF] transition-colors hover:bg-[#c9dcff]"
                     >
                       发送
                     </button>
@@ -513,7 +513,7 @@ export default function DirectorExpressModal({
                           className={cn(
                             'relative rounded-2xl p-4 text-sm leading-relaxed text-slate-700',
                             reply.sender === 'zongjian'
-                              ? 'bg-emerald-50'
+                              ? 'bg-brand-50'
                               : 'bg-slate-50'
                           )}
                         >
@@ -525,7 +525,7 @@ export default function DirectorExpressModal({
                             className={cn(
                               'absolute top-4 h-4 w-4 rotate-45',
                               reply.sender === 'zongjian'
-                                ? '-right-2 bg-emerald-50'
+                                ? '-right-2 bg-brand-50'
                                 : '-left-2 bg-slate-50'
                             )}
                           />
@@ -558,7 +558,7 @@ export default function DirectorExpressModal({
                       <button
                         type="button"
                         onClick={() => replyImageInputRef.current?.click()}
-                        className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-slate-100 bg-slate-50 text-slate-500 transition-colors hover:bg-slate-100 hover:text-emerald-500"
+                        className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-slate-100 bg-slate-50 text-slate-500 transition-colors hover:bg-slate-100 hover:text-brand-500"
                         title="发送图片"
                       >
                         <ImageIcon size={18} />
@@ -574,12 +574,12 @@ export default function DirectorExpressModal({
                               onSendReply();
                             }
                           }}
-                          className="w-full rounded-full border border-slate-100 bg-slate-50 py-3 px-6 pr-12 text-sm transition-colors focus:border-emerald-500 focus:outline-none"
+                          className="w-full rounded-full border border-slate-100 bg-slate-50 py-3 px-6 pr-12 text-sm transition-colors focus:border-brand-500 focus:outline-none"
                         />
                         <button
                           type="button"
                           onClick={onSendReply}
-                          className="absolute right-4 top-1/2 -translate-y-1/2 text-emerald-500 hover:text-emerald-600"
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-500 hover:text-brand-600"
                         >
                           <Send size={18} />
                         </button>

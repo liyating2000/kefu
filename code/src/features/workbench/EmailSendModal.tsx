@@ -263,7 +263,7 @@ export default function EmailSendModal({ isOpen, onClose, onConfirm }: EmailSend
             <button
               type="button"
               onClick={() => setShowTemplateModal(true)}
-              className="focus-ring shrink-0 whitespace-nowrap rounded-xl bg-emerald-500 px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-emerald-600"
+              className="focus-ring shrink-0 whitespace-nowrap rounded-xl bg-brand-500 px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-brand-600"
             >
               邮件模板
             </button>

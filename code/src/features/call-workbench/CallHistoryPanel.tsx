@@ -179,7 +179,7 @@ export function CallRecordingPlayer({ duration = '00:16' }: { duration?: string 
                   className={cn(
                     'flex w-full items-center px-3 py-1.5 text-left text-[11px] transition-colors',
                     speed === option
-                      ? 'bg-emerald-50 text-emerald-600'
+                      ? 'bg-brand-50 text-brand-600'
                       : 'text-slate-600 hover:bg-slate-50'
                   )}
                 >
@@ -424,7 +424,7 @@ export default function CallHistoryPanel({
                             className={cn(
                               'flex w-full items-center px-3 py-2 text-left text-[12px] transition-colors',
                               activeCallHistoryTime === time
-                                ? 'bg-emerald-50 text-emerald-600'
+                                ? 'bg-brand-50 text-brand-600'
                                 : 'text-slate-600 hover:bg-slate-50'
                             )}
                           >
@@ -516,7 +516,7 @@ export default function CallHistoryPanel({
                       <div
                         className={cn(
                           'flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-white',
-                          message.align === 'right' ? 'bg-orange-400' : 'bg-emerald-500'
+                          message.align === 'right' ? 'bg-orange-400' : 'bg-brand-500'
                         )}
                       >
                         <MessageSquare size={14} />
@@ -524,7 +524,7 @@ export default function CallHistoryPanel({
                       <div className="space-y-1">
                         {message.badge ? (
                           <div className="text-right">
-                            <span className="rounded-md bg-emerald-50 px-2 py-1 text-[10px] font-medium text-emerald-500">
+                            <span className="rounded-md bg-brand-50 px-2 py-1 text-[10px] font-medium text-brand-500">
                               {message.badge}
                             </span>
                           </div>
@@ -533,7 +533,7 @@ export default function CallHistoryPanel({
                           className={cn(
                             'rounded-2xl px-4 py-2 text-[12px] leading-5 shadow-[0_2px_6px_rgba(15,23,42,0.03)]',
                             message.align === 'right'
-                              ? 'rounded-tr-md bg-[#e9f9f4] text-slate-700'
+                              ? 'rounded-tr-md bg-[#e8f1ff] text-slate-700'
                               : 'rounded-tl-md bg-slate-50 text-slate-700'
                           )}
                         >

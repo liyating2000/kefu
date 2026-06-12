@@ -62,14 +62,14 @@ export default function ManagerOverviewDetailContent({
                     index % 2 === 0 ? 'bg-white' : 'bg-slate-50/40'
                   )}
                 >
-                  <td className="px-4 py-4 font-medium text-slate-800">{row.employeeName}</td>
-                  <td className="px-4 py-4 text-slate-600">{row.workgroup}</td>
-                  <td className="px-4 py-4">{row.inboundAnswered}</td>
-                  <td className="px-4 py-4">{row.outboundVolume}</td>
-                  <td className="px-4 py-4">{row.outboundAnswered}</td>
-                  <td className="px-4 py-4">{row.issueParticipationRate}</td>
-                  <td className="px-4 py-4">{row.customerSatisfaction}</td>
-                  <td className="px-4 py-4">{row.issueResolutionRate}</td>
+                  <td className="px-4 py-3 font-medium text-slate-800">{row.employeeName}</td>
+                  <td className="px-4 py-3 text-slate-600">{row.workgroup}</td>
+                  <td className="px-4 py-3">{row.inboundAnswered}</td>
+                  <td className="px-4 py-3">{row.outboundVolume}</td>
+                  <td className="px-4 py-3">{row.outboundAnswered}</td>
+                  <td className="px-4 py-3">{row.issueParticipationRate}</td>
+                  <td className="px-4 py-3">{row.customerSatisfaction}</td>
+                  <td className="px-4 py-3">{row.issueResolutionRate}</td>
                 </tr>
               ))}
             </tbody>

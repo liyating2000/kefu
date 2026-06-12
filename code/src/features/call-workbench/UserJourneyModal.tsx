@@ -29,13 +29,13 @@ const channelIcon: Record<JourneyChannel, LucideIcon> = {
 
 const channelColor: Record<JourneyChannel, string> = {
   电话: 'bg-brand-50 text-brand-600 border-brand-100',
-  在线: 'bg-emerald-50 text-emerald-600 border-emerald-100',
+  在线: 'bg-brand-50 text-brand-600 border-brand-100',
   短信: 'bg-violet-50 text-violet-600 border-violet-100',
   邮件: 'bg-amber-50 text-amber-600 border-amber-100',
 };
 
 const toneLabel: Record<JourneyItem['tone'], { text: string; cls: string }> = {
-  resolved: { text: '已解决', cls: 'text-emerald-600' },
+  resolved: { text: '已解决', cls: 'text-brand-600' },
   pending: { text: '跟进中', cls: 'text-amber-600' },
   escalated: { text: '已升级', cls: 'text-rose-500' },
 };

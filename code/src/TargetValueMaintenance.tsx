@@ -98,7 +98,7 @@ function getCurrentMonth() {
 
 const pageWrapperClass = 'flex min-h-0 flex-1 flex-col overflow-hidden bg-[#f7f9fc]';
 const solidButtonClass =
-  'inline-flex h-9 shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-[#12b89f] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#0da88f]';
+  'inline-flex h-9 shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-[#216BFF] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#1a5ce6]';
 
 export default function TargetValueMaintenance() {
   const monthOptions = getMonthOptions();
@@ -150,7 +150,7 @@ export default function TargetValueMaintenance() {
             <select
               value={selectedMonth}
               onChange={(e) => handleMonthChange(e.target.value)}
-              className="h-9 appearance-none rounded-md border border-slate-200 bg-white pl-3 pr-8 text-[13px] text-slate-600 outline-none transition-colors focus:border-[#12b89f]"
+              className="h-9 appearance-none rounded-md border border-slate-200 bg-white pl-3 pr-8 text-[13px] text-slate-600 outline-none transition-colors focus:border-[#216BFF]"
             >
               {monthOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -175,13 +175,13 @@ export default function TargetValueMaintenance() {
             className={
               'relative px-5 py-3 text-[13px] font-medium transition-colors' +
               (activeTab === tab.key
-                ? ' text-[#12b89f]'
+                ? ' text-[#216BFF]'
                 : ' text-slate-500 hover:text-slate-700')
             }
           >
             {tab.label}
             {activeTab === tab.key && (
-              <span className="absolute bottom-0 left-0 right-0 h-[2px] rounded-full bg-[#12b89f]" />
+              <span className="absolute bottom-0 left-0 right-0 h-[2px] rounded-full bg-[#216BFF]" />
             )}
           </button>
         ))}
@@ -194,10 +194,10 @@ export default function TargetValueMaintenance() {
             <table className="min-w-full text-left text-[13px]">
               <thead className="sticky top-0 bg-[#fafafa] text-slate-600">
                 <tr>
-                  <th className="w-[72px] whitespace-nowrap px-5 py-3 font-medium">序号</th>
-                  <th className="whitespace-nowrap px-5 py-3 font-medium">指标名称</th>
-                  <th className="w-[100px] whitespace-nowrap px-5 py-3 font-medium">单位</th>
-                  <th className="w-[220px] whitespace-nowrap px-5 py-3 font-medium">目标值</th>
+                  <th className="w-[72px] whitespace-nowrap px-4 py-3 font-medium">序号</th>
+                  <th className="whitespace-nowrap px-4 py-3 font-medium">指标名称</th>
+                  <th className="w-[100px] whitespace-nowrap px-4 py-3 font-medium">单位</th>
+                  <th className="w-[220px] whitespace-nowrap px-4 py-3 font-medium">目标值</th>
                 </tr>
               </thead>
               <tbody className="text-slate-600">
@@ -206,20 +206,20 @@ export default function TargetValueMaintenance() {
                     key={metric.key}
                     className={
                       (i % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]') +
-                      ' transition-colors hover:bg-[#f7fffd]'
+                      ' transition-colors hover:bg-[#e8f1ff]'
                     }
                   >
-                    <td className="px-5 py-3.5 text-slate-400">{i + 1}</td>
-                    <td className="px-5 py-3.5 font-medium text-slate-700">{metric.name}</td>
-                    <td className="px-5 py-3.5 text-slate-500">{metric.unit}</td>
-                    <td className="px-5 py-2">
+                    <td className="px-4 py-3 text-slate-400">{i + 1}</td>
+                    <td className="px-4 py-3 font-medium text-slate-700">{metric.name}</td>
+                    <td className="px-4 py-3 text-slate-500">{metric.unit}</td>
+                    <td className="px-4 py-2">
                       <input
                         type="text"
                         inputMode="decimal"
                         value={currentValues[metric.key] ?? ''}
                         onChange={(e) => handleValueChange(metric.key, e.target.value)}
                         placeholder="请输入"
-                        className="h-9 w-full rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-600 outline-none transition-colors placeholder:text-slate-400 focus:border-[#12b89f]"
+                        className="h-9 w-full rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-600 outline-none transition-colors placeholder:text-slate-400 focus:border-[#216BFF]"
                       />
                     </td>
                   </tr>
@@ -232,7 +232,7 @@ export default function TargetValueMaintenance() {
 
       {/* Toast */}
       {toast && (
-        <div className="fixed left-1/2 top-5 z-[100] -translate-x-1/2 rounded-lg bg-slate-800 px-5 py-2.5 text-[13px] text-white shadow-lg">
+        <div className="fixed left-1/2 top-5 z-[100] -translate-x-1/2 rounded-lg bg-slate-800 px-4 py-2.5 text-[13px] text-white shadow-lg">
           {toast}
         </div>
       )}

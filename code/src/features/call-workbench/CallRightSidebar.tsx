@@ -149,10 +149,10 @@ export default function CallRightSidebar({
                         draggingFeatureKey === item.key && 'opacity-55',
                         hasDropIndicator &&
                           dropIndicator?.position === 'before' &&
-                          'before:absolute before:left-2 before:right-2 before:top-0 before:h-[2px] before:rounded-full before:bg-[#18c5aa]',
+                          'before:absolute before:left-2 before:right-2 before:top-0 before:h-[2px] before:rounded-full before:bg-[#216BFF]',
                         hasDropIndicator &&
                           dropIndicator?.position === 'after' &&
-                          'after:absolute after:left-2 after:right-2 after:bottom-0 after:h-[2px] after:rounded-full after:bg-[#18c5aa]'
+                          'after:absolute after:left-2 after:right-2 after:bottom-0 after:h-[2px] after:rounded-full after:bg-[#216BFF]'
                       )}
                     >
                       {item.imageSrc ? (
@@ -165,7 +165,7 @@ export default function CallRightSidebar({
                         className={cn(
                           'flex h-4 w-4 shrink-0 items-center justify-center rounded-[4px] border transition-colors',
                           isVisible
-                            ? 'border-[#18c5aa] bg-[#18c5aa] text-white'
+                            ? 'border-[#216BFF] bg-[#216BFF] text-white'
                             : 'border-slate-300 bg-white text-transparent',
                           item.locked && 'cursor-not-allowed'
                         )}

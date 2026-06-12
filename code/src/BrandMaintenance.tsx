@@ -9,9 +9,9 @@ interface Brand {
 
 const pageWrapperClass = 'flex min-h-0 flex-1 flex-col overflow-hidden bg-[#f7f9fc]';
 const inputClass =
-  'h-10 w-full min-w-0 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-600 outline-none transition-colors placeholder:text-slate-400 focus:border-[#12b89f]';
+  'h-10 w-full min-w-0 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-600 outline-none transition-colors placeholder:text-slate-400 focus:border-[#216BFF]';
 const solidButtonClass =
-  'inline-flex h-9 shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-[#12b89f] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#0da88f]';
+  'inline-flex h-9 shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-[#216BFF] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#1a5ce6]';
 const secondaryButtonClass =
   'inline-flex h-9 shrink-0 items-center justify-center whitespace-nowrap rounded-md border border-slate-200 bg-white px-4 text-[13px] font-medium text-slate-500 transition-colors hover:bg-slate-50';
 
@@ -103,7 +103,7 @@ export default function BrandMaintenance() {
           <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3">
             <div className="flex items-center gap-3">
               <span className="text-[14px] font-semibold text-slate-700">品牌列表</span>
-              <span className="rounded-full bg-[#e8fbf4] px-2.5 py-0.5 text-[12px] font-medium text-[#14956f]">
+              <span className="rounded-full bg-[#e8f1ff] px-2.5 py-0.5 text-[12px] font-medium text-[#216BFF]">
                 {brands.length} 个品牌
               </span>
             </div>
@@ -119,27 +119,27 @@ export default function BrandMaintenance() {
               <table className="min-w-full text-left text-[13px]">
                 <thead className="sticky top-0 bg-[#fafafa] text-slate-600">
                   <tr>
-                    <th className="w-[64px] whitespace-nowrap px-5 py-3 font-medium">序号</th>
-                    <th className="whitespace-nowrap px-5 py-3 font-medium">品牌名称</th>
-                    <th className="whitespace-nowrap px-5 py-3 font-medium">创建时间</th>
-                    <th className="w-[120px] whitespace-nowrap px-5 py-3 font-medium">操作</th>
+                    <th className="w-[64px] whitespace-nowrap px-4 py-3 font-medium">序号</th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">品牌名称</th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">创建时间</th>
+                    <th className="w-[120px] whitespace-nowrap px-4 py-3 font-medium">操作</th>
                   </tr>
                 </thead>
                 <tbody className="text-slate-600">
                   {brands.map((brand, i) => (
                     <tr
                       key={brand.id}
-                      className={(i % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]') + ' transition-colors hover:bg-[#f7fffd]'}
+                      className={(i % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]') + ' transition-colors hover:bg-[#e8f1ff]'}
                     >
-                      <td className="px-5 py-3.5">{i + 1}</td>
-                      <td className="px-5 py-3.5 font-medium text-slate-700">{brand.name}</td>
-                      <td className="px-5 py-3.5 text-slate-500">{brand.createdAt}</td>
-                      <td className="px-5 py-3.5">
+                      <td className="px-4 py-3">{i + 1}</td>
+                      <td className="px-4 py-3 font-medium text-slate-700">{brand.name}</td>
+                      <td className="px-4 py-3 text-slate-500">{brand.createdAt}</td>
+                      <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           <button
                             type="button"
                             onClick={() => openEdit(brand)}
-                            className="text-[#18bca2] hover:text-[#0da88f]"
+                            className="text-[#216BFF] hover:text-[#1a5ce6]"
                             title="编辑"
                           >
                             <Pencil size={14} />
@@ -147,7 +147,7 @@ export default function BrandMaintenance() {
                           <button
                             type="button"
                             onClick={() => handleRequestDelete(brand)}
-                            className="text-[#ff8a8a] hover:text-[#ff6e6e]"
+                            className="text-[#ff6f6f] hover:text-[#ff4d4f]"
                             title="删除"
                           >
                             <Trash2 size={14} />
@@ -162,7 +162,7 @@ export default function BrandMaintenance() {
               <div className="flex flex-1 flex-col items-center justify-center py-20 text-slate-400">
                 <div className="mb-2 text-[40px]">📋</div>
                 <p className="text-[13px]">暂无品牌数据</p>
-                <button type="button" onClick={openAdd} className="mt-3 text-[13px] text-[#18bca2] hover:underline">
+                <button type="button" onClick={openAdd} className="mt-3 text-[13px] text-[#216BFF] hover:underline">
                   + 新增品牌
                 </button>
               </div>

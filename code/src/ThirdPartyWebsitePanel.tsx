@@ -266,7 +266,7 @@ export default function ThirdPartyWebsitePanel({ readOnly = false, initialCatego
                   onChange={(e) => setCategoryNameInput(e.target.value)}
                   maxLength={20}
                   placeholder="请输入分类名称"
-                  className="h-9 flex-1 rounded border border-slate-200 px-3 text-[13px] focus:border-[#18c2a7] focus:outline-none"
+                  className="h-9 flex-1 rounded border border-slate-200 px-3 text-[13px] focus:border-[#216BFF] focus:outline-none"
                 />
               </div>
             ) : (
@@ -280,7 +280,7 @@ export default function ThirdPartyWebsitePanel({ readOnly = false, initialCatego
                     onChange={(e) => setWebsiteForm((f) => ({ ...f, name: e.target.value }))}
                     maxLength={30}
                     placeholder="请输入网站名称"
-                    className="h-9 flex-1 rounded border border-slate-200 px-3 text-[13px] focus:border-[#18c2a7] focus:outline-none"
+                    className="h-9 flex-1 rounded border border-slate-200 px-3 text-[13px] focus:border-[#216BFF] focus:outline-none"
                   />
                 </div>
                 <div className="flex items-center gap-3">
@@ -291,7 +291,7 @@ export default function ThirdPartyWebsitePanel({ readOnly = false, initialCatego
                     value={websiteForm.url}
                     onChange={(e) => setWebsiteForm((f) => ({ ...f, url: e.target.value }))}
                     placeholder="https://"
-                    className="h-9 flex-1 rounded border border-slate-200 px-3 text-[13px] focus:border-[#18c2a7] focus:outline-none"
+                    className="h-9 flex-1 rounded border border-slate-200 px-3 text-[13px] focus:border-[#216BFF] focus:outline-none"
                   />
                 </div>
               </div>
@@ -308,7 +308,7 @@ export default function ThirdPartyWebsitePanel({ readOnly = false, initialCatego
             <button
               type="button"
               onClick={isCategoryDialog ? submitCategoryDialog : submitWebsiteDialog}
-              className="inline-flex h-9 items-center rounded-md bg-[#18c2a7] px-4 text-[13px] font-medium text-white hover:bg-[#15b39a]"
+              className="inline-flex h-9 items-center rounded-md bg-[#216BFF] px-4 text-[13px] font-medium text-white hover:bg-[#1a5ce6]"
             >
               确定
             </button>
@@ -321,7 +321,7 @@ export default function ThirdPartyWebsitePanel({ readOnly = false, initialCatego
   return (
     <div className="relative flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-white">
       <div className="flex min-h-0 flex-1 overflow-hidden">
-        <div className="flex w-[280px] shrink-0 flex-col border-r border-slate-100 bg-[#fbfcff]">
+        <div className="flex w-[280px] shrink-0 flex-col border-r border-slate-100 bg-[#f7f9ff]">
           <div className="border-b border-slate-100 px-4 py-3">
             <div className="flex items-center gap-2">
               <div className="flex h-9 flex-1 items-center rounded-md border border-slate-200 bg-white pl-3 pr-2 text-[13px] text-slate-500">
@@ -339,7 +339,7 @@ export default function ThirdPartyWebsitePanel({ readOnly = false, initialCatego
                   type="button"
                   onClick={openAddCategoryDialog}
                   title="新增分类"
-                  className="flex h-9 w-9 items-center justify-center rounded-md border border-[#88dfd0] bg-[#eefbf8] text-[#17bda3] hover:bg-[#dff5ed]"
+                  className="flex h-9 w-9 items-center justify-center rounded-md border border-[#96b8ff] bg-[#e8f1ff] text-[#216BFF] hover:bg-[#c9dcff]"
                 >
                   <Plus size={16} />
                 </button>
@@ -360,7 +360,7 @@ export default function ThirdPartyWebsitePanel({ readOnly = false, initialCatego
                 onDragEnd={handleCategoryDragEnd}
                 className={cn(
                   'group relative mb-1 flex items-center rounded-md transition-colors',
-                  activeCategoryId === cat.id ? 'bg-[#eafaf6]' : 'hover:bg-slate-100',
+                  activeCategoryId === cat.id ? 'bg-[#e8f1ff]' : 'hover:bg-slate-100',
                   draggingCategoryId.current === cat.id ? 'opacity-50' : '',
                 )}
               >
@@ -376,12 +376,12 @@ export default function ThirdPartyWebsitePanel({ readOnly = false, initialCatego
                   onClick={() => setActiveCategoryId(cat.id)}
                   className={cn(
                     'flex flex-1 items-center py-2 pr-2 text-left text-[13px]',
-                    activeCategoryId === cat.id ? 'font-medium text-[#17bda3]' : 'text-slate-600',
+                    activeCategoryId === cat.id ? 'font-medium text-[#216BFF]' : 'text-slate-600',
                   )}
                 >
                   <FolderOpen
                     size={14}
-                    className={cn('mr-2', activeCategoryId === cat.id ? 'text-[#17bda3]' : 'text-slate-400')}
+                    className={cn('mr-2', activeCategoryId === cat.id ? 'text-[#216BFF]' : 'text-slate-400')}
                   />
                   <span className="truncate">{cat.name}</span>
                   <span className="ml-auto text-[11px] text-slate-400">{cat.websites.length}</span>
@@ -431,7 +431,7 @@ export default function ThirdPartyWebsitePanel({ readOnly = false, initialCatego
                   type="button"
                   onClick={openAddWebsiteDialog}
                   disabled={!activeCategory}
-                  className="inline-flex h-9 items-center gap-1 rounded-md bg-[#18c2a7] px-4 text-[13px] font-medium text-white hover:bg-[#15b39a] disabled:cursor-not-allowed disabled:bg-slate-200"
+                  className="inline-flex h-9 items-center gap-1 rounded-md bg-[#216BFF] px-4 text-[13px] font-medium text-white hover:bg-[#1a5ce6] disabled:cursor-not-allowed disabled:bg-slate-200"
                 >
                   <Plus size={14} />
                   新增网站
@@ -467,7 +467,7 @@ export default function ThirdPartyWebsitePanel({ readOnly = false, initialCatego
                     onDragOver={(e) => handleWebsiteDragOver(e, site.id)}
                     onDragEnd={handleWebsiteDragEnd}
                     className={cn(
-                      'group flex items-center gap-3 rounded-lg border border-slate-100 bg-white px-3 py-2.5 hover:border-[#cdeee6] hover:bg-[#fafdfb]',
+                      'group flex items-center gap-3 rounded-lg border border-slate-100 bg-white px-3 py-2.5 hover:border-[#96b8ff] hover:bg-[#f0f4ff]',
                       draggingWebsiteId.current === site.id ? 'opacity-50' : '',
                     )}
                   >
@@ -484,7 +484,7 @@ export default function ThirdPartyWebsitePanel({ readOnly = false, initialCatego
                       href={site.url}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-[12px] text-[#17bda3] hover:underline"
+                      className="text-[12px] text-[#216BFF] hover:underline"
                     >
                       打开
                     </a>

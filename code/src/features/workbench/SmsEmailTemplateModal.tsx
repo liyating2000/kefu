@@ -267,7 +267,7 @@ export default function SmsEmailTemplateModal({
           className={cn(
             'flex w-full items-center gap-1.5 rounded-lg px-2 py-1.5 text-left text-[13px] transition-colors',
             isSelected
-              ? 'bg-emerald-100/80 text-emerald-700 font-medium'
+              ? 'bg-brand-100/80 text-brand-700 font-medium'
               : 'text-slate-700 hover:bg-slate-100'
           )}
           style={{ paddingLeft: 8 + depth * 16 }}
@@ -280,7 +280,7 @@ export default function SmsEmailTemplateModal({
           {isFolder ? (
             isExpanded ? <FolderOpen size={15} className="shrink-0 text-amber-500" /> : <Folder size={15} className="shrink-0 text-amber-500" />
           ) : (
-            <FileText size={15} className="shrink-0 text-emerald-500" />
+            <FileText size={15} className="shrink-0 text-brand-500" />
           )}
           <span className="truncate">{node.label}</span>
         </button>

@@ -223,7 +223,7 @@ export default function NotificationChatModal({
                         {contact.online ? (
                           <span
                             aria-hidden
-                            className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white bg-emerald-500"
+                            className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white bg-brand-500"
                           />
                         ) : null}
                       </div>
@@ -286,7 +286,7 @@ export default function NotificationChatModal({
                 <div className="text-[11px] text-slate-400">
                   {activeContact.online ? (
                     <span className="inline-flex items-center gap-1">
-                      <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                      <span className="inline-block h-1.5 w-1.5 rounded-full bg-brand-500" />
                       在线 · {activeContact.role ?? ''}
                     </span>
                   ) : (

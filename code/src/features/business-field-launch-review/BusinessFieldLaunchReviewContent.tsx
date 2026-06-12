@@ -8,9 +8,9 @@ import {
 import { cn } from '../../lib/cn';
 
 const actionClassNameMap = {
-  查看: 'text-[#2ac7b2] hover:text-[#18bca2]',
-  批准: 'text-[#2ac7b2] hover:text-[#18bca2]',
-  驳回: 'text-[#2ac7b2] hover:text-[#18bca2]',
+  查看: 'text-[#216BFF] hover:text-[#216BFF]',
+  批准: 'text-[#216BFF] hover:text-[#216BFF]',
+  驳回: 'text-[#216BFF] hover:text-[#216BFF]',
 } as const;
 
 const formatLocalReviewTime = () => {
@@ -114,14 +114,14 @@ function LaunchReviewTablePanel({
             <tbody className="text-[13px] text-slate-600">
               {rows.map((row, index) => (
                 <tr key={row.id} className={cn(index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfd]')}>
-                  <td className="px-4 py-4 text-center font-medium text-slate-700 whitespace-nowrap">{row.id}</td>
-                  <td className="px-4 py-4 text-center whitespace-nowrap">{row.content}</td>
-                  <td className="px-4 py-4 text-center whitespace-nowrap">{row.applicant}</td>
-                  <td className="px-4 py-4 text-center whitespace-nowrap">{row.appliedAt}</td>
-                  <td className="px-4 py-4 text-center whitespace-nowrap">{row.approvedAt}</td>
-                  <td className="px-4 py-4 text-center whitespace-nowrap">{row.rejectedAt}</td>
-                  <td className="px-4 py-4 text-center text-slate-700 whitespace-nowrap">{row.status}</td>
-                  <td className="px-4 py-4 text-center whitespace-nowrap">
+                  <td className="px-4 py-3 text-center font-medium text-slate-700 whitespace-nowrap">{row.id}</td>
+                  <td className="px-4 py-3 text-center whitespace-nowrap">{row.content}</td>
+                  <td className="px-4 py-3 text-center whitespace-nowrap">{row.applicant}</td>
+                  <td className="px-4 py-3 text-center whitespace-nowrap">{row.appliedAt}</td>
+                  <td className="px-4 py-3 text-center whitespace-nowrap">{row.approvedAt}</td>
+                  <td className="px-4 py-3 text-center whitespace-nowrap">{row.rejectedAt}</td>
+                  <td className="px-4 py-3 text-center text-slate-700 whitespace-nowrap">{row.status}</td>
+                  <td className="px-4 py-3 text-center whitespace-nowrap">
                     <div className="flex items-center justify-center gap-6 whitespace-nowrap">
                       {row.actions.map((action) => (
                         <button
@@ -209,7 +209,7 @@ function LaunchReviewDetailPanel({
             <button
               type="button"
               onClick={onApprove}
-              className="inline-flex h-[28px] min-w-[68px] items-center justify-center rounded-full border border-[#8fe0d2] bg-[#e7f7f2] px-5 text-[13px] text-[#20bea9] transition-colors hover:bg-[#dcf4ee]"
+              className="inline-flex h-[28px] min-w-[68px] items-center justify-center rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-5 text-[13px] text-[#216BFF] transition-colors hover:bg-[#c9dcff]"
             >
               批准
             </button>

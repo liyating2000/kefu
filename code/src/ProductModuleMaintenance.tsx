@@ -29,13 +29,13 @@ const pageWrapperClass = 'flex min-h-0 flex-1 flex-col overflow-hidden bg-[#f7f9
 const pageScrollClass = 'flex min-h-0 flex-1 flex-col overflow-auto px-4 pb-4 pt-3 custom-scrollbar';
 const pageCardClass = 'overflow-hidden rounded-[18px] border border-slate-200 bg-white shadow-sm';
 const inputClass =
-  'h-10 w-full min-w-0 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-600 outline-none transition-colors placeholder:text-slate-400 focus:border-[#12b89f]';
+  'h-10 w-full min-w-0 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-600 outline-none transition-colors placeholder:text-slate-400 focus:border-[#216BFF]';
 const primaryButtonClass =
-  'inline-flex h-10 shrink-0 items-center justify-center whitespace-nowrap rounded-md border border-[#8fe0d2] bg-[#effbf8] px-4 text-[13px] font-medium text-[#18bca2] transition-colors hover:bg-[#e3f8f3]';
+  'inline-flex h-10 shrink-0 items-center justify-center whitespace-nowrap rounded-md border border-[#96b8ff] bg-[#e8f1ff] px-4 text-[13px] font-medium text-[#216BFF] transition-colors hover:bg-[#c9dcff]';
 const secondaryButtonClass =
   'inline-flex h-10 shrink-0 items-center justify-center whitespace-nowrap rounded-md border border-slate-200 bg-white px-4 text-[13px] font-medium text-slate-500 transition-colors hover:bg-slate-50';
 const solidButtonClass =
-  'inline-flex h-10 shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-[#12b89f] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#0da88f]';
+  'inline-flex h-10 shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-[#216BFF] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#1a5ce6]';
 
 type DialogState =
   | { kind: 'add' }
@@ -131,11 +131,9 @@ export default function ProductModuleMaintenance() {
               </div>
               <div className="flex items-center gap-3">
                 <button type="button" onClick={() => setCurrentPage(1)} className={primaryButtonClass}>
-                  <Search size={14} className="mr-1.5" />
                   查询
                 </button>
                 <button type="button" onClick={handleFilterReset} className={secondaryButtonClass}>
-                  <RotateCcw size={14} className="mr-1.5" />
                   重置
                 </button>
               </div>
@@ -164,14 +162,14 @@ export default function ProductModuleMaintenance() {
                 </thead>
                 <tbody className="text-slate-600">
                   {pageRows.map((mod, i) => (
-                    <tr key={mod.id} className={(i % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]') + ' transition-colors hover:bg-[#f7fffd]'}>
-                      <td className="px-4 py-4 font-medium text-slate-700">{mod.code}</td>
-                      <td className="px-4 py-4">{mod.name}</td>
-                      <td className="px-4 py-4 text-slate-500">{mod.receiver || '-'}</td>
-                      <td className="px-4 py-4">
-                        <div className="flex items-center gap-4 whitespace-nowrap text-[#18bca2]">
-                          <button type="button" onClick={() => openEdit(mod)} className="hover:text-[#0da88f]">编辑</button>
-                          <button type="button" onClick={() => setDialog({ kind: 'confirm-delete', module: mod })} className="text-[#ff8a8a] hover:text-[#ff6e6e]">删除</button>
+                    <tr key={mod.id} className={(i % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]') + ' transition-colors hover:bg-[#e8f1ff]'}>
+                      <td className="px-4 py-3 font-medium text-slate-700">{mod.code}</td>
+                      <td className="px-4 py-3">{mod.name}</td>
+                      <td className="px-4 py-3 text-slate-500">{mod.receiver || '-'}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-4 whitespace-nowrap text-[13px] font-medium text-[#216BFF]">
+                          <button type="button" onClick={() => openEdit(mod)} className="hover:text-[#1a5ce6]">编辑</button>
+                          <button type="button" onClick={() => setDialog({ kind: 'confirm-delete', module: mod })} className="text-[#ff6f6f] hover:text-[#ff4d4f]">删除</button>
                         </div>
                       </td>
                     </tr>
@@ -182,7 +180,7 @@ export default function ProductModuleMaintenance() {
               <div className="flex flex-col items-center justify-center py-20 text-slate-400">
                 <div className="mb-2 text-[40px]">📋</div>
                 <p className="text-[13px]">暂无产品模块数据</p>
-                <button type="button" onClick={openAdd} className="mt-3 text-[13px] text-[#18bca2] hover:underline">+ 新增产品模块</button>
+                <button type="button" onClick={openAdd} className="mt-3 text-[13px] text-[#216BFF] hover:underline">+ 新增产品模块</button>
               </div>
             )}
           </div>
@@ -200,7 +198,7 @@ export default function ProductModuleMaintenance() {
                     key={p}
                     type="button"
                     onClick={() => setCurrentPage(p)}
-                    className={'flex h-8 w-8 items-center justify-center rounded-md border text-[13px] ' + (p === safePage ? 'border-[#8fe0d2] bg-[#effbf8] text-[#18bca2]' : 'border-slate-200 bg-white text-slate-500')}
+                    className={'flex h-8 w-8 items-center justify-center rounded-md border text-[13px] ' + (p === safePage ? 'border-[#96b8ff] bg-[#e8f1ff] text-[#216BFF]' : 'border-slate-200 bg-white text-slate-500')}
                   >
                     {p}
                   </button>

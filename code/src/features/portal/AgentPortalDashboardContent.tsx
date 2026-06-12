@@ -171,7 +171,7 @@ const hotlineRecentWorkOrders = [
     customerAvatarTone: 'tone-cool',
     topic: '无法登录账户，需要密码重置帮助',
     status: '已解决',
-    statusClassName: 'border border-emerald-200/70 bg-emerald-50 text-emerald-700',
+    statusClassName: 'border border-brand-200/70 bg-brand-50 text-brand-700',
     priority: '中',
     priorityClassName: 'text-amber-500',
   },
@@ -1036,7 +1036,7 @@ function AgentRadarCard() {
           const diff = m.value - m.avg;
           const diffCls =
             diff > 0
-              ? 'text-emerald-500'
+              ? 'text-brand-500'
               : diff < 0
                 ? 'text-rose-500'
                 : 'text-slate-400';

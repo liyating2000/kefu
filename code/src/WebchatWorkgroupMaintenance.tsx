@@ -118,11 +118,11 @@ function RadioRow({
           <span
             className={cn(
               'flex h-4 w-4 items-center justify-center rounded-full border',
-              value ? 'border-[#18c2a7]' : 'border-slate-300',
+              value ? 'border-[#216BFF]' : 'border-slate-300',
             )}
             onClick={() => onChange(true)}
           >
-            {value ? <span className="h-2 w-2 rounded-full bg-[#18c2a7]" /> : null}
+            {value ? <span className="h-2 w-2 rounded-full bg-[#216BFF]" /> : null}
           </span>
           <span onClick={() => onChange(true)}>是</span>
         </label>
@@ -130,11 +130,11 @@ function RadioRow({
           <span
             className={cn(
               'flex h-4 w-4 items-center justify-center rounded-full border',
-              !value ? 'border-[#18c2a7]' : 'border-slate-300',
+              !value ? 'border-[#216BFF]' : 'border-slate-300',
             )}
             onClick={() => onChange(false)}
           >
-            {!value ? <span className="h-2 w-2 rounded-full bg-[#18c2a7]" /> : null}
+            {!value ? <span className="h-2 w-2 rounded-full bg-[#216BFF]" /> : null}
           </span>
           <span onClick={() => onChange(false)}>否</span>
         </label>
@@ -171,7 +171,7 @@ function InputRow({
         <input
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="h-9 w-[160px] rounded border border-slate-200 px-3 text-[13px] text-slate-700 focus:border-[#18c2a7] focus:outline-none"
+          className="h-9 w-[160px] rounded border border-slate-200 px-3 text-[13px] text-slate-700 focus:border-[#216BFF] focus:outline-none"
         />
         {suffix ? <span className="text-[13px] text-slate-500">{suffix}</span> : null}
         {tooltip ? (
@@ -232,7 +232,7 @@ export default function WebchatWorkgroupMaintenance() {
   };
 
   const renderList = () => (
-    <div className="flex min-h-0 flex-1 bg-[#fbfcff]">
+    <div className="flex min-h-0 flex-1 bg-[#f7f9ff]">
       <div className="flex w-[220px] shrink-0 flex-col border-r border-slate-100 bg-white">
         <div className="border-b border-slate-100 px-3 py-3">
           <div className="flex h-9 items-center rounded-md border border-slate-200 bg-white pl-3 pr-2 text-[13px] text-slate-500">
@@ -257,10 +257,10 @@ export default function WebchatWorkgroupMaintenance() {
               onClick={() => setActiveWorkgroupId(item.id)}
               className={cn(
                 'mb-1 flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-[13px] transition-colors',
-                activeWorkgroupId === item.id ? 'bg-[#eafaf6] text-[#17bda3]' : 'text-slate-600 hover:bg-slate-50',
+                activeWorkgroupId === item.id ? 'bg-[#e8f1ff] text-[#216BFF]' : 'text-slate-600 hover:bg-slate-50',
               )}
             >
-              <FolderOpen size={14} className={cn(activeWorkgroupId === item.id ? 'text-[#17bda3]' : 'text-slate-400')} />
+              <FolderOpen size={14} className={cn(activeWorkgroupId === item.id ? 'text-[#216BFF]' : 'text-slate-400')} />
               <span className="truncate">{item.name}</span>
             </button>
           ))}
@@ -290,7 +290,7 @@ export default function WebchatWorkgroupMaintenance() {
               value={queueNoKeyword}
               onChange={(e) => setQueueNoKeyword(e.target.value)}
               placeholder="请输入队列号"
-              className="h-9 w-[180px] rounded border border-slate-200 px-3 text-[13px] text-slate-700 focus:border-[#18c2a7] focus:outline-none"
+              className="h-9 w-[180px] rounded border border-slate-200 px-3 text-[13px] text-slate-700 focus:border-[#216BFF] focus:outline-none"
             />
           </div>
           <div className="flex items-center gap-2">
@@ -299,7 +299,7 @@ export default function WebchatWorkgroupMaintenance() {
               value={queueNameKeyword}
               onChange={(e) => setQueueNameKeyword(e.target.value)}
               placeholder="请输入队列名称"
-              className="h-9 w-[180px] rounded border border-slate-200 px-3 text-[13px] text-slate-700 focus:border-[#18c2a7] focus:outline-none"
+              className="h-9 w-[180px] rounded border border-slate-200 px-3 text-[13px] text-slate-700 focus:border-[#216BFF] focus:outline-none"
             />
           </div>
           <div className="flex items-center gap-2">
@@ -308,7 +308,7 @@ export default function WebchatWorkgroupMaintenance() {
               value={priorityKeyword}
               onChange={(e) => setPriorityKeyword(e.target.value)}
               placeholder="请输入队列优先级"
-              className="h-9 w-[180px] rounded border border-slate-200 px-3 text-[13px] text-slate-700 focus:border-[#18c2a7] focus:outline-none"
+              className="h-9 w-[180px] rounded border border-slate-200 px-3 text-[13px] text-slate-700 focus:border-[#216BFF] focus:outline-none"
             />
           </div>
           <div className="ml-auto flex items-center gap-2">
@@ -318,9 +318,8 @@ export default function WebchatWorkgroupMaintenance() {
                 setPage(1);
                 showToast('已查询');
               }}
-              className="inline-flex h-9 items-center gap-1 rounded-md bg-[#18c2a7] px-4 text-[13px] font-medium text-white hover:bg-[#15b39a]"
+              className="inline-flex h-9 items-center gap-1 rounded-md bg-[#216BFF] px-4 text-[13px] font-medium text-white hover:bg-[#1a5ce6]"
             >
-              <Search size={14} />
               查询
             </button>
             <button
@@ -328,7 +327,6 @@ export default function WebchatWorkgroupMaintenance() {
               onClick={reset}
               className="inline-flex h-9 items-center gap-1 rounded-md border border-slate-200 bg-white px-4 text-[13px] text-slate-600 hover:bg-slate-50"
             >
-              <RotateCcw size={14} />
               重置
             </button>
           </div>
@@ -338,7 +336,7 @@ export default function WebchatWorkgroupMaintenance() {
           <button
             type="button"
             onClick={() => showToast('新增队列')}
-            className="inline-flex h-9 items-center gap-1 rounded-md border border-[#88dfd0] bg-[#eefbf8] px-4 text-[13px] font-medium text-[#17bda3] hover:bg-[#e0f6f0]"
+            className="inline-flex h-9 items-center gap-1 rounded-md border border-[#96b8ff] bg-[#e8f1ff] px-4 text-[13px] font-medium text-[#216BFF] hover:bg-[#c9dcff]"
           >
             <Plus size={14} />
             新增队列
@@ -360,55 +358,55 @@ export default function WebchatWorkgroupMaintenance() {
         </div>
 
         <div className="min-h-0 flex-1 overflow-auto custom-scrollbar">
-          <table className="w-full min-w-[960px] text-[13px]">
-            <thead className="sticky top-0 bg-[#f6f8fb] text-slate-500">
+          <table className="min-w-full text-left text-[13px]">
+            <thead className="sticky top-0 bg-[#fafafa] text-slate-600">
               <tr>
-                <th className="w-[56px] py-3 text-center font-medium">序号</th>
-                <th className="py-3 text-left font-medium">操作</th>
-                <th className="py-3 text-left font-medium">队列号</th>
-                <th className="py-3 text-left font-medium">队列名称</th>
-                <th className="py-3 text-left font-medium">队列描述</th>
-                <th className="w-[56px] py-3 text-center font-medium"></th>
+                <th className="w-[56px] whitespace-nowrap px-4 py-3 font-medium">序号</th>
+                <th className="whitespace-nowrap px-4 py-3 font-medium">操作</th>
+                <th className="whitespace-nowrap px-4 py-3 font-medium">队列号</th>
+                <th className="whitespace-nowrap px-4 py-3 font-medium">队列名称</th>
+                <th className="whitespace-nowrap px-4 py-3 font-medium">队列描述</th>
+                <th className="w-[56px] whitespace-nowrap px-4 py-3 font-medium"></th>
               </tr>
             </thead>
-            <tbody>
-              {pageRows.map((row) => (
-                <tr key={row.id} className="border-t border-slate-100 hover:bg-[#fafbfd]">
-                  <td className="py-3 text-center text-slate-500">{row.id}</td>
-                  <td className="py-3">
+            <tbody className="text-slate-600">
+              {pageRows.map((row, i) => (
+                <tr key={row.id} className={(i % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]') + ' transition-colors hover:bg-[#e8f1ff]'}>
+                  <td className="px-4 py-3">{row.id}</td>
+                  <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
                         onClick={() => showToast(`员工管理：${row.queueName}`)}
-                        className="rounded-md bg-[#eefbf8] px-3 py-1 text-[12px] font-medium text-[#17bda3] hover:bg-[#dff5ed]"
+                        className="rounded-md bg-[#e8f1ff] px-3 py-1 text-[12px] font-medium text-[#216BFF] hover:bg-[#c9dcff]"
                       >
                         员工管理
                       </button>
                       <button
                         type="button"
                         onClick={() => showToast(`队列属性：${row.queueName}`)}
-                        className="rounded-md bg-[#eefbf8] px-3 py-1 text-[12px] font-medium text-[#17bda3] hover:bg-[#dff5ed]"
+                        className="rounded-md bg-[#e8f1ff] px-3 py-1 text-[12px] font-medium text-[#216BFF] hover:bg-[#c9dcff]"
                       >
                         队列属性
                       </button>
                       <button
                         type="button"
                         onClick={() => showToast(`话术管理：${row.queueName}`)}
-                        className="rounded-md bg-[#eefbf8] px-3 py-1 text-[12px] font-medium text-[#17bda3] hover:bg-[#dff5ed]"
+                        className="rounded-md bg-[#e8f1ff] px-3 py-1 text-[12px] font-medium text-[#216BFF] hover:bg-[#c9dcff]"
                       >
                         话术管理
                       </button>
                     </div>
                   </td>
-                  <td className="py-3 text-slate-600">{row.queueNo}</td>
-                  <td className="py-3 text-slate-600">{row.queueName}</td>
-                  <td className="py-3 text-slate-600">{row.queueDescription}</td>
-                  <td className="py-3 text-center">
+                  <td className="px-4 py-3">{row.queueNo}</td>
+                  <td className="px-4 py-3">{row.queueName}</td>
+                  <td className="px-4 py-3">{row.queueDescription}</td>
+                  <td className="px-4 py-3">
                     <div className="flex items-center justify-center gap-2">
                       <button
                         type="button"
                         onClick={() => setView('config')}
-                        className="text-slate-400 hover:text-[#18c2a7]"
+                        className="text-slate-400 hover:text-[#216BFF]"
                         title="编辑"
                       >
                         <Pencil size={14} />
@@ -455,7 +453,7 @@ export default function WebchatWorkgroupMaintenance() {
                 onClick={() => setPage(num)}
                 className={cn(
                   'flex h-7 w-7 items-center justify-center rounded border text-[12px]',
-                  page === num ? 'border-[#18c2a7] bg-[#18c2a7] text-white' : 'border-slate-200 text-slate-500 hover:bg-slate-50',
+                  page === num ? 'border-[#216BFF] bg-[#216BFF] text-white' : 'border-slate-200 text-slate-500 hover:bg-slate-50',
                 )}
               >
                 {num}
@@ -490,7 +488,7 @@ export default function WebchatWorkgroupMaintenance() {
   );
 
   const renderConfig = () => (
-    <div className="flex min-h-0 flex-1 bg-[#fbfcff]">
+    <div className="flex min-h-0 flex-1 bg-[#f7f9ff]">
       <div className="flex w-[200px] shrink-0 flex-col border-r border-slate-100 bg-white">
         <div className="flex-1 overflow-auto px-2 py-3 custom-scrollbar">
           {configSections.map((sec) => (
@@ -500,7 +498,7 @@ export default function WebchatWorkgroupMaintenance() {
               onClick={() => setConfigSection(sec)}
               className={cn(
                 'mb-1 flex w-full items-center rounded-md px-4 py-3 text-left text-[13px] transition-colors',
-                configSection === sec ? 'bg-[#eafaf6] text-[#17bda3]' : 'text-slate-600 hover:bg-slate-50',
+                configSection === sec ? 'bg-[#e8f1ff] text-[#216BFF]' : 'text-slate-600 hover:bg-slate-50',
               )}
             >
               {sec}
@@ -586,7 +584,7 @@ export default function WebchatWorkgroupMaintenance() {
                 <button
                   type="button"
                   onClick={() => showToast('已保存路由属性')}
-                  className="inline-flex h-10 items-center gap-1 rounded-full bg-[#18c2a7] px-8 text-[14px] font-medium text-white hover:bg-[#15b39a]"
+                  className="inline-flex h-10 items-center gap-1 rounded-full bg-[#216BFF] px-8 text-[14px] font-medium text-white hover:bg-[#1a5ce6]"
                 >
                   保 存
                 </button>

@@ -145,7 +145,7 @@ function CommonToolsPanel() {
                       onClick={() => toggleTool(tool.key)}
                       className={cn(
                         'relative inline-flex h-5 w-10 items-center rounded-full transition-colors',
-                        tool.visible ? 'bg-[#18c2a7]' : 'bg-slate-200',
+                        tool.visible ? 'bg-[#216BFF]' : 'bg-slate-200',
                       )}
                     >
                       <span
@@ -187,7 +187,7 @@ export default function ThirdPartyWebsiteSettings() {
                   onClick={() => setTab(t)}
                   className={cn(
                     'border-b-2 py-2 text-[14px] font-medium transition-colors',
-                    tab === t ? 'border-[#18c2a7] text-[#18c2a7]' : 'border-transparent text-slate-500 hover:text-slate-700',
+                    tab === t ? 'border-[#216BFF] text-[#216BFF]' : 'border-transparent text-slate-500 hover:text-slate-700',
                   )}
                 >
                   {t}

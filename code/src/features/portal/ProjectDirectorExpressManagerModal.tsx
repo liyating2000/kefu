@@ -121,8 +121,8 @@ export default function ProjectDirectorExpressManagerModal({
                       <tbody className="divide-y divide-slate-100">
                         {visibleMessages.map((message) => (
                           <tr key={message.id} className="transition-colors hover:bg-slate-50/50">
-                            <td className="px-4 py-4 text-slate-600">{message.id}</td>
-                            <td className="px-4 py-4">
+                            <td className="px-4 py-3 text-slate-600">{message.id}</td>
+                            <td className="px-4 py-3">
                               <div className="flex items-center gap-2">
                                 <span className="text-slate-800">{message.title}</span>
                                 {message.hasNew ? (
@@ -132,16 +132,16 @@ export default function ProjectDirectorExpressManagerModal({
                                 ) : null}
                               </div>
                             </td>
-                            <td className="px-4 py-4 text-slate-600">
+                            <td className="px-4 py-3 text-slate-600">
                               {message.isAnonymous ? '匿名' : message.sender}
                             </td>
-                            <td className="px-4 py-4 text-slate-600">{message.createdAt}</td>
-                            <td className="px-4 py-4 text-slate-600">{message.updatedAt}</td>
-                            <td className="px-4 py-4">
+                            <td className="px-4 py-3 text-slate-600">{message.createdAt}</td>
+                            <td className="px-4 py-3 text-slate-600">{message.updatedAt}</td>
+                            <td className="px-4 py-3">
                               <button
                                 type="button"
                                 onClick={() => onMessageSelect(message)}
-                                className="font-medium text-[#26aa8e] transition-colors hover:text-[#1f947b]"
+                                className="font-medium text-[#3d78ff] transition-colors hover:text-[#1f947b]"
                               >
                                 查看
                               </button>
@@ -192,7 +192,7 @@ export default function ProjectDirectorExpressManagerModal({
                             className={cn(
                               portalPagerButtonClassName,
                               currentPage === item
-                                ? 'border-[#26aa8e] bg-[#26aa8e] text-white hover:bg-[#1f947b] hover:text-white'
+                                ? 'border-[#3d78ff] bg-[#3d78ff] text-white hover:bg-[#1f947b] hover:text-white'
                                 : ''
                             )}
                           >
@@ -240,7 +240,7 @@ export default function ProjectDirectorExpressManagerModal({
 
                 <div className="flex-1 space-y-5 overflow-y-auto bg-slate-50 px-6 py-5">
                   <div className="flex items-start gap-3">
-                    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-[#26aa8e] text-[13px] font-medium text-white">
+                    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-[#3d78ff] text-[13px] font-medium text-white">
                       {(selectedMessage?.sender ?? '匿').slice(0, 1).toUpperCase()}
                     </div>
                     <div className="flex max-w-[78%] flex-col gap-1.5">
@@ -251,7 +251,7 @@ export default function ProjectDirectorExpressManagerModal({
                         <span className="text-[12px] text-slate-400">{selectedMessage?.createdAt}</span>
                       </div>
                       <div className="rounded-[10px] rounded-tl-none border border-slate-100 bg-white px-4 py-3 shadow-sm">
-                        <div className="mb-1.5 text-[13px] font-medium text-[#26aa8e]">{selectedMessage?.title}</div>
+                        <div className="mb-1.5 text-[13px] font-medium text-[#3d78ff]">{selectedMessage?.title}</div>
                         <div className="whitespace-pre-wrap text-[14px] leading-7 text-slate-700">
                           {selectedMessage?.content}
                         </div>
@@ -281,7 +281,7 @@ export default function ProjectDirectorExpressManagerModal({
                           <div
                             className={`rounded-lg px-3 py-2.5 shadow-sm ${
                               isManagerReply
-                                ? 'rounded-tr-none bg-[#26aa8e] px-4 py-3 text-white'
+                                ? 'rounded-tr-none bg-[#3d78ff] px-4 py-3 text-white'
                                 : 'rounded-tl-none border border-slate-100 bg-white px-4 py-3 text-slate-700'
                             }`}
                           >
@@ -290,7 +290,7 @@ export default function ProjectDirectorExpressManagerModal({
                         </div>
 
                         {isManagerReply ? (
-                          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-[#26aa8e] text-[13px] font-medium text-white">
+                          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-[#3d78ff] text-[13px] font-medium text-white">
                             总
                           </div>
                         ) : null}
@@ -318,7 +318,7 @@ export default function ProjectDirectorExpressManagerModal({
                       disabled={!replyText.trim()}
                       className={`rounded-md px-5 py-2 text-[13px] font-medium transition-colors ${
                         replyText.trim()
-                          ? 'bg-[#26aa8e] text-white hover:bg-[#1f947b]'
+                          ? 'bg-[#3d78ff] text-white hover:bg-[#1f947b]'
                           : 'cursor-not-allowed bg-slate-100 text-slate-400'
                       }`}
                     >

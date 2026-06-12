@@ -116,7 +116,7 @@ function SelectField({
         <select
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="h-9 w-full appearance-none rounded border border-slate-200 bg-white pl-3 pr-8 text-[13px] text-slate-700 focus:border-[#18c2a7] focus:outline-none"
+          className="h-9 w-full appearance-none rounded border border-slate-200 bg-white pl-3 pr-8 text-[13px] text-slate-700 focus:border-[#216BFF] focus:outline-none"
         >
           {options.map((opt) => (
             <option key={opt} value={opt}>
@@ -152,7 +152,7 @@ function InputField({
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
         style={{ width }}
-        className="h-9 rounded border border-slate-200 bg-white px-3 text-[13px] text-slate-700 placeholder:text-slate-400 focus:border-[#18c2a7] focus:outline-none"
+        className="h-9 rounded border border-slate-200 bg-white px-3 text-[13px] text-slate-700 placeholder:text-slate-400 focus:border-[#216BFF] focus:outline-none"
       />
     </div>
   );
@@ -224,9 +224,8 @@ export default function PhoneListPage() {
                 <button
                   type="button"
                   onClick={onQuery}
-                  className="inline-flex h-9 items-center gap-1 rounded-md bg-[#18c2a7] px-4 text-[13px] font-medium text-white hover:bg-[#15b39a]"
+                  className="inline-flex h-9 items-center gap-1 rounded-md bg-[#216BFF] px-4 text-[13px] font-medium text-white hover:bg-[#1a5ce6]"
                 >
-                  <Search size={14} />
                   查询
                 </button>
                 <button
@@ -234,14 +233,13 @@ export default function PhoneListPage() {
                   onClick={onReset}
                   className="inline-flex h-9 items-center gap-1 rounded-md border border-slate-200 bg-white px-4 text-[13px] text-slate-600 hover:bg-slate-50"
                 >
-                  <RotateCcw size={14} />
                   重置
                 </button>
               </div>
               <button
                 type="button"
                 onClick={() => setCollapsed((c) => !c)}
-                className="inline-flex items-center gap-1 text-[12px] text-[#18c2a7] hover:underline"
+                className="inline-flex items-center gap-1 text-[12px] text-[#216BFF] hover:underline"
               >
                 {collapsed ? '展开' : '收起'}
                 <ChevronDown size={12} className={cn('transition-transform', collapsed ? '' : 'rotate-180')} />
@@ -251,26 +249,26 @@ export default function PhoneListPage() {
 
           <div className="px-5 py-4">
             <div className="overflow-hidden rounded-md border border-slate-100">
-              <table className="w-full text-[13px]">
-                <thead className="bg-[#f6f8fb] text-slate-500">
+              <table className="min-w-full text-left text-[13px]">
+                <thead className="sticky top-0 bg-[#fafafa] text-slate-600">
                   <tr>
-                    <th className="w-[80px] py-2.5 text-center font-medium">序号</th>
-                    <th className="py-2.5 text-left font-medium">电话类型</th>
-                    <th className="py-2.5 text-center font-medium">通话数量</th>
-                    <th className="py-2.5 text-center font-medium">未接数量</th>
-                    <th className="py-2.5 text-center font-medium">工作时长</th>
-                    <th className="py-2.5 text-center font-medium">通话时长</th>
+                    <th className="w-[80px] whitespace-nowrap px-4 py-3 font-medium">序号</th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">电话类型</th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">通话数量</th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">未接数量</th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">工作时长</th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">通话时长</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {summaryRows.map((row) => (
-                    <tr key={row.id} className="border-t border-slate-100">
-                      <td className="py-2.5 text-center text-slate-500">{row.id}</td>
-                      <td className="py-2.5 text-slate-600">{row.callType}</td>
-                      <td className="py-2.5 text-center text-slate-600">{row.callCount}</td>
-                      <td className="py-2.5 text-center text-slate-600">{row.missedCount}</td>
-                      <td className="py-2.5 text-center text-slate-600">{row.workDuration}</td>
-                      <td className="py-2.5 text-center text-slate-600">{row.callDuration}</td>
+                <tbody className="text-slate-600">
+                  {summaryRows.map((row, i) => (
+                    <tr key={row.id} className={(i % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]') + ' transition-colors hover:bg-[#e8f1ff]'}>
+                      <td className="px-4 py-3">{row.id}</td>
+                      <td className="px-4 py-3">{row.callType}</td>
+                      <td className="px-4 py-3">{row.callCount}</td>
+                      <td className="px-4 py-3">{row.missedCount}</td>
+                      <td className="px-4 py-3">{row.workDuration}</td>
+                      <td className="px-4 py-3">{row.callDuration}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -280,21 +278,21 @@ export default function PhoneListPage() {
 
           <div className="px-5 pb-3">
             <div className="overflow-x-auto rounded-md border border-slate-100">
-              <table className="w-full min-w-[1080px] text-[13px]">
-                <thead className="bg-[#f6f8fb] text-slate-500">
+              <table className="min-w-full text-left text-[13px]">
+                <thead className="sticky top-0 bg-[#fafafa] text-slate-600">
                   <tr>
-                    <th className="w-[60px] py-2.5 text-center font-medium">序号</th>
-                    <th className="py-2.5 text-left font-medium">电话类型</th>
-                    <th className="py-2.5 text-left font-medium">主叫号码</th>
-                    <th className="py-2.5 text-left font-medium">被叫号码</th>
-                    <th className="py-2.5 text-left font-medium">振铃开始时间</th>
-                    <th className="py-2.5 text-left font-medium">电话开始时间</th>
-                    <th className="py-2.5 text-left font-medium">电话结束时间</th>
-                    <th className="py-2.5 text-center font-medium">是否接通</th>
-                    <th className="py-2.5 text-left font-medium">挂断类型</th>
+                    <th className="w-[60px] whitespace-nowrap px-4 py-3 font-medium">序号</th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">电话类型</th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">主叫号码</th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">被叫号码</th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">振铃开始时间</th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">电话开始时间</th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">电话结束时间</th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">是否接通</th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">挂断类型</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="text-slate-600">
                   {pageRows.length === 0 ? (
                     <tr>
                       <td colSpan={9} className="py-10 text-center text-[13px] text-slate-400">
@@ -302,17 +300,17 @@ export default function PhoneListPage() {
                       </td>
                     </tr>
                   ) : (
-                    pageRows.map((row) => (
-                      <tr key={row.id} className="border-t border-slate-100 hover:bg-[#fafbfd]">
-                        <td className="py-2.5 text-center text-slate-500">{row.id}</td>
-                        <td className="py-2.5 text-slate-600">{row.callType}</td>
-                        <td className="py-2.5 text-slate-600">{row.caller}</td>
-                        <td className="py-2.5 text-slate-600">{row.callee}</td>
-                        <td className="py-2.5 text-slate-600">{row.ringStart}</td>
-                        <td className="py-2.5 text-slate-600">{row.callStart}</td>
-                        <td className="py-2.5 text-slate-600">{row.callEnd}</td>
-                        <td className="py-2.5 text-center text-slate-600">{row.answered}</td>
-                        <td className="py-2.5 text-slate-600">{row.hangupType}</td>
+                    pageRows.map((row, i) => (
+                      <tr key={row.id} className={(i % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]') + ' transition-colors hover:bg-[#e8f1ff]'}>
+                        <td className="px-4 py-3">{row.id}</td>
+                        <td className="px-4 py-3">{row.callType}</td>
+                        <td className="px-4 py-3">{row.caller}</td>
+                        <td className="px-4 py-3">{row.callee}</td>
+                        <td className="whitespace-nowrap px-4 py-3">{row.ringStart}</td>
+                        <td className="whitespace-nowrap px-4 py-3">{row.callStart}</td>
+                        <td className="whitespace-nowrap px-4 py-3">{row.callEnd}</td>
+                        <td className="px-4 py-3">{row.answered}</td>
+                        <td className="px-4 py-3">{row.hangupType}</td>
                       </tr>
                     ))
                   )}
@@ -340,7 +338,7 @@ export default function PhoneListPage() {
                   onClick={() => setPage(num)}
                   className={cn(
                     'flex h-7 w-7 items-center justify-center rounded border text-[12px]',
-                    page === num ? 'border-[#18c2a7] bg-[#18c2a7] text-white' : 'border-slate-200 text-slate-500 hover:bg-slate-50',
+                    page === num ? 'border-[#216BFF] bg-[#216BFF] text-white' : 'border-slate-200 text-slate-500 hover:bg-slate-50',
                   )}
                 >
                   {num}

@@ -322,7 +322,7 @@ export default function OnlineSessionListPanel({
                       <ArrowRight
                         size={12}
                         strokeWidth={2.2}
-                        className="shrink-0 text-emerald-500"
+                        className="shrink-0 text-brand-500"
                         aria-label="客户消息"
                       />
                     ) : summaryRole === 'agent' ? (

@@ -44,7 +44,7 @@ export function HistoryDateRangeFilter({
       onClick={onClick}
       className={cn(
         'flex h-8 min-w-[230px] items-center rounded-md border border-slate-200 bg-[#fcfcfd] px-2.5 text-left transition-colors hover:border-slate-300',
-        isOpen && 'border-[#7fd8ca]',
+        isOpen && 'border-[#96b8ff]',
         className
       )}
     >

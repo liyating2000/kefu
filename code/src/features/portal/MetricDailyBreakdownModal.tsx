@@ -336,7 +336,7 @@ export default function MetricDailyBreakdownPage({
                         {abnormalCount} 天
                       </span>
                     ) : (
-                      <span className="inline-flex items-center rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-600">
+                      <span className="inline-flex items-center rounded-full bg-brand-50 px-2 py-0.5 text-[11px] font-semibold text-brand-600">
                         正常
                       </span>
                     )}

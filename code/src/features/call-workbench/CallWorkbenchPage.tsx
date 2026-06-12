@@ -148,12 +148,12 @@ const workbenchToolItems: Record<WorkbenchToolTab, Array<{ label: string; icon?:
     { label: '工单新建', icon: FileText, accent: 'text-sky-500', bg: 'bg-sky-50' },
     { label: '待办工单', icon: BookOpen, accent: 'text-indigo-500', bg: 'bg-indigo-50' },
     { label: '升级工单', icon: ShieldCheck, accent: 'text-amber-500', bg: 'bg-amber-50' },
-    { label: '工单查询', icon: Search, accent: 'text-emerald-500', bg: 'bg-emerald-50' },
+    { label: '工单查询', icon: Search, accent: 'text-brand-500', bg: 'bg-brand-50' },
     { label: '回访计划', icon: Calendar, accent: 'text-violet-500', bg: 'bg-violet-50' },
     { label: '工单报表', icon: BarChart3, accent: 'text-orange-500', bg: 'bg-orange-50' },
   ],
   '知识库': [
-    { label: '产品知识', icon: BookOpen, accent: 'text-emerald-500', bg: 'bg-emerald-50' },
+    { label: '产品知识', icon: BookOpen, accent: 'text-brand-500', bg: 'bg-brand-50' },
     { label: '流程标准', icon: ShieldCheck, accent: 'text-sky-500', bg: 'bg-sky-50' },
     { label: '质检话术', icon: MessageSquare, accent: 'text-orange-500', bg: 'bg-orange-50' },
     { label: '公告制度', icon: Bell, accent: 'text-violet-500', bg: 'bg-violet-50' },
@@ -174,7 +174,7 @@ const workbenchToolItems: Record<WorkbenchToolTab, Array<{ label: string; icon?:
     { label: 'CRM系统', icon: Monitor, accent: 'text-sky-500', bg: 'bg-sky-50' },
     { label: '物流平台', icon: ExternalLink, accent: 'text-orange-500', bg: 'bg-orange-50' },
     { label: '短信平台', icon: MessageSquare, accent: 'text-violet-500', bg: 'bg-violet-50' },
-    { label: '支付中心', icon: Phone, accent: 'text-emerald-500', bg: 'bg-emerald-50' },
+    { label: '支付中心', icon: Phone, accent: 'text-brand-500', bg: 'bg-brand-50' },
     { label: '外呼平台', icon: PhoneForwarded, accent: 'text-indigo-500', bg: 'bg-indigo-50' },
     { label: '邮件系统', icon: Mail, accent: 'text-rose-500', bg: 'bg-rose-50' },
   ],
@@ -252,7 +252,7 @@ const callWorkbenchInboundProfile: CallWorkbenchInboundProfile = {
     { label: '来电次数', value: '第20次' }, { label: '运营商', value: '电信' },
   ],
   tags: [
-    { label: '二次元', cls: 'border-emerald-200 bg-emerald-50 text-emerald-500' },
+    { label: '二次元', cls: 'border-brand-200 bg-brand-50 text-brand-500' },
     { label: '00后', cls: 'border-orange-200 bg-orange-50 text-orange-500' },
     { label: '性格A', cls: 'border-blue-200 bg-blue-50 text-blue-500' },
     { label: 'VIP客户', cls: 'border-indigo-200 bg-indigo-50 text-indigo-500' },
@@ -816,16 +816,16 @@ export default function CallWorkbenchPage() {
                   <div className="overflow-hidden rounded-md border border-slate-200 bg-white shadow-[0_10px_24px_rgba(15,23,42,0.12)]">
                     <div className="grid grid-cols-3 border-b border-slate-100 bg-slate-50/80 text-[11px] font-medium text-slate-500">{['省', '市', '区'].map((t) => <div key={t} className="px-3 py-2">{t}</div>)}</div>
                     <div className="grid grid-cols-3 divide-x divide-slate-100">
-                      <div className="max-h-56 overflow-y-auto py-1 custom-scrollbar">{chinaRegionOptions.map((prov) => <button key={prov.name} type="button" onClick={() => { const nc = prov.cities[0]; setRegionSelection!({ province: prov.name, city: nc.name, district: nc.districts[0] ?? '' }); }} className={cn('flex w-full items-center px-3 py-2 text-left text-[12px] transition-colors', activeRegion.province === prov.name ? 'bg-emerald-50 text-emerald-600' : 'text-slate-600 hover:bg-slate-50')}>{prov.name}</button>)}</div>
-                      <div className="max-h-56 overflow-y-auto py-1 custom-scrollbar">{activeProv.cities.map((city) => <button key={city.name} type="button" onClick={() => setRegionSelection!((p) => ({ province: activeProv.name, city: city.name, district: city.districts.includes(p.district) ? p.district : city.districts[0] ?? '' }))} className={cn('flex w-full items-center px-3 py-2 text-left text-[12px] transition-colors', activeRegion.city === city.name ? 'bg-emerald-50 text-emerald-600' : 'text-slate-600 hover:bg-slate-50')}>{city.name}</button>)}</div>
-                      <div className="max-h-56 overflow-y-auto py-1 custom-scrollbar">{activeCity.districts.map((d) => <button key={d} type="button" onClick={() => { const ns = { province: activeProv.name, city: activeCity.name, district: d }; setRegionSelection!(ns); setFieldValues((p) => ({ ...p, [field.label]: formatRegionValue(ns) })); setOpenSelect(null); }} className={cn('flex w-full items-center justify-between px-3 py-2 text-left text-[12px] transition-colors', activeRegion.district === d ? 'bg-emerald-50 text-emerald-600' : 'text-slate-600 hover:bg-slate-50')}><span>{d}</span>{activeRegion.district === d ? <Check size={12} /> : null}</button>)}</div>
+                      <div className="max-h-56 overflow-y-auto py-1 custom-scrollbar">{chinaRegionOptions.map((prov) => <button key={prov.name} type="button" onClick={() => { const nc = prov.cities[0]; setRegionSelection!({ province: prov.name, city: nc.name, district: nc.districts[0] ?? '' }); }} className={cn('flex w-full items-center px-3 py-2 text-left text-[12px] transition-colors', activeRegion.province === prov.name ? 'bg-brand-50 text-brand-600' : 'text-slate-600 hover:bg-slate-50')}>{prov.name}</button>)}</div>
+                      <div className="max-h-56 overflow-y-auto py-1 custom-scrollbar">{activeProv.cities.map((city) => <button key={city.name} type="button" onClick={() => setRegionSelection!((p) => ({ province: activeProv.name, city: city.name, district: city.districts.includes(p.district) ? p.district : city.districts[0] ?? '' }))} className={cn('flex w-full items-center px-3 py-2 text-left text-[12px] transition-colors', activeRegion.city === city.name ? 'bg-brand-50 text-brand-600' : 'text-slate-600 hover:bg-slate-50')}>{city.name}</button>)}</div>
+                      <div className="max-h-56 overflow-y-auto py-1 custom-scrollbar">{activeCity.districts.map((d) => <button key={d} type="button" onClick={() => { const ns = { province: activeProv.name, city: activeCity.name, district: d }; setRegionSelection!(ns); setFieldValues((p) => ({ ...p, [field.label]: formatRegionValue(ns) })); setOpenSelect(null); }} className={cn('flex w-full items-center justify-between px-3 py-2 text-left text-[12px] transition-colors', activeRegion.district === d ? 'bg-brand-50 text-brand-600' : 'text-slate-600 hover:bg-slate-50')}><span>{d}</span>{activeRegion.district === d ? <Check size={12} /> : null}</button>)}</div>
                     </div>
                   </div>,
                   { align: 'center', marginTop: 4, width: 420 }
                 ) : renderFloatingMenu(floatingSelectTriggerRefs.current[fieldKey],
                   <div className="max-h-44 overflow-auto rounded-md border border-slate-200 bg-white py-1 shadow-[0_10px_24px_rgba(15,23,42,0.12)] custom-scrollbar">
                     {(workbenchSelectOptions[field.label] ?? ['选项一', '选项二', '选项三']).map((opt) => (
-                      <button key={opt} type="button" onClick={() => { setFieldValues((p) => ({ ...p, [field.label]: opt })); setOpenSelect(null); }} className={cn('flex w-full items-center px-3 py-2 text-left text-[12px] transition-colors', fieldValues[field.label] === opt ? 'bg-emerald-50 text-emerald-600' : 'text-slate-600 hover:bg-slate-50')}>{opt}</button>
+                      <button key={opt} type="button" onClick={() => { setFieldValues((p) => ({ ...p, [field.label]: opt })); setOpenSelect(null); }} className={cn('flex w-full items-center px-3 py-2 text-left text-[12px] transition-colors', fieldValues[field.label] === opt ? 'bg-brand-50 text-brand-600' : 'text-slate-600 hover:bg-slate-50')}>{opt}</button>
                     ))}
                   </div>,
                   { marginTop: 4 }
@@ -861,9 +861,9 @@ export default function CallWorkbenchPage() {
         {tabs.length > 1 ? (
           <div className="flex shrink-0 items-center gap-5 border-b border-slate-100 px-4">
             {tabs.map((tab) => (
-              <button key={tab} type="button" onClick={() => setWorkbenchToolTab(tab)} className={cn('relative py-3 text-[12px] font-semibold transition-colors', resolved === tab ? 'text-emerald-500' : 'text-slate-500 hover:text-slate-700')}>
+              <button key={tab} type="button" onClick={() => setWorkbenchToolTab(tab)} className={cn('relative py-3 text-[12px] font-semibold transition-colors', resolved === tab ? 'text-brand-500' : 'text-slate-500 hover:text-slate-700')}>
                 {tab}
-                {resolved === tab ? <span className="absolute inset-x-0 bottom-0 h-0.5 bg-emerald-500" /> : null}
+                {resolved === tab ? <span className="absolute inset-x-0 bottom-0 h-0.5 bg-brand-500" /> : null}
               </button>
             ))}
           </div>
@@ -894,14 +894,14 @@ export default function CallWorkbenchPage() {
           <div className="flex overflow-hidden rounded-[8px] border border-[#dce4ec] bg-white">
             {onlineThirdPartyScopes.map((scope) => (
               <button key={scope} type="button" onClick={() => setOnlineThirdPartyScope(scope)}
-                className={cn('min-w-[92px] px-6 py-1.5 text-[12px] font-medium transition-colors', onlineThirdPartyScope === scope ? 'bg-[#dff6f0] text-[#19b69f]' : 'text-slate-500 hover:bg-slate-50')}>
+                className={cn('min-w-[92px] px-6 py-1.5 text-[12px] font-medium transition-colors', onlineThirdPartyScope === scope ? 'bg-[#e8f1ff] text-[#216BFF]' : 'text-slate-500 hover:bg-slate-50')}>
                 {scope === 'public' ? '公共' : '个人'}
               </button>
             ))}
           </div>
         </div>
         <button ref={thirdPartySettingsTriggerRef} type="button" aria-label="打开第三方网站默认设置" title="默认设置" data-dropdown-root="true" onClick={handleToggleOnlineThirdPartySettings}
-          className={cn('flex h-8 w-8 items-center justify-center rounded-full transition-colors', isOnlineThirdPartySettingsOpen ? 'bg-[#eefaf7] text-[#19b69f]' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-500')}>
+          className={cn('flex h-8 w-8 items-center justify-center rounded-full transition-colors', isOnlineThirdPartySettingsOpen ? 'bg-[#e8f1ff] text-[#216BFF]' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-500')}>
           <Settings size={15} />
         </button>
       </div>
@@ -933,15 +933,15 @@ export default function CallWorkbenchPage() {
           <div className="space-y-4 px-5 pb-4">
             {([{ scope: 'public' as const, label: '默认选中公共部分' }, { scope: 'personal' as const, label: '默认选中个人部分' }]).map((item) => {
               const isSel = pendingOnlineThirdPartyDefaultScope === item.scope;
-              return <button key={item.scope} type="button" onClick={() => setPendingOnlineThirdPartyDefaultScope(item.scope)} className={cn('flex w-full items-center justify-between gap-4 rounded-[10px] border px-4 py-3 text-left text-[13px] transition-colors', isSel ? 'border-[#8ee8db] bg-[#ecfbf8] text-[#11c5ab]' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50')}>
+              return <button key={item.scope} type="button" onClick={() => setPendingOnlineThirdPartyDefaultScope(item.scope)} className={cn('flex w-full items-center justify-between gap-4 rounded-[10px] border px-4 py-3 text-left text-[13px] transition-colors', isSel ? 'border-[#96b8ff] bg-[#e8f1ff] text-[#216BFF]' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50')}>
                 <span>{item.label}</span>
-                <span className={cn('flex h-5 w-5 items-center justify-center rounded-full border transition-colors', isSel ? 'border-[#11c5ab] bg-[#11c5ab] text-white' : 'border-slate-300 bg-white text-transparent')}><Check size={12} strokeWidth={3} /></span>
+                <span className={cn('flex h-5 w-5 items-center justify-center rounded-full border transition-colors', isSel ? 'border-[#216BFF] bg-[#216BFF] text-white' : 'border-slate-300 bg-white text-transparent')}><Check size={12} strokeWidth={3} /></span>
               </button>;
             })}
           </div>
           <div className="flex items-center justify-end gap-3 border-t border-slate-100 px-5 py-3">
             <button type="button" onClick={handleCloseOnlineThirdPartySettings} className="flex h-[32px] min-w-[70px] items-center justify-center rounded-full border border-[#e4e8ef] bg-white px-4 text-[12px] text-[#6f7782] transition-colors hover:bg-slate-50">取消</button>
-            <button type="button" onClick={handleApplyOnlineThirdPartySettings} className="flex h-[32px] min-w-[78px] items-center justify-center rounded-full border border-[#8ee8db] bg-[#ecfbf8] px-4 text-[12px] font-medium text-[#11c5ab] transition-colors hover:bg-[#dff8f3]">确定</button>
+            <button type="button" onClick={handleApplyOnlineThirdPartySettings} className="flex h-[32px] min-w-[78px] items-center justify-center rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-4 text-[12px] font-medium text-[#216BFF] transition-colors hover:bg-[#c9dcff]">确定</button>
           </div>
         </div>,
         { align: 'right', marginTop: 12, width: 230, placement: 'bottom' }
@@ -967,9 +967,9 @@ export default function CallWorkbenchPage() {
       actions={
         <>
           <button type="button" onClick={() => handleRemoveCallSummaryTab(callSummaryTab)} className="rounded-full border border-rose-300 bg-rose-50/60 px-5 py-[7px] text-[12px] font-medium text-rose-500 transition-colors hover:bg-rose-50">废弃</button>
-          <button className="rounded-full border border-emerald-300 px-5 py-[7px] text-[12px] font-medium text-emerald-500 transition-colors hover:bg-emerald-50">升级工单</button>
-          <button className="rounded-full border border-emerald-300 px-5 py-[7px] text-[12px] font-medium text-emerald-500 transition-colors hover:bg-emerald-50">暂存</button>
-          <button className="rounded-full border border-emerald-300 px-5 py-[7px] text-[12px] font-medium text-emerald-500 transition-colors hover:bg-emerald-50">提交</button>
+          <button className="rounded-full border border-brand-300 px-5 py-[7px] text-[12px] font-medium text-brand-500 transition-colors hover:bg-brand-50">升级工单</button>
+          <button className="rounded-full border border-brand-300 px-5 py-[7px] text-[12px] font-medium text-brand-500 transition-colors hover:bg-brand-50">暂存</button>
+          <button className="rounded-full border border-brand-300 px-5 py-[7px] text-[12px] font-medium text-brand-500 transition-colors hover:bg-brand-50">提交</button>
         </>
       }
     />
@@ -1167,10 +1167,10 @@ export default function CallWorkbenchPage() {
         <button type="button" aria-label="关闭" onClick={() => { setPendingBlacklist(null); setBlacklistReason(''); }} className="fixed inset-0 z-[80] bg-transparent" />
         <div className="fixed z-[81] w-[280px] rounded-[10px] border border-[#e8edf3] bg-white px-4 py-3.5 shadow-[0_12px_28px_rgba(15,23,42,0.16)]" style={{ left: pendingBlacklist.x, top: pendingBlacklist.y }}>
           <div className="text-[14px] font-semibold text-[#3f434a]">拉黑原因</div>
-          <textarea value={blacklistReason} onChange={e => setBlacklistReason(e.target.value)} placeholder="请输入拉黑原因" className="mt-4 h-[70px] w-full resize-none rounded border border-[#e8edf3] px-2.5 py-2 text-[12px] text-[#3f434a] outline-none placeholder:text-[#c3cad5] focus:border-[#8ee8db]" />
+          <textarea value={blacklistReason} onChange={e => setBlacklistReason(e.target.value)} placeholder="请输入拉黑原因" className="mt-4 h-[70px] w-full resize-none rounded border border-[#e8edf3] px-2.5 py-2 text-[12px] text-[#3f434a] outline-none placeholder:text-[#c3cad5] focus:border-[#96b8ff]" />
           <div className="mt-3 flex justify-end gap-2.5">
             <button type="button" onClick={() => { setPendingBlacklist(null); setBlacklistReason(''); }} className="h-[30px] rounded-full border border-[#e4e8ef] bg-white px-4 text-[12px] text-[#6f7782] hover:bg-slate-50">取消</button>
-            <button type="button" onClick={() => { setPendingBlacklist(null); setBlacklistReason(''); }} className="h-[30px] rounded-full border border-[#8ee8db] bg-[#ecfbf8] px-4 text-[12px] font-medium text-[#11c5ab] hover:bg-[#dff8f3]">确定</button>
+            <button type="button" onClick={() => { setPendingBlacklist(null); setBlacklistReason(''); }} className="h-[30px] rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-4 text-[12px] font-medium text-[#216BFF] hover:bg-[#c9dcff]">确定</button>
           </div>
         </div>
       </>

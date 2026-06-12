@@ -32,13 +32,13 @@ export default function WorkbenchResizeHandle({
       className={cn(
         'group hidden shrink-0 items-center justify-center rounded-full transition-colors xl:flex',
         direction === 'row' ? 'cursor-row-resize' : 'cursor-col-resize',
-        active ? 'bg-emerald-50' : 'hover:bg-slate-100',
+        active ? 'bg-brand-50' : 'hover:bg-slate-100',
         className
       )}
     >
-      <span className={cn(trackClassName, active && 'bg-emerald-50')}>
+      <span className={cn(trackClassName, active && 'bg-brand-50')}>
         {Array.from({ length: 2 }, (_, index) => (
-          <span key={index} className={cn(indicatorClassName, active && 'bg-emerald-300')} />
+          <span key={index} className={cn(indicatorClassName, active && 'bg-brand-300')} />
         ))}
       </span>
     </button>

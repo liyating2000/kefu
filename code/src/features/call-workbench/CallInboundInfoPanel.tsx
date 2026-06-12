@@ -260,7 +260,7 @@ export default function CallInboundInfoPanel({
                     <div
                       className={cn(
                         'flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white shadow-sm',
-                        message.role === 'agent' ? 'bg-[#ffb24d]' : 'bg-[#18a058]'
+                        message.role === 'agent' ? 'bg-[#ffb24d]' : 'bg-[#216BFF]'
                       )}
                     >
                       {message.role === 'agent' ? <MessageSquare size={15} /> : <Monitor size={15} />}
@@ -271,7 +271,7 @@ export default function CallInboundInfoPanel({
                         className={cn(
                           'inline-block whitespace-pre-line rounded-2xl px-4 py-2.5 text-[12px] leading-5 shadow-[0_2px_6px_rgba(15,23,42,0.03)]',
                           message.role === 'agent'
-                            ? 'rounded-tr-md bg-[#e9f9f4] text-slate-700'
+                            ? 'rounded-tr-md bg-[#e8f1ff] text-slate-700'
                             : 'rounded-tl-md bg-[#f7f7f8] text-slate-700'
                         )}
                       >
