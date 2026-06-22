@@ -4498,6 +4498,9 @@ export default function App() {
     robotConfig: '',
     robotAvatar: '',
     robotAvatarFileName: '',
+    robotSilentTime: 60,
+    robotSilentEnabled: true,
+    robotSilentContent: '您好，请问还在吗？如需继续咨询请回复消息。',
   });
   const [webchatQuickButtonForm, setWebchatQuickButtonForm] = useState({
     name: '',
@@ -8459,6 +8462,9 @@ export default function App() {
       robotConfig: '',
       robotAvatar: '',
       robotAvatarFileName: '',
+      robotSilentTime: 60,
+      robotSilentEnabled: true,
+      robotSilentContent: '您好，请问还在吗？如需继续咨询请回复消息。',
     });
     setWebchatFormErrors({});
     setEditingWebchatProductId(null);
@@ -8480,6 +8486,9 @@ export default function App() {
       robotConfig: product.robotConfig,
       robotAvatar: product.robotAvatar ?? '',
       robotAvatarFileName: product.robotAvatar ? `${product.name}-avatar.png` : '',
+      robotSilentTime: 60,
+      robotSilentEnabled: true,
+      robotSilentContent: '您好，请问还在吗？如需继续咨询请回复消息。',
     });
     setWebchatFormErrors({});
     setEditingWebchatProductId(productId);
@@ -13110,7 +13119,7 @@ export default function App() {
             handleOpenMainTab('个人门户');
           }}
           userName={userRoleLabels[userRole]}
-          avatarSrc="https://picsum.photos/seed/user/100/100"
+          avatarSrc="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23216BFF'/%3E%3Ctext x='50' y='58' text-anchor='middle' fill='white' font-size='42' font-family='sans-serif' font-weight='bold'%3EK%3C/text%3E%3C/svg%3E"
           currentRole={userRole}
           onRoleChange={setUserRole}
           onLogout={() => setIsLoggedIn(false)}
@@ -13458,6 +13467,42 @@ export default function App() {
                             </div>
                             {webchatFormErrors.robotAvatar ? <div className="mt-1 text-[12px] text-[#ff6f6f]">{webchatFormErrors.robotAvatar}</div> : null}
                           </div>
+                        </div>
+                        <div className="mt-4 rounded-lg border border-dashed border-slate-200 bg-[#f7f9ff] px-4 py-3">
+                          <div className="text-[13px] font-medium text-slate-600">机器人静默提醒</div>
+                          <div className="mt-3 grid grid-cols-2 gap-4">
+                            <label className="block text-[13px] text-slate-600">静默时间（秒）
+                              <input
+                                type="number"
+                                value={webchatProductForm.robotSilentTime}
+                                min={10}
+                                max={600}
+                                onChange={(e) => setWebchatProductForm((current) => ({ ...current, robotSilentTime: Number(e.target.value) }))}
+                                className="mt-2 h-10 w-full rounded-lg border border-slate-200 px-3 text-[13px] outline-none focus:border-[#216BFF]"
+                              />
+                            </label>
+                            <div className="block text-[13px] text-slate-600">启用状态
+                              <div className="mt-2 flex h-10 items-center">
+                                <label className="relative inline-flex cursor-pointer items-center">
+                                  <input
+                                    type="checkbox"
+                                    checked={webchatProductForm.robotSilentEnabled}
+                                    onChange={(e) => setWebchatProductForm((current) => ({ ...current, robotSilentEnabled: e.target.checked }))}
+                                    className="peer sr-only"
+                                  />
+                                  <div className="h-6 w-11 rounded-full bg-slate-200 transition-colors after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow after:transition-all peer-checked:bg-[#216BFF] peer-checked:after:translate-x-5" />
+                                </label>
+                              </div>
+                            </div>
+                          </div>
+                          <label className="mt-3 block text-[13px] text-slate-600">提醒内容
+                            <textarea
+                              value={webchatProductForm.robotSilentContent}
+                              onChange={(e) => setWebchatProductForm((current) => ({ ...current, robotSilentContent: e.target.value }))}
+                              rows={3}
+                              className="mt-2 w-full rounded-lg border border-slate-200 px-3 py-2 text-[13px] outline-none focus:border-[#216BFF]"
+                            />
+                          </label>
                         </div>
                       </>
                     ) : null}

@@ -1132,6 +1132,9 @@ type ProductManagementModalState =
       isAfterSales: '是' | '否';
       serviceEntries: string[];
       serviceMode: '' | '寄修' | '上门';
+      robotSilentTime: number;
+      robotSilentEnabled: boolean;
+      robotSilentContent: string;
     }
   | {
       mode: 'create' | 'edit';
@@ -1152,6 +1155,9 @@ type ProductManagementModalState =
       serviceEntries: string[];
       serviceMode: string;
       shortName: string;
+      robotSilentTime: number;
+      robotSilentEnabled: boolean;
+      robotSilentContent: string;
     };
 
 type ProductManagementDeleteState =
@@ -2017,6 +2023,9 @@ function ProductManagementPanel({
         isAfterSales: '是',
         serviceEntries: [],
         serviceMode: '',
+        robotSilentTime: 60,
+        robotSilentEnabled: true,
+        robotSilentContent: '您好，请问还在吗？如需继续咨询请回复消息。',
       });
       return;
     }
@@ -2047,6 +2056,8 @@ function ProductManagementPanel({
       serviceEntries: [],
       serviceMode: '',
       shortName: '',
+      robotSilentTime: 60,
+      robotSilentEnabled: true,
     });
   };
 
@@ -2073,6 +2084,8 @@ function ProductManagementPanel({
       isAfterSales: item.isAfterSales,
       serviceEntries: [...item.serviceEntries],
       serviceMode: item.serviceMode,
+      robotSilentTime: 60,
+      robotSilentEnabled: true,
     });
   };
 
@@ -2096,6 +2109,8 @@ function ProductManagementPanel({
       serviceEntries: [...item.serviceEntries],
       serviceMode: item.serviceMode,
       shortName: item.shortName,
+      robotSilentTime: 60,
+      robotSilentEnabled: true,
     });
   };
 
@@ -2887,6 +2902,54 @@ function ProductManagementPanel({
                 }
               />
             </div>
+            <div className="mt-4 rounded-lg border border-dashed border-slate-200 bg-[#f7f9ff] px-4 py-3">
+              <div className="text-[13px] font-medium text-slate-600">机器人静默提醒</div>
+              <div className="mt-3 grid grid-cols-2 gap-4">
+                <label className="block text-[13px] text-slate-600">静默时间（秒）
+                  <input
+                    type="number"
+                    value={productManagementModal.robotSilentTime}
+                    min={10}
+                    max={600}
+                    onChange={(e) =>
+                      setProductManagementModal((current) =>
+                        current?.type === 'product-category' ? { ...current, robotSilentTime: Number(e.target.value) } : current
+                      )
+                    }
+                    className="mt-2 h-10 w-full rounded-lg border border-slate-200 px-3 text-[13px] outline-none focus:border-[#216BFF]"
+                  />
+                </label>
+                <div className="block text-[13px] text-slate-600">启用状态
+                  <div className="mt-2 flex h-10 items-center">
+                    <label className="relative inline-flex cursor-pointer items-center">
+                      <input
+                        type="checkbox"
+                        checked={productManagementModal.robotSilentEnabled}
+                        onChange={(e) =>
+                          setProductManagementModal((current) =>
+                            current?.type === 'product-category' ? { ...current, robotSilentEnabled: e.target.checked } : current
+                          )
+                        }
+                        className="peer sr-only"
+                      />
+                      <div className="h-6 w-11 rounded-full bg-slate-200 transition-colors after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow after:transition-all peer-checked:bg-[#216BFF] peer-checked:after:translate-x-5" />
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <label className="mt-3 block text-[13px] text-slate-600">提醒内容
+                <textarea
+                  value={productManagementModal.robotSilentContent}
+                  onChange={(e) =>
+                    setProductManagementModal((current) =>
+                      current?.type === 'product-category' ? { ...current, robotSilentContent: e.target.value } : current
+                    )
+                  }
+                  rows={3}
+                  className="mt-2 w-full rounded-lg border border-slate-200 px-3 py-2 text-[13px] outline-none focus:border-[#216BFF]"
+                />
+              </label>
+            </div>
           </div>
         </ProductManagementModalFrame>
       ) : null}
@@ -3047,6 +3110,54 @@ function ProductManagementPanel({
                 }
               />
             </div>
+            <div className="mt-4 rounded-lg border border-dashed border-slate-200 bg-[#f7f9ff] px-4 py-3">
+              <div className="text-[13px] font-medium text-slate-600">机器人静默提醒</div>
+              <div className="mt-3 grid grid-cols-2 gap-4">
+                <label className="block text-[13px] text-slate-600">静默时间（秒）
+                  <input
+                    type="number"
+                    value={productManagementModal.robotSilentTime}
+                    min={10}
+                    max={600}
+                    onChange={(e) =>
+                      setProductManagementModal((current) =>
+                        current?.type === 'product-name' ? { ...current, robotSilentTime: Number(e.target.value) } : current
+                      )
+                    }
+                    className="mt-2 h-10 w-full rounded-lg border border-slate-200 px-3 text-[13px] outline-none focus:border-[#216BFF]"
+                  />
+                </label>
+                <div className="block text-[13px] text-slate-600">启用状态
+                  <div className="mt-2 flex h-10 items-center">
+                    <label className="relative inline-flex cursor-pointer items-center">
+                      <input
+                        type="checkbox"
+                        checked={productManagementModal.robotSilentEnabled}
+                        onChange={(e) =>
+                          setProductManagementModal((current) =>
+                            current?.type === 'product-name' ? { ...current, robotSilentEnabled: e.target.checked } : current
+                          )
+                        }
+                        className="peer sr-only"
+                      />
+                      <div className="h-6 w-11 rounded-full bg-slate-200 transition-colors after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow after:transition-all peer-checked:bg-[#216BFF] peer-checked:after:translate-x-5" />
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <label className="mt-3 block text-[13px] text-slate-600">提醒内容
+                <textarea
+                  value={productManagementModal.robotSilentContent}
+                  onChange={(e) =>
+                    setProductManagementModal((current) =>
+                      current?.type === 'product-name' ? { ...current, robotSilentContent: e.target.value } : current
+                    )
+                  }
+                  rows={3}
+                  className="mt-2 w-full rounded-lg border border-slate-200 px-3 py-2 text-[13px] outline-none focus:border-[#216BFF]"
+                />
+              </label>
+            </div>
           </div>
         </ProductManagementModalFrame>
       ) : null}
@@ -3179,7 +3290,7 @@ function ProductManagementModalFrame({
           </button>
         </div>
 
-        <div className="mt-5">{children}</div>
+        <div className="mt-5 max-h-[60vh] overflow-y-auto">{children}</div>
 
         <div className="mt-5 flex items-center justify-end gap-3">
           <button
@@ -4396,14 +4507,25 @@ function FieldManagementDetailManagementPanel({
                             </button>
                           ) : null}
                           {row.canEdit ? (
-                            <button
-                              type="button"
-                              onClick={() => handleOpenEditCustomFieldDrawer(row)}
-                              className="inline-flex items-center gap-1 transition-colors hover:text-[#216BFF]"
-                            >
-                              <Pencil size={13} />
-                              编辑
-                            </button>
+                            row.id === 'problem-cat' ? (
+                              <button
+                                type="button"
+                                onClick={() => setToastMessage('同步成功')}
+                                className="inline-flex items-center gap-1 transition-colors hover:text-[#216BFF]"
+                              >
+                                <RefreshCw size={13} />
+                                同步
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => handleOpenEditCustomFieldDrawer(row)}
+                                className="inline-flex items-center gap-1 transition-colors hover:text-[#216BFF]"
+                              >
+                                <Pencil size={13} />
+                                编辑
+                              </button>
+                            )
                           ) : null}
                           {row.createdBy !== 'system' ? (
                             <button
