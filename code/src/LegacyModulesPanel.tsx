@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import type { WorkOrderDetailData } from './features/call-workbench/WorkOrderDetailPage';
 import ThirdPartyWebsiteSettings from './ThirdPartyWebsiteSettings';
 import PhoneListPage from './PhoneListPage';
 
@@ -785,7 +786,7 @@ type LegacyModuleInitialState = {
   appointmentTab?: 'appointment' | 'message' | 'todo';
 };
 
-export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyModulePage, initialState, onClearInitialState }: { page: LegacyModulePage; onOpenMainTab?: (tab: string) => void; onOpenLegacyModulePage?: (page: LegacyModulePage) => void; initialState?: LegacyModuleInitialState | null; onClearInitialState?: () => void }) {
+export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyModulePage, onOpenWorkOrderDetail, initialState, onClearInitialState }: { page: LegacyModulePage; onOpenMainTab?: (tab: string) => void; onOpenLegacyModulePage?: (page: LegacyModulePage) => void; onOpenWorkOrderDetail?: (data: WorkOrderDetailData) => void; initialState?: LegacyModuleInitialState | null; onClearInitialState?: () => void }) {
   const currentSummaryAgent = '坐席A';
   const currentProcessorId = '3001';
   const currentProcessorName = '张小花';
@@ -2830,9 +2831,11 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
     const safeConsultIndex = Math.min(webchatHistoryConsultIndex, Math.max(0, consultTotal - 1));
 
     const workOrderHistoryRows = [
-      { id: 'WO20260331001', type: '咨询工单', status: '已办结', priority: '普通', creator: detailRow.employeeName, handler: '李小芳', createdAt: detailRow.chatStartedAt, finishedAt: detailRow.chatEndedAt, title: '访客咨询账户开户流程' },
-      { id: 'WO20260330024', type: '投诉工单', status: '处理中', priority: '紧急', creator: '系统', handler: detailRow.employeeName, createdAt: '2026-03-30 16:42:08', finishedAt: '-', title: '访客对短信通知频率不满' },
-      { id: 'WO20260329013', type: '故障工单', status: '已办结', priority: '高', creator: detailRow.employeeName, handler: '王浩然', createdAt: '2026-03-29 10:08:54', finishedAt: '2026-03-29 17:23:11', title: '手机银行无法登录排查' },
+      { id: 'WK-20241102-12', type: '咨询', source: 'IM', status: '处理中', time: '2024-11-02 09:05' },
+      { id: 'WK-20241028-07', type: '投诉', source: '热线', status: '已完成', time: '2024-10-28 14:30' },
+      { id: 'WK-20241015-03', type: '售后', source: '市场监督局', status: '待处理', time: '2024-10-15 11:20' },
+      { id: 'WK-20241008-19', type: '咨询', source: '售后', status: '已关闭', time: '2024-10-08 16:45' },
+      { id: 'WK-20240925-08', type: '退换货', source: 'IM', status: '已完成', time: '2024-09-25 10:10' },
     ];
 
     return (
@@ -3337,55 +3340,44 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                     </div>
                   </div>
                 ) : (
-                  <div className="flex-1 overflow-y-auto px-5 py-5 custom-scrollbar">
-                    <div className="overflow-auto custom-scrollbar">
-                      <table className="min-w-[820px] table-fixed text-left text-[13px]">
-                        <thead className="bg-[#fafafa] text-slate-600">
-                          <tr>
-                            {['序号', '工单编号', '工单类型', '工单标题', '状态', '优先级', '创建人', '处理人', '创建时间', '完成时间'].map((column) => (
-                              <th key={column} className="whitespace-nowrap px-4 py-3 font-medium">
-                                {column}
-                              </th>
-                            ))}
+                  <div className="flex flex-1 flex-col overflow-hidden">
+                    <div className="shrink-0 px-5 pt-4 pb-2">
+                      <div className="relative">
+                        <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" />
+                        <input type="text" placeholder="输入手机号查询" className="h-[34px] w-full rounded-lg border border-slate-200 bg-[#fcfcfd] pl-9 pr-3 text-[12px] text-slate-600 outline-none placeholder:text-slate-400 focus:border-[#96b8ff]" />
+                      </div>
+                    </div>
+                    <div className="flex-1 overflow-y-auto px-5 pb-4 custom-scrollbar">
+                      <table className="w-full text-left text-[12px]">
+                        <thead>
+                          <tr className="border-b border-slate-100 text-[11px] font-medium text-slate-500">
+                            <th className="py-2.5 pr-2 font-medium">工单编号</th>
+                            <th className="py-2.5 pr-2 font-medium">工单类型</th>
+                            <th className="py-2.5 pr-2 font-medium">工单来源</th>
+                            <th className="py-2.5 pr-2 font-medium">状态</th>
+                            <th className="py-2.5 font-medium">创建时间</th>
                           </tr>
                         </thead>
-                        <tbody className="text-slate-600">
-                          {workOrderHistoryRows.map((row, index) => (
-                            <tr
-                              key={row.id}
-                              className={cn(
-                                'transition-colors hover:bg-[#e8f1ff]',
-                                index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]'
-                              )}
-                            >
-                              <td className="px-4 py-3">{index + 1}</td>
-                              <td className="whitespace-nowrap px-4 py-3 text-[#216BFF]">{row.id}</td>
-                              <td className="whitespace-nowrap px-4 py-3">{row.type}</td>
-                              <td className="px-4 py-3">{row.title}</td>
-                              <td className="whitespace-nowrap px-4 py-3">
-                                <span
-                                  className={cn(
-                                    'inline-flex items-center rounded-full px-2 py-0.5 text-[12px]',
-                                    row.status === '已办结'
-                                      ? 'bg-brand-50 text-brand-600'
-                                      : 'bg-amber-50 text-amber-600'
-                                  )}
-                                >
-                                  {row.status}
-                                </span>
+                        <tbody>
+                          {workOrderHistoryRows.map((row) => (
+                            <tr key={row.id} onClick={() => onOpenWorkOrderDetail?.(row)} className="cursor-pointer border-b border-slate-50 transition-colors hover:bg-slate-50/60">
+                              <td className="py-2.5 pr-2 text-[#216BFF]">{row.id}</td>
+                              <td className="py-2.5 pr-2 text-slate-600">{row.type}</td>
+                              <td className="py-2.5 pr-2 text-slate-600">{row.source}</td>
+                              <td className="py-2.5 pr-2">
+                                <span className={cn('inline-block rounded-full px-2 py-0.5 text-[11px] font-medium',
+                                  row.status === '处理中' ? 'bg-amber-50 text-amber-600' :
+                                  row.status === '已完成' ? 'bg-emerald-50 text-emerald-600' :
+                                  row.status === '待处理' ? 'bg-sky-50 text-sky-600' :
+                                  'bg-slate-100 text-slate-500'
+                                )}>{row.status}</span>
                               </td>
-                              <td className="whitespace-nowrap px-4 py-3">{row.priority}</td>
-                              <td className="whitespace-nowrap px-4 py-3">{row.creator}</td>
-                              <td className="whitespace-nowrap px-4 py-3">{row.handler}</td>
-                              <td className="whitespace-nowrap px-4 py-3">{row.createdAt}</td>
-                              <td className="whitespace-nowrap px-4 py-3">{row.finishedAt}</td>
+                              <td className="py-2.5 text-slate-400">{row.time}</td>
                             </tr>
                           ))}
                           {workOrderHistoryRows.length === 0 ? (
                             <tr>
-                              <td colSpan={10} className="px-4 py-10 text-center text-slate-400">
-                                暂无工单记录
-                              </td>
+                              <td colSpan={5} className="py-10 text-center text-slate-400">暂无工单记录</td>
                             </tr>
                           ) : null}
                         </tbody>
