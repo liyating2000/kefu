@@ -43,6 +43,7 @@ import ProblemClassificationSearchModal, { type ProblemClassificationCombo } fro
 import SmsSendModal from '../workbench/SmsSendModal';
 import EmailSendModal from '../workbench/EmailSendModal';
 
+import type { WorkOrderDetailData } from './WorkOrderDetailPage';
 import toolSmsIcon from '../../assets/tool-icons/tool-短信.png';
 import toolAttachmentIcon from '../../assets/tool-icons/tool-附件查询.png';
 import toolMailIcon from '../../assets/tool-icons/tool-邮件.png';
@@ -306,7 +307,7 @@ const callSidebarFeatureDefinitions: ReadonlyArray<{
   locked?: boolean;
 }> = [
   { key: 'agent', label: 'Agent', title: 'Agent', imageSrc: onlineSideAgentIcon, panel: 'agent' },
-  { key: 'workorder', label: '工单管理', title: '工单管理', imageSrc: onlineSideWorkOrderIcon, panel: 'workorder' },
+  { key: 'workorder', label: '工单历史', title: '工单历史', imageSrc: onlineSideWorkOrderIcon, panel: 'workorder' },
   { key: 'toolsite', label: '第三方网站', title: '第三方网站', imageSrc: onlineSideToolIcon, panel: 'toolsite' },
   { key: 'summary', label: '通话小结', title: '通话小结', icon: FilePen, panel: 'summary' },
   { key: 'settings', label: '设置', title: '设置', imageSrc: onlineSideSettingsIcon, locked: true },
@@ -468,7 +469,11 @@ const getCallVerticalPanelDefaultHeight = (sh: number, rh: number) => {
 // Component
 // ═══════════════════════════════════════════════════════════════════════
 
-export default function CallWorkbenchPage() {
+type CallWorkbenchPageProps = {
+  onOpenWorkOrderDetail?: (data: WorkOrderDetailData) => void;
+};
+
+export default function CallWorkbenchPage({ onOpenWorkOrderDetail }: CallWorkbenchPageProps) {
   // ─── Refs ───────────────────────────────────────────────────────────
   const callWorkbenchLayoutRef = useRef<HTMLDivElement | null>(null);
   const callLeftPanelStackRef = useRef<HTMLDivElement | null>(null);
@@ -653,7 +658,7 @@ export default function CallWorkbenchPage() {
   const handleOpenCallRightPanel = (panel: CallRightPanel) => {
     handleCloseCallFeatureSettings();
     setCallRightPanel(panel);
-    if (panel === 'workorder') { setWorkbenchToolTab('工单管理'); return; }
+    if (panel === 'workorder') return;
     if (panel === 'knowledge') { setWorkbenchToolTab('知识库'); return; }
     if (panel === 'toolsite' && !['常用工具', '第三方网站'].includes(workbenchToolTab)) setWorkbenchToolTab('常用工具');
   };
@@ -977,7 +982,56 @@ export default function CallWorkbenchPage() {
 
   const callRightSingleContent =
     callRightPanel === 'agent' ? callRobotPanelContent
-    : callRightPanel === 'workorder' ? renderCallWorkbenchToolSection(['工单管理'], '工单管理')
+    : callRightPanel === 'workorder' ? (
+      <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[14px] border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
+        <div className="shrink-0 border-b border-slate-100 px-4 py-3">
+          <h2 className="text-[14px] font-bold text-slate-800">工单历史</h2>
+        </div>
+        <div className="shrink-0 px-4 pt-3 pb-2">
+          <div className="relative">
+            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" />
+            <input type="text" placeholder="输入手机号查询" className="h-[34px] w-full rounded-lg border border-slate-200 bg-[#fcfcfd] pl-9 pr-3 text-[12px] text-slate-600 outline-none placeholder:text-slate-400 focus:border-brand-300" />
+          </div>
+        </div>
+        <div className="flex-1 overflow-y-auto px-4 pb-3 custom-scrollbar">
+          <table className="w-full text-left text-[12px]">
+            <thead>
+              <tr className="border-b border-slate-100 text-[11px] font-medium text-slate-500">
+                <th className="py-2.5 pr-2 font-medium">工单编号</th>
+                <th className="py-2.5 pr-2 font-medium">工单类型</th>
+                <th className="py-2.5 pr-2 font-medium">工单来源</th>
+                <th className="py-2.5 pr-2 font-medium">状态</th>
+                <th className="py-2.5 font-medium">创建时间</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                { id: 'WK-20241102-12', type: '咨询', source: 'IM', status: '处理中', time: '2024-11-02 09:05' },
+                { id: 'WK-20241028-07', type: '投诉', source: '热线', status: '已完成', time: '2024-10-28 14:30' },
+                { id: 'WK-20241015-03', type: '售后', source: '市场监督局', status: '待处理', time: '2024-10-15 11:20' },
+                { id: 'WK-20241008-19', type: '咨询', source: '售后', status: '已关闭', time: '2024-10-08 16:45' },
+                { id: 'WK-20240925-08', type: '退换货', source: 'IM', status: '已完成', time: '2024-09-25 10:10' },
+              ].map((row) => (
+                <tr key={row.id} onClick={() => onOpenWorkOrderDetail?.(row)} className="cursor-pointer border-b border-slate-50 transition-colors hover:bg-slate-50/60">
+                  <td className="py-2.5 pr-2 text-brand-500">{row.id}</td>
+                  <td className="py-2.5 pr-2 text-slate-600">{row.type}</td>
+                  <td className="py-2.5 pr-2 text-slate-600">{row.source}</td>
+                  <td className="py-2.5 pr-2">
+                    <span className={cn('inline-block rounded-full px-2 py-0.5 text-[11px] font-medium',
+                      row.status === '处理中' ? 'bg-amber-50 text-amber-600' :
+                      row.status === '已完成' ? 'bg-emerald-50 text-emerald-600' :
+                      row.status === '待处理' ? 'bg-sky-50 text-sky-600' :
+                      'bg-slate-100 text-slate-500'
+                    )}>{row.status}</span>
+                  </td>
+                  <td className="py-2.5 text-slate-400">{row.time}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    )
     : callRightPanel === 'knowledge' ? renderCallWorkbenchToolSection(['知识库'], '知识库')
     : callRightPanel === 'toolsite' ? renderCallWorkbenchToolSection(['第三方网站'], '第三方网站')
     : callRightPanel === 'summary' ? callSummaryPanelContent

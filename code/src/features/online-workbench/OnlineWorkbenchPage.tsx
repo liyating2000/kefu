@@ -58,6 +58,7 @@ import ProblemClassificationSearchModal, { type ProblemClassificationCombo } fro
 import SmsSendModal from '../workbench/SmsSendModal';
 import EmailSendModal from '../workbench/EmailSendModal';
 import CreateTpdWorkOrderModal from '../workbench/CreateTpdWorkOrderModal';
+import type { WorkOrderDetailData } from '../call-workbench/WorkOrderDetailPage';
 import CallScheduleFollowUpModal from '../call-workbench/CallScheduleFollowUpModal';
 import BlacklistApplicationModal from '../call-workbench/BlacklistApplicationModal';
 
@@ -105,7 +106,7 @@ import onlineVideoHangupIcon from '../../assets/video-icons/hangup2.png';
 type WorkbenchHistoryTab = '会话历史' | '通话历史' | '短信历史' | '邮件历史';
 type WorkbenchSummaryTab = string;
 type OnlineSessionListTab = '活动会话' | '结束会话';
-type OnlineRightPanel = 'robot' | 'customer' | 'history' | 'third-party';
+type OnlineRightPanel = 'robot' | 'customer' | 'history' | 'third-party' | 'workorder';
 type OnlineSidebarFeatureKey =
   | 'robot'
   | 'customer'
@@ -635,7 +636,7 @@ const onlineSidebarFeatureDefinitions: ReadonlyArray<{
   { key: 'robot', label: 'Agent', title: 'Agent', imageSrc: onlineSideAgentIcon, panel: 'robot' },
   { key: 'customer', label: '客户资料', title: '客户资料', imageSrc: onlineSideCustomerInfoIcon, panel: 'customer' },
   { key: 'history', label: '通话历史', title: '通话历史', imageSrc: onlineSideCustomerHistoryIcon, panel: 'history' },
-  { key: 'workorder', label: '工单管理', title: '工单管理', imageSrc: onlineSideWorkOrderIcon },
+  { key: 'workorder', label: '工单历史', title: '工单历史', imageSrc: onlineSideWorkOrderIcon, panel: 'workorder' },
   { key: 'third-party', label: '第三方网站', title: '第三方网站', imageSrc: onlineSideThirdPartyIcon, panel: 'third-party' },
   { key: 'settings', label: '设置', title: '设置', imageSrc: onlineSideSettingsIcon, locked: true },
 ];
@@ -708,7 +709,11 @@ const getOnlineRightTopPanelDefaultHeight = (sh: number) => {
 // Component
 // ═══════════════════════════════════════════════════════════════════════
 
-export default function OnlineWorkbenchPage() {
+type OnlineWorkbenchPageProps = {
+  onOpenWorkOrderDetail?: (data: WorkOrderDetailData) => void;
+};
+
+export default function OnlineWorkbenchPage({ onOpenWorkOrderDetail }: OnlineWorkbenchPageProps) {
   // ─── Refs ───────────────────────────────────────────────────────────
   const onlineWorkbenchLayoutRef = useRef<HTMLDivElement | null>(null);
   const onlineCenterPanelRef = useRef<HTMLDivElement | null>(null);
@@ -1612,6 +1617,57 @@ export default function OnlineWorkbenchPage() {
             {onlineRightPanel === 'third-party' && (
               <section className="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm" style={{ height: `${onlineRightTopPanelHeight}px` }}>
                 {renderThirdPartySystemPanelContent('第三方网站')}
+              </section>
+            )}
+
+            {onlineRightPanel === 'workorder' && (
+              <section className="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm" style={{ height: `${onlineRightTopPanelHeight}px` }}>
+                <div className="shrink-0 border-b border-slate-100 px-4 py-3">
+                  <h2 className="text-[14px] font-bold text-slate-800">工单历史</h2>
+                </div>
+                <div className="shrink-0 px-4 pt-3 pb-2">
+                  <div className="relative">
+                    <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" />
+                    <input type="text" placeholder="输入手机号查询" className="h-[34px] w-full rounded-lg border border-slate-200 bg-[#fcfcfd] pl-9 pr-3 text-[12px] text-slate-600 outline-none placeholder:text-slate-400 focus:border-brand-300" />
+                  </div>
+                </div>
+                <div className="flex-1 overflow-y-auto px-4 pb-3 custom-scrollbar">
+                  <table className="w-full text-left text-[12px]">
+                    <thead>
+                      <tr className="border-b border-slate-100 text-[11px] font-medium text-slate-500">
+                        <th className="py-2.5 pr-2 font-medium">工单编号</th>
+                        <th className="py-2.5 pr-2 font-medium">工单类型</th>
+                        <th className="py-2.5 pr-2 font-medium">工单来源</th>
+                        <th className="py-2.5 pr-2 font-medium">状态</th>
+                        <th className="py-2.5 font-medium">创建时间</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        { id: 'WK-20241102-12', type: '咨询', source: 'IM', status: '处理中', time: '2024-11-02 09:05' },
+                        { id: 'WK-20241028-07', type: '投诉', source: '热线', status: '已完成', time: '2024-10-28 14:30' },
+                        { id: 'WK-20241015-03', type: '售后', source: '市场监督局', status: '待处理', time: '2024-10-15 11:20' },
+                        { id: 'WK-20241008-19', type: '咨询', source: '售后', status: '已关闭', time: '2024-10-08 16:45' },
+                        { id: 'WK-20240925-08', type: '退换货', source: 'IM', status: '已完成', time: '2024-09-25 10:10' },
+                      ].map((row) => (
+                        <tr key={row.id} onClick={() => onOpenWorkOrderDetail?.(row)} className="cursor-pointer border-b border-slate-50 transition-colors hover:bg-slate-50/60">
+                          <td className="py-2.5 pr-2 text-brand-500">{row.id}</td>
+                          <td className="py-2.5 pr-2 text-slate-600">{row.type}</td>
+                          <td className="py-2.5 pr-2 text-slate-600">{row.source}</td>
+                          <td className="py-2.5 pr-2">
+                            <span className={cn('inline-block rounded-full px-2 py-0.5 text-[11px] font-medium',
+                              row.status === '处理中' ? 'bg-amber-50 text-amber-600' :
+                              row.status === '已完成' ? 'bg-emerald-50 text-emerald-600' :
+                              row.status === '待处理' ? 'bg-sky-50 text-sky-600' :
+                              'bg-slate-100 text-slate-500'
+                            )}>{row.status}</span>
+                          </td>
+                          <td className="py-2.5 text-slate-400">{row.time}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </section>
             )}
 

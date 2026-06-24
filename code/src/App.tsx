@@ -181,6 +181,7 @@ import {
 import CallWorkbenchContentView from './features/call-workbench/CallWorkbenchContent';
 import OnlineWorkbenchContentView from './features/online-workbench/OnlineWorkbenchContent';
 import CallWorkbenchPage from './features/call-workbench/CallWorkbenchPage';
+import WorkOrderDetailPage, { type WorkOrderDetailData } from './features/call-workbench/WorkOrderDetailPage';
 import OnlineWorkbenchPage from './features/online-workbench/OnlineWorkbenchPage';
 import MainHeader from './features/layout/MainHeader';
 
@@ -2596,7 +2597,7 @@ const callSidebarFeatureDefinitions: ReadonlyArray<{
   locked?: boolean;
 }> = [
   { key: 'agent', label: 'Agent', title: 'Agent', imageSrc: onlineSideAgentIcon, panel: 'agent' },
-  { key: 'workorder', label: '工单管理', title: '工单管理', imageSrc: onlineSideWorkOrderIcon, panel: 'workorder' },
+  { key: 'workorder', label: '工单历史', title: '工单历史', imageSrc: onlineSideWorkOrderIcon, panel: 'workorder' },
   { key: 'knowledge', label: '知识库', title: '知识库', imageSrc: onlineSideKnowledgeBaseIcon, panel: 'knowledge' },
   { key: 'toolsite', label: '第三方网站与常用工具', title: '第三方网站与常用工具', imageSrc: onlineSideToolIcon, panel: 'toolsite' },
   { key: 'transcript', label: '实时转译', title: '实时转译', icon: MessageSquareText, panel: 'transcript' },
@@ -2632,7 +2633,7 @@ const onlineSidebarFeatureDefinitions: ReadonlyArray<{
   { key: 'customer', label: '客户资料', title: '客户资料', imageSrc: onlineSideCustomerInfoIcon, panel: 'customer' },
   { key: 'history', label: '通话历史', title: '通话历史', imageSrc: onlineSideCustomerHistoryIcon, panel: 'history' },
   { key: 'knowledge', label: '知识库', title: '知识库', imageSrc: onlineSideKnowledgeBaseIcon },
-  { key: 'workorder', label: '工单管理', title: '工单管理', imageSrc: onlineSideWorkOrderIcon },
+  { key: 'workorder', label: '工单历史', title: '工单历史', imageSrc: onlineSideWorkOrderIcon },
   { key: 'tools', label: '常用工具', title: '常用工具', imageSrc: onlineSideToolIcon, panel: 'tools' },
   { key: 'third-party', label: '第三方网站', title: '第三方网站', imageSrc: onlineSideThirdPartyIcon, panel: 'third-party' },
   { key: 'settings', label: '设置', title: '设置', imageSrc: onlineSideSettingsIcon, locked: true },
@@ -4272,6 +4273,8 @@ export default function App() {
   const [isWebchatMaintenanceTabVisible, setIsWebchatMaintenanceTabVisible] = useState(false);
   const [isDeptRoleManagementTabVisible, setIsDeptRoleManagementTabVisible] = useState(false);
   const [isAccountManagementTabVisible, setIsAccountManagementTabVisible] = useState(false);
+  const [isWorkOrderDetailTabVisible, setIsWorkOrderDetailTabVisible] = useState(false);
+  const [workOrderDetailData, setWorkOrderDetailData] = useState<WorkOrderDetailData | null>(null);
   const [isAccountFiltersExpanded, setIsAccountFiltersExpanded] = useState(true);
   const [showAccountAddModal, setShowAccountAddModal] = useState(false);
   const [accountNextId, setAccountNextId] = useState(1001);
@@ -4918,6 +4921,11 @@ export default function App() {
       setActiveTab('账号管理');
       return;
     }
+    if (tab === '工单详情') {
+      setIsWorkOrderDetailTabVisible(true);
+      setActiveTab('工单详情');
+      return;
+    }
     setLastPrimaryTab(tab);
     setActiveTab(tab);
   };
@@ -5038,6 +5046,14 @@ export default function App() {
     setActiveLegacyModulePage(null);
     setIsAccountManagementTabVisible(false);
     if (activeTab === '账号管理') {
+      setActiveTab(lastPrimaryTab);
+    }
+  };
+  const handleCloseWorkOrderDetailTab = () => {
+    setActiveLegacyModulePage(null);
+    setIsWorkOrderDetailTabVisible(false);
+    setWorkOrderDetailData(null);
+    if (activeTab === '工单详情') {
       setActiveTab(lastPrimaryTab);
     }
   };
@@ -7873,8 +7889,8 @@ export default function App() {
     </div>
   );
 
-  const callWorkbenchContent = <CallWorkbenchPage />;
-  const onlineWorkbenchContent = <OnlineWorkbenchPage />;
+  const callWorkbenchContent = <CallWorkbenchPage onOpenWorkOrderDetail={(data) => { setWorkOrderDetailData(data); handleOpenMainTab('工单详情'); }} />;
+  const onlineWorkbenchContent = <OnlineWorkbenchPage onOpenWorkOrderDetail={(data) => { setWorkOrderDetailData(data); handleOpenMainTab('工单详情'); }} />;
 
   void (
     <CallWorkbenchContentView
@@ -13065,6 +13081,7 @@ export default function App() {
             ...(isWebchatMaintenanceTabVisible ? (['网聊维护'] as MainTab[]) : []),
             ...(isDeptRoleManagementTabVisible ? (['部门角色管理'] as MainTab[]) : []),
             ...(isAccountManagementTabVisible ? (['账号管理'] as MainTab[]) : []),
+            ...(isWorkOrderDetailTabVisible ? (['工单详情'] as MainTab[]) : []),
             ...openLegacyModulePages.map(p => (legacyModuleLabels[p] ?? p) as MainTab),
           ])}
           activeTab={(activeLegacyModulePage ? (legacyModuleLabels[activeLegacyModulePage] ?? activeLegacyModulePage) : activeTab) as MainTab}
@@ -13072,7 +13089,7 @@ export default function App() {
             ...([
               '消息服务', '排班信息展示', '业务字段管理', '业务字段上线审核', '组别维护', '目标值维护', '账号管理',
               '品牌维护', '附件管理', '产品模块维护', '繁忙公告管理', '隐私声明管理',
-              '用户体系管理', '网聊维护', '部门角色管理', '在线工作台',
+              '用户体系管理', '网聊维护', '部门角色管理', '在线工作台', '工单详情',
             ] as const).map(tab => [tab, `关闭${tab}`]),
             ...openLegacyModulePages.map(p => {
               const label = legacyModuleLabels[p] ?? p;
@@ -13112,6 +13129,7 @@ export default function App() {
             else if (tab === '网聊维护') handleCloseWebchatMaintenanceTab();
             else if (tab === '部门角色管理') handleCloseDeptRoleManagementTab();
             else if (tab === '账号管理') handleCloseAccountManagementTab();
+            else if (tab === '工单详情') handleCloseWorkOrderDetailTab();
           }}
           onOpenPortal={() => {
             setManagerPortalPage('dashboard');
@@ -13127,7 +13145,7 @@ export default function App() {
 
         {/* old header removed - now using MainHeader */}
 
-        {activeLegacyModulePage ? <LegacyModulesPanel page={activeLegacyModulePage} onOpenMainTab={handleOpenMainTab} onOpenLegacyModulePage={handleOpenLegacyModulePage} initialState={legacyModuleInitialState} onClearInitialState={() => setLegacyModuleInitialState(null)} /> : activeTab === '呼叫工作台' ? callWorkbenchContent : activeTab === '在线工作台' ? onlineWorkbenchContent : activeTab === '消息服务' ? messageServiceContent : activeTab === '排班信息展示' ? scheduleDisplayContent : activeTab === '业务字段管理' ? businessFieldManagementContent : activeTab === '业务字段上线审核' ? <BusinessFieldLaunchReviewContent /> : activeTab === '组别维护' ? <GroupMaintenance /> : activeTab === '目标值维护' ? <TargetValueMaintenance /> : activeTab === '品牌维护' ? <BrandMaintenance /> : activeTab === '附件管理' ? <AttachmentManagement /> : activeTab === '产品模块维护' ? <ProductModuleMaintenance /> : activeTab === '表单维护' ? <FormMaintenance /> : activeTab === '繁忙公告管理' ? busyAnnouncementManagementContent : activeTab === '隐私声明管理' ? privacyStatementManagementContent : activeTab === '用户体系管理' ? userSystemManagementContent : activeTab === '网聊维护' ? renderWebchatMaintenanceContent() : activeTab === '部门角色管理' ? renderDeptRoleManagementContent() : activeTab === '账号管理' ? accountManagementContent : (
+        {activeLegacyModulePage ? <LegacyModulesPanel page={activeLegacyModulePage} onOpenMainTab={handleOpenMainTab} onOpenLegacyModulePage={handleOpenLegacyModulePage} initialState={legacyModuleInitialState} onClearInitialState={() => setLegacyModuleInitialState(null)} /> : activeTab === '呼叫工作台' ? callWorkbenchContent : activeTab === '在线工作台' ? onlineWorkbenchContent : activeTab === '消息服务' ? messageServiceContent : activeTab === '排班信息展示' ? scheduleDisplayContent : activeTab === '业务字段管理' ? businessFieldManagementContent : activeTab === '业务字段上线审核' ? <BusinessFieldLaunchReviewContent /> : activeTab === '组别维护' ? <GroupMaintenance /> : activeTab === '目标值维护' ? <TargetValueMaintenance /> : activeTab === '品牌维护' ? <BrandMaintenance /> : activeTab === '附件管理' ? <AttachmentManagement /> : activeTab === '产品模块维护' ? <ProductModuleMaintenance /> : activeTab === '表单维护' ? <FormMaintenance /> : activeTab === '繁忙公告管理' ? busyAnnouncementManagementContent : activeTab === '隐私声明管理' ? privacyStatementManagementContent : activeTab === '用户体系管理' ? userSystemManagementContent : activeTab === '网聊维护' ? renderWebchatMaintenanceContent() : activeTab === '部门角色管理' ? renderDeptRoleManagementContent() : activeTab === '账号管理' ? accountManagementContent : activeTab === '工单详情' && workOrderDetailData ? <WorkOrderDetailPage data={workOrderDetailData} onBack={handleCloseWorkOrderDetailTab} /> : (
         <>
           {viewMode === 'manager' && managerPortalPage === 'overview-detail' ? (
             <div className="flex-1 p-6 text-slate-500">概览详情页面（开发中）</div>
