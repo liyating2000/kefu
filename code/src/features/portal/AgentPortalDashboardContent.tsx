@@ -66,6 +66,7 @@ type AgentPortalDashboardContentProps = {
   onOpenCourseList?: () => void;
   onOpenSummaryManagementHotline?: () => void;
   onOpenSummaryManagementOnline?: () => void;
+  onOpenWorkOrderDetail?: (data: { id: string; type: string; source: string; status: string; time: string }) => void;
 };
 
 const hotlineMetricCards: readonly MetricCard[] = [
@@ -155,46 +156,11 @@ const onlineMonthlyMetricCards: readonly MetricCard[] = [
 const metricPeriodOptions = ['今日', '昨日', '本月'] as const;
 
 const hotlineRecentWorkOrders = [
-  {
-    id: 'WO-20231014-001',
-    customer: '张三',
-    customerAvatarTone: 'tone-warm',
-    topic: '产品质量问题，要求退货退款',
-    status: '处理中',
-    statusClassName: 'border border-amber-200/70 bg-amber-50 text-amber-700',
-    priority: '高',
-    priorityClassName: 'text-rose-500',
-  },
-  {
-    id: 'WO-20231014-002',
-    customer: '李四',
-    customerAvatarTone: 'tone-cool',
-    topic: '无法登录账户，需要密码重置帮助',
-    status: '已解决',
-    statusClassName: 'border border-brand-200/70 bg-brand-50 text-brand-700',
-    priority: '中',
-    priorityClassName: 'text-amber-500',
-  },
-  {
-    id: 'WO-20231014-003',
-    customer: '王五',
-    customerAvatarTone: 'tone-violet',
-    topic: '咨询新功能使用方法和最佳实践',
-    status: '等待回复',
-    statusClassName: 'border border-indigo-200/70 bg-indigo-50 text-indigo-600',
-    priority: '低',
-    priorityClassName: 'text-slate-400',
-  },
-  {
-    id: 'WO-20231014-004',
-    customer: '赵六',
-    customerAvatarTone: 'tone-mint',
-    topic: '系统升级后数据导入功能无法使用',
-    status: '已分配',
-    statusClassName: 'border border-violet-200/70 bg-violet-50 text-violet-600',
-    priority: '高',
-    priorityClassName: 'text-rose-500',
-  },
+  { id: 'WK-20241102-12', type: '咨询', source: 'IM', status: '处理中', time: '2024-11-02 09:05' },
+  { id: 'WK-20241028-07', type: '投诉', source: '热线', status: '已完成', time: '2024-10-28 14:30' },
+  { id: 'WK-20241015-03', type: '售后', source: '市场监督局', status: '待处理', time: '2024-10-15 11:20' },
+  { id: 'WK-20241008-19', type: '咨询', source: '售后', status: '已关闭', time: '2024-10-08 16:45' },
+  { id: 'WK-20240925-08', type: '退换货', source: 'IM', status: '已完成', time: '2024-09-25 10:10' },
 ] as const;
 
 const hotlineLearningRecommendations = [
@@ -238,6 +204,7 @@ export default function AgentPortalDashboardContent({
   onOpenCourseList,
   onOpenSummaryManagementHotline,
   onOpenSummaryManagementOnline,
+  onOpenWorkOrderDetail,
 }: AgentPortalDashboardContentProps) {
   const isOnlineView = agentSubTab === 'online';
   const handleTodayTodoClick = (key: TodayTodoKey) => {
@@ -522,60 +489,35 @@ export default function AgentPortalDashboardContent({
                 </div>
 
                 <div className="flex-1 overflow-x-auto overflow-y-hidden rounded-2xl border border-slate-200/80 bg-white">
-                  <div className="min-w-[560px] grid grid-cols-[100px_80px_minmax(140px,1fr)_80px_60px] gap-2 border-b border-slate-200/80 bg-gradient-to-r from-slate-50 to-slate-100/50 px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-slate-500">
-                    <span>工单 ID</span>
-                    <span>客户</span>
-                    <span>主题</span>
-                    <span>状态</span>
-                    <span>优先级</span>
-                  </div>
-                  <div className="divide-y divide-slate-100">
-                    {hotlineRecentWorkOrders.map((order) => (
-                      <div
-                        key={order.id}
-                        className="group min-w-[560px] grid min-h-[60px] cursor-pointer grid-cols-[100px_80px_minmax(140px,1fr)_80px_60px] gap-2 px-4 py-3 text-[13px] text-slate-700 transition-colors hover:bg-brand-50/40"
-                      >
-                        <div className="tabular-nums self-center text-[12px] font-semibold leading-[16px] text-slate-500 group-hover:text-brand-700">
-                          {order.id.split('-').slice(0, 3).join('-')}
-                          <br />
-                          <span className="text-slate-400 group-hover:text-brand-500">{order.id.split('-')[3]}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 self-center">
-                          <span
-                            className={cn(
-                              'flex h-7 w-7 items-center justify-center rounded-full text-[12px] font-bold shadow-sm ring-2 ring-white',
-                              order.customerAvatarTone
-                            )}
-                          >
-                            {order.customer.slice(0, 1)}
-                          </span>
-                          <span className="text-[13px] font-semibold text-slate-700">{order.customer}</span>
-                        </div>
-                        <div className="min-w-0 self-center pr-1 text-[13px] leading-5 text-slate-600 truncate group-hover:text-slate-900">
-                          {order.topic}
-                        </div>
-                        <div className="self-center">
-                          <span
-                            className={cn(
-                              'inline-flex items-center justify-center rounded-full px-2 py-0.5 text-[11px] font-semibold',
-                              order.statusClassName
-                            )}
-                          >
-                            {order.status}
-                          </span>
-                        </div>
-                        <div
-                          className={cn(
-                            'flex items-center gap-1 self-center text-[12px] font-bold',
-                            order.priorityClassName
-                          )}
-                        >
-                          <span className="text-[9px]">●</span>
-                          <span>{order.priority}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <table className="w-full text-left text-[12px]">
+                    <thead>
+                      <tr className="border-b border-slate-200/80 bg-gradient-to-r from-slate-50 to-slate-100/50 text-[12px] font-semibold text-slate-500">
+                        <th className="px-4 py-3 font-semibold">工单编号</th>
+                        <th className="px-4 py-3 font-semibold">工单类型</th>
+                        <th className="px-4 py-3 font-semibold">工单来源</th>
+                        <th className="px-4 py-3 font-semibold">状态</th>
+                        <th className="px-4 py-3 font-semibold">创建时间</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {hotlineRecentWorkOrders.map((order) => (
+                        <tr key={order.id} onClick={() => onOpenWorkOrderDetail?.({ ...order })} className="cursor-pointer transition-colors hover:bg-brand-50/40">
+                          <td className="px-4 py-3 text-brand-600 font-semibold">{order.id}</td>
+                          <td className="px-4 py-3 text-slate-600">{order.type}</td>
+                          <td className="px-4 py-3 text-slate-600">{order.source}</td>
+                          <td className="px-4 py-3">
+                            <span className={cn('inline-block rounded-full px-2 py-0.5 text-[11px] font-medium',
+                              order.status === '处理中' ? 'bg-amber-50 text-amber-600' :
+                              order.status === '已完成' ? 'bg-emerald-50 text-emerald-600' :
+                              order.status === '待处理' ? 'bg-sky-50 text-sky-600' :
+                              'bg-slate-100 text-slate-500'
+                            )}>{order.status}</span>
+                          </td>
+                          <td className="px-4 py-3 text-slate-400">{order.time}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </section>
 

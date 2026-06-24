@@ -13210,6 +13210,7 @@ export default function App() {
                     onOpenScheduleDisplay={() => handleOpenMainTab('排班信息展示')}
                     onOpenOnlineWorkbench={() => handleOpenMainTab('在线工作台')}
                     onOpenWorkOrder={() => {}}
+                    onOpenWorkOrderDetail={(data) => { setWorkOrderDetailData(data); handleOpenMainTab('工单详情'); }}
                     onOpenCustomerFollow={() => handleOpenAppointmentTodo()}
                     onOpenCourseList={() => {}}
                     onOpenSummaryManagementHotline={() => handleOpenSummaryWithFilter('暂存')}
