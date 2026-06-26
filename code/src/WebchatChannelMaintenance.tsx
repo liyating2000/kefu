@@ -2542,10 +2542,7 @@ export default function WebchatChannelMaintenance() {
                     <div className="mb-4 text-[15px] font-semibold text-slate-700">机器人设置</div>
                     <div className="grid grid-cols-2 gap-4">
                       <label className="block text-[13px] text-slate-600">机器人名称<input value={active.config.robotName} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, robotName: e.target.value } }))} className="mt-2 h-10 w-full rounded-lg border border-slate-200 px-3 outline-none" /></label>
-                      <label className="block text-[13px] text-slate-600">机器人种类<select value={active.config.robotKind} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, robotKind: e.target.value } }))} className="mt-2 h-10 w-full rounded-lg border border-slate-200 px-3 outline-none"><option>数智机器人</option><option>Dify</option></select></label>
-                      {active.config.robotKind === '数智机器人' && (
-                        <label className="col-span-2 block text-[13px] text-slate-600">机器人配置<textarea value={active.config.robotConfig} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, robotConfig: e.target.value } }))} rows={6} className="mt-2 w-full rounded-lg border border-slate-200 px-3 py-2 font-mono text-[12px] outline-none" placeholder='{"key": "value"}' /></label>
-                      )}
+                      <label className="col-span-2 block text-[13px] text-slate-600">机器人配置<textarea value={active.config.robotConfig} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, robotConfig: e.target.value } }))} rows={6} className="mt-2 w-full rounded-lg border border-slate-200 px-3 py-2 font-mono text-[12px] outline-none" placeholder='{"key": "value"}' /></label>
                     </div>
                     <div className="mt-4 rounded-lg border border-dashed border-slate-200 bg-[#f7f9ff] px-4 py-3">
                       <div className="text-[13px] font-medium text-slate-600">机器人头像</div>

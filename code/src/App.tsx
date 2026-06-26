@@ -8734,9 +8734,6 @@ export default function App() {
     if (robotName.length > 20) {
       nextErrors.robotName = '机器人名称最多20个字符';
     }
-    if (webchatProductForm.robotType && !['数智机器人', 'dify'].includes(webchatProductForm.robotType)) {
-      nextErrors.robotType = '请选择机器人种类';
-    }
     if (robotConfig) {
       try {
         JSON.parse(robotConfig);
@@ -9441,7 +9438,6 @@ export default function App() {
                   <th className="px-4 py-3 font-medium">产品图片</th>
                   <th className="px-4 py-3 font-medium">来源</th>
                   <th className="px-4 py-3 font-medium">机器人名称</th>
-                  <th className="px-4 py-3 font-medium">机器人种类</th>
                   <th className="px-4 py-3 font-medium">操作</th>
                 </tr>
               </thead>
@@ -9467,7 +9463,6 @@ export default function App() {
                     </td>
                     <td className="px-4 py-3">{row.source}</td>
                     <td className="px-4 py-3">{row.robotName}</td>
-                    <td className="px-4 py-3">{row.robotType}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-4 text-[13px] font-medium text-[#216BFF]">
                         <button
@@ -13433,21 +13428,6 @@ export default function App() {
                           </div>
                         </div>
                         <div className="grid grid-cols-[92px_1fr] items-start gap-4 text-[14px] text-slate-600">
-                          <span className="pt-2 text-right font-medium">机器人种类:</span>
-                          <div>
-                            <select
-                              value={webchatProductForm.robotType}
-                              onChange={(event) => setWebchatProductForm((current) => ({ ...current, robotType: event.target.value }))}
-                              className={cn("h-9 w-full rounded border px-3 outline-none", webchatFormErrors.robotType ? "border-[#ff6f6f]" : "border-slate-200")}
-                            >
-                              <option value="">请选择机器人种类</option>
-                              <option value="数智机器人">数智机器人</option>
-                              <option value="dify">dify</option>
-                            </select>
-                            {webchatFormErrors.robotType ? <div className="mt-1 text-[12px] text-[#ff6f6f]">{webchatFormErrors.robotType}</div> : null}
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-[92px_1fr] items-start gap-4 text-[14px] text-slate-600">
                           <span className="pt-2 text-right font-medium">机器人配置:</span>
                           <div>
                             <textarea
@@ -13486,42 +13466,6 @@ export default function App() {
                             </div>
                             {webchatFormErrors.robotAvatar ? <div className="mt-1 text-[12px] text-[#ff6f6f]">{webchatFormErrors.robotAvatar}</div> : null}
                           </div>
-                        </div>
-                        <div className="mt-4 rounded-lg border border-dashed border-slate-200 bg-[#f7f9ff] px-4 py-3">
-                          <div className="text-[13px] font-medium text-slate-600">机器人静默提醒</div>
-                          <div className="mt-3 grid grid-cols-2 gap-4">
-                            <label className="block text-[13px] text-slate-600">静默时间（秒）
-                              <input
-                                type="number"
-                                value={webchatProductForm.robotSilentTime}
-                                min={10}
-                                max={600}
-                                onChange={(e) => setWebchatProductForm((current) => ({ ...current, robotSilentTime: Number(e.target.value) }))}
-                                className="mt-2 h-10 w-full rounded-lg border border-slate-200 px-3 text-[13px] outline-none focus:border-[#216BFF]"
-                              />
-                            </label>
-                            <div className="block text-[13px] text-slate-600">启用状态
-                              <div className="mt-2 flex h-10 items-center">
-                                <label className="relative inline-flex cursor-pointer items-center">
-                                  <input
-                                    type="checkbox"
-                                    checked={webchatProductForm.robotSilentEnabled}
-                                    onChange={(e) => setWebchatProductForm((current) => ({ ...current, robotSilentEnabled: e.target.checked }))}
-                                    className="peer sr-only"
-                                  />
-                                  <div className="h-6 w-11 rounded-full bg-slate-200 transition-colors after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow after:transition-all peer-checked:bg-[#216BFF] peer-checked:after:translate-x-5" />
-                                </label>
-                              </div>
-                            </div>
-                          </div>
-                          <label className="mt-3 block text-[13px] text-slate-600">提醒内容
-                            <textarea
-                              value={webchatProductForm.robotSilentContent}
-                              onChange={(e) => setWebchatProductForm((current) => ({ ...current, robotSilentContent: e.target.value }))}
-                              rows={3}
-                              className="mt-2 w-full rounded-lg border border-slate-200 px-3 py-2 text-[13px] outline-none focus:border-[#216BFF]"
-                            />
-                          </label>
                         </div>
                       </>
                     ) : null}

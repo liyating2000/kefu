@@ -110,6 +110,12 @@ type VersionFieldMoreSettingsItem = {
   fields: BusinessFieldVersionFieldItem[];
 };
 
+type OptionFieldMoreSettingsItem = {
+  id: string;
+  optionValue: string;
+  fields: BusinessFieldVersionFieldItem[];
+};
+
 type VersionFieldEditorState = {
   rowId: number;
   mode: 'create' | 'edit' | 'view';
@@ -122,6 +128,7 @@ type BusinessFieldCustomFieldOptionConfigMode = 'custom' | 'import' | 'api';
 
 type BusinessFieldCustomFieldOptionItem = {
   id: string;
+  optionId: string;
   value: string;
   placeholder: string;
 };
@@ -163,6 +170,7 @@ type BusinessFieldCustomFieldDraft = {
   cascadeItems: BusinessFieldCascadeOptionNode[];
   cascadeFieldNames: string[];
   cascadeFieldIdentifiers: string[];
+  optionMoreSettings: OptionFieldMoreSettingsItem[];
 };
 
 type BusinessFieldCustomFieldEditorState =
@@ -278,6 +286,7 @@ const productManagementServiceEntryOptions = [
 
 const createBusinessFieldOptionItem = (index: number): BusinessFieldCustomFieldOptionItem => ({
   id: createLocalId(`option-${index}`),
+  optionId: '',
   value: '',
   placeholder: `选项${index}`,
 });
@@ -376,6 +385,7 @@ const createBusinessFieldCustomFieldDraft = (): BusinessFieldCustomFieldDraft =>
     cascadeItems,
     cascadeFieldNames: padCascadeLevelValues(undefined, cascadeItems),
     cascadeFieldIdentifiers: padCascadeLevelValues(undefined, cascadeItems),
+    optionMoreSettings: [],
   };
 };
 
@@ -912,6 +922,7 @@ const createBusinessFieldCustomFieldDraftFromRow = (
     row.optionItems && row.optionItems.length > 0
       ? row.optionItems.map((item, index) => ({
           id: createLocalId(`option-${index + 1}`),
+          optionId: `opt_${index + 1}`,
           value: item,
           placeholder: `选项${index + 1}`,
         }))
@@ -925,6 +936,7 @@ const createBusinessFieldCustomFieldDraftFromRow = (
     row.fieldType === '级联' ? splitCascadeLevelValue(row.fieldIdentifier) : undefined,
     row.cascadeItems ?? createDefaultBusinessFieldCascadeItems()
   ),
+  optionMoreSettings: [],
 });
 
 const mapBusinessFieldCustomFieldDraftToRow = (
@@ -4625,6 +4637,13 @@ function FieldManagementCustomFieldDrawer({
     onDraftChange(updater);
   };
 
+  const [isOptionMoreSettingsOpen, setIsOptionMoreSettingsOpen] = useState(false);
+  const [optionMoreSettingsDrawerOpen, setOptionMoreSettingsDrawerOpen] = useState(false);
+  const [optionMoreSettingsEditingItem, setOptionMoreSettingsEditingItem] = useState<{
+    item: OptionFieldMoreSettingsItem;
+    mode: 'view' | 'edit';
+  } | null>(null);
+
   return (
     <div className="fixed inset-0 z-50 flex bg-[rgba(15,23,42,0.18)]">
       <button type="button" aria-label={`关闭${title}`} onClick={onClose} className="h-full flex-1" />
@@ -4841,9 +4860,30 @@ function FieldManagementCustomFieldDrawer({
               <FieldManagementCustomFieldRow label="选项配置" alignStart required>
                 {draft.fieldType === '选项' ? (
                   <>
+                    <div className="mb-1 flex items-center gap-2">
+                      <div className="w-[80px] shrink-0 text-[12px] text-slate-500">ID</div>
+                      <div className="min-w-0 flex-1 text-[12px] text-slate-500">选项</div>
+                      <div className="w-[28px] shrink-0" />
+                    </div>
                     <div className="space-y-2">
                       {draft.optionItems.map((item) => (
                         <div key={item.id} className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={item.optionId}
+                            placeholder={`ID${draft.optionItems.indexOf(item) + 1}`}
+                            onChange={(event) =>
+                              updateDraft((current) => ({
+                                ...current,
+                                optionItems: current.optionItems.map((optionItem) =>
+                                  optionItem.id === item.id
+                                    ? { ...optionItem, optionId: event.target.value }
+                                    : optionItem
+                                ),
+                              }))
+                            }
+                            className="h-[28px] w-[80px] shrink-0 rounded-[4px] border border-[#dfe6ee] bg-white px-3 text-[13px] text-slate-600 outline-none transition-colors placeholder:text-slate-300 focus:border-[#96b8ff]"
+                          />
                           <input
                             type="text"
                             value={item.value}
@@ -4853,10 +4893,7 @@ function FieldManagementCustomFieldDrawer({
                                 ...current,
                                 optionItems: current.optionItems.map((optionItem) =>
                                   optionItem.id === item.id
-                                    ? {
-                                        ...optionItem,
-                                        value: event.target.value,
-                                      }
+                                    ? { ...optionItem, value: event.target.value }
                                     : optionItem
                                 ),
                               }))
@@ -4873,7 +4910,7 @@ function FieldManagementCustomFieldDrawer({
                                   optionItems: current.optionItems.filter((optionItem) => optionItem.id !== item.id),
                                 }))
                               }
-                              className="inline-flex h-[28px] w-[28px] items-center justify-center rounded-[4px] border border-[#f3c5b5] text-[#f16f43] transition-colors hover:bg-[#fff4ef]"
+                              className="inline-flex h-[28px] w-[28px] shrink-0 items-center justify-center rounded-[4px] border border-[#f3c5b5] text-[#f16f43] transition-colors hover:bg-[#fff4ef]"
                             >
                               <Trash2 size={14} />
                             </button>
@@ -4942,8 +4979,135 @@ function FieldManagementCustomFieldDrawer({
                 )}
               </FieldManagementCustomFieldRow>
             )}
+
+            {draft.fieldType === '选项' ? (
+              <div className="mt-2 rounded-[6px] border border-[#eef2f6]">
+                <button
+                  type="button"
+                  onClick={() => setIsOptionMoreSettingsOpen((v) => !v)}
+                  className="flex w-full items-center gap-2 px-4 py-3 text-[14px] font-medium text-slate-700 transition-colors hover:bg-slate-50"
+                >
+                  <ChevronRight
+                    size={14}
+                    className={cn('transition-transform', isOptionMoreSettingsOpen && 'rotate-90')}
+                  />
+                  更多设置
+                </button>
+
+                {isOptionMoreSettingsOpen ? (
+                  <div className="border-t border-[#eef2f6] px-4 py-4">
+                    {draft.optionMoreSettings.length > 0 ? (
+                      <div className="overflow-hidden rounded-[6px]">
+                        <table className="min-w-full table-fixed text-left">
+                          <thead className="bg-[#fafcfe] text-[13px] text-slate-600">
+                            <tr>
+                              <th className="w-[132px] px-4 py-[8px] font-medium">选项</th>
+                              <th className="px-4 py-[8px] font-medium">操作</th>
+                            </tr>
+                          </thead>
+                          <tbody className="text-[13px] text-slate-600">
+                            {draft.optionMoreSettings.map((item) => (
+                              <tr key={item.id} className="border-b border-[#eef2f6] last:border-b-0">
+                                <td className="px-4 py-[14px] text-slate-700">{item.optionValue}</td>
+                                <td className="px-4 py-[14px]">
+                                  <div className="flex items-center gap-4 whitespace-nowrap text-[#216BFF]">
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setOptionMoreSettingsEditingItem({ item, mode: 'view' });
+                                        setOptionMoreSettingsDrawerOpen(true);
+                                      }}
+                                      className="inline-flex items-center gap-1 transition-colors hover:text-[#216BFF]"
+                                    >
+                                      <Eye size={13} />
+                                      查看
+                                    </button>
+                                    {readOnly ? null : (
+                                      <>
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            setOptionMoreSettingsEditingItem({ item, mode: 'edit' });
+                                            setOptionMoreSettingsDrawerOpen(true);
+                                          }}
+                                          className="inline-flex items-center gap-1 transition-colors hover:text-[#216BFF]"
+                                        >
+                                          <Pencil size={13} />
+                                          编辑
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() =>
+                                            updateDraft((current) => ({
+                                              ...current,
+                                              optionMoreSettings: current.optionMoreSettings.filter((s) => s.id !== item.id),
+                                            }))
+                                          }
+                                          className="inline-flex items-center gap-1 transition-colors hover:text-[#216BFF]"
+                                        >
+                                          <Trash2 size={13} />
+                                          删除
+                                        </button>
+                                      </>
+                                    )}
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : null}
+
+                    {readOnly ? null : (
+                      <div className={draft.optionMoreSettings.length > 0 ? 'mt-4' : ''}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setOptionMoreSettingsEditingItem(null);
+                            setOptionMoreSettingsDrawerOpen(true);
+                          }}
+                          className="inline-flex h-[28px] items-center gap-1 rounded-[4px] border border-[#96b8ff] bg-white px-3 text-[13px] text-[#216BFF] transition-colors hover:bg-[#e8f1ff]"
+                        >
+                          <Plus size={14} />
+                          添加
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
           </div>
         </div>
+
+        {optionMoreSettingsDrawerOpen ? (
+          <OptionFieldMoreSettingsDrawer
+            editingItem={optionMoreSettingsEditingItem}
+            availableOptionValues={draft.optionItems
+              .map((item) => item.value.trim())
+              .filter((v) => v.length > 0)}
+            usedOptionValues={draft.optionMoreSettings
+              .filter((s) => s.id !== optionMoreSettingsEditingItem?.item.id)
+              .map((s) => s.optionValue)}
+            onClose={() => {
+              setOptionMoreSettingsDrawerOpen(false);
+              setOptionMoreSettingsEditingItem(null);
+            }}
+            onCreateItem={(item) =>
+              updateDraft((current) => ({
+                ...current,
+                optionMoreSettings: [...current.optionMoreSettings, item],
+              }))
+            }
+            onUpdateItem={(item) =>
+              updateDraft((current) => ({
+                ...current,
+                optionMoreSettings: current.optionMoreSettings.map((s) => (s.id === item.id ? item : s)),
+              }))
+            }
+          />
+        ) : null}
 
         {readOnly ? (
           <div className="flex items-center justify-end gap-3 px-4 py-4">
@@ -4971,6 +5135,315 @@ function FieldManagementCustomFieldDrawer({
               className={cn(
                 'inline-flex h-[28px] min-w-[68px] items-center justify-center rounded-full border px-4 text-[13px] transition-colors',
                 confirmDisabled
+                  ? 'cursor-not-allowed border-[#c9dcff] bg-[#e8f1ff] text-[#96b8ff]'
+                  : 'border-[#96b8ff] bg-[#e8f1ff] text-[#216BFF] hover:bg-[#c9dcff]'
+              )}
+            >
+              确定
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function OptionFieldMoreSettingsDrawer({
+  editingItem,
+  availableOptionValues,
+  usedOptionValues,
+  onClose,
+  onCreateItem,
+  onUpdateItem,
+}: {
+  editingItem: { item: OptionFieldMoreSettingsItem; mode: 'view' | 'edit' } | null;
+  availableOptionValues: string[];
+  usedOptionValues: string[];
+  onClose: () => void;
+  onCreateItem: (item: OptionFieldMoreSettingsItem) => void;
+  onUpdateItem: (item: OptionFieldMoreSettingsItem) => void;
+}) {
+  const isViewMode = editingItem?.mode === 'view';
+  const [editorState, setEditorState] = useState<{
+    optionValue: string;
+    fields: BusinessFieldVersionFieldItem[];
+  }>(() =>
+    editingItem
+      ? {
+          optionValue: editingItem.item.optionValue,
+          fields: cloneVersionFields(editingItem.item.fields),
+        }
+      : {
+          optionValue: '',
+          fields: [{ id: createLocalId('opt-ms-field'), fieldName: '', required: true }],
+        }
+  );
+  const [draggingFieldId, setDraggingFieldId] = useState<string | null>(null);
+  const [dragOverFieldId, setDragOverFieldId] = useState<string | null>(null);
+
+  const selectableOptions = availableOptionValues.filter(
+    (v) => v === editorState.optionValue || !usedOptionValues.includes(v)
+  );
+  const isConfirmDisabled = !editorState.optionValue;
+
+  const handleConfirm = () => {
+    if (!editorState.optionValue) return;
+    if (editingItem) {
+      onUpdateItem({
+        ...editingItem.item,
+        optionValue: editorState.optionValue,
+        fields: cloneVersionFields(editorState.fields),
+      });
+    } else {
+      onCreateItem({
+        id: createLocalId('opt-more-setting'),
+        optionValue: editorState.optionValue,
+        fields: cloneVersionFields(editorState.fields),
+      });
+    }
+    onClose();
+  };
+
+  const handleDropField = (targetFieldId: string) => {
+    setEditorState((current) => {
+      if (!draggingFieldId || draggingFieldId === targetFieldId) return current;
+      const fromIndex = current.fields.findIndex((f) => f.id === draggingFieldId);
+      const toIndex = current.fields.findIndex((f) => f.id === targetFieldId);
+      if (fromIndex < 0 || toIndex < 0) return current;
+      const nextFields = [...current.fields];
+      const [moved] = nextFields.splice(fromIndex, 1);
+      nextFields.splice(toIndex, 0, moved);
+      return { ...current, fields: nextFields };
+    });
+  };
+
+  return (
+    <div className="fixed inset-0 z-[60] flex bg-[rgba(15,23,42,0.36)]">
+      <button type="button" aria-label="关闭更多配置" onClick={onClose} className="h-full flex-1" />
+
+      <div className="relative flex h-full w-full max-w-[498px] shrink-0 flex-col bg-white shadow-[-12px_0_28px_rgba(15,23,42,0.14)]">
+        <div className="flex items-center justify-between px-5 py-4">
+          <div className="text-[15px] font-semibold text-slate-700">
+            {isViewMode ? '查看更多设置' : editingItem ? '编辑更多设置' : '添加更多设置'}
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="关闭更多配置"
+            className="text-slate-400 transition-colors hover:text-slate-600"
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        <div className="min-h-0 flex-1 overflow-auto px-5 pb-5 custom-scrollbar">
+          <div className="flex items-center gap-3">
+            <div className="w-[56px] shrink-0 text-[13px] text-slate-700">选项</div>
+            <div className="w-[164px]">
+              <ProductManagementSelect
+                value={editorState.optionValue}
+                onChange={(value) => setEditorState((current) => ({ ...current, optionValue: value }))}
+                options={['', ...selectableOptions]}
+                disabled={isViewMode}
+              />
+            </div>
+          </div>
+
+          <div className="mt-5">
+            <div
+              className={cn(
+                'grid items-center px-[10px] pb-2 text-[13px] font-medium text-slate-600',
+                isViewMode ? 'grid-cols-[114px_1fr]' : 'grid-cols-[114px_148px_1fr]'
+              )}
+            >
+              <div>字段名称</div>
+              <div>是否必填</div>
+              {isViewMode ? null : <div className="text-right">操作</div>}
+            </div>
+
+            <div className="space-y-[10px]">
+              {editorState.fields.map((field) => (
+                <div
+                  key={field.id}
+                  onDragOver={(event) => {
+                    if (isViewMode || !draggingFieldId) return;
+                    event.preventDefault();
+                    if (dragOverFieldId !== field.id) setDragOverFieldId(field.id);
+                  }}
+                  onDrop={(event) => {
+                    event.preventDefault();
+                    handleDropField(field.id);
+                    setDraggingFieldId(null);
+                    setDragOverFieldId(null);
+                  }}
+                  className={cn(
+                    'grid items-center gap-[14px] rounded-[4px] transition-colors',
+                    isViewMode ? 'grid-cols-[114px_1fr]' : 'grid-cols-[114px_148px_1fr]',
+                    dragOverFieldId === field.id &&
+                      draggingFieldId &&
+                      draggingFieldId !== field.id &&
+                      'bg-[#e8f1ff] shadow-[inset_0_0_0_1px_rgba(132,221,208,0.9)]',
+                    draggingFieldId === field.id && 'opacity-60'
+                  )}
+                >
+                  <div className="relative">
+                    <select
+                      value={field.fieldName}
+                      disabled={isViewMode}
+                      onChange={(event) =>
+                        setEditorState((current) => ({
+                          ...current,
+                          fields: current.fields.map((f) =>
+                            f.id === field.id ? { ...f, fieldName: event.target.value } : f
+                          ),
+                        }))
+                      }
+                      className={cn(
+                        'h-8 w-full appearance-none rounded-[4px] border border-[#dfe6ee] bg-white pl-3 pr-8 text-[13px] text-slate-600 outline-none transition-colors focus:border-[#96b8ff]',
+                        isViewMode && 'cursor-not-allowed bg-slate-50 text-slate-500'
+                      )}
+                    >
+                      <option value="">请选择字段</option>
+                      {businessFieldVersionFieldOptions.map((item) => (
+                        <option key={`${field.id}-${item}`} value={item}>
+                          {item}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown
+                      size={14}
+                      className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-5 text-[13px] text-slate-600">
+                    <label className="inline-flex items-center gap-2">
+                      <input
+                        type="radio"
+                        name={`opt-ms-required-${field.id}`}
+                        checked={field.required}
+                        disabled={isViewMode}
+                        onChange={() =>
+                          setEditorState((current) => ({
+                            ...current,
+                            fields: current.fields.map((f) =>
+                              f.id === field.id ? { ...f, required: true } : f
+                            ),
+                          }))
+                        }
+                        className={cn('h-4 w-4 accent-[#216BFF]', isViewMode && 'cursor-not-allowed')}
+                      />
+                      <span>是</span>
+                    </label>
+                    <label className="inline-flex items-center gap-2">
+                      <input
+                        type="radio"
+                        name={`opt-ms-required-${field.id}`}
+                        checked={!field.required}
+                        disabled={isViewMode}
+                        onChange={() =>
+                          setEditorState((current) => ({
+                            ...current,
+                            fields: current.fields.map((f) =>
+                              f.id === field.id ? { ...f, required: false } : f
+                            ),
+                          }))
+                        }
+                        className={cn('h-4 w-4 accent-[#216BFF]', isViewMode && 'cursor-not-allowed')}
+                      />
+                      <span>否</span>
+                    </label>
+                  </div>
+
+                  {isViewMode ? null : (
+                    <div className="flex items-center justify-end gap-4 whitespace-nowrap text-[#216BFF]">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setEditorState((current) => ({
+                            ...current,
+                            fields: current.fields.filter((f) => f.id !== field.id),
+                          }))
+                        }
+                        className="inline-flex items-center gap-1 transition-colors hover:text-[#216BFF]"
+                      >
+                        <Trash2 size={13} />
+                        删除
+                      </button>
+                      <button
+                        type="button"
+                        draggable
+                        onDragStart={(event) => {
+                          event.dataTransfer.effectAllowed = 'move';
+                          event.dataTransfer.setData('text/plain', field.id);
+                          setDraggingFieldId(field.id);
+                          setDragOverFieldId(field.id);
+                        }}
+                        onDragEnd={() => {
+                          setDraggingFieldId(null);
+                          setDragOverFieldId(null);
+                        }}
+                        aria-label={`拖动排序${field.fieldName || '字段'}`}
+                        className="inline-flex cursor-grab items-center gap-1 transition-colors hover:text-[#216BFF] active:cursor-grabbing"
+                      >
+                        <GripVertical size={13} />
+                        排序
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {isViewMode ? null : (
+              <div className="mt-4">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setEditorState((current) => ({
+                      ...current,
+                      fields: [
+                        ...current.fields,
+                        { id: createLocalId('opt-ms-field'), fieldName: '', required: true },
+                      ],
+                    }))
+                  }
+                  className="inline-flex h-8 items-center gap-1 rounded-[4px] border border-[#96b8ff] bg-white px-4 text-[13px] font-medium text-[#216BFF] transition-colors hover:bg-[#e8f1ff]"
+                >
+                  <Plus size={14} />
+                  添加
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {isViewMode ? (
+          <div className="flex items-center justify-end gap-3 px-5 py-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="inline-flex h-8 min-w-[68px] items-center justify-center rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-5 text-[13px] text-[#216BFF] transition-colors hover:bg-[#c9dcff]"
+            >
+              关闭
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center justify-end gap-3 px-5 py-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="inline-flex h-8 min-w-[68px] items-center justify-center rounded-full border border-[#e3e7ed] bg-white px-5 text-[13px] text-slate-500 transition-colors hover:bg-slate-50"
+            >
+              取消
+            </button>
+            <button
+              type="button"
+              disabled={isConfirmDisabled}
+              onClick={handleConfirm}
+              className={cn(
+                'inline-flex h-8 min-w-[68px] items-center justify-center rounded-full border px-5 text-[13px] transition-colors',
+                isConfirmDisabled
                   ? 'cursor-not-allowed border-[#c9dcff] bg-[#e8f1ff] text-[#96b8ff]'
                   : 'border-[#96b8ff] bg-[#e8f1ff] text-[#216BFF] hover:bg-[#c9dcff]'
               )}
