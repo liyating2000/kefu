@@ -238,6 +238,9 @@ type WebchatProductRow = {
   robotConfig: string;
   robotAvatar?: string;
   canDelete?: boolean;
+  bindBusinessType?: string;
+  bindProductCategory?: string;
+  bindProductName?: string;
 };
 type WebchatQuickButton = {
   id: string;
@@ -3374,6 +3377,8 @@ const userSystemManagementInitialRows = [
 const messageServiceMailboxes = ['我的公告箱', '我发布的', '已失效公告'] as const;
 const onlineStatusOptions = ['在线状态', '马上回来', '电话在线', '忙碌状态', '离开状态', '午餐状态', '隐身状态'] as const;
 const onlineBusinessTypeOptions = ['教育', '听见', '学习机', '智能硬件', '法院', '医疗'] as const;
+const webchatBindProductCategories = ['学习机', '智能硬件', '听见', '教育'] as const;
+const webchatBindProductNames = ['A10', 'X3 Pro', '讯飞听见', '智能办公本'] as const;
 const chinaRegionOptions: readonly RegionProvinceOption[] = [
   {
     name: '北京市',
@@ -4504,6 +4509,9 @@ export default function App() {
     robotSilentTime: 60,
     robotSilentEnabled: true,
     robotSilentContent: '您好，请问还在吗？如需继续咨询请回复消息。',
+    bindBusinessType: '',
+    bindProductCategory: '',
+    bindProductName: '',
   });
   const [webchatQuickButtonForm, setWebchatQuickButtonForm] = useState({
     name: '',
@@ -8481,6 +8489,9 @@ export default function App() {
       robotSilentTime: 60,
       robotSilentEnabled: true,
       robotSilentContent: '您好，请问还在吗？如需继续咨询请回复消息。',
+      bindBusinessType: '',
+      bindProductCategory: '',
+      bindProductName: '',
     });
     setWebchatFormErrors({});
     setEditingWebchatProductId(null);
@@ -8505,6 +8516,9 @@ export default function App() {
       robotSilentTime: 60,
       robotSilentEnabled: true,
       robotSilentContent: '您好，请问还在吗？如需继续咨询请回复消息。',
+      bindBusinessType: product.bindBusinessType ?? '',
+      bindProductCategory: product.bindProductCategory ?? '',
+      bindProductName: product.bindProductName ?? '',
     });
     setWebchatFormErrors({});
     setEditingWebchatProductId(productId);
@@ -8731,9 +8745,6 @@ export default function App() {
     if (!webchatProductForm.imageFileName) {
       nextErrors.image = '请上传产品图片';
     }
-    if (robotName.length > 20) {
-      nextErrors.robotName = '机器人名称最多20个字符';
-    }
     if (robotConfig) {
       try {
         JSON.parse(robotConfig);
@@ -8758,6 +8769,9 @@ export default function App() {
                 robotType: webchatProductForm.robotType || '',
                 robotConfig,
                 robotAvatar: webchatProductForm.robotAvatar || undefined,
+                bindBusinessType: webchatProductForm.bindBusinessType,
+                bindProductCategory: webchatProductForm.bindProductCategory,
+                bindProductName: webchatProductForm.bindProductName,
               }
             : product
         )
@@ -8776,6 +8790,9 @@ export default function App() {
         robotType: webchatProductForm.robotType || '',
         robotConfig,
         robotAvatar: webchatProductForm.robotAvatar || undefined,
+        bindBusinessType: webchatProductForm.bindBusinessType,
+        bindProductCategory: webchatProductForm.bindProductCategory,
+        bindProductName: webchatProductForm.bindProductName,
         canDelete: true,
         config: createWebchatProductConfig(newId),
       };
@@ -9437,7 +9454,6 @@ export default function App() {
                   <th className="px-4 py-3 font-medium">产品名称</th>
                   <th className="px-4 py-3 font-medium">产品图片</th>
                   <th className="px-4 py-3 font-medium">来源</th>
-                  <th className="px-4 py-3 font-medium">机器人名称</th>
                   <th className="px-4 py-3 font-medium">操作</th>
                 </tr>
               </thead>
@@ -9462,7 +9478,6 @@ export default function App() {
                       )}
                     </td>
                     <td className="px-4 py-3">{row.source}</td>
-                    <td className="px-4 py-3">{row.robotName}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-4 text-[13px] font-medium text-[#216BFF]">
                         <button
@@ -13368,6 +13383,7 @@ export default function App() {
                   <div className="space-y-4 px-10 py-7">
                     {webchatProductDialog === 'add' || webchatProductDialog === 'edit' ? (
                       <>
+                        <div className="text-[14px] font-semibold text-slate-700">基本信息</div>
                         <div className="grid grid-cols-[92px_1fr] items-start gap-4 text-[14px] text-slate-600">
                           <span className="pt-2 text-right font-medium"><span className="mr-1 text-[#ff6f6f]">*</span>产品名称:</span>
                           <div>
@@ -13415,18 +13431,41 @@ export default function App() {
                             {webchatFormErrors.image ? <div className="mt-1 text-[12px] text-[#ff6f6f]">{webchatFormErrors.image}</div> : null}
                           </div>
                         </div>
-                        <div className="grid grid-cols-[92px_1fr] items-start gap-4 text-[14px] text-slate-600">
-                          <span className="pt-2 text-right font-medium">机器人名称:</span>
-                          <div>
-                            <input
-                              value={webchatProductForm.robotName}
-                              onChange={(event) => setWebchatProductForm((current) => ({ ...current, robotName: event.target.value }))}
-                              placeholder="请输入机器人名称"
-                              className={cn("h-9 w-full rounded border px-3 outline-none", webchatFormErrors.robotName ? "border-[#ff6f6f]" : "border-slate-200")}
-                            />
-                            {webchatFormErrors.robotName ? <div className="mt-1 text-[12px] text-[#ff6f6f]">{webchatFormErrors.robotName}</div> : null}
-                          </div>
+                        <div className="mt-2 text-[14px] font-semibold text-slate-700">绑定设置</div>
+                        <div className="grid grid-cols-[92px_1fr] items-center gap-4 text-[14px] text-slate-600">
+                          <span className="text-right font-medium">业务类型:</span>
+                          <select
+                            value={webchatProductForm.bindBusinessType}
+                            onChange={(event) => setWebchatProductForm((current) => ({ ...current, bindBusinessType: event.target.value }))}
+                            className="h-9 w-full rounded border border-slate-200 px-3 text-[13px] outline-none"
+                          >
+                            <option value="">请选择</option>
+                            {onlineBusinessTypeOptions.map((item) => <option key={item} value={item}>{item}</option>)}
+                          </select>
                         </div>
+                        <div className="grid grid-cols-[92px_1fr] items-center gap-4 text-[14px] text-slate-600">
+                          <span className="text-right font-medium">产品分类:</span>
+                          <select
+                            value={webchatProductForm.bindProductCategory}
+                            onChange={(event) => setWebchatProductForm((current) => ({ ...current, bindProductCategory: event.target.value }))}
+                            className="h-9 w-full rounded border border-slate-200 px-3 text-[13px] outline-none"
+                          >
+                            <option value="">请选择</option>
+                            {webchatBindProductCategories.map((item) => <option key={item} value={item}>{item}</option>)}
+                          </select>
+                        </div>
+                        <div className="grid grid-cols-[92px_1fr] items-center gap-4 text-[14px] text-slate-600">
+                          <span className="text-right font-medium">产品名称:</span>
+                          <select
+                            value={webchatProductForm.bindProductName}
+                            onChange={(event) => setWebchatProductForm((current) => ({ ...current, bindProductName: event.target.value }))}
+                            className="h-9 w-full rounded border border-slate-200 px-3 text-[13px] outline-none"
+                          >
+                            <option value="">请选择</option>
+                            {webchatBindProductNames.map((item) => <option key={item} value={item}>{item}</option>)}
+                          </select>
+                        </div>
+                        <div className="mt-2 text-[14px] font-semibold text-slate-700">机器人设置</div>
                         <div className="grid grid-cols-[92px_1fr] items-start gap-4 text-[14px] text-slate-600">
                           <span className="pt-2 text-right font-medium">机器人配置:</span>
                           <div>

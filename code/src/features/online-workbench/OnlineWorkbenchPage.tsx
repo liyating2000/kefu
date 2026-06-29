@@ -31,6 +31,7 @@ import {
   LogIn,
   LogOut,
   RefreshCw,
+  Sparkles,
 } from 'lucide-react';
 
 import { cn } from '../../lib/cn';
@@ -546,17 +547,31 @@ const workbenchSelectOptions: Record<string, readonly string[]> = {
   '是否结婚': ['是', '否'],
   '是否有孩子': ['是', '否'],
   '产品分类': ['学习机', '智能硬件', '听见', '教育'],
-  '产品名称': ['A10', 'X3 Pro', '讯飞听见', '智能办公本'],
+  '产品名称': ['[AI]T20', '[AI]C10', '[AI]智能录音笔', 'A10', 'X3 Pro', '讯飞听见', '智能办公本'],
   '呼入类型': ['咨询', '投诉', '售后', '回访'],
   '问题定型': ['功能咨询', '故障报修', '物流查询', '费用问题'],
-  '问题分类一级': ['账号问题', '设备问题', '订单问题', '售后问题'],
+  '问题分类一级': ['[AI]网络问题', '[AI]软件问题', '[AI]充值问题', '账号问题', '设备问题', '订单问题', '售后问题'],
   '问题分类二级': ['登录异常', '账号注销', '硬件故障', '系统升级', '支付异常', '物流查询', '退换货', '保修咨询'],
-  '问题分类三级': ['三级分类A', '三级分类B', '三级分类C'],
+  '问题分类三级': ['屏幕不亮', '电池异常', '按键失灵', '退款未到账', '重复扣款', '延保服务', '密码重置', '验证码失败'],
   '小结类型': ['服务小结', '售后小结', '回访小结'],
   '处理结果状态': ['已处理', '处理中', '待回访', '已关闭'],
   '投诉分类一级': ['服务态度', '处理时效', '产品质量'],
   '投诉分类二级': ['一级升级', '二级升级', '专项跟进'],
 };
+
+const aiProductNameCascade: Record<string, Record<string, string>> = {
+  'T20': { '问题分类一级': '设备问题', '问题分类二级': '硬件故障', '问题分类三级': '屏幕不亮' },
+  'C10': { '问题分类一级': '订单问题', '问题分类二级': '支付异常', '问题分类三级': '退款未到账' },
+  '智能录音笔': { '问题分类一级': '售后问题', '问题分类二级': '保修咨询', '问题分类三级': '延保服务' },
+};
+
+const aiProblemLevel1Cascade: Record<string, Record<string, string>> = {
+  '网络问题': { '问题分类二级': '登录异常', '问题分类三级': '密码重置' },
+  '软件问题': { '问题分类二级': '系统升级', '问题分类三级': '退款未到账' },
+  '充值问题': { '问题分类二级': '支付异常', '问题分类三级': '重复扣款' },
+};
+
+const searchableSelectFields = new Set(['产品分类', '产品名称', '问题分类一级', '问题分类二级', '问题分类三级']);
 
 const chinaRegionOptions: readonly RegionProvinceOption[] = [
   { name: '北京市', cities: [{ name: '北京市', districts: ['东城区', '西城区', '朝阳区', '海淀区', '丰台区', '通州区', '昌平区'] }] },
@@ -599,9 +614,13 @@ const insertLinkedCustomerFields = (base: WorkbenchFieldConfig[], linked: Workbe
   return [...base.slice(0, i + 1), ...linked, ...base.slice(i + 1)];
 };
 
-const createDefaultSummaryTabs = (): WorkbenchSummaryTab[] => ['小结1', '小结2'];
-const createDefaultSummaryFieldStore = (): Record<WorkbenchSummaryTab, WorkbenchFieldValues> => ({ 小结1: {}, 小结2: {} });
-const createDefaultSummaryTextStore = (): Record<WorkbenchSummaryTab, string> => ({ 小结1: '', 小结2: '' });
+const createDefaultSummaryTabs = (): WorkbenchSummaryTab[] => ['小结1', '小结2', '小结3'];
+const createDefaultSummaryFieldStore = (): Record<WorkbenchSummaryTab, WorkbenchFieldValues> => ({
+  小结1: { '产品分类': '学习机', '产品名称': 'A10' },
+  小结2: { '产品分类': '学习机' },
+  小结3: { '产品分类': '智能硬件', '产品名称': 'X3 Pro', '问题分类一级': '设备问题', '问题分类二级': '硬件故障', '问题分类三级': '屏幕不亮' },
+});
+const createDefaultSummaryTextStore = (): Record<WorkbenchSummaryTab, string> => ({ 小结1: '', 小结2: '', 小结3: '' });
 const createNextSummaryTabLabel = (tabs: WorkbenchSummaryTab[]) => {
   const max = tabs.reduce((r, t) => { const n = Number(t.replace('小结', '')); return Number.isNaN(n) ? r : Math.max(r, n); }, 0);
   return `小结${max + 1}`;
@@ -853,6 +872,7 @@ export default function OnlineWorkbenchPage({ onOpenWorkOrderDetail }: OnlineWor
     createInitialTextByTab: createDefaultSummaryTextStore,
   });
   const [onlineSummaryOpenSelect, setOnlineSummaryOpenSelect] = useState<string | null>(null);
+  const [selectSearchQuery, setSelectSearchQuery] = useState<Record<string, string>>({});
 
   // ─── History state ─────────────────────────────────────────────────
   const [onlineWorkbenchHistoryTab, setOnlineWorkbenchHistoryTab] = useState<WorkbenchHistoryTab>('会话历史');
@@ -1218,15 +1238,31 @@ export default function OnlineWorkbenchPage({ onOpenWorkOrderDetail }: OnlineWor
           const activeRegion = isRegionCascader ? normalizeRegionSelection(openSelect === fieldKey ? regionSelection : (fieldValues[field.label] ? parseRegionValue(fieldValues[field.label]) : regionSelection)) : null;
           const activeProv = activeRegion ? chinaRegionOptions.find((p) => p.name === activeRegion.province) ?? chinaRegionOptions[0] : null;
           const activeCity = activeProv && activeRegion ? activeProv.cities.find((c) => c.name === activeRegion.city) ?? activeProv.cities[0] : null;
+          const isSearchable = searchableSelectFields.has(field.label);
+
           return (
             <div className={cn(showProblemSearch && 'flex items-center gap-1.5')}>
             <div className={cn('relative', showProblemSearch && 'flex-1')} data-dropdown-root="true">
-              <button ref={(node) => { floatingSelectTriggerRefs.current[fieldKey] = node; }} type="button"
-                onClick={() => { if (isRegionCascader && activeRegion) setRegionSelection!(activeRegion); setOpenSelect((p) => (p === fieldKey ? null : fieldKey)); }}
-                className="flex h-[30px] w-full items-center gap-2 rounded-md border border-slate-200 bg-[#fcfcfd] px-3 text-[12px] text-slate-600 outline-none shadow-[inset_0_1px_2px_rgba(15,23,42,0.02)]">
-                <span className={cn('min-w-0 flex-1 truncate whitespace-nowrap text-left', fieldValues[field.label] ? 'text-slate-600' : 'text-slate-400')}>{fieldValues[field.label] || field.placeholder}</span>
-                <ChevronDown size={13} className={cn('shrink-0 text-slate-300 transition-transform', openSelect === fieldKey && 'rotate-180')} />
-              </button>
+              {isSearchable ? (
+                <div ref={(node) => { floatingSelectTriggerRefs.current[fieldKey] = node; }} className="relative">
+                  <input
+                    type="text"
+                    value={openSelect === fieldKey ? (selectSearchQuery[fieldKey] ?? '') : (fieldValues[field.label] || '')}
+                    placeholder={field.placeholder}
+                    onFocus={() => { setSelectSearchQuery((p) => ({ ...p, [fieldKey]: '' })); setOpenSelect(fieldKey); }}
+                    onChange={(e) => setSelectSearchQuery((p) => ({ ...p, [fieldKey]: e.target.value }))}
+                    className="h-[30px] w-full rounded-md border border-slate-200 bg-[#fcfcfd] px-3 pr-7 text-[12px] text-slate-600 outline-none shadow-[inset_0_1px_2px_rgba(15,23,42,0.02)] placeholder:text-slate-400"
+                  />
+                  <ChevronDown size={13} className={cn('pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 transition-transform', openSelect === fieldKey && 'rotate-180')} />
+                </div>
+              ) : (
+                <button ref={(node) => { floatingSelectTriggerRefs.current[fieldKey] = node; }} type="button"
+                  onClick={() => { if (isRegionCascader && activeRegion) setRegionSelection!(activeRegion); setOpenSelect((p) => (p === fieldKey ? null : fieldKey)); }}
+                  className="flex h-[30px] w-full items-center gap-2 rounded-md border border-slate-200 bg-[#fcfcfd] px-3 text-[12px] text-slate-600 outline-none shadow-[inset_0_1px_2px_rgba(15,23,42,0.02)]">
+                  <span className={cn('min-w-0 flex-1 truncate whitespace-nowrap text-left', fieldValues[field.label] ? 'text-slate-600' : 'text-slate-400')}>{fieldValues[field.label] || field.placeholder}</span>
+                  <ChevronDown size={13} className={cn('shrink-0 text-slate-300 transition-transform', openSelect === fieldKey && 'rotate-180')} />
+                </button>
+              )}
               {openSelect === fieldKey ? (
                 isRegionCascader && activeRegion && activeProv && activeCity ? renderFloatingMenu(floatingSelectTriggerRefs.current[fieldKey],
                   <div className="overflow-hidden rounded-md border border-slate-200 bg-white shadow-[0_10px_24px_rgba(15,23,42,0.12)]">
@@ -1240,9 +1276,30 @@ export default function OnlineWorkbenchPage({ onOpenWorkOrderDetail }: OnlineWor
                   { align: 'center', marginTop: 4, width: 420 }
                 ) : renderFloatingMenu(floatingSelectTriggerRefs.current[fieldKey],
                   <div className="max-h-44 overflow-auto rounded-md border border-slate-200 bg-white py-1 shadow-[0_10px_24px_rgba(15,23,42,0.12)] custom-scrollbar">
-                    {(workbenchSelectOptions[field.label] ?? ['选项一', '选项二', '选项三']).map((opt) => (
-                      <button key={opt} type="button" onClick={() => { setFieldValues((p) => ({ ...p, [field.label]: opt })); setOpenSelect(null); }} className={cn('flex w-full items-center px-3 py-2 text-left text-[12px] transition-colors', fieldValues[field.label] === opt ? 'bg-brand-50 text-brand-600' : 'text-slate-600 hover:bg-slate-50')}>{opt}</button>
-                    ))}
+                    {(() => {
+                      const activeTab = scope === 'online-summary' ? onlineSummaryTab : '';
+                      const aiField = activeTab === '小结1' ? '问题分类一级' : activeTab === '小结2' ? '产品名称' : '';
+                      const rawOptions = workbenchSelectOptions[field.label] ?? ['选项一', '选项二', '选项三'];
+                      const withAI = field.label === aiField ? rawOptions : rawOptions.filter((o) => !o.startsWith('[AI]'));
+                      const query = (selectSearchQuery[fieldKey] ?? '').trim().toLowerCase();
+                      const options = query ? withAI.filter((o) => { const label = o.startsWith('[AI]') ? o.slice(4) : o; return label.toLowerCase().includes(query); }) : withAI;
+                      return options.length > 0 ? options.map((opt) => {
+                        const isAI = opt.startsWith('[AI]');
+                        const displayLabel = isAI ? opt.slice(4) : opt;
+                        const storeValue = displayLabel;
+                        return (
+                          <button key={opt} type="button" onClick={() => {
+                            const cascade = isAI && scope === 'online-summary'
+                              ? (field.label === '产品名称' ? aiProductNameCascade[storeValue] : field.label === '问题分类一级' ? aiProblemLevel1Cascade[storeValue] : undefined)
+                              : undefined;
+                            setFieldValues((p) => ({ ...p, [field.label]: storeValue, ...cascade })); setOpenSelect(null); setSelectSearchQuery((p) => ({ ...p, [fieldKey]: '' }));
+                          }} className={cn('flex w-full items-center gap-1.5 px-3 py-2 text-left text-[12px] transition-colors', fieldValues[field.label] === storeValue ? 'bg-brand-50 text-brand-600' : 'text-slate-600 hover:bg-slate-50')}>
+                            {isAI ? <span className="inline-flex items-center gap-1 rounded-md bg-gradient-to-r from-violet-500 to-indigo-500 px-1.5 py-0.5 text-[10px] font-bold leading-none text-white shadow-[0_1px_4px_rgba(99,102,241,0.4)]"><Sparkles size={9} />AI</span> : null}
+                            <span>{displayLabel}</span>
+                          </button>
+                        );
+                      }) : <div className="px-3 py-2 text-[12px] text-slate-400">无匹配结果</div>;
+                    })()}
                   </div>,
                   { marginTop: 4 }
                 )

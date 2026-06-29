@@ -133,6 +133,8 @@ type Row = {
     visitorLogoWidth: number;
     visitorLogoHeight: number;
     businessType: BusinessType;
+    productCategory: string;
+    productName: string;
     routeMode: string;
     workingHoursStart: string;
     workingHoursEnd: string;
@@ -196,6 +198,8 @@ type Row = {
 
 const sections: Section[] = ['客户端属性', '高频操作配置', '满意度', '转人工设置', '问卷调研', '参数设置'];
 const businessTypes: BusinessType[] = ['教育', '学习机', '听见', '医疗'];
+const productCategories = ['学习机', '智能硬件', '听见', '教育'] as const;
+const productNames = ['A10', 'X3 Pro', '讯飞听见', '智能办公本'] as const;
 const accessTypes: AccessType[] = ['APP', 'PC', '小程序', '公众号'];
 const connectTypes: ConnectType[] = ['引用链接', '引用插件', '授权链接'];
 const userSystems: string[] = ['体系1', '体系2', '体系3'];
@@ -358,6 +362,8 @@ const baseConfig = (businessType: BusinessType): Row['config'] => ({
   visitorLogoWidth: visitorLogoSpec.width,
   visitorLogoHeight: visitorLogoSpec.height,
   businessType,
+  productCategory: '',
+  productName: '',
   routeMode: '智能路由',
   workingHoursStart: '09:00',
   workingHoursEnd: '18:00',
@@ -2598,6 +2604,8 @@ export default function WebchatChannelMaintenance() {
                     <div className="mb-4 text-[15px] font-semibold text-slate-700">基础设置</div>
                     <div className="grid grid-cols-2 gap-4">
                       <label className="block text-[13px] text-slate-600">业务类型<select value={active.config.businessType} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, businessType: e.target.value as BusinessType } }))} className="mt-2 h-10 w-full rounded-lg border border-slate-200 px-3 outline-none">{businessTypes.map((item) => <option key={item}>{item}</option>)}</select></label>
+                      <label className="block text-[13px] text-slate-600">产品分类<select value={active.config.productCategory} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, productCategory: e.target.value } }))} className="mt-2 h-10 w-full rounded-lg border border-slate-200 px-3 outline-none"><option value="">请选择</option>{productCategories.map((item) => <option key={item}>{item}</option>)}</select></label>
+                      <label className="block text-[13px] text-slate-600">产品名称<select value={active.config.productName} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, productName: e.target.value } }))} className="mt-2 h-10 w-full rounded-lg border border-slate-200 px-3 outline-none"><option value="">请选择</option>{productNames.map((item) => <option key={item}>{item}</option>)}</select></label>
                       <label className="block text-[13px] text-slate-600">路由模式<select value={active.config.routeMode} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, routeMode: e.target.value } }))} className="mt-2 h-10 w-full rounded-lg border border-slate-200 px-3 outline-none"><option>标准路由</option><option>智能路由</option></select></label>
                       <div className="block text-[13px] text-slate-600 col-span-2">工作时间
                         <div className="mt-2 flex items-center gap-2">
