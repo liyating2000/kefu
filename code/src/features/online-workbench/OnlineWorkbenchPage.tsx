@@ -1121,6 +1121,20 @@ export default function OnlineWorkbenchPage({ onOpenWorkOrderDetail }: OnlineWor
   const handleConfirmOnlineFormSelect = () => setIsOnlineFormSelectModalOpen(false);
   const selectedFormItem = selectedFormId ? formTemplates.find((f) => f.id === selectedFormId) ?? null : null;
 
+  const handleOnlineAgentAdoptSend = (text: string) => {
+    const now = new Date(); const pad = (v: number) => v.toString().padStart(2, '0');
+    const time = `${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+    const msg: OnlineConversationMessage = { id: `${activeOnlineSessionId}-m-${now.getTime()}`, role: 'agent', time, text };
+    const cur = onlineSessionMessagesBySession[activeOnlineSessionId] ?? activeOnlineSessionDetail.messages;
+    const next = [...cur, msg]; const summary = getOnlineSessionSummaryPreview(next);
+    setOnlineSessionMessagesBySession((p) => ({ ...p, [activeOnlineSessionId]: next }));
+    setOnlineSessions((p) => p.map((s) => s.id === activeOnlineSessionId ? { ...s, summary } : s));
+  };
+  const handleOnlineAgentEditSend = (text: string) => {
+    setOnlineComposerTextBySession((p) => ({ ...p, [activeOnlineSessionId]: text }));
+    setTimeout(() => { onlineComposerTextareaRef.current?.focus(); }, 0);
+  };
+
   const handleSubmitOnlineComposer = () => {
     const txt = activeOnlineComposerText.trim();
     if (!txt) return;
@@ -1577,13 +1591,9 @@ export default function OnlineWorkbenchPage({ onOpenWorkOrderDetail }: OnlineWor
 
             {onlineRightPanel === 'robot' && (
               <CallAgentPanel
-                insight={activeOnlineAgentPanel.insight}
-                quickCards={activeOnlineAgentPanel.quickCards}
-                journeyName={activeOnlineAgentPanel.journeyName}
-                profile={activeOnlineAgentPanel.profile}
-                openTickets={activeOnlineAgentPanel.openTickets}
-                purchasedDeviceCount={activeOnlineAgentPanel.purchasedDeviceCount}
-                interactionCount={activeOnlineAgentPanel.interactionCount}
+                onAdoptSend={handleOnlineAgentAdoptSend}
+                onEditSend={handleOnlineAgentEditSend}
+                disabled={isActiveOnlineSessionFinished}
               />
             )}
 

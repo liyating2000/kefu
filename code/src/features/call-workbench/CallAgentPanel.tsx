@@ -17,7 +17,13 @@ import { cn } from '../../lib/cn';
 
 type AgentTab = 'skill' | 'knowledge';
 
-export default function CallAgentPanel() {
+type CallAgentPanelProps = {
+  onAdoptSend?: (text: string) => void;
+  onEditSend?: (text: string) => void;
+  disabled?: boolean;
+};
+
+export default function CallAgentPanel({ onAdoptSend, onEditSend, disabled }: CallAgentPanelProps) {
   const [activeTab, setActiveTab] = useState<AgentTab>('skill');
   const [selectedOption, setSelectedOption] = useState(0);
   const [expandedOption, setExpandedOption] = useState<number | null>(null);
@@ -182,13 +188,17 @@ export default function CallAgentPanel() {
                             <div className="mt-3 flex items-center gap-2">
                               <button
                                 type="button"
-                                className="rounded-full bg-amber-400 px-4 py-1.5 text-[12px] font-medium text-white transition-colors hover:bg-amber-500"
+                                disabled={disabled}
+                                onClick={() => onAdoptSend?.(opt.script)}
+                                className={cn('rounded-full px-4 py-1.5 text-[12px] font-medium transition-colors', disabled ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : 'bg-amber-400 text-white hover:bg-amber-500')}
                               >
                                 采纳发送
                               </button>
                               <button
                                 type="button"
-                                className="rounded-full border border-slate-300 px-4 py-1.5 text-[12px] font-medium text-slate-600 transition-colors hover:bg-slate-50"
+                                disabled={disabled}
+                                onClick={() => onEditSend?.(opt.script)}
+                                className={cn('rounded-full border px-4 py-1.5 text-[12px] font-medium transition-colors', disabled ? 'border-slate-200 text-slate-400 cursor-not-allowed' : 'border-slate-300 text-slate-600 hover:bg-slate-50')}
                               >
                                 修改后发送
                               </button>
@@ -232,13 +242,17 @@ export default function CallAgentPanel() {
                 <div className="mt-4 flex items-center gap-2">
                   <button
                     type="button"
-                    className="rounded-full bg-amber-400 px-4 py-1.5 text-[12px] font-medium text-white transition-colors hover:bg-amber-500"
+                    disabled={disabled}
+                    onClick={() => onAdoptSend?.(knowledgeAnswer)}
+                    className={cn('rounded-full px-4 py-1.5 text-[12px] font-medium transition-colors', disabled ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : 'bg-amber-400 text-white hover:bg-amber-500')}
                   >
                     采纳发送
                   </button>
                   <button
                     type="button"
-                    className="rounded-full border border-slate-300 px-4 py-1.5 text-[12px] font-medium text-slate-600 transition-colors hover:bg-slate-50"
+                    disabled={disabled}
+                    onClick={() => onEditSend?.(knowledgeAnswer)}
+                    className={cn('rounded-full border px-4 py-1.5 text-[12px] font-medium transition-colors', disabled ? 'border-slate-200 text-slate-400 cursor-not-allowed' : 'border-slate-300 text-slate-600 hover:bg-slate-50')}
                   >
                     修改后发送
                   </button>
