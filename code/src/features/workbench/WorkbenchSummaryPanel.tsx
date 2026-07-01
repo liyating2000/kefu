@@ -22,6 +22,7 @@ type WorkbenchSummaryPanelProps = {
   onDescriptionChange: (value: string) => void;
   actions: ReactNode;
   ticketTemplateOptions?: TicketTemplateOption[];
+  isAIDescription?: boolean;
 };
 
 const variantClassMap: Record<
@@ -70,6 +71,7 @@ export default function WorkbenchSummaryPanel({
   onDescriptionChange,
   actions,
   ticketTemplateOptions,
+  isAIDescription,
 }: WorkbenchSummaryPanelProps) {
   const classes = variantClassMap[variant];
   const descriptionLabel = variant === 'online' ? '会话总结' : '来电描述';
@@ -145,7 +147,7 @@ export default function WorkbenchSummaryPanel({
                 value={descriptionValue}
                 onChange={(event) => onDescriptionChange(event.target.value)}
                 placeholder="请输入"
-                className={classes.descriptionTextarea}
+                className={cn(classes.descriptionTextarea, isAIDescription && 'border-indigo-400')}
               />
             </div>
           </div>

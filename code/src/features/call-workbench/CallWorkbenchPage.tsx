@@ -275,28 +275,6 @@ const callWorkbenchInboundProfile: CallWorkbenchInboundProfile = {
   },
 };
 
-const callAgentInsight = {
-  indexLabel: '#1',
-  content: '首次排查工单小结，从已知信息中提取到产品分类"学习机"，其余字段暂未提取到具体信息。',
-  primaryTime: '17:15',
-  secondaryTime: '16:59:49',
-} as const;
-
-const callAgentQuickCards = [
-  { title: '用户旅程', status: '已加载', active: true },
-  { title: '工单小结', status: '已生成' },
-] as const;
-
-const callAgentProfile = {
-  name: 'Kevin张', phone: '138****8888', customerType: '个人客户',
-  vipLevel: 'VIP等级', customerId: '20241113-003',
-  address: '北京市朝阳区望京SOHO', tag: 'VIP客户',
-} as const;
-
-const callAgentOpenTickets = [
-  { id: 'WK-20241102-12', title: '翻译机口译模式卡顿', time: '2024-11-02 09:05', status: '处理中', tone: 'warning' as const },
-  { id: 'WK-20241028-07', title: '学习机内容未更新', time: '2024-10-28 14:30', status: '待处理', tone: 'muted' as const },
-] as const;
 
 const callSidebarFeatureDefinitions: ReadonlyArray<{
   key: CallSidebarFeatureKey;
@@ -332,9 +310,9 @@ const workbenchSelectOptions: Record<string, readonly string[]> = {
   '产品名称': ['[AI]T20', '[AI]C10', '[AI]智能录音笔', 'A10', 'X3 Pro', '讯飞听见', '智能办公本'],
   '呼入类型': ['咨询', '投诉', '售后', '回访'],
   '问题定型': ['功能咨询', '故障报修', '物流查询', '费用问题'],
-  '问题分类一级': ['[AI]网络问题', '[AI]软件问题', '[AI]充值问题', '账号问题', '设备问题', '订单问题', '售后问题'],
-  '问题分类二级': ['登录异常', '账号注销', '硬件故障', '系统升级', '支付异常', '物流查询', '退换货', '保修咨询'],
-  '问题分类三级': ['屏幕不亮', '电池异常', '按键失灵', '退款未到账', '重复扣款', '延保服务', '密码重置', '验证码失败'],
+  '问题分类一级': ['[AI]设备问题', '[AI]网络问题', '[AI]软件问题', '[AI]充值问题', '账号问题', '订单问题', '售后问题'],
+  '问题分类二级': ['[AI]硬件故障', '登录异常', '账号注销', '系统升级', '支付异常', '物流查询', '退换货', '保修咨询'],
+  '问题分类三级': ['[AI]屏幕不亮', '电池异常', '按键失灵', '退款未到账', '重复扣款', '延保服务', '密码重置', '验证码失败'],
   '小结类型': ['服务小结', '售后小结', '回访小结'],
   '处理结果状态': ['已处理', '处理中', '待回访', '已关闭'],
   '投诉分类一级': ['服务态度', '处理时效', '产品质量'],
@@ -348,6 +326,7 @@ const aiProductNameCascade: Record<string, Record<string, string>> = {
 };
 
 const aiProblemLevel1Cascade: Record<string, Record<string, string>> = {
+  '设备问题': { '问题分类二级': '硬件故障', '问题分类三级': '屏幕不亮' },
   '网络问题': { '问题分类二级': '登录异常', '问题分类三级': '屏幕不亮' },
   '软件问题': { '问题分类二级': '系统升级', '问题分类三级': '退款未到账' },
   '充值问题': { '问题分类二级': '支付异常', '问题分类三级': '延保服务' },
@@ -413,13 +392,22 @@ const insertLinkedCustomerFields = (
   return [...base.slice(0, i + 1), ...linked, ...base.slice(i + 1)];
 };
 
+const callerAutoMessages: OnlineConversationMessage[] = [
+  { id: 'call-auto-1', role: 'customer', time: '', text: '你好，我的T20学习机出了点问题。' },
+  { id: 'call-auto-2', role: 'customer', time: '', text: '屏幕突然不亮了，充电也没用。' },
+  { id: 'call-auto-3', role: 'customer', time: '', text: '昨天还好好的，今天早上就这样了。' },
+  { id: 'call-auto-4', role: 'customer', time: '', text: '之前没有摔过，也没进过水。' },
+  { id: 'call-auto-5', role: 'customer', time: '', text: '能帮我看看是什么情况吗？' },
+];
+const CALLER_AUTO_MSG_THRESHOLD = 3;
+
 const createDefaultSummaryTabs = (): WorkbenchSummaryTab[] => ['小结1', '小结2', '小结3'];
 const createDefaultSummaryFieldStore = (): Record<WorkbenchSummaryTab, WorkbenchFieldValues> => ({
   小结1: { '产品分类': '学习机', '产品名称': 'A10' },
   小结2: { '产品分类': '学习机' },
-  小结3: { '产品分类': '智能硬件', '产品名称': 'X3 Pro', '问题分类一级': '设备问题', '问题分类二级': '硬件故障', '问题分类三级': '屏幕不亮' },
+  小结3: { '产品分类': '智能硬件', '产品名称': 'T20', '问题分类一级': '设备问题', '问题分类二级': '硬件故障', '问题分类三级': '屏幕不亮' },
 });
-const createDefaultSummaryTextStore = (): Record<WorkbenchSummaryTab, string> => ({ 小结1: '', 小结2: '', 小结3: '' });
+const createDefaultSummaryTextStore = (): Record<WorkbenchSummaryTab, string> => ({ 小结1: '', 小结2: '', 小结3: '用户反馈T20设备屏幕不亮，已确认非电量问题，初步判断为硬件故障，建议用户寄修处理。' });
 const createNextSummaryTabLabel = (tabs: WorkbenchSummaryTab[]) => {
   const max = tabs.reduce((r, t) => { const n = Number(t.replace('小结', '')); return Number.isNaN(n) ? r : Math.max(r, n); }, 0);
   return `小结${max + 1}`;
@@ -561,6 +549,28 @@ export default function CallWorkbenchPage({ onOpenWorkOrderDetail }: CallWorkben
     createInitialFieldValuesByTab: createDefaultSummaryFieldStore,
     createInitialTextByTab: createDefaultSummaryTextStore,
   });
+
+  // ─── Caller auto-message timer ─────────────────────────────────────
+  const [callConversationMessages, setCallConversationMessages] = useState<OnlineConversationMessage[]>(
+    () => [...callWorkbenchInboundConversationMessages]
+  );
+  const [callerAutoMsgCount, setCallerAutoMsgCount] = useState(0);
+  const callerAutoMsgRef = useRef(0);
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const idx = callerAutoMsgRef.current;
+      if (idx >= callerAutoMessages.length) { clearInterval(timer); return; }
+      const now = new Date(); const pad = (v: number) => v.toString().padStart(2, '0');
+      const time = `${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+      const msg: OnlineConversationMessage = { id: `call-auto-${now.getTime()}`, role: 'customer', time, text: callerAutoMessages[idx].text };
+      setCallConversationMessages((p) => [...p, msg]);
+      callerAutoMsgRef.current = idx + 1;
+      setCallerAutoMsgCount(idx + 1);
+      if (idx + 1 >= callerAutoMessages.length) clearInterval(timer);
+    }, 2000);
+    return () => clearInterval(timer);
+  }, []);
+  const callAIReady = callerAutoMsgCount >= CALLER_AUTO_MSG_THRESHOLD;
 
   // ─── Customer field state ─────────────────────────────────────────
   const [callCustomerFieldValues, setCallCustomerFieldValues] =
@@ -828,6 +838,7 @@ export default function CallWorkbenchPage({ onOpenWorkOrderDetail }: CallWorkben
           const activeCity = activeProv && activeRegion ? activeProv.cities.find((c) => c.name === activeRegion.city) ?? activeProv.cities[0] : null;
 
           const isSearchable = searchableSelectFields.has(field.label);
+          const isAIField = (() => { if (scope === 'call-summary' && !callAIReady) return false; const at = scope === 'call-summary' ? callSummaryTab : ''; if (at === '小结1') { if (field.label === '问题分类一级') return true; const v = fieldValues['问题分类一级']; return !!(v && aiProblemLevel1Cascade[v]?.[field.label]); } if (at === '小结2') { if (field.label === '产品名称') return true; const v = fieldValues['产品名称']; return !!(v && aiProductNameCascade[v]?.[field.label]); } if (at === '小结3') return field.label === '产品名称' || field.label === '问题分类一级' || field.label === '问题分类二级' || field.label === '问题分类三级'; return false; })();
 
           return (
             <div className={cn(showProblemSearch && 'flex items-center gap-1.5')}>
@@ -840,14 +851,14 @@ export default function CallWorkbenchPage({ onOpenWorkOrderDetail }: CallWorkben
                     placeholder={field.placeholder}
                     onFocus={() => { setSelectSearchQuery((p) => ({ ...p, [fieldKey]: '' })); setOpenSelect(fieldKey); }}
                     onChange={(e) => setSelectSearchQuery((p) => ({ ...p, [fieldKey]: e.target.value }))}
-                    className="h-[30px] w-full rounded-md border border-slate-200 bg-[#fcfcfd] px-3 pr-7 text-[12px] text-slate-600 outline-none shadow-[inset_0_1px_2px_rgba(15,23,42,0.02)] placeholder:text-slate-400"
+                    className={cn("h-[30px] w-full rounded-md border bg-[#fcfcfd] px-3 pr-7 text-[12px] text-slate-600 outline-none shadow-[inset_0_1px_2px_rgba(15,23,42,0.02)] placeholder:text-slate-400", isAIField ? 'border-indigo-400' : 'border-slate-200')}
                   />
                   <ChevronDown size={13} className={cn('pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 transition-transform', openSelect === fieldKey && 'rotate-180')} />
                 </div>
               ) : (
                 <button ref={(node) => { floatingSelectTriggerRefs.current[fieldKey] = node; }} type="button"
                   onClick={() => { if (isRegionCascader && activeRegion) setRegionSelection!(activeRegion); setOpenSelect((p) => (p === fieldKey ? null : fieldKey)); }}
-                  className="flex h-[30px] w-full items-center gap-2 rounded-md border border-slate-200 bg-[#fcfcfd] px-3 text-[12px] text-slate-600 outline-none shadow-[inset_0_1px_2px_rgba(15,23,42,0.02)]">
+                  className={cn("flex h-[30px] w-full items-center gap-2 rounded-md border bg-[#fcfcfd] px-3 text-[12px] text-slate-600 outline-none shadow-[inset_0_1px_2px_rgba(15,23,42,0.02)]", isAIField ? 'border-indigo-400' : 'border-slate-200')}>
                   <span className={cn('min-w-0 flex-1 truncate whitespace-nowrap text-left', fieldValues[field.label] ? 'text-slate-600' : 'text-slate-400')}>{fieldValues[field.label] || field.placeholder}</span>
                   <ChevronDown size={13} className={cn('shrink-0 text-slate-300 transition-transform', openSelect === fieldKey && 'rotate-180')} />
                 </button>
@@ -867,9 +878,11 @@ export default function CallWorkbenchPage({ onOpenWorkOrderDetail }: CallWorkben
                   <div className="max-h-44 overflow-auto rounded-md border border-slate-200 bg-white py-1 shadow-[0_10px_24px_rgba(15,23,42,0.12)] custom-scrollbar">
                     {(() => {
                       const activeTab = scope === 'call-summary' ? callSummaryTab : '';
-                      const aiField = activeTab === '小结1' ? '问题分类一级' : activeTab === '小结2' ? '产品名称' : '';
+                      const aiFields = (scope === 'call-summary' && !callAIReady) ? [] : activeTab === '小结1' ? ['问题分类一级'] : activeTab === '小结2' ? ['产品名称'] : activeTab === '小结3' ? ['产品名称', '问题分类一级', '问题分类二级', '问题分类三级'] : [];
+                      const summary3OnlyAI: Record<string, string> = { '产品名称': 'T20', '问题分类一级': '设备问题', '问题分类二级': '硬件故障', '问题分类三级': '屏幕不亮' };
                       const rawOptions = workbenchSelectOptions[field.label] ?? ['选项一', '选项二', '选项三'];
-                      const withAI = field.label === aiField ? rawOptions : rawOptions.filter((o) => !o.startsWith('[AI]'));
+                      const withAI = !aiFields.includes(field.label) ? rawOptions.filter((o) => !o.startsWith('[AI]'))
+                        : activeTab === '小结3' ? rawOptions.map((o) => o.startsWith('[AI]') && o.slice(4) !== summary3OnlyAI[field.label] ? o.slice(4) : o) : rawOptions;
                       const query = (selectSearchQuery[fieldKey] ?? '').trim().toLowerCase();
                       const options = query ? withAI.filter((o) => { const label = o.startsWith('[AI]') ? o.slice(4) : o; return label.toLowerCase().includes(query); }) : withAI;
                       return options.length > 0 ? options.map((opt) => {
@@ -1013,7 +1026,7 @@ export default function CallWorkbenchPage({ onOpenWorkOrderDetail }: CallWorkben
 
   // ─── Right panel content ─────────────────────────────────────────
   const callRobotPanelContent = (
-    <CallAgentPanel insight={callAgentInsight} quickCards={callAgentQuickCards} journeyName={callAgentProfile.name} profile={callAgentProfile} openTickets={callAgentOpenTickets} purchasedDeviceCount={0} interactionCount={0} />
+    <CallAgentPanel />
   );
 
   const callSummaryPanelContent = (
@@ -1025,6 +1038,7 @@ export default function CallWorkbenchPage({ onOpenWorkOrderDetail }: CallWorkben
         renderEditableWorkbenchField(field, activeCallSummaryFieldValues, updateCallSummaryFieldValues, callSummaryOpenSelect, setCallSummaryOpenSelect, 'call-summary')
       )}
       descriptionValue={activeCallSummaryText} onDescriptionChange={setActiveCallSummaryText}
+      isAIDescription={callAIReady && callSummaryTab === '小结3'}
       ticketTemplateOptions={callTicketTemplateOptions}
       actions={
         <>
@@ -1193,7 +1207,7 @@ export default function CallWorkbenchPage({ onOpenWorkOrderDetail }: CallWorkben
       }
       centerTopContent={
         <CallInboundInfoPanel
-          profile={isCallAddNewMode ? { inboundInfoItems: [], tags: [], ivrPath: '', transferSummary: '' } : { ...callWorkbenchInboundProfile, tags: callTags }}
+          profile={isCallAddNewMode ? { inboundInfoItems: [], tags: [], ivrPath: '', transferSummary: '' } : { ...callWorkbenchInboundProfile, tags: callTags, conversationMessages: callConversationMessages }}
           hideDetails={isCallAddNewMode}
           onScheduleFollowUp={() => setShowScheduleFollowUp(true)}
           onBlacklist={(anchor) => setPendingBlacklist(anchor)}

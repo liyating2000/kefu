@@ -1,78 +1,63 @@
 import { useState } from 'react';
 import {
+  BookOpen,
   Check,
-  ExternalLink,
-  FileText,
-  MapPin,
+  ChevronDown,
+  ChevronUp,
+  Globe,
   MessageSquareText,
-  Package,
-  User,
+  Search,
+  Sparkles,
+  ThumbsDown,
+  ThumbsUp,
+  TriangleAlert,
 } from 'lucide-react';
 
 import { cn } from '../../lib/cn';
-import TicketSummaryModal from './TicketSummaryModal';
-import UserJourneyModal from './UserJourneyModal';
 
-type CallAgentInsight = {
-  indexLabel: string;
-  content: string;
-  primaryTime: string;
-  secondaryTime: string;
-};
+type AgentTab = 'skill' | 'knowledge';
 
-type CallAgentQuickCard = {
-  title: string;
-  status: string;
-  active?: boolean;
-};
+export default function CallAgentPanel() {
+  const [activeTab, setActiveTab] = useState<AgentTab>('skill');
+  const [selectedOption, setSelectedOption] = useState(0);
+  const [expandedOption, setExpandedOption] = useState<number | null>(null);
+  const [feedback, setFeedback] = useState<'up' | 'down' | null>(null);
+  const [copied, setCopied] = useState(false);
 
-type CallAgentProfile = {
-  name: string;
-  phone: string;
-  customerType: string;
-  vipLevel: string;
-  customerId: string;
-  address: string;
-  tag: string;
-};
+  const skillOptions = [
+    {
+      label: '告知公众号查询路径',
+      script: '您可以通过【讯飞翻译机】公众号进行自助查询：公众号【自主服务】-【售后服务】-【寄修服务】-【寄修记录】-【查询维修进度】，即可查看历史维修记录。',
+    },
+    {
+      label: '提供直链查询方式',
+      script: '您也可以直接访问讯飞官网售后服务页面，登录后在"我的服务"中查看维修进度和历史记录。',
+    },
+  ];
 
-type CallAgentTicket = {
-  id: string;
-  title: string;
-  time: string;
-  status: string;
-  tone: 'warning' | 'muted';
-};
+  const knowledgeAnswer = '您好！我看到您发送了一个点赞表情。我是讯飞AI翻译耳机的客服助手，很高兴为您服务！如果您有任何关于讯飞AI翻译耳机的问题，比如产品功能、使用方法、技术参数等，都可以随时问我哦~';
 
-type CallAgentPanelProps = {
-  insight: CallAgentInsight;
-  quickCards: readonly CallAgentQuickCard[];
-  journeyName: string;
-  profile: CallAgentProfile;
-  openTickets: readonly CallAgentTicket[];
-  purchasedDeviceCount: number;
-  interactionCount: number;
-};
-
-export default function CallAgentPanel({
-  insight,
-  quickCards,
-  journeyName,
-  profile,
-  openTickets,
-  purchasedDeviceCount,
-  interactionCount,
-}: CallAgentPanelProps) {
-  const [openModal, setOpenModal] = useState<'journey' | 'summary' | null>(null);
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
 
   return (
-    <section className="surface-card relative flex min-h-0 flex-1 flex-col overflow-hidden bg-[radial-gradient(80%_100%_at_50%_0%,rgba(58,92,255,0.08),transparent_60%)]">
-      <div className="shrink-0 border-b border-hairline bg-gradient-to-r from-white via-brand-50/30 to-white px-4 py-3">
-        <div className="flex items-center gap-2">
-
-          <div className="text-[15px] font-bold text-slate-800">Agent</div>
-          <span className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-accent-200/70 bg-accent-50 px-2.5 py-1 text-[11px] font-semibold text-accent-700">
-            <span className="h-1.5 w-1.5 rounded-full bg-accent-500 animate-pulse" />
+    <section className="surface-card relative flex min-h-0 flex-1 flex-col overflow-hidden">
+      <div className="shrink-0 border-b border-hairline bg-gradient-to-r from-indigo-50 via-violet-50/60 to-indigo-50 px-4 py-3">
+        <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-indigo-500 shadow-[0_2px_8px_rgba(99,102,241,0.35)]">
+              <Sparkles size={14} className="text-white" />
+            </span>
+            <span className="text-[15px] font-bold bg-gradient-to-r from-violet-700 to-indigo-600 bg-clip-text text-transparent">Agent</span>
+          </div>
+          <span className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 shadow-sm">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+            </span>
             智能辅助中
           </span>
         </div>
@@ -80,173 +65,233 @@ export default function CallAgentPanel({
 
       <div className="flex-1 overflow-y-auto px-4 py-3 custom-scrollbar">
         <div className="space-y-4">
-          <div className="rounded-[12px] border border-brand-100/70 bg-gradient-to-br from-brand-50/60 to-white px-3 py-3 shadow-[0_2px_10px_-4px_rgba(58,92,255,0.12)]">
-            <div className="flex items-start gap-3">
-              <div className="pt-0.5 text-[12px] tabular-nums font-bold text-brand-500">{insight.indexLabel}</div>
-              <div className="min-w-0 flex-1 text-[12px] leading-5 text-slate-700">{insight.content}</div>
-              <div className="shrink-0 text-right text-[11px] tabular-nums text-slate-400">
-                <div className="text-slate-500">{insight.primaryTime}</div>
-                <div className="mt-1 text-slate-400">{insight.secondaryTime}</div>
-              </div>
-            </div>
+          {/* Status bar */}
+          <div className="flex items-center gap-2 text-[12px] text-emerald-600">
+            <span className="h-2 w-2 shrink-0 rounded-full bg-emerald-500" />
+            <span>分析完毕，触发【人人-翻译机维修历史记录查询】</span>
           </div>
 
-          <div className="flex items-start gap-2.5">
-            {quickCards.map((card) => {
-              const isJourney = card.title === '用户旅程';
-              const isSummary = card.title === '工单小结';
-              const clickable = isJourney || isSummary;
-              return (
-                <div
-                  key={card.title}
+          {/* Tab cards + search */}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setActiveTab('skill')}
+              className={cn(
+                'flex min-w-0 flex-1 flex-col gap-1 rounded-lg border px-3 py-2 text-left transition-colors',
+                activeTab === 'skill'
+                  ? 'border-brand-300 bg-brand-50/60'
+                  : 'border-slate-200 bg-white hover:bg-slate-50'
+              )}
+            >
+              <div className="flex items-center gap-1.5">
+                <Globe size={13} className="shrink-0 text-amber-600" />
+                <span className="truncate text-[12px] font-medium text-slate-800">人人-翻译机维...</span>
+              </div>
+              <div className="truncate text-[10px] text-slate-400">Step 1/2 · 告知公众号...</div>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('knowledge')}
+              className={cn(
+                'flex min-w-0 flex-1 flex-col gap-1 rounded-lg border px-3 py-2 text-left transition-colors',
+                activeTab === 'knowledge'
+                  ? 'border-brand-300 bg-brand-50/60'
+                  : 'border-slate-200 bg-white hover:bg-slate-50'
+              )}
+            >
+              <div className="flex items-center gap-1.5">
+                <BookOpen size={13} className="shrink-0 text-brand-500" />
+                <span className="text-[12px] font-medium text-slate-800">知识问答</span>
+              </div>
+              <div className="flex items-center gap-1 text-[10px] text-emerald-600">
+                <Check size={11} strokeWidth={2.5} />
+                已返回
+              </div>
+            </button>
+            <button
+              type="button"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-200 text-slate-400 transition-colors hover:bg-slate-50 hover:text-slate-600"
+            >
+              <Search size={16} />
+            </button>
+          </div>
+
+          {/* ─── Skill tab content ─── */}
+          {activeTab === 'skill' ? (
+            <>
+              {/* Section title */}
+              <div className="flex items-center gap-2">
+                <Globe size={16} className="text-amber-600" />
+                <span className="text-[14px] font-bold text-slate-800">人人-翻译机维修历史记录查询</span>
+              </div>
+
+              {/* Options */}
+              <div className="space-y-3">
+                {skillOptions.map((opt, idx) => {
+                  const isSelected = selectedOption === idx;
+                  const isExpanded = isSelected || expandedOption === idx;
+                  return (
+                    <div
+                      key={opt.label}
+                      className={cn(
+                        'rounded-xl border p-4 transition-colors',
+                        isSelected ? 'border-brand-300 bg-white shadow-sm' : 'border-slate-200 bg-white'
+                      )}
+                    >
+                      <div className="flex items-center justify-between">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedOption(idx)}
+                          className="flex items-center gap-2"
+                        >
+                          <span
+                            className={cn(
+                              'flex h-4 w-4 items-center justify-center rounded-full border-2',
+                              isSelected
+                                ? 'border-brand-500 bg-brand-500'
+                                : 'border-slate-300'
+                            )}
+                          >
+                            {isSelected ? <span className="h-1.5 w-1.5 rounded-full bg-white" /> : null}
+                          </span>
+                          <span className={cn('text-[13px] font-medium', isSelected ? 'text-brand-600' : 'text-slate-700')}>{opt.label}</span>
+                        </button>
+                        {!isSelected ? (
+                          <button
+                            type="button"
+                            onClick={() => setExpandedOption(expandedOption === idx ? null : idx)}
+                            className="flex items-center gap-1 text-[12px] text-brand-500"
+                          >
+                            {isExpanded ? '收起' : '展开'}
+                            {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                          </button>
+                        ) : null}
+                      </div>
+
+                      {isExpanded ? (
+                        <div className="mt-3">
+                          <div className="rounded-lg bg-slate-50 p-3">
+                            <div className="mb-2 flex items-center gap-1.5 text-[11px] text-slate-500">
+                              <MessageSquareText size={12} />
+                              推荐话术：
+                            </div>
+                            <div className="text-[13px] leading-6 text-slate-700">{opt.script}</div>
+                          </div>
+
+                          {isSelected ? (
+                            <div className="mt-3 flex items-center gap-2">
+                              <button
+                                type="button"
+                                className="rounded-full bg-amber-400 px-4 py-1.5 text-[12px] font-medium text-white transition-colors hover:bg-amber-500"
+                              >
+                                采纳发送
+                              </button>
+                              <button
+                                type="button"
+                                className="rounded-full border border-slate-300 px-4 py-1.5 text-[12px] font-medium text-slate-600 transition-colors hover:bg-slate-50"
+                              >
+                                修改后发送
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleCopy(opt.script)}
+                                className="rounded-full border border-slate-300 px-4 py-1.5 text-[12px] font-medium text-slate-600 transition-colors hover:bg-slate-50"
+                              >
+                                {copied ? '已复制' : '复制'}
+                              </button>
+                            </div>
+                          ) : null}
+                        </div>
+                      ) : null}
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          ) : (
+            /* ─── Knowledge tab content ─── */
+            <>
+              {/* Section title */}
+              <div className="flex items-center gap-2">
+                <BookOpen size={16} className="text-slate-700" />
+                <span className="text-[14px] font-bold text-slate-800">知识问答</span>
+              </div>
+
+              {/* AI response bubble */}
+              <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-500">
+                    <MessageSquareText size={16} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="mb-1.5 text-[13px] font-bold text-slate-800">学习机屏幕故障咨询</div>
+                    <div className="text-[13px] leading-6 text-slate-700">{knowledgeAnswer}</div>
+                  </div>
+                </div>
+
+                <div className="mt-4 flex items-center gap-2">
+                  <button
+                    type="button"
+                    className="rounded-full bg-amber-400 px-4 py-1.5 text-[12px] font-medium text-white transition-colors hover:bg-amber-500"
+                  >
+                    采纳发送
+                  </button>
+                  <button
+                    type="button"
+                    className="rounded-full border border-slate-300 px-4 py-1.5 text-[12px] font-medium text-slate-600 transition-colors hover:bg-slate-50"
+                  >
+                    修改后发送
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleCopy(knowledgeAnswer)}
+                    className="rounded-full border border-slate-300 px-4 py-1.5 text-[12px] font-medium text-slate-600 transition-colors hover:bg-slate-50"
+                  >
+                    {copied ? '已复制' : '复制'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Feedback */}
+              <div className="flex items-center gap-3">
+                <span className="text-[12px] text-slate-500">这些答案有帮助吗？</span>
+                <button
+                  type="button"
+                  onClick={() => setFeedback((p) => (p === 'up' ? null : 'up'))}
                   className={cn(
-                    'relative w-[120px] shrink-0 rounded-[12px] border px-2.5 py-2.5 transition-all press-lift',
-                    card.active
-                      ? 'border-brand-200/70 bg-gradient-to-br from-brand-50 to-white shadow-[0_4px_14px_-4px_rgba(58,92,255,0.22)]'
-                      : 'border-hairline bg-white/70 shadow-[0_1px_4px_rgba(15,23,42,0.035)]'
+                    'flex h-7 w-7 items-center justify-center rounded-full transition-colors',
+                    feedback === 'up'
+                      ? 'bg-brand-100 text-brand-600'
+                      : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600'
                   )}
                 >
-                  {clickable ? (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setOpenModal(isJourney ? 'journey' : 'summary')
-                      }
-                      aria-label={`打开${card.title}详情`}
-                      title={`查看${card.title}详情`}
-                      className="focus-ring absolute right-1.5 top-1.5 flex h-[18px] w-[18px] items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-brand-50 hover:text-brand-600"
-                    >
-                      <ExternalLink size={11} strokeWidth={2.2} />
-                    </button>
-                  ) : null}
-
-                  <div className="flex items-center gap-1.5 pr-5 text-[11px] font-semibold text-slate-700">
-                    <span
-                      className={cn(
-                        'flex h-[20px] w-[20px] shrink-0 items-center justify-center rounded-[6px] border transition-colors',
-                        card.active
-                          ? 'border-brand-200 bg-brand-50 text-brand-600'
-                          : 'border-hairline bg-white text-slate-500'
-                      )}
-                    >
-                      {isJourney ? (
-                        <User size={12} strokeWidth={2.2} />
-                      ) : (
-                        <FileText size={12} strokeWidth={2.2} />
-                      )}
-                    </span>
-                    <span className="leading-4">{card.title}</span>
-                  </div>
-                  <div className="mt-2 flex items-center gap-1 text-[10px] font-semibold text-accent-600">
-                    <Check size={12} strokeWidth={2.8} />
-                    <span>{card.status}</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="border-t border-hairline pt-3">
-            <div className="mb-3 flex items-center gap-2 text-[13px] font-bold text-slate-800">
-              <User size={13} strokeWidth={2.4} className="text-brand-500" />
-              <span>用户旅程</span>
-              <span className="text-[11px] font-medium text-slate-400">{journeyName}</span>
-            </div>
-
-            <div className="rounded-[12px] border border-hairline bg-gradient-to-br from-white to-slate-50/60 px-4 py-3 shadow-[0_2px_8px_-4px_rgba(15,23,42,0.06)]">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-400 text-[13px] font-bold text-white shadow-[0_6px_16px_-6px_rgba(58,92,255,0.55)] ring-2 ring-white">
-                    {profile.name.slice(-2)}
-                  </div>
-                  <div>
-                    <div className="text-[14px] font-bold text-slate-800">{profile.name}</div>
-                    <div className="mt-0.5 text-[11px] text-slate-500">
-                      {profile.customerType}，<span className="font-semibold text-amber-600">{profile.vipLevel}</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-[13px] tabular-nums font-bold text-slate-800">{profile.phone}</div>
-                  <div className="mt-1 text-[11px] tabular-nums text-slate-400">编号：{profile.customerId}</div>
-                </div>
-              </div>
-
-              <div className="mt-3 flex items-end justify-between gap-3">
-                <div className="flex min-w-0 items-center gap-1.5 text-[11px] text-slate-500">
-                  <MapPin size={12} strokeWidth={2.4} className="shrink-0 text-signal-danger" />
-                  <span className="truncate">{profile.address}</span>
-                </div>
-                <div className="shrink-0 rounded-full border border-brand-200/70 bg-brand-50 px-2.5 py-1 text-[11px] font-semibold text-brand-600">
-                  {profile.tag}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="border-t border-hairline pt-3">
-            <div className="mb-3 flex items-center gap-2 text-[13px] font-bold text-slate-800">
-              <Package size={13} strokeWidth={2.4} className="text-brand-500" />
-              <span>已购设备（<span className="tabular-nums">{purchasedDeviceCount}</span>）</span>
-            </div>
-            <div className="py-4 text-center text-[12px] text-slate-300">
-              暂无设备记录
-            </div>
-          </div>
-
-          <div className="border-t border-hairline pt-3">
-            <div className="mb-3 flex items-center gap-2 text-[13px] font-bold text-slate-800">
-              <FileText size={13} strokeWidth={2.4} className="text-brand-500" />
-              <span>未办结工单（<span className="tabular-nums">{openTickets.length}</span>）</span>
-            </div>
-            <div className="space-y-3">
-              {openTickets.map((ticket) => (
-                <div
-                  key={ticket.id}
-                  className="surface-card surface-card-hover rounded-[12px] px-3 py-3"
+                  <ThumbsUp size={14} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFeedback((p) => (p === 'down' ? null : 'down'))}
+                  className={cn(
+                    'flex h-7 w-7 items-center justify-center rounded-full transition-colors',
+                    feedback === 'down'
+                      ? 'bg-rose-100 text-rose-600'
+                      : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600'
+                  )}
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="text-[11px] tabular-nums font-bold text-brand-600">{ticket.id}</div>
-                    <div
-                      className={cn(
-                        'rounded-full border px-2 py-0.5 text-[10px] font-semibold',
-                        ticket.tone === 'warning'
-                          ? 'border-amber-200/70 bg-amber-50 text-amber-700'
-                          : 'border-hairline bg-slate-50 text-slate-500'
-                      )}
-                    >
-                      {ticket.status}
-                    </div>
-                  </div>
-                  <div className="mt-2 text-[12px] font-medium leading-5 text-slate-800">{ticket.title}</div>
-                  <div className="mt-1 text-[11px] tabular-nums text-slate-400">{ticket.time}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="border-t border-hairline pt-3">
-            <div className="mb-3 flex items-center gap-2 text-[13px] font-bold text-slate-800">
-              <MessageSquareText size={13} strokeWidth={2.4} className="text-brand-500" />
-              <span>互动历史（<span className="tabular-nums">{interactionCount}</span>）</span>
-            </div>
-            <div className="py-4 text-center text-[12px] text-slate-300">
-              暂无互动记录
-            </div>
-          </div>
+                  <ThumbsDown size={14} />
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
-      <UserJourneyModal
-        isOpen={openModal === 'journey'}
-        customerName={profile.name}
-        onClose={() => setOpenModal(null)}
-      />
-      <TicketSummaryModal
-        isOpen={openModal === 'summary'}
-        customerName={profile.name}
-        onClose={() => setOpenModal(null)}
-      />
+      {/* Warning banner */}
+      <div className="shrink-0 border-t border-amber-200 bg-amber-50 px-4 py-2.5">
+        <div className="flex items-center gap-2 text-[11px] text-amber-700">
+          <TriangleAlert size={14} className="shrink-0" />
+          <span>内容由 AI 总结生成，请注意甄别</span>
+        </div>
+      </div>
     </section>
   );
 }

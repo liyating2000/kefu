@@ -550,9 +550,9 @@ const workbenchSelectOptions: Record<string, readonly string[]> = {
   '产品名称': ['[AI]T20', '[AI]C10', '[AI]智能录音笔', 'A10', 'X3 Pro', '讯飞听见', '智能办公本'],
   '呼入类型': ['咨询', '投诉', '售后', '回访'],
   '问题定型': ['功能咨询', '故障报修', '物流查询', '费用问题'],
-  '问题分类一级': ['[AI]网络问题', '[AI]软件问题', '[AI]充值问题', '账号问题', '设备问题', '订单问题', '售后问题'],
-  '问题分类二级': ['登录异常', '账号注销', '硬件故障', '系统升级', '支付异常', '物流查询', '退换货', '保修咨询'],
-  '问题分类三级': ['屏幕不亮', '电池异常', '按键失灵', '退款未到账', '重复扣款', '延保服务', '密码重置', '验证码失败'],
+  '问题分类一级': ['[AI]设备问题', '[AI]网络问题', '[AI]软件问题', '[AI]充值问题', '账号问题', '订单问题', '售后问题'],
+  '问题分类二级': ['[AI]硬件故障', '登录异常', '账号注销', '系统升级', '支付异常', '物流查询', '退换货', '保修咨询'],
+  '问题分类三级': ['[AI]屏幕不亮', '电池异常', '按键失灵', '退款未到账', '重复扣款', '延保服务', '密码重置', '验证码失败'],
   '小结类型': ['服务小结', '售后小结', '回访小结'],
   '处理结果状态': ['已处理', '处理中', '待回访', '已关闭'],
   '投诉分类一级': ['服务态度', '处理时效', '产品质量'],
@@ -566,6 +566,7 @@ const aiProductNameCascade: Record<string, Record<string, string>> = {
 };
 
 const aiProblemLevel1Cascade: Record<string, Record<string, string>> = {
+  '设备问题': { '问题分类二级': '硬件故障', '问题分类三级': '屏幕不亮' },
   '网络问题': { '问题分类二级': '登录异常', '问题分类三级': '密码重置' },
   '软件问题': { '问题分类二级': '系统升级', '问题分类三级': '退款未到账' },
   '充值问题': { '问题分类二级': '支付异常', '问题分类三级': '重复扣款' },
@@ -614,13 +615,22 @@ const insertLinkedCustomerFields = (base: WorkbenchFieldConfig[], linked: Workbe
   return [...base.slice(0, i + 1), ...linked, ...base.slice(i + 1)];
 };
 
+const visitorAutoMessages = [
+  '你好，我的T20学习机出了点问题。',
+  '屏幕突然不亮了，充电也没用。',
+  '昨天还好好的，今天早上就这样了。',
+  '之前没有摔过，也没进过水。',
+  '能帮我看看是什么情况吗？',
+];
+const VISITOR_AUTO_MSG_THRESHOLD = 3;
+
 const createDefaultSummaryTabs = (): WorkbenchSummaryTab[] => ['小结1', '小结2', '小结3'];
 const createDefaultSummaryFieldStore = (): Record<WorkbenchSummaryTab, WorkbenchFieldValues> => ({
   小结1: { '产品分类': '学习机', '产品名称': 'A10' },
   小结2: { '产品分类': '学习机' },
-  小结3: { '产品分类': '智能硬件', '产品名称': 'X3 Pro', '问题分类一级': '设备问题', '问题分类二级': '硬件故障', '问题分类三级': '屏幕不亮' },
+  小结3: { '产品分类': '智能硬件', '产品名称': 'T20', '问题分类一级': '设备问题', '问题分类二级': '硬件故障', '问题分类三级': '屏幕不亮' },
 });
-const createDefaultSummaryTextStore = (): Record<WorkbenchSummaryTab, string> => ({ 小结1: '', 小结2: '', 小结3: '' });
+const createDefaultSummaryTextStore = (): Record<WorkbenchSummaryTab, string> => ({ 小结1: '', 小结2: '', 小结3: '用户反馈T20设备屏幕不亮，已确认非电量问题，初步判断为硬件故障，建议用户寄修处理。' });
 const createNextSummaryTabLabel = (tabs: WorkbenchSummaryTab[]) => {
   const max = tabs.reduce((r, t) => { const n = Number(t.replace('小结', '')); return Number.isNaN(n) ? r : Math.max(r, n); }, 0);
   return `小结${max + 1}`;
@@ -873,6 +883,29 @@ export default function OnlineWorkbenchPage({ onOpenWorkOrderDetail }: OnlineWor
   });
   const [onlineSummaryOpenSelect, setOnlineSummaryOpenSelect] = useState<string | null>(null);
   const [selectSearchQuery, setSelectSearchQuery] = useState<Record<string, string>>({});
+
+  // ─── Visitor auto-message timer ────────────────────────────────────
+  const [visitorAutoMsgCount, setVisitorAutoMsgCount] = useState(0);
+  const visitorAutoMsgRef = useRef(0);
+  useEffect(() => {
+    if (visitorAutoMsgRef.current >= visitorAutoMessages.length) return;
+    const timer = setInterval(() => {
+      const idx = visitorAutoMsgRef.current;
+      if (idx >= visitorAutoMessages.length) { clearInterval(timer); return; }
+      const now = new Date(); const pad = (v: number) => v.toString().padStart(2, '0');
+      const time = `${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+      const msg: OnlineConversationMessage = { id: `sess-2-auto-${now.getTime()}`, role: 'customer', time, text: visitorAutoMessages[idx] };
+      setOnlineSessionMessagesBySession((p) => {
+        const cur = p['sess-2'] ?? onlineSessionDetails['sess-2'].messages;
+        return { ...p, 'sess-2': [...cur, msg] };
+      });
+      visitorAutoMsgRef.current = idx + 1;
+      setVisitorAutoMsgCount(idx + 1);
+      if (idx + 1 >= visitorAutoMessages.length) clearInterval(timer);
+    }, 2000);
+    return () => clearInterval(timer);
+  }, []);
+  const onlineAIReady = visitorAutoMsgCount >= VISITOR_AUTO_MSG_THRESHOLD;
 
   // ─── History state ─────────────────────────────────────────────────
   const [onlineWorkbenchHistoryTab, setOnlineWorkbenchHistoryTab] = useState<WorkbenchHistoryTab>('会话历史');
@@ -1239,6 +1272,7 @@ export default function OnlineWorkbenchPage({ onOpenWorkOrderDetail }: OnlineWor
           const activeProv = activeRegion ? chinaRegionOptions.find((p) => p.name === activeRegion.province) ?? chinaRegionOptions[0] : null;
           const activeCity = activeProv && activeRegion ? activeProv.cities.find((c) => c.name === activeRegion.city) ?? activeProv.cities[0] : null;
           const isSearchable = searchableSelectFields.has(field.label);
+          const isAIField = (() => { if (scope === 'online-summary' && !onlineAIReady) return false; const at = scope === 'online-summary' ? onlineSummaryTab : ''; if (at === '小结1') { if (field.label === '问题分类一级') return true; const v = fieldValues['问题分类一级']; return !!(v && aiProblemLevel1Cascade[v]?.[field.label]); } if (at === '小结2') { if (field.label === '产品名称') return true; const v = fieldValues['产品名称']; return !!(v && aiProductNameCascade[v]?.[field.label]); } if (at === '小结3') return field.label === '产品名称' || field.label === '问题分类一级' || field.label === '问题分类二级' || field.label === '问题分类三级'; return false; })();
 
           return (
             <div className={cn(showProblemSearch && 'flex items-center gap-1.5')}>
@@ -1251,14 +1285,14 @@ export default function OnlineWorkbenchPage({ onOpenWorkOrderDetail }: OnlineWor
                     placeholder={field.placeholder}
                     onFocus={() => { setSelectSearchQuery((p) => ({ ...p, [fieldKey]: '' })); setOpenSelect(fieldKey); }}
                     onChange={(e) => setSelectSearchQuery((p) => ({ ...p, [fieldKey]: e.target.value }))}
-                    className="h-[30px] w-full rounded-md border border-slate-200 bg-[#fcfcfd] px-3 pr-7 text-[12px] text-slate-600 outline-none shadow-[inset_0_1px_2px_rgba(15,23,42,0.02)] placeholder:text-slate-400"
+                    className={cn("h-[30px] w-full rounded-md border bg-[#fcfcfd] px-3 pr-7 text-[12px] text-slate-600 outline-none shadow-[inset_0_1px_2px_rgba(15,23,42,0.02)] placeholder:text-slate-400", isAIField ? 'border-indigo-400' : 'border-slate-200')}
                   />
                   <ChevronDown size={13} className={cn('pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 transition-transform', openSelect === fieldKey && 'rotate-180')} />
                 </div>
               ) : (
                 <button ref={(node) => { floatingSelectTriggerRefs.current[fieldKey] = node; }} type="button"
                   onClick={() => { if (isRegionCascader && activeRegion) setRegionSelection!(activeRegion); setOpenSelect((p) => (p === fieldKey ? null : fieldKey)); }}
-                  className="flex h-[30px] w-full items-center gap-2 rounded-md border border-slate-200 bg-[#fcfcfd] px-3 text-[12px] text-slate-600 outline-none shadow-[inset_0_1px_2px_rgba(15,23,42,0.02)]">
+                  className={cn("flex h-[30px] w-full items-center gap-2 rounded-md border bg-[#fcfcfd] px-3 text-[12px] text-slate-600 outline-none shadow-[inset_0_1px_2px_rgba(15,23,42,0.02)]", isAIField ? 'border-indigo-400' : 'border-slate-200')}>
                   <span className={cn('min-w-0 flex-1 truncate whitespace-nowrap text-left', fieldValues[field.label] ? 'text-slate-600' : 'text-slate-400')}>{fieldValues[field.label] || field.placeholder}</span>
                   <ChevronDown size={13} className={cn('shrink-0 text-slate-300 transition-transform', openSelect === fieldKey && 'rotate-180')} />
                 </button>
@@ -1278,9 +1312,11 @@ export default function OnlineWorkbenchPage({ onOpenWorkOrderDetail }: OnlineWor
                   <div className="max-h-44 overflow-auto rounded-md border border-slate-200 bg-white py-1 shadow-[0_10px_24px_rgba(15,23,42,0.12)] custom-scrollbar">
                     {(() => {
                       const activeTab = scope === 'online-summary' ? onlineSummaryTab : '';
-                      const aiField = activeTab === '小结1' ? '问题分类一级' : activeTab === '小结2' ? '产品名称' : '';
+                      const aiFields = (scope === 'online-summary' && !onlineAIReady) ? [] : activeTab === '小结1' ? ['问题分类一级'] : activeTab === '小结2' ? ['产品名称'] : activeTab === '小结3' ? ['产品名称', '问题分类一级', '问题分类二级', '问题分类三级'] : [];
+                      const summary3OnlyAI: Record<string, string> = { '产品名称': 'T20', '问题分类一级': '设备问题', '问题分类二级': '硬件故障', '问题分类三级': '屏幕不亮' };
                       const rawOptions = workbenchSelectOptions[field.label] ?? ['选项一', '选项二', '选项三'];
-                      const withAI = field.label === aiField ? rawOptions : rawOptions.filter((o) => !o.startsWith('[AI]'));
+                      const withAI = !aiFields.includes(field.label) ? rawOptions.filter((o) => !o.startsWith('[AI]'))
+                        : activeTab === '小结3' ? rawOptions.map((o) => o.startsWith('[AI]') && o.slice(4) !== summary3OnlyAI[field.label] ? o.slice(4) : o) : rawOptions;
                       const query = (selectSearchQuery[fieldKey] ?? '').trim().toLowerCase();
                       const options = query ? withAI.filter((o) => { const label = o.startsWith('[AI]') ? o.slice(4) : o; return label.toLowerCase().includes(query); }) : withAI;
                       return options.length > 0 ? options.map((opt) => {
@@ -1744,6 +1780,7 @@ export default function OnlineWorkbenchPage({ onOpenWorkOrderDetail }: OnlineWor
                   fieldsContent={workbenchSummaryFields.map((field) => renderEditableWorkbenchField(field, activeOnlineSummaryFieldValues, updateOnlineSummaryFieldValues, onlineSummaryOpenSelect, setOnlineSummaryOpenSelect, 'online-summary'))}
                   descriptionValue={activeOnlineSummaryText}
                   onDescriptionChange={setActiveOnlineSummaryText}
+                  isAIDescription={onlineAIReady && onlineSummaryTab === '小结3'}
                   ticketTemplateOptions={onlineTicketTemplateOptions}
                   actions={
                     <>
