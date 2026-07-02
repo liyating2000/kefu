@@ -303,7 +303,7 @@ export default function GroupMaintenance() {
                             <div className="flex items-center gap-3">
                               <button
                                 type="button"
-                                onClick={() => { setSmsConfigEnabled(sg.smsSendEnabled ?? false); setDialog({ kind: 'sms-config', groupId: selectedGroup.id, skillGroupId: sg.id, skillGroupName: sg.name }); }}
+                                onClick={() => { setSmsConfigEnabled(sg.smsSendEnabled ?? true); setDialog({ kind: 'sms-config', groupId: selectedGroup.id, skillGroupId: sg.id, skillGroupName: sg.name }); }}
                                 className="text-[#216BFF] hover:text-[#1a5ce6]"
                               >
                                 挂机短信

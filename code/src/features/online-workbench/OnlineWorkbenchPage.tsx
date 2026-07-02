@@ -623,8 +623,9 @@ const visitorAutoMessages = [
 ];
 const VISITOR_AUTO_MSG_THRESHOLD = 3;
 
-const createDefaultSummaryTabs = (): WorkbenchSummaryTab[] => ['小结1', '小结2', '小结3'];
+const createDefaultSummaryTabs = (): WorkbenchSummaryTab[] => ['AI小结', '小结1', '小结2', '小结3'];
 const createDefaultSummaryFieldStore = (): Record<WorkbenchSummaryTab, WorkbenchFieldValues> => ({
+  AI小结: { '产品分类': '智能硬件', '产品名称': 'T20', '问题分类一级': '设备问题', '问题分类二级': '硬件故障', '问题分类三级': '屏幕不亮' },
   小结1: { '产品分类': '学习机', '产品名称': 'A10' },
   小结2: { '产品分类': '学习机' },
   小结3: { '产品分类': '智能硬件', '产品名称': 'T20', '问题分类一级': '设备问题', '问题分类二级': '硬件故障', '问题分类三级': '屏幕不亮' },
@@ -634,7 +635,7 @@ const summary3Texts = [
   '用户反馈T20学习机屏幕无显示，经排查确认电量正常、未受外力损坏，初步判定为屏幕硬件故障，已建议用户通过官方渠道寄修，预计5-7个工作日完成检测与维修。',
   '用户来电反馈T20学习机屏幕突然无法点亮，充电指示灯正常但屏幕无任何响应。经远程指导尝试强制重启无效，排除电量与系统死机可能，综合判断为屏幕排线或显示模组硬件故障。已指引用户备份数据并通过讯飞官方公众号提交寄修申请，同时告知保修期内免费维修政策，预计7个工作日内完成检测维修并寄回。',
 ];
-const createDefaultSummaryTextStore = (): Record<WorkbenchSummaryTab, string> => ({ 小结1: '', 小结2: '', 小结3: '' });
+const createDefaultSummaryTextStore = (): Record<WorkbenchSummaryTab, string> => ({ AI小结: '用户来电反馈T20学习机屏幕突然无法点亮，充电指示灯正常但屏幕无任何响应。经远程指导尝试强制重启无效，排除电量与系统死机可能，综合判断为屏幕排线或显示模组硬件故障。已指引用户备份数据并通过讯飞官方公众号提交寄修申请，同时告知保修期内免费维修政策，预计7个工作日内完成检测维修并寄回。', 小结1: '', 小结2: '', 小结3: '' });
 const createNextSummaryTabLabel = (tabs: WorkbenchSummaryTab[]) => {
   const max = tabs.reduce((r, t) => { const n = Number(t.replace('小结', '')); return Number.isNaN(n) ? r : Math.max(r, n); }, 0);
   return `小结${max + 1}`;
@@ -1843,14 +1844,15 @@ export default function OnlineWorkbenchPage({ onOpenWorkOrderDetail }: OnlineWor
                   onTabSelect={setOnlineSummaryTab}
                   onAddTab={handleAddOnlineSummaryTab}
                   onRemoveTab={handleRemoveOnlineSummaryTab}
+                  fixedTabs={['AI小结']}
                   fieldsContent={workbenchSummaryFields.map((field) => renderEditableWorkbenchField(field, activeOnlineSummaryFieldValues, updateOnlineSummaryFieldValues, onlineSummaryOpenSelect, setOnlineSummaryOpenSelect, 'online-summary'))}
                   descriptionValue={activeOnlineSummaryText}
                   onDescriptionChange={handleOnlineSummaryDescriptionChange}
-                  isAIDescription={onlineAIReady && onlineSummaryTab === '小结3'}
+                  isAIDescription={onlineSummaryTab === 'AI小结' || (onlineAIReady && onlineSummaryTab === '小结3')}
                   ticketTemplateOptions={onlineTicketTemplateOptions}
                   actions={
                     <>
-                      <button type="button" onClick={() => handleRemoveOnlineSummaryTab(onlineSummaryTab)} className="rounded-full border border-rose-300 bg-rose-50/60 px-5 py-1.5 text-[12px] font-medium text-rose-500 transition-colors hover:bg-rose-50">废弃</button>
+                      {onlineSummaryTab !== 'AI小结' && <button type="button" onClick={() => handleRemoveOnlineSummaryTab(onlineSummaryTab)} className="rounded-full border border-rose-300 bg-rose-50/60 px-5 py-1.5 text-[12px] font-medium text-rose-500 transition-colors hover:bg-rose-50">废弃</button>}
                       <button className="rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-5 py-1.5 text-[12px] font-medium text-[#216BFF]">升级工单</button>
                       {activeOnlineBusinessType === '教育' ? <button type="button" onClick={() => setShowCreateTpdModal(true)} className="rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-5 py-1.5 text-[12px] font-medium text-[#216BFF]">创建TPD工单</button> : null}
                       <button className="rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-5 py-1.5 text-[12px] font-medium text-[#216BFF]">提交</button>
