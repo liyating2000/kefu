@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Plus, X, Trash2 } from 'lucide-react';
+import { Plus, RefreshCw, X, Trash2 } from 'lucide-react';
 
 interface SkillGroup {
   id: string;
   name: string;
+  smsSendEnabled?: boolean;
 }
 
 interface Group {
@@ -88,6 +89,7 @@ type DialogState =
   | { kind: 'add-skill-group'; groupId: string }
   | { kind: 'confirm-delete-group'; groupId: string; groupName: string }
   | { kind: 'confirm-remove-skill-group'; groupId: string; skillGroupId: string; skillGroupName: string }
+  | { kind: 'sms-config'; groupId: string; skillGroupId: string; skillGroupName: string }
   | null;
 
 export default function GroupMaintenance() {
@@ -98,6 +100,7 @@ export default function GroupMaintenance() {
   const [selectedSkillGroupIds, setSelectedSkillGroupIds] = useState<Set<string>>(new Set());
   const [toast, setToast] = useState<string | null>(null);
   const [formError, setFormError] = useState('');
+  const [smsConfigEnabled, setSmsConfigEnabled] = useState(false);
 
   const selectedGroup = groups.find((g) => g.id === selectedGroupId) ?? null;
 
@@ -161,6 +164,20 @@ export default function GroupMaintenance() {
     );
     setDialog(null);
     showToast('技能组已移除');
+  };
+
+  const handleSmsConfigSave = () => {
+    if (!dialog || dialog.kind !== 'sms-config') return;
+    const { groupId, skillGroupId } = dialog;
+    setGroups((prev) =>
+      prev.map((g) =>
+        g.id === groupId
+          ? { ...g, skillGroups: g.skillGroups.map((sg) => sg.id === skillGroupId ? { ...sg, smsSendEnabled: smsConfigEnabled } : sg) }
+          : g,
+      ),
+    );
+    setDialog(null);
+    showToast('挂机短信配置已保存');
   };
 
   const availableSkillGroups = dialog?.kind === 'add-skill-group'
@@ -242,14 +259,24 @@ export default function GroupMaintenance() {
                     {selectedGroup.skillGroups.length} 个技能组
                   </span>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => { setSelectedSkillGroupIds(new Set()); setDialog({ kind: 'add-skill-group', groupId: selectedGroup.id }); }}
-                  className={primaryButtonClass}
-                >
-                  <Plus size={14} className="mr-1.5" />
-                  添加技能组
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => { const n = Math.floor(Math.random() * 5); showToast(`同步成功，新增${n}条数据`); }}
+                    className={secondaryButtonClass}
+                  >
+                    <RefreshCw size={14} className="mr-1.5" />
+                    手动同步
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setSelectedSkillGroupIds(new Set()); setDialog({ kind: 'add-skill-group', groupId: selectedGroup.id }); }}
+                    className={primaryButtonClass}
+                  >
+                    <Plus size={14} className="mr-1.5" />
+                    添加技能组
+                  </button>
+                </div>
               </div>
               <div className="flex-1 overflow-auto px-5 py-4 custom-scrollbar">
                 {selectedGroup.skillGroups.length > 0 ? (
@@ -258,7 +285,7 @@ export default function GroupMaintenance() {
                       <tr>
                         <th className="w-[64px] whitespace-nowrap px-4 py-3 font-medium">序号</th>
                         <th className="whitespace-nowrap px-4 py-3 font-medium">技能组名称</th>
-                        <th className="w-[100px] whitespace-nowrap px-4 py-3 font-medium">操作</th>
+                        <th className="w-[160px] whitespace-nowrap px-4 py-3 font-medium">操作</th>
                       </tr>
                     </thead>
                     <tbody className="text-slate-600">
@@ -273,13 +300,22 @@ export default function GroupMaintenance() {
                           <td className="px-4 py-3">{i + 1}</td>
                           <td className="px-4 py-3 font-medium text-slate-700">{sg.name}</td>
                           <td className="px-4 py-3">
-                            <button
-                              type="button"
-                              onClick={() => setDialog({ kind: 'confirm-remove-skill-group', groupId: selectedGroup.id, skillGroupId: sg.id, skillGroupName: sg.name })}
-                              className="text-[#ff6f6f] hover:text-[#ff4d4f]"
-                            >
-                              移除
-                            </button>
+                            <div className="flex items-center gap-3">
+                              <button
+                                type="button"
+                                onClick={() => { setSmsConfigEnabled(sg.smsSendEnabled ?? false); setDialog({ kind: 'sms-config', groupId: selectedGroup.id, skillGroupId: sg.id, skillGroupName: sg.name }); }}
+                                className="text-[#216BFF] hover:text-[#1a5ce6]"
+                              >
+                                挂机短信
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setDialog({ kind: 'confirm-remove-skill-group', groupId: selectedGroup.id, skillGroupId: sg.id, skillGroupName: sg.name })}
+                                className="text-[#ff6f6f] hover:text-[#ff4d4f]"
+                              >
+                                移除
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -442,6 +478,48 @@ export default function GroupMaintenance() {
               >
                 确认移除
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Dialog: SMS Config */}
+      {dialog?.kind === 'sms-config' && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40">
+          <div className="w-[420px] rounded-lg bg-white shadow-xl">
+            <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+              <h3 className="text-[15px] font-semibold text-slate-800">挂机短信配置</h3>
+              <button type="button" onClick={() => setDialog(null)} className="text-slate-400 hover:text-slate-600">
+                <X size={18} />
+              </button>
+            </div>
+            <div className="px-5 py-5">
+              <div className="flex items-center gap-6">
+                <label className="flex cursor-pointer items-center gap-2 text-[13px] text-slate-700">
+                  <input
+                    type="radio"
+                    name="sms-send"
+                    checked={smsConfigEnabled}
+                    onChange={() => setSmsConfigEnabled(true)}
+                    className="h-4 w-4 accent-[#216BFF]"
+                  />
+                  发送
+                </label>
+                <label className="flex cursor-pointer items-center gap-2 text-[13px] text-slate-700">
+                  <input
+                    type="radio"
+                    name="sms-send"
+                    checked={!smsConfigEnabled}
+                    onChange={() => setSmsConfigEnabled(false)}
+                    className="h-4 w-4 accent-[#216BFF]"
+                  />
+                  不发送
+                </label>
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-2 border-t border-slate-100 px-5 py-3">
+              <button type="button" onClick={() => setDialog(null)} className={secondaryButtonClass}>取消</button>
+              <button type="button" onClick={handleSmsConfigSave} className={solidButtonClass}>确定</button>
             </div>
           </div>
         </div>

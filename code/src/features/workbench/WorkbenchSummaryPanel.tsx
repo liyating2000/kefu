@@ -17,6 +17,7 @@ type WorkbenchSummaryPanelProps = {
   onTabSelect: (tab: string) => void;
   onAddTab?: () => void;
   onRemoveTab?: (tab: string) => void;
+  fixedTabs?: readonly string[];
   fieldsContent: ReactNode;
   descriptionValue: string;
   onDescriptionChange: (value: string) => void;
@@ -66,6 +67,7 @@ export default function WorkbenchSummaryPanel({
   onTabSelect,
   onAddTab,
   onRemoveTab,
+  fixedTabs,
   fieldsContent,
   descriptionValue,
   onDescriptionChange,
@@ -93,21 +95,24 @@ export default function WorkbenchSummaryPanel({
         <div className="flex items-center gap-4">
           <h2 className="text-[14px] font-bold text-slate-800">{title}</h2>
           <div className="flex items-center gap-2">
-            {tabs.map((tab) => (
-              <button
-                key={tab}
-                type="button"
-                onClick={() => onTabSelect(tab)}
-                className={cn(
-                  'rounded-md border px-2.5 py-1 text-[12px] transition-colors',
-                  activeTab === tab
-                    ? classes.activeTab
-                    : 'border-transparent text-slate-400 hover:bg-slate-50 hover:text-slate-600'
-                )}
-              >
-                {tab}
-              </button>
-            ))}
+            {tabs.map((tab) => {
+              const isFixed = fixedTabs?.includes(tab);
+              return (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => onTabSelect(tab)}
+                  className={cn(
+                    'rounded-md border px-2.5 py-1 text-[12px] transition-colors',
+                    activeTab === tab
+                      ? isFixed ? 'border-indigo-200 bg-indigo-50 text-indigo-500' : classes.activeTab
+                      : isFixed ? 'border-transparent text-indigo-400 hover:bg-indigo-50/50 hover:text-indigo-500' : 'border-transparent text-slate-400 hover:bg-slate-50 hover:text-slate-600'
+                  )}
+                >
+                  {isFixed ? '✨ ' : ''}{tab}
+                </button>
+              );
+            })}
             {onAddTab ? (
               <button
                 type="button"
