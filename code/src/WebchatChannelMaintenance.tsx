@@ -154,6 +154,7 @@ type Row = {
       robotUnresolvedEnabled: boolean;
       manualReasonEnabled: boolean;
       robotReasonEnabled: boolean;
+      specialRobotSatisfactionCard: boolean;
     };
     features: Record<string, boolean>;
     quickButtons: QuickButton[];
@@ -383,6 +384,7 @@ const baseConfig = (businessType: BusinessType): Row['config'] => ({
     robotUnresolvedEnabled: true,
     manualReasonEnabled: true,
     robotReasonEnabled: true,
+    specialRobotSatisfactionCard: false,
   },
   features: Object.fromEntries(chatFeatureItems.map((item) => [item.label, item.defaultChecked])),
   quickButtons: [
@@ -2518,7 +2520,7 @@ export default function WebchatChannelMaintenance() {
                           </div>
                           <div className="flex flex-col">
                             <span>{active.config.visitorLogoUrl ? '重新上传' : '上传图片'}</span>
-                            <span className="text-[12px] text-slate-400">建议44×44px，PNG格式</span>
+                            <span className="text-[12px] text-slate-400">建议44×44px</span>
                           </div>
                           <input
                             type="file"
@@ -2547,7 +2549,6 @@ export default function WebchatChannelMaintenance() {
                   <div className="rounded-[12px] border border-slate-100 bg-white p-5 shadow-sm">
                     <div className="mb-4 text-[15px] font-semibold text-slate-700">机器人设置</div>
                     <div className="grid grid-cols-2 gap-4">
-                      <label className="block text-[13px] text-slate-600">机器人名称<input value={active.config.robotName} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, robotName: e.target.value } }))} className="mt-2 h-10 w-full rounded-lg border border-slate-200 px-3 outline-none" /></label>
                       <label className="col-span-2 block text-[13px] text-slate-600">机器人配置<textarea value={active.config.robotConfig} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, robotConfig: e.target.value } }))} rows={6} className="mt-2 w-full rounded-lg border border-slate-200 px-3 py-2 font-mono text-[12px] outline-none" placeholder='{"key": "value"}' /></label>
                     </div>
                     <div className="mt-4 rounded-lg border border-dashed border-slate-200 bg-[#f7f9ff] px-4 py-3">
@@ -2560,7 +2561,7 @@ export default function WebchatChannelMaintenance() {
                         </div>
                         <div className="flex flex-col">
                           <span>{active.config.robotAvatarUrl ? '重新上传' : '上传图片'}</span>
-                          <span className="text-[12px] text-slate-400">建议44×44px，PNG格式</span>
+                          <span className="text-[12px] text-slate-400">建议44×44px</span>
                         </div>
                         <input
                           type="file"
@@ -2908,6 +2909,7 @@ export default function WebchatChannelMaintenance() {
                         ['满意度自动推送', 'autoPush', '开启后在有效会话结束后系统自动向访客发送评价邀请'],
                         ['人工无效会话推送', 'manualInvalidPush', '开启后在人工无效会话结束后系统自动向访客发送评价邀请'],
                         ['机器人无效会话推送', 'robotInvalidPush', '开启后在机器人无效会话结束后系统自动向访客发送评价邀请'],
+                        ['特殊机器人满意度卡片配置', 'specialRobotSatisfactionCard', '开启时使用三级满意度，关闭时和人工一致'],
                       ].map(([label, key, desc]) => (
                         <div key={key} className="flex items-center justify-between rounded-xl border border-slate-100 bg-[#f7f9ff] px-4 py-3">
                           <div><div className="text-[14px] font-medium text-slate-700">{label}</div><div className="text-[12px] text-slate-400">{desc}</div></div>
@@ -3190,22 +3192,6 @@ export default function WebchatChannelMaintenance() {
                           className="h-20 w-full resize-none rounded-lg border border-slate-200 px-3 py-2 text-[13px] text-slate-600 outline-none"
                         />
                         <div className="mt-1 text-[12px] text-slate-400">访客选择机器人未解决时提示的话术</div>
-                      </div>
-                      <div className="rounded-xl border border-slate-100 bg-white p-4">
-                        <div className="mb-2 text-[13px] font-medium text-slate-700">机器人满意度推送时间</div>
-                        <div className="flex items-center gap-2">
-                          <select
-                            value={active.config.robotPushDelay}
-                            onChange={(event) => updateActive((row) => ({ ...row, config: { ...row.config, robotPushDelay: event.target.value } }))}
-                            className="h-10 flex-1 rounded-lg border border-slate-200 px-3 text-[13px] text-slate-600 outline-none"
-                          >
-                            {Array.from({ length: 15 }, (_, i) => String(i + 1)).map((value) => (
-                              <option key={value} value={value}>{value}</option>
-                            ))}
-                          </select>
-                          <span className="text-[13px] text-slate-500">分钟</span>
-                        </div>
-                        <div className="mt-1 text-[12px] text-slate-400">会话结束后推送</div>
                       </div>
                     </div>
                   </div>
@@ -3780,11 +3766,10 @@ export default function WebchatChannelMaintenance() {
                   <div className="text-[15px] font-semibold text-slate-700">调研问卷配置</div>
                   <div className="mt-4 grid grid-cols-2 gap-4">
                     <label className="block text-[13px] text-slate-600">人工调研问卷开始时间<input type="datetime-local" step={1} value={active.config.surveyManualStart} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, surveyManualStart: e.target.value } }))} className="mt-2 h-10 w-full rounded-lg border border-slate-200 px-3 outline-none" /></label>
-                    <label className="block text-[13px] text-slate-600">机器人调研问卷推送时间（分钟）<input value={active.config.surveyRobotDelay} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, surveyRobotDelay: e.target.value } }))} className="mt-2 h-10 w-full rounded-lg border border-slate-200 px-3 outline-none" /></label>
                     <div><label className="block text-[13px] text-slate-600">人工推送有效范围/天<input value={active.config.surveyDays} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, surveyDays: e.target.value } }))} className={`mt-2 h-10 w-full rounded-lg border px-3 outline-none ${(() => { const n = Number(active.config.surveyDays); return active.config.surveyDays !== '' && (!Number.isInteger(n) || n >= 60000 || n < 0) ? 'border-rose-400' : 'border-slate-200'; })()}`} /></label>{(() => { const n = Number(active.config.surveyDays); return active.config.surveyDays !== '' && (!Number.isInteger(n) || n >= 60000 || n < 0) ? <div className="mt-1 text-[12px] text-rose-500">推送有效范围应小于60000的整数</div> : null; })()}</div>
                     <label className="block text-[13px] text-slate-600">机器人调研问卷开始时间<input type="datetime-local" step={1} value={active.config.surveyRobotStart} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, surveyRobotStart: e.target.value } }))} className="mt-2 h-10 w-full rounded-lg border border-slate-200 px-3 outline-none" /></label>
-                    <div className="space-y-2"><label className="block text-[13px] text-slate-600">人工调研问卷链接</label><div className="flex gap-2"><input placeholder="链接网址" value={active.config.surveyLink} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, surveyLink: e.target.value } }))} className="h-10 flex-1 rounded-lg border border-slate-200 px-3 outline-none" /><input placeholder="展示文字" value={active.config.surveyLinkText ?? ''} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, surveyLinkText: e.target.value } }))} className="h-10 flex-1 rounded-lg border border-slate-200 px-3 outline-none" /></div>{active.config.surveyLink && (active.config.surveyLinkText ?? '') ? <div className="rounded-lg bg-slate-50 px-3 py-2 text-[12px] text-slate-400">预览：<a href={/^https?:\/\//.test(active.config.surveyLink) ? active.config.surveyLink : `https://${active.config.surveyLink}`} target="_blank" rel="noreferrer" className="text-[#216BFF] hover:underline">{active.config.surveyLinkText}</a></div> : null}</div>
                     <div><label className="block text-[13px] text-slate-600">机器人推送有效范围/天<input value={active.config.surveyRobotDays} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, surveyRobotDays: e.target.value } }))} className={`mt-2 h-10 w-full rounded-lg border px-3 outline-none ${(() => { const n = Number(active.config.surveyRobotDays); return active.config.surveyRobotDays !== '' && (!Number.isInteger(n) || n >= 60000 || n < 0) ? 'border-rose-400' : 'border-slate-200'; })()}`} /></label>{(() => { const n = Number(active.config.surveyRobotDays); return active.config.surveyRobotDays !== '' && (!Number.isInteger(n) || n >= 60000 || n < 0) ? <div className="mt-1 text-[12px] text-rose-500">推送有效范围应小于60000的整数</div> : null; })()}</div>
+                    <div className="space-y-2"><label className="block text-[13px] text-slate-600">人工调研问卷链接</label><div className="flex gap-2"><input placeholder="链接网址" value={active.config.surveyLink} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, surveyLink: e.target.value } }))} className="h-10 flex-1 rounded-lg border border-slate-200 px-3 outline-none" /><input placeholder="展示文字" value={active.config.surveyLinkText ?? ''} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, surveyLinkText: e.target.value } }))} className="h-10 flex-1 rounded-lg border border-slate-200 px-3 outline-none" /></div>{active.config.surveyLink && (active.config.surveyLinkText ?? '') ? <div className="rounded-lg bg-slate-50 px-3 py-2 text-[12px] text-slate-400">预览：<a href={/^https?:\/\//.test(active.config.surveyLink) ? active.config.surveyLink : `https://${active.config.surveyLink}`} target="_blank" rel="noreferrer" className="text-[#216BFF] hover:underline">{active.config.surveyLinkText}</a></div> : null}</div>
                     <div className="space-y-2"><label className="block text-[13px] text-slate-600">机器人调研问卷链接</label><div className="flex gap-2"><input placeholder="链接网址" value={active.config.surveyRobotLink} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, surveyRobotLink: e.target.value } }))} className="h-10 flex-1 rounded-lg border border-slate-200 px-3 outline-none" /><input placeholder="展示文字" value={active.config.surveyRobotLinkText ?? ''} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, surveyRobotLinkText: e.target.value } }))} className="h-10 flex-1 rounded-lg border border-slate-200 px-3 outline-none" /></div>{active.config.surveyRobotLink && (active.config.surveyRobotLinkText ?? '') ? <div className="rounded-lg bg-slate-50 px-3 py-2 text-[12px] text-slate-400">预览：<a href={/^https?:\/\//.test(active.config.surveyRobotLink) ? active.config.surveyRobotLink : `https://${active.config.surveyRobotLink}`} target="_blank" rel="noreferrer" className="text-[#216BFF] hover:underline">{active.config.surveyRobotLinkText}</a></div> : null}</div>
                   </div>
                   <div className="mt-6 flex justify-center gap-4"><button type="button" className="rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-6 py-2 text-[13px] font-medium text-[#216BFF]">保存</button><button type="button" className="rounded-full border border-slate-200 bg-white px-6 py-2 text-[13px] font-medium text-slate-500">重置</button></div>

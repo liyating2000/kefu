@@ -120,8 +120,8 @@ export default function AttachmentManagement() {
               <input value={filterNumber} onChange={(e) => setFilterNumber(e.target.value)} placeholder="请输入号码" className={inputClass + ' w-[140px]'} />
             </div>
             <div className="flex items-center gap-2">
-              <span className="shrink-0 text-[13px] text-slate-500">域账号</span>
-              <input value={filterDomain} onChange={(e) => setFilterDomain(e.target.value)} placeholder="请输入域账号" className={inputClass + ' w-[140px]'} />
+              <span className="shrink-0 text-[13px] text-slate-500">账号</span>
+              <input value={filterDomain} onChange={(e) => setFilterDomain(e.target.value)} placeholder="请输入账号" className={inputClass + ' w-[140px]'} />
             </div>
             <div className="flex items-center gap-2">
               <span className="shrink-0 text-[13px] text-slate-500">发送时间</span>
@@ -162,7 +162,7 @@ export default function AttachmentManagement() {
                     <th className="whitespace-nowrap px-4 py-3 font-medium">链接</th>
                     <th className="whitespace-nowrap px-4 py-3 font-medium">接受号码</th>
                     <th className="whitespace-nowrap px-4 py-3 font-medium">发送人姓名</th>
-                    <th className="whitespace-nowrap px-4 py-3 font-medium">域账号</th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">账号</th>
                     <th className="whitespace-nowrap px-4 py-3 font-medium">发送时间</th>
                     <th className="whitespace-nowrap px-4 py-3 font-medium">失效状态</th>
                     <th className="whitespace-nowrap px-4 py-3 font-medium">上传状态</th>

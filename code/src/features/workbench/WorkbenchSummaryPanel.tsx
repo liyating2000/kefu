@@ -21,6 +21,10 @@ type WorkbenchSummaryPanelProps = {
   fieldsContent: ReactNode;
   descriptionValue: string;
   onDescriptionChange: (value: string) => void;
+  resultValue?: string;
+  onResultChange?: (value: string) => void;
+  aiDescriptionValue?: string;
+  aiResultValue?: string;
   actions: ReactNode;
   ticketTemplateOptions?: TicketTemplateOption[];
   isAIDescription?: boolean;
@@ -55,9 +59,19 @@ const variantClassMap: Record<
     descriptionWrapper: 'space-y-1.5 md:col-span-3',
     descriptionLabel: 'text-[11px] font-medium text-slate-600',
     descriptionTextarea:
-      'h-[76px] w-full resize-none rounded-md border border-slate-200 bg-[#fcfcfd] px-3 py-2 text-[12px] text-red-500 outline-none',
+      'h-[76px] w-full resize-y rounded-md border border-slate-200 bg-[#fcfcfd] px-3 py-2 text-[12px] text-red-500 outline-none',
   },
 };
+
+const CopyIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></svg>
+);
+const ArrowRightIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
+);
+const FillIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" x2="12" y1="15" y2="3" /></svg>
+);
 
 export default function WorkbenchSummaryPanel({
   variant,
@@ -71,13 +85,17 @@ export default function WorkbenchSummaryPanel({
   fieldsContent,
   descriptionValue,
   onDescriptionChange,
+  resultValue,
+  onResultChange,
+  aiDescriptionValue,
+  aiResultValue,
   actions,
   ticketTemplateOptions,
   isAIDescription,
 }: WorkbenchSummaryPanelProps) {
   const classes = variantClassMap[variant];
-  const descriptionLabel = variant === 'online' ? '会话总结' : '来电描述';
   const [selectedTemplate, setSelectedTemplate] = useState('');
+  const showAISplit = !!isAIDescription;
 
   const handleTemplateChange = (value: string) => {
     setSelectedTemplate(value);
@@ -88,6 +106,13 @@ export default function WorkbenchSummaryPanel({
       }
     }
   };
+
+  const handleCopyDescription = () => { void navigator.clipboard.writeText(aiDescriptionValue ?? ''); };
+  const handleInsertDescription = () => { if (aiDescriptionValue) onDescriptionChange(descriptionValue ? descriptionValue + '\n' + aiDescriptionValue : aiDescriptionValue); };
+  const handleFillDescription = () => { if (aiDescriptionValue) onDescriptionChange(aiDescriptionValue); };
+  const handleCopyResult = () => { void navigator.clipboard.writeText(aiResultValue ?? ''); };
+  const handleInsertResult = () => { if (aiResultValue && onResultChange) onResultChange((resultValue ? resultValue + '\n' : '') + aiResultValue); };
+  const handleFillResult = () => { if (aiResultValue && onResultChange) onResultChange(aiResultValue); };
 
   return (
     <section className={classes.section}>
@@ -146,15 +171,93 @@ export default function WorkbenchSummaryPanel({
                 </select>
               </div>
             ) : null}
-            <div className={classes.descriptionWrapper}>
-              <div className={classes.descriptionLabel}>{descriptionLabel}</div>
-              <textarea
-                value={descriptionValue}
-                onChange={(event) => onDescriptionChange(event.target.value)}
-                placeholder="请输入"
-                className={cn(classes.descriptionTextarea, isAIDescription && 'border-indigo-400')}
-              />
-            </div>
+            {showAISplit ? (
+              <div className="md:col-span-3 space-y-3">
+                {/* 来电描述 row */}
+                <div className="flex gap-0 rounded-lg border border-slate-200 overflow-hidden">
+                  <div className="flex-1 min-w-0 p-3 space-y-1.5">
+                    <div className={classes.descriptionLabel}>来电描述</div>
+                    <textarea
+                      readOnly
+                      value={aiDescriptionValue ?? ''}
+                      placeholder="AI识别中..."
+                      className={cn(classes.descriptionTextarea, 'h-[120px] border-indigo-300 bg-indigo-50/40 text-slate-600 cursor-default')}
+                    />
+                  </div>
+                  <div className="flex flex-col items-center justify-center gap-1.5 border-x border-slate-200 px-1.5">
+                    <button type="button" onClick={handleInsertDescription} title="插入" className="flex h-6 w-6 items-center justify-center rounded border border-slate-200 bg-white text-slate-400 shadow-sm transition-colors hover:border-indigo-300 hover:text-indigo-500">
+                      <ArrowRightIcon />
+                    </button>
+                    <button type="button" onClick={handleFillDescription} title="填充" className="flex h-6 w-6 items-center justify-center rounded border border-slate-200 bg-white text-slate-400 shadow-sm transition-colors hover:border-indigo-300 hover:text-indigo-500">
+                      <FillIcon />
+                    </button>
+                  </div>
+                  <div className="flex-1 min-w-0 p-3 space-y-1.5">
+                    <div className={classes.descriptionLabel}>来电描述</div>
+                    <textarea
+                      value={descriptionValue}
+                      onChange={(event) => onDescriptionChange(event.target.value)}
+                      placeholder="请输入"
+                      className={cn(classes.descriptionTextarea, 'h-[120px] text-slate-600')}
+                    />
+                  </div>
+                </div>
+                {/* 处理结果 row */}
+                {onResultChange && (
+                  <div className="flex gap-0 rounded-lg border border-slate-200 overflow-hidden">
+                    <div className="flex-1 min-w-0 p-3 space-y-1.5">
+                      <div className={classes.descriptionLabel}>处理结果</div>
+                      <textarea
+                        readOnly
+                        value={aiResultValue ?? ''}
+                        placeholder="AI识别中..."
+                        className={cn(classes.descriptionTextarea, 'h-[120px] border-indigo-300 bg-indigo-50/40 text-slate-600 cursor-default')}
+                      />
+                    </div>
+                    <div className="flex flex-col items-center justify-center gap-1.5 border-x border-slate-200 px-1.5">
+                      <button type="button" onClick={handleInsertResult} title="插入" className="flex h-6 w-6 items-center justify-center rounded border border-slate-200 bg-white text-slate-400 shadow-sm transition-colors hover:border-indigo-300 hover:text-indigo-500">
+                        <ArrowRightIcon />
+                      </button>
+                      <button type="button" onClick={handleFillResult} title="填充" className="flex h-6 w-6 items-center justify-center rounded border border-slate-200 bg-white text-slate-400 shadow-sm transition-colors hover:border-indigo-300 hover:text-indigo-500">
+                        <FillIcon />
+                      </button>
+                    </div>
+                    <div className="flex-1 min-w-0 p-3 space-y-1.5">
+                      <div className={classes.descriptionLabel}>处理结果</div>
+                      <textarea
+                        value={resultValue ?? ''}
+                        onChange={(event) => onResultChange(event.target.value)}
+                        placeholder="请输入"
+                        className={cn(classes.descriptionTextarea, 'h-[120px] text-slate-600')}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <>
+                <div className={classes.descriptionWrapper}>
+                  <div className={classes.descriptionLabel}>来电描述</div>
+                  <textarea
+                    value={descriptionValue}
+                    onChange={(event) => onDescriptionChange(event.target.value)}
+                    placeholder="请输入"
+                    className={classes.descriptionTextarea}
+                  />
+                </div>
+                {onResultChange && (
+                  <div className={classes.descriptionWrapper}>
+                    <div className={classes.descriptionLabel}>处理结果</div>
+                    <textarea
+                      value={resultValue ?? ''}
+                      onChange={(event) => onResultChange(event.target.value)}
+                      placeholder="请输入"
+                      className={classes.descriptionTextarea}
+                    />
+                  </div>
+                )}
+              </>
+            )}
           </div>
           <div className="flex justify-end gap-3">{actions}</div>
         </div>

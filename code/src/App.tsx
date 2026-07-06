@@ -8737,13 +8737,14 @@ export default function App() {
     } else if (isDuplicateWebchatProductName(name, editingWebchatProductId)) {
       nextErrors.name = '产品名称已存在，请修改';
     }
-    if (!description) {
-      nextErrors.description = '产品描述不可为空';
-    } else if (description.length > 20) {
-      nextErrors.description = '产品描述最多20个字符';
-    }
     if (!webchatProductForm.imageFileName) {
       nextErrors.image = '请上传产品图片';
+    }
+    if (!webchatProductForm.bindBusinessType) {
+      nextErrors.bindBusinessType = '请选择业务类型';
+    }
+    if (!webchatProductForm.bindProductCategory) {
+      nextErrors.bindProductCategory = '请选择产品分类';
     }
     if (robotConfig) {
       try {
@@ -9356,6 +9357,15 @@ export default function App() {
             ))}
           </div>
         </div>
+        <div className="border-t border-slate-100 px-4 py-3">
+          <button
+            type="button"
+            onClick={() => setWebchatProductDialog('sync')}
+            className="w-full rounded-md border border-[#96b8ff] bg-white px-5 py-2 text-[13px] font-medium text-[#216BFF] transition-colors hover:bg-[#e8f1ff]"
+          >
+            同步
+          </button>
+        </div>
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-white">
@@ -9397,13 +9407,6 @@ export default function App() {
               className="rounded-md bg-[#216BFF] px-5 py-2 text-[13px] font-medium text-white transition-colors hover:bg-[#216BFF]"
             >
               新增
-            </button>
-            <button
-              type="button"
-              onClick={() => setWebchatProductDialog('sync')}
-              className="rounded-md border border-[#96b8ff] bg-white px-5 py-2 text-[13px] font-medium text-[#216BFF] transition-colors hover:bg-[#e8f1ff]"
-            >
-              同步
             </button>
             <div className="relative">
               <button
@@ -9919,7 +9922,7 @@ export default function App() {
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-2">
                 <div className="flex h-10 w-[260px] items-center rounded-md border border-slate-200 bg-white text-[13px]">
-                  <input type="text" placeholder="模糊查找工号/姓名/域账号" className="min-w-0 flex-1 border-none bg-transparent px-3 text-slate-600 outline-none placeholder:text-slate-400" />
+                  <input type="text" placeholder="模糊查找工号/姓名/账号" className="min-w-0 flex-1 border-none bg-transparent px-3 text-slate-600 outline-none placeholder:text-slate-400" />
                   <button type="button" className="flex h-full w-10 shrink-0 items-center justify-center border-l border-slate-200 text-slate-400 transition-colors hover:text-[#216BFF]"><Search size={15} /></button>
                 </div>
               </div>
@@ -9965,7 +9968,7 @@ export default function App() {
             <table className="min-w-[1800px] table-fixed text-left text-[13px]">
               <thead className="bg-[#fafafa] text-slate-600">
                 <tr>
-                  {['序号', '域账号', '员工姓名', '员工工号', '分机号', '默认部门', '员工手机号', '入职时间', '工作状态', '会话限制'].map((col) => (
+                  {['序号', '账号', '员工姓名', '员工工号', '分机号', '默认部门', '员工手机号', '入职时间', '工作状态', '会话限制'].map((col) => (
                     <th key={col} className="whitespace-nowrap px-4 py-3 font-medium">{col}</th>
                   ))}
                 </tr>
@@ -10002,8 +10005,8 @@ export default function App() {
                 <h4 className="text-[13px] font-semibold text-slate-700 border-b border-slate-100 pb-2">账号信息</h4>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-4">
                   <div className="flex items-center gap-2">
-                    <label className="w-[70px] shrink-0 text-right text-[13px] text-slate-600"><span className="mr-0.5 text-red-500">*</span>域账号</label>
-                    <input type="text" value={accountAddForm.domainAccount} onChange={(e) => setAccountAddForm((f) => ({ ...f, domainAccount: e.target.value }))} placeholder="请输入域账号" className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 outline-none placeholder:text-slate-400 focus:border-[#216BFF]" />
+                    <label className="w-[70px] shrink-0 text-right text-[13px] text-slate-600"><span className="mr-0.5 text-red-500">*</span>账号</label>
+                    <input type="text" value={accountAddForm.domainAccount} onChange={(e) => setAccountAddForm((f) => ({ ...f, domainAccount: e.target.value }))} placeholder="请输入账号" className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 outline-none placeholder:text-slate-400 focus:border-[#216BFF]" />
                   </div>
                   <div className="flex items-center gap-2">
                     <label className="w-[70px] shrink-0 text-right text-[13px] text-slate-600"><span className="mr-0.5 text-red-500">*</span>员工姓名</label>
@@ -10566,7 +10569,7 @@ export default function App() {
                       <input type="checkbox" defaultChecked className="peer sr-only" />
                       <div className="h-6 w-11 rounded-full bg-slate-200 transition-colors after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow after:transition-all peer-checked:bg-[#216BFF] peer-checked:after:translate-x-5" />
                     </label>
-                    <span className="text-[12px] text-slate-400">开启后将显示域账号水印</span>
+                    <span className="text-[12px] text-slate-400">开启后将显示账号水印</span>
                   </div>
                 </div>
                 <div className="mt-8 flex justify-end">
@@ -13396,18 +13399,6 @@ export default function App() {
                             {webchatFormErrors.name ? <div className="mt-1 text-[12px] text-[#ff6f6f]">{webchatFormErrors.name}</div> : null}
                           </div>
                         </div>
-                        <div className="grid grid-cols-[92px_1fr] items-start gap-4 text-[14px] text-slate-600">
-                          <span className="pt-2 text-right font-medium"><span className="mr-1 text-[#ff6f6f]">*</span>产品描述:</span>
-                          <div>
-                            <input
-                              value={webchatProductForm.description}
-                              onChange={(event) => setWebchatProductForm((current) => ({ ...current, description: event.target.value }))}
-                              placeholder="请输入产品描述"
-                              className={cn("h-9 w-full rounded border px-3 outline-none", webchatFormErrors.description ? "border-[#ff6f6f]" : "border-slate-200")}
-                            />
-                            {webchatFormErrors.description ? <div className="mt-1 text-[12px] text-[#ff6f6f]">{webchatFormErrors.description}</div> : null}
-                          </div>
-                        </div>
                         <div className="grid grid-cols-[92px_1fr] items-center gap-4 text-[14px] text-slate-600">
                           <span className="text-right font-medium"><span className="mr-1 text-[#ff6f6f]">*</span>产品图片:</span>
                           <div>
@@ -13424,7 +13415,7 @@ export default function App() {
                                   上传图片
                                 </button>
                                 <div className="mt-1 text-[12px] text-slate-400">
-                                  {webchatProductForm.imageFileName || '建议44x44px, PNG格式'}
+                                  {webchatProductForm.imageFileName || '建议44x44px'}
                                 </div>
                               </div>
                             </div>
@@ -13432,27 +13423,33 @@ export default function App() {
                           </div>
                         </div>
                         <div className="mt-2 text-[14px] font-semibold text-slate-700">绑定设置</div>
-                        <div className="grid grid-cols-[92px_1fr] items-center gap-4 text-[14px] text-slate-600">
-                          <span className="text-right font-medium">业务类型:</span>
-                          <select
-                            value={webchatProductForm.bindBusinessType}
-                            onChange={(event) => setWebchatProductForm((current) => ({ ...current, bindBusinessType: event.target.value }))}
-                            className="h-9 w-full rounded border border-slate-200 px-3 text-[13px] outline-none"
-                          >
-                            <option value="">请选择</option>
-                            {onlineBusinessTypeOptions.map((item) => <option key={item} value={item}>{item}</option>)}
-                          </select>
+                        <div className="grid grid-cols-[92px_1fr] items-start gap-4 text-[14px] text-slate-600">
+                          <span className="pt-2 text-right font-medium"><span className="mr-1 text-[#ff6f6f]">*</span>业务类型:</span>
+                          <div>
+                            <select
+                              value={webchatProductForm.bindBusinessType}
+                              onChange={(event) => setWebchatProductForm((current) => ({ ...current, bindBusinessType: event.target.value }))}
+                              className={cn("h-9 w-full rounded border px-3 text-[13px] outline-none", webchatFormErrors.bindBusinessType ? "border-[#ff6f6f]" : "border-slate-200")}
+                            >
+                              <option value="">请选择</option>
+                              {onlineBusinessTypeOptions.map((item) => <option key={item} value={item}>{item}</option>)}
+                            </select>
+                            {webchatFormErrors.bindBusinessType ? <div className="mt-1 text-[12px] text-[#ff6f6f]">{webchatFormErrors.bindBusinessType}</div> : null}
+                          </div>
                         </div>
-                        <div className="grid grid-cols-[92px_1fr] items-center gap-4 text-[14px] text-slate-600">
-                          <span className="text-right font-medium">产品分类:</span>
-                          <select
-                            value={webchatProductForm.bindProductCategory}
-                            onChange={(event) => setWebchatProductForm((current) => ({ ...current, bindProductCategory: event.target.value }))}
-                            className="h-9 w-full rounded border border-slate-200 px-3 text-[13px] outline-none"
-                          >
-                            <option value="">请选择</option>
-                            {webchatBindProductCategories.map((item) => <option key={item} value={item}>{item}</option>)}
-                          </select>
+                        <div className="grid grid-cols-[92px_1fr] items-start gap-4 text-[14px] text-slate-600">
+                          <span className="pt-2 text-right font-medium"><span className="mr-1 text-[#ff6f6f]">*</span>产品分类:</span>
+                          <div>
+                            <select
+                              value={webchatProductForm.bindProductCategory}
+                              onChange={(event) => setWebchatProductForm((current) => ({ ...current, bindProductCategory: event.target.value }))}
+                              className={cn("h-9 w-full rounded border px-3 text-[13px] outline-none", webchatFormErrors.bindProductCategory ? "border-[#ff6f6f]" : "border-slate-200")}
+                            >
+                              <option value="">请选择</option>
+                              {webchatBindProductCategories.map((item) => <option key={item} value={item}>{item}</option>)}
+                            </select>
+                            {webchatFormErrors.bindProductCategory ? <div className="mt-1 text-[12px] text-[#ff6f6f]">{webchatFormErrors.bindProductCategory}</div> : null}
+                          </div>
                         </div>
                         <div className="grid grid-cols-[92px_1fr] items-center gap-4 text-[14px] text-slate-600">
                           <span className="text-right font-medium">产品名称:</span>
@@ -13499,7 +13496,7 @@ export default function App() {
                                   {webchatProductForm.robotAvatar ? '重新上传' : '上传图片'}
                                 </button>
                                 <div className="mt-1 text-[12px] text-slate-400">
-                                  {webchatProductForm.robotAvatarFileName || '建议44×44px，PNG格式'}
+                                  {webchatProductForm.robotAvatarFileName || '建议44×44px'}
                                 </div>
                               </div>
                             </div>

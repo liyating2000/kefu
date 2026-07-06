@@ -14,7 +14,7 @@ const TABLE_COLUMNS = [
   { key: 'link', label: '链接', width: 'w-[80px]' },
   { key: 'receiveNumber', label: '接收号码', width: 'min-w-[100px]' },
   { key: 'senderName', label: '发送人姓名', width: 'min-w-[90px]' },
-  { key: 'domainAccount', label: '域账号', width: 'min-w-[80px]' },
+  { key: 'domainAccount', label: '账号', width: 'min-w-[80px]' },
   { key: 'sendTime', label: '发送时间', width: 'min-w-[120px]' },
   { key: 'invalidStatus', label: '失效状态', width: 'min-w-[80px]' },
   { key: 'uploadStatus', label: '上传状态', width: 'min-w-[80px]' },

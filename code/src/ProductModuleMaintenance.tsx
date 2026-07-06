@@ -156,7 +156,7 @@ export default function ProductModuleMaintenance() {
                   <tr>
                     <th className="whitespace-nowrap px-4 py-3 font-medium">产品模块编码</th>
                     <th className="whitespace-nowrap px-4 py-3 font-medium">产品模块名称</th>
-                    <th className="whitespace-nowrap px-4 py-3 font-medium">接收人(域账号)</th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">接收人(账号)</th>
                     <th className="w-[120px] whitespace-nowrap px-4 py-3 font-medium">操作</th>
                   </tr>
                 </thead>
@@ -250,11 +250,11 @@ export default function ProductModuleMaintenance() {
                 />
               </div>
               <div>
-                <label className="mb-2 block text-[13px] font-medium text-slate-600">接收人(域账号)</label>
+                <label className="mb-2 block text-[13px] font-medium text-slate-600">接收人(账号)</label>
                 <input
                   value={receiverInput}
                   onChange={(e) => setReceiverInput(e.target.value)}
-                  placeholder="请输入接收人域账号"
+                  placeholder="请输入接收人账号"
                   className={inputClass}
                 />
               </div>

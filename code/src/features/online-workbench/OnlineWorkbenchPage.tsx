@@ -623,9 +623,8 @@ const visitorAutoMessages = [
 ];
 const VISITOR_AUTO_MSG_THRESHOLD = 3;
 
-const createDefaultSummaryTabs = (): WorkbenchSummaryTab[] => ['AI小结', '小结1', '小结2', '小结3'];
+const createDefaultSummaryTabs = (): WorkbenchSummaryTab[] => ['小结1', '小结2', '小结3'];
 const createDefaultSummaryFieldStore = (): Record<WorkbenchSummaryTab, WorkbenchFieldValues> => ({
-  AI小结: { '产品分类': '智能硬件', '产品名称': 'T20', '问题分类一级': '设备问题', '问题分类二级': '硬件故障', '问题分类三级': '屏幕不亮' },
   小结1: { '产品分类': '学习机', '产品名称': 'A10' },
   小结2: { '产品分类': '学习机' },
   小结3: { '产品分类': '智能硬件', '产品名称': 'T20', '问题分类一级': '设备问题', '问题分类二级': '硬件故障', '问题分类三级': '屏幕不亮' },
@@ -635,7 +634,8 @@ const summary3Texts = [
   '用户反馈T20学习机屏幕无显示，经排查确认电量正常、未受外力损坏，初步判定为屏幕硬件故障，已建议用户通过官方渠道寄修，预计5-7个工作日完成检测与维修。',
   '用户来电反馈T20学习机屏幕突然无法点亮，充电指示灯正常但屏幕无任何响应。经远程指导尝试强制重启无效，排除电量与系统死机可能，综合判断为屏幕排线或显示模组硬件故障。已指引用户备份数据并通过讯飞官方公众号提交寄修申请，同时告知保修期内免费维修政策，预计7个工作日内完成检测维修并寄回。',
 ];
-const createDefaultSummaryTextStore = (): Record<WorkbenchSummaryTab, string> => ({ AI小结: '用户来电反馈T20学习机屏幕突然无法点亮，充电指示灯正常但屏幕无任何响应。经远程指导尝试强制重启无效，排除电量与系统死机可能，综合判断为屏幕排线或显示模组硬件故障。已指引用户备份数据并通过讯飞官方公众号提交寄修申请，同时告知保修期内免费维修政策，预计7个工作日内完成检测维修并寄回。', 小结1: '', 小结2: '', 小结3: '' });
+const AI_RESULT_TEXT = '已指引用户通过讯飞官方公众号提交寄修申请，告知保修期内免费维修政策，预计7个工作日内完成检测维修并寄回。';
+const createDefaultSummaryTextStore = (): Record<WorkbenchSummaryTab, string> => ({ 小结1: '', 小结2: '', 小结3: '' });
 const createNextSummaryTabLabel = (tabs: WorkbenchSummaryTab[]) => {
   const max = tabs.reduce((r, t) => { const n = Number(t.replace('小结', '')); return Number.isNaN(n) ? r : Math.max(r, n); }, 0);
   return `小结${max + 1}`;
@@ -886,6 +886,7 @@ export default function OnlineWorkbenchPage({ onOpenWorkOrderDetail }: OnlineWor
     createInitialFieldValuesByTab: createDefaultSummaryFieldStore,
     createInitialTextByTab: createDefaultSummaryTextStore,
   });
+  const [onlineSummaryResultText, setOnlineSummaryResultText] = useState('');
   const [onlineSummaryOpenSelect, setOnlineSummaryOpenSelect] = useState<string | null>(null);
   const [selectSearchQuery, setSelectSearchQuery] = useState<Record<string, string>>({});
 
@@ -912,34 +913,20 @@ export default function OnlineWorkbenchPage({ onOpenWorkOrderDetail }: OnlineWor
   }, []);
   const onlineAIReady = visitorAutoMsgCount >= VISITOR_AUTO_MSG_THRESHOLD;
 
-  // ─── Summary3 auto-typing ─────────────────────────────────────────
-  const [summary3UserEdited, setSummary3UserEdited] = useState(false);
-  const [summary3Step, setSummary3Step] = useState(0);
-  const summary3CharIdx = useRef(0);
-  const summary3Done = summary3Step >= summary3Texts.length * 2 - 1;
+  // ─── Summary3 AI delayed appear ───────────────────────────────────
+  const [aiSummary3Text, setAiSummary3Text] = useState('');
+  const [aiSummary3Result, setAiSummary3Result] = useState('');
   useEffect(() => {
-    if (summary3UserEdited || !onlineAIReady || onlineSummaryTab !== '小结3' || summary3Done) return;
-    const textIdx = Math.floor(summary3Step / 2);
-    const isTyping = summary3Step % 2 === 0;
-    if (isTyping) {
-      const fullText = summary3Texts[textIdx];
-      const timer = setInterval(() => {
-        const idx = summary3CharIdx.current;
-        if (idx >= fullText.length) { clearInterval(timer); setSummary3Step((s) => s + 1); return; }
-        const next = Math.min(idx + 2, fullText.length);
-        summary3CharIdx.current = next;
-        setActiveOnlineSummaryText(fullText.slice(0, next));
-      }, 100);
-      return () => clearInterval(timer);
-    }
-    const timer = setTimeout(() => {
-      summary3CharIdx.current = 0;
-      setSummary3Step((s) => s + 1);
-    }, 3000);
-    return () => clearTimeout(timer);
-  }, [onlineAIReady, summary3UserEdited, onlineSummaryTab, summary3Step]);
+    if (!onlineAIReady || onlineSummaryTab !== '小结3') return;
+    const t1 = setTimeout(() => {
+      setAiSummary3Text(summary3Texts[summary3Texts.length - 1]);
+    }, 2000);
+    const t2 = setTimeout(() => {
+      setAiSummary3Result(AI_RESULT_TEXT);
+    }, 4000);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, [onlineAIReady, onlineSummaryTab]);
   const handleOnlineSummaryDescriptionChange = (text: string) => {
-    if (onlineSummaryTab === '小结3' && !summary3Done) setSummary3UserEdited(true);
     setActiveOnlineSummaryText(text);
   };
 
@@ -1323,6 +1310,7 @@ export default function OnlineWorkbenchPage({ onOpenWorkOrderDetail }: OnlineWor
           const activeCity = activeProv && activeRegion ? activeProv.cities.find((c) => c.name === activeRegion.city) ?? activeProv.cities[0] : null;
           const isSearchable = searchableSelectFields.has(field.label);
           const isAIField = (() => { if (scope === 'online-summary' && !onlineAIReady) return false; const at = scope === 'online-summary' ? onlineSummaryTab : ''; if (at === '小结1') { if (fieldValues['产品名称'] !== 'A10') return false; if (field.label === '问题分类一级') return true; const v = fieldValues['问题分类一级']; return !!(v && aiProblemLevel1Cascade[v]?.[field.label]); } if (at === '小结2') { if (field.label === '产品名称') return true; const v = fieldValues['产品名称']; return !!(v && aiProductNameCascade[v]?.[field.label]); } if (at === '小结3') { if (field.label === '产品名称') return true; if (fieldValues['产品名称'] !== 'T20') return false; return field.label === '问题分类一级' || field.label === '问题分类二级' || field.label === '问题分类三级'; } return false; })();
+          const showAIBorder = isAIField && field.label !== '产品名称';
 
           return (
             <div className={cn(showProblemSearch && 'flex items-center gap-1.5')}>
@@ -1335,14 +1323,14 @@ export default function OnlineWorkbenchPage({ onOpenWorkOrderDetail }: OnlineWor
                     placeholder={field.placeholder}
                     onFocus={() => { setSelectSearchQuery((p) => ({ ...p, [fieldKey]: '' })); setOpenSelect(fieldKey); }}
                     onChange={(e) => setSelectSearchQuery((p) => ({ ...p, [fieldKey]: e.target.value }))}
-                    className={cn("h-[30px] w-full rounded-md border bg-[#fcfcfd] px-3 pr-7 text-[12px] text-slate-600 outline-none shadow-[inset_0_1px_2px_rgba(15,23,42,0.02)] placeholder:text-slate-400", isAIField ? 'border-indigo-400' : 'border-slate-200')}
+                    className={cn("h-[30px] w-full rounded-md border bg-[#fcfcfd] px-3 pr-7 text-[12px] text-slate-600 outline-none shadow-[inset_0_1px_2px_rgba(15,23,42,0.02)] placeholder:text-slate-400", showAIBorder ? 'border-indigo-400' : 'border-slate-200')}
                   />
                   <ChevronDown size={13} className={cn('pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 transition-transform', openSelect === fieldKey && 'rotate-180')} />
                 </div>
               ) : (
                 <button ref={(node) => { floatingSelectTriggerRefs.current[fieldKey] = node; }} type="button"
                   onClick={() => { if (isRegionCascader && activeRegion) setRegionSelection!(activeRegion); setOpenSelect((p) => (p === fieldKey ? null : fieldKey)); }}
-                  className={cn("flex h-[30px] w-full items-center gap-2 rounded-md border bg-[#fcfcfd] px-3 text-[12px] text-slate-600 outline-none shadow-[inset_0_1px_2px_rgba(15,23,42,0.02)]", isAIField ? 'border-indigo-400' : 'border-slate-200')}>
+                  className={cn("flex h-[30px] w-full items-center gap-2 rounded-md border bg-[#fcfcfd] px-3 text-[12px] text-slate-600 outline-none shadow-[inset_0_1px_2px_rgba(15,23,42,0.02)]", showAIBorder ? 'border-indigo-400' : 'border-slate-200')}>
                   <span className={cn('min-w-0 flex-1 truncate whitespace-nowrap text-left', fieldValues[field.label] ? 'text-slate-600' : 'text-slate-400')}>{fieldValues[field.label] || field.placeholder}</span>
                   <ChevronDown size={13} className={cn('shrink-0 text-slate-300 transition-transform', openSelect === fieldKey && 'rotate-180')} />
                 </button>
@@ -1401,7 +1389,7 @@ export default function OnlineWorkbenchPage({ onOpenWorkOrderDetail }: OnlineWor
                             }
                             setFieldValues((p) => ({ ...p, [field.label]: storeValue, ...cascade, ...clear })); setOpenSelect(null); setSelectSearchQuery((p) => ({ ...p, [fieldKey]: '' }));
                           }} className={cn('flex w-full items-center gap-1.5 px-3 py-2 text-left text-[12px] transition-colors', fieldValues[field.label] === storeValue ? 'bg-brand-50 text-brand-600' : 'text-slate-600 hover:bg-slate-50')}>
-                            {isAI ? <span className="inline-flex items-center gap-1 rounded-md bg-gradient-to-r from-violet-500 to-indigo-500 px-1.5 py-0.5 text-[10px] font-bold leading-none text-white shadow-[0_1px_4px_rgba(99,102,241,0.4)]"><Sparkles size={9} />{activeTab !== '小结3' && 'AI'}</span> : null}
+                            {isAI && field.label !== '产品名称' ? <span className="inline-flex items-center gap-1 rounded-md bg-gradient-to-r from-violet-500 to-indigo-500 px-1.5 py-0.5 text-[10px] font-bold leading-none text-white shadow-[0_1px_4px_rgba(99,102,241,0.4)]"><Sparkles size={9} />{activeTab !== '小结3' && 'AI'}</span> : null}
                             <span>{displayLabel}</span>
                           </button>
                         );
@@ -1844,15 +1832,19 @@ export default function OnlineWorkbenchPage({ onOpenWorkOrderDetail }: OnlineWor
                   onTabSelect={setOnlineSummaryTab}
                   onAddTab={handleAddOnlineSummaryTab}
                   onRemoveTab={handleRemoveOnlineSummaryTab}
-                  fixedTabs={['AI小结']}
+                  fixedTabs={[]}
                   fieldsContent={workbenchSummaryFields.map((field) => renderEditableWorkbenchField(field, activeOnlineSummaryFieldValues, updateOnlineSummaryFieldValues, onlineSummaryOpenSelect, setOnlineSummaryOpenSelect, 'online-summary'))}
                   descriptionValue={activeOnlineSummaryText}
                   onDescriptionChange={handleOnlineSummaryDescriptionChange}
-                  isAIDescription={onlineSummaryTab === 'AI小结' || (onlineAIReady && onlineSummaryTab === '小结3')}
+                  resultValue={onlineSummaryResultText}
+                  onResultChange={setOnlineSummaryResultText}
+                  aiDescriptionValue={onlineAIReady && onlineSummaryTab === '小结3' ? aiSummary3Text : undefined}
+                  aiResultValue={onlineAIReady && onlineSummaryTab === '小结3' ? aiSummary3Result : undefined}
+                  isAIDescription={onlineSummaryTab === '小结1' || onlineSummaryTab === '小结2' || onlineSummaryTab === '小结3'}
                   ticketTemplateOptions={onlineTicketTemplateOptions}
                   actions={
                     <>
-                      {onlineSummaryTab !== 'AI小结' && <button type="button" onClick={() => handleRemoveOnlineSummaryTab(onlineSummaryTab)} className="rounded-full border border-rose-300 bg-rose-50/60 px-5 py-1.5 text-[12px] font-medium text-rose-500 transition-colors hover:bg-rose-50">废弃</button>}
+                      <button type="button" onClick={() => handleRemoveOnlineSummaryTab(onlineSummaryTab)} className="rounded-full border border-rose-300 bg-rose-50/60 px-5 py-1.5 text-[12px] font-medium text-rose-500 transition-colors hover:bg-rose-50">废弃</button>
                       <button className="rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-5 py-1.5 text-[12px] font-medium text-[#216BFF]">升级工单</button>
                       {activeOnlineBusinessType === '教育' ? <button type="button" onClick={() => setShowCreateTpdModal(true)} className="rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-5 py-1.5 text-[12px] font-medium text-[#216BFF]">创建TPD工单</button> : null}
                       <button className="rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-5 py-1.5 text-[12px] font-medium text-[#216BFF]">提交</button>

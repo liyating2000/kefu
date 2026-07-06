@@ -107,15 +107,15 @@ export default function CreateTpdWorkOrderModal({
             />
           </Field>
 
-          {/* 接收人(域账号) */}
-          <Field label="接收人(域账号)" required>
+          {/* 接收人(账号) */}
+          <Field label="接收人(账号)" required>
             <input
               type="text"
               value={values.receiver}
               onChange={(e) =>
                 setValues((prev) => ({ ...prev, receiver: e.target.value }))
               }
-              placeholder="请输入域账号"
+              placeholder="请输入账号"
               className={fieldInputClass}
             />
           </Field>
@@ -165,8 +165,8 @@ export default function CreateTpdWorkOrderModal({
             </div>
           </Field>
 
-          {/* 一线人员域账号 */}
-          <Field label="一线人员域账号">
+          {/* 一线人员账号 */}
+          <Field label="一线人员账号">
             <input
               type="text"
               value={values.frontlineAccount}
