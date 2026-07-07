@@ -405,14 +405,14 @@ const createOnlineThirdPartyLinks = (
 const onlineSessionRightPanelDetails: Record<string, OnlineSessionRightPanelDetail> = {
   'sess-1': {
     robotPanel: { insights: [{ id: '#1', content: '已识别到用户为学习机老客，近 30 天内两次咨询续航与电池健康问题，本次诉求为"充满电后使用 2 小时即掉电"。', duration: '8.4s', time: '09:06:23' }, { id: '#2', content: '机器人已关联设备型号 T10，并命中"续航异常排查"和"售后检测建议"两条服务策略。', duration: '9.1s', time: '09:06:25' }, { id: '#3', content: '推荐先核对充放电习惯和电池健康度，再决定是否创建检测工单，避免直接误判为硬件故障。', duration: '9.6s', time: '09:06:27' }], capabilities: [{ title: '用户画像', status: '已加载' }, { title: '健康度判断', status: '已生成', emphasized: true }, { title: '售后建议', status: '已准备' }], topicTitle: '学习机续航异常排查', steps: ['确认设备型号', '核对掉电表现', '给出售后检测建议'], resultTitle: '排查完成', suggestedReply: '从您描述看，当前更像是电池损耗偏快，我建议先做一次电池健康检测；如果检测结果异常，我可以继续为您安排售后。' },
-    customerProfile: { anonymous: false, businessType: '学习机', fieldValues: { 客户类型: '老客', 来电号码: '13800008989', 省市区: '北京市/北京市/朝阳区', 学校名称: '朝阳外国语学校', 运营商: '中国移动', 客户名称: '李女士', 联系号码: '13800008989', 学校标签: '初中', 服务归口: '移动服务组', 是否审核: '已审核' } },
+    customerProfile: { anonymous: false, businessType: '学习机', fieldValues: { 客户类型: '老客', 来电号码: '13800008989', 省市区: '北京市/北京市/朝阳区', 学校名称: '朝阳外国语学校', 运营商: '中国移动', 客户名称: '李女士', 联系号码: '13800008989', 学校标签: '初中', 服务归口: '移动服务组', 是否考核: '已审核' } },
     historyPanelMeta: { '会话历史': createOnlineHistorySection('共12次，当前第3次', '会话关键词', [{ label: '渠道来源', value: '移动端' }, { label: '队列', value: '移动服务组' }, { label: '浏览器类型', value: 'Safari' }, { label: '地址', value: '北京市朝阳区' }, { label: '持续时间', value: '7min' }], [{ align: 'left', text: '上次建议我先观察两天，现在还是掉电很快。' }, { align: 'right', text: '明白，我这次帮您直接核对电池健康度和检测流程。' }, { align: 'left', text: '如果需要寄修的话麻烦一起告诉我。' }]), '通话历史': createOnlineHistorySection('共2次，当前第1次', '通话关键词', [{ label: '振铃时长', value: '6s' }, { label: '电话归属', value: '北京' }, { label: '技能组', value: '售后服务组' }, { label: '呼叫类型', value: '呼出' }, { label: '坐席号码', value: '0101' }, { label: '客户号码', value: '13800008989' }], [{ align: 'left', text: '之前电话里说可以先看健康度。' }, { align: 'right', text: '是的，如果低于阈值就建议安排检测。' }]), '短信历史': createOnlineHistorySection('共6次，当前2次', '短信关键词', [{ label: '发送状态', value: '成功' }, { label: '短信渠道', value: '服务短信' }, { label: '短信模板', value: '续航检测说明' }, { label: '发送账号', value: 'SMS-BJ-02' }, { label: '接收号码', value: '138****8989' }], [{ align: 'right', text: '您好，电池健康度检测步骤已短信发送，请留意查收。', badge: '短信模板' }, { align: 'left', text: '收到了，我先按步骤试一下。' }]), '邮件历史': createOnlineHistorySection('共2次，当前1次', '邮件关键词', [{ label: '邮件状态', value: '已送达' }, { label: '邮件分类', value: '售后说明' }, { label: '邮件主题', value: '学习机电池检测指南' }, { label: '发送方式', value: '人工发送' }, { label: '收件账号', value: 'li***@qq.com' }], [{ align: 'right', text: '已将检测指南和售后地址发到您邮箱。', badge: '邮件摘要' }, { align: 'left', text: '好的，我晚点看一下。' }]) },
     toolItems: createOnlineToolItems([['短信跟进', toolSmsIcon, '续航回访'], ['附件查询', toolAttachmentIcon, '检测报告'], ['邮箱', toolMailIcon, '发送说明'], ['售后网点查询', toolServicePointIcon, '附近网点'], ['售后维修价格', toolRepairPriceIcon, '维修参考'], ['售后付款', toolPaymentIcon, '补差处理']]),
     thirdPartyLinks: createOnlineThirdPartyLinks([{ group: '售后服务平台', items: ['售后工单中心', '设备检测服务台', '维修报价平台'] }, { group: '设备中台', items: ['学习机设备档案', '配件库存平台', '寄修地址查询'] }], [{ group: '个人常用', items: ['我的检测工单', '我的回访任务', '我的售后知识收藏'] }, { group: '快捷入口', items: ['电池健康度 SOP', '续航异常话术库'] }]),
   },
   'sess-2': {
     robotPanel: { insights: [{ id: '#1', content: '机器人识别到本次诉求与"提现限额不足"相关，用户已尝试自助调整失败，需要人工补充规则解释。', duration: '8.9s', time: '09:10:22' }, { id: '#2', content: '历史会话中用户已完成银行卡绑定，本次只需确认账户等级、近 7 日风险校验结果和可提升路径。', duration: '9.7s', time: '09:10:24' }, { id: '#3', content: '推荐优先说明限额规则，再补充需要提交的材料，避免直接承诺即时提升额度。', duration: '10.0s', time: '09:10:26' }], capabilities: [{ title: '账户识别', status: '已加载' }, { title: '限额规则', status: '已匹配', emphasized: true }, { title: '提额路径', status: '已生成' }], topicTitle: '提现限额调整指引', steps: ['确认账户等级', '核对提额条件', '说明处理时效'], resultTitle: '方案已生成', suggestedReply: '我先帮您核对账户当前等级和风险校验状态，如果满足条件，可以通过补充材料申请提升提现限额，我这边给您说一下具体路径。' },
-    customerProfile: { anonymous: true, businessType: '教育', fieldValues: { 客户类型: 'VIP客户', 来电号码: '17600002305', 省市区: '北京市/北京市/海淀区', 学校名称: '北京理工附中', 运营商: '中国联通', 客户名称: '王先生', 联系号码: '17600002305', 学校标签: '高校家庭', 服务归口: 'Web金融咨询组', 是否审核: '待审核' } },
+    customerProfile: { anonymous: true, businessType: '教育', fieldValues: { 客户类型: 'VIP客户', 来电号码: '17600002305', 省市区: '北京市/北京市/海淀区', 学校名称: '北京理工附中', 运营商: '中国联通', 客户名称: '王先生', 联系号码: '17600002305', 学校标签: '高校家庭', 服务归口: 'Web金融咨询组', 是否考核: '待审核' } },
     historyPanelMeta: { '会话历史': createOnlineHistorySection('共8次，当前第2次', '会话关键词', [{ label: '渠道来源', value: 'Web端' }, { label: '队列', value: 'B组' }, { label: '浏览器类型', value: 'Chrome' }, { label: '地址', value: '北京市海淀区' }, { label: '持续时间', value: '5min' }], [{ align: 'left', text: '您好，请问你是哪个位?' }, { align: 'right', text: '我是在线客服，请问有什么可以帮您？' }]), '通话历史': createOnlineHistorySection('共3次，当前第1次', '通话关键词', [{ label: '振铃时长', value: '8s' }, { label: '电话归属', value: '北京' }, { label: '技能组', value: 'B组' }, { label: '呼叫类型', value: '呼入' }, { label: '坐席号码', value: '0102' }, { label: '客户号码', value: '17600002305' }], [{ align: 'left', text: '之前客服说帮我查一下限额。' }, { align: 'right', text: '好的，我这边核实了您的账户状态。' }]), '短信历史': createOnlineHistorySection('共4次，当前1次', '短信关键词', [{ label: '发送状态', value: '成功' }, { label: '短信渠道', value: '服务短信' }, { label: '短信模板', value: '限额通知' }, { label: '发送账号', value: 'SMS-BJ-01' }, { label: '接收号码', value: '176****2305' }], [{ align: 'right', text: '您的账户提现限额已更新，请确认。', badge: '短信模板' }]), '邮件历史': createOnlineHistorySection('共1次，当前1次', '邮件关键词', [{ label: '邮件状态', value: '已送达' }, { label: '邮件分类', value: '账户通知' }, { label: '邮件主题', value: '提现限额调整说明' }, { label: '发送方式', value: '系统发送' }, { label: '收件账号', value: 'wang***@qq.com' }], [{ align: 'right', text: '已发送提现限额调整详细说明。', badge: '邮件摘要' }]) },
     toolItems: createOnlineToolItems([['短信', toolSmsIcon, '消息发送'], ['附件查询', toolAttachmentIcon, '附件检索'], ['邮箱', toolMailIcon, '邮件发送'], ['售后网点查询', toolServicePointIcon, '附近网点'], ['售后维修价格', toolRepairPriceIcon, '维修参考'], ['售后付款', toolPaymentIcon, '补差处理']]),
     thirdPartyLinks: createOnlineThirdPartyLinks([{ group: '讯飞开放平台官网', items: ['AI能力体验中心', '讯飞智作官网', '讯飞文档官网'] }, { group: '消费者事业群旗下子系统', items: ['讯飞语记', '录音文件助手', '讯飞翻译'] }], [{ group: '个人常用', items: ['个人 CRM', '个人知识库', '个人工单中心'] }, { group: '快捷入口', items: ['价格申请平台', '活动素材库'] }]),
@@ -521,7 +521,7 @@ const onlineCustomerFields: WorkbenchFieldConfig[] = [
   { label: '联系号码', placeholder: '请输入', type: 'input' },
   { label: '学校标签', placeholder: '', type: 'input', disabledUntilSchool: true },
   { label: '服务归口', placeholder: '', type: 'input', disabledUntilSchool: true },
-  { label: '是否审核', placeholder: '', type: 'select', disabledUntilSchool: true },
+  { label: '是否考核', placeholder: '', type: 'select', disabledUntilSchool: true },
 ];
 
 const workbenchSummaryFields: WorkbenchFieldConfig[] = [
@@ -542,7 +542,7 @@ const workbenchSelectOptions: Record<string, readonly string[]> = {
   '业务类型': onlineBusinessTypeOptions,
   '客户类型': ['普通客户', '潜在客户', 'VIP客户'],
   '运营商': ['移动', '联通', '电信'],
-  '是否审核': ['是', '否'],
+  '是否考核': ['是', '否'],
   '是否结婚': ['是', '否'],
   '是否有孩子': ['是', '否'],
   '产品分类': ['学习机', '智能硬件', '听见', '教育'],
@@ -630,9 +630,9 @@ const createDefaultSummaryFieldStore = (): Record<WorkbenchSummaryTab, Workbench
   小结3: { '产品分类': '智能硬件', '产品名称': 'T20', '问题分类一级': '设备问题', '问题分类二级': '硬件故障', '问题分类三级': '屏幕不亮' },
 });
 const summary3Texts = [
-  '用户反馈T20设备屏幕不亮，已确认非电量问题，初步判断为硬件故障，建议用户寄修处理。',
-  '用户反馈T20学习机屏幕无显示，经排查确认电量正常、未受外力损坏，初步判定为屏幕硬件故障，已建议用户通过官方渠道寄修，预计5-7个工作日完成检测与维修。',
-  '用户来电反馈T20学习机屏幕突然无法点亮，充电指示灯正常但屏幕无任何响应。经远程指导尝试强制重启无效，排除电量与系统死机可能，综合判断为屏幕排线或显示模组硬件故障。已指引用户备份数据并通过讯飞官方公众号提交寄修申请，同时告知保修期内免费维修政策，预计7个工作日内完成检测维修并寄回。',
+  '【问题描述】T20设备屏幕不亮，已确认非电量问题，初步判断为硬件故障\n【设备型号】T20学习机\n【已尝试操作】确认电量正常\n【期望结果】寄修处理',
+  '【问题描述】T20学习机屏幕无显示，经排查确认电量正常、未受外力损坏，初步判定为屏幕硬件故障\n【设备型号】T20学习机\n【已尝试操作】排查电量、检查外力损坏\n【期望结果】通过官方渠道寄修，预计5-7个工作日完成检测与维修',
+  '【问题描述】T20学习机屏幕突然无法点亮，充电指示灯正常但屏幕无任何响应，经远程指导尝试强制重启无效，排除电量与系统死机可能，综合判断为屏幕排线或显示模组硬件故障\n【设备型号】T20学习机\n【已尝试操作】强制重启、排查电量与系统死机\n【期望结果】通过讯飞官方公众号提交寄修申请，保修期内免费维修，预计7个工作日内完成检测维修并寄回',
 ];
 const AI_RESULT_TEXT = '已指引用户通过讯飞官方公众号提交寄修申请，告知保修期内免费维修政策，预计7个工作日内完成检测维修并寄回。';
 const createDefaultSummaryTextStore = (): Record<WorkbenchSummaryTab, string> => ({ 小结1: '', 小结2: '', 小结3: '' });
@@ -1294,7 +1294,7 @@ export default function OnlineWorkbenchPage({ onOpenWorkOrderDetail }: OnlineWor
     <div key={field.label} className={cn('space-y-1.5', field.span === 2 && 'md:col-span-2', field.span === 3 && 'md:col-span-3')}>
       <div className="flex items-center gap-1 text-[11px] font-medium text-slate-600"><span>{field.label}</span>{field.required && <span className="text-rose-400">*</span>}</div>
       {(() => {
-        const isDisabled = field.disabledUntilSchool && !fieldValues['学校名称'];
+        const isDisabled = field.disabledUntilSchool;
         if (field.type === 'school-search') {
           return (<div className="flex items-center gap-1.5"><input type="text" value={fieldValues[field.label] ?? ''} onChange={(e) => setFieldValues((p) => ({ ...p, [field.label]: e.target.value }))} placeholder={field.placeholder} className="h-[30px] min-w-0 flex-1 rounded-md border border-slate-200 bg-[#fcfcfd] px-3 text-[12px] text-slate-600 outline-none shadow-[inset_0_1px_2px_rgba(15,23,42,0.02)] placeholder:text-slate-400" /><button type="button" onClick={() => { setSchoolSearchKeyword(fieldValues[field.label] ?? ''); setShowSchoolSearch(true); }} className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-md border border-brand-200 bg-brand-50/60 text-brand-500 transition-colors hover:bg-brand-100" aria-label="查询学校" title="查询学校"><Search size={14} /></button></div>);
         }
@@ -1311,6 +1311,7 @@ export default function OnlineWorkbenchPage({ onOpenWorkOrderDetail }: OnlineWor
           const isSearchable = searchableSelectFields.has(field.label);
           const isAIField = (() => { if (scope === 'online-summary' && !onlineAIReady) return false; const at = scope === 'online-summary' ? onlineSummaryTab : ''; if (at === '小结1') { if (fieldValues['产品名称'] !== 'A10') return false; if (field.label === '问题分类一级') return true; const v = fieldValues['问题分类一级']; return !!(v && aiProblemLevel1Cascade[v]?.[field.label]); } if (at === '小结2') { if (field.label === '产品名称') return true; const v = fieldValues['产品名称']; return !!(v && aiProductNameCascade[v]?.[field.label]); } if (at === '小结3') { if (field.label === '产品名称') return true; if (fieldValues['产品名称'] !== 'T20') return false; return field.label === '问题分类一级' || field.label === '问题分类二级' || field.label === '问题分类三级'; } return false; })();
           const showAIBorder = isAIField && field.label !== '产品名称';
+          const aiBorderColor = showAIBorder ? (fieldValues[field.label] ? 'border-2 border-blue-400' : 'border-2 border-rose-300') : 'border-slate-200';
 
           return (
             <div className={cn(showProblemSearch && 'flex items-center gap-1.5')}>
@@ -1323,14 +1324,14 @@ export default function OnlineWorkbenchPage({ onOpenWorkOrderDetail }: OnlineWor
                     placeholder={field.placeholder}
                     onFocus={() => { setSelectSearchQuery((p) => ({ ...p, [fieldKey]: '' })); setOpenSelect(fieldKey); }}
                     onChange={(e) => setSelectSearchQuery((p) => ({ ...p, [fieldKey]: e.target.value }))}
-                    className={cn("h-[30px] w-full rounded-md border bg-[#fcfcfd] px-3 pr-7 text-[12px] text-slate-600 outline-none shadow-[inset_0_1px_2px_rgba(15,23,42,0.02)] placeholder:text-slate-400", showAIBorder ? 'border-indigo-400' : 'border-slate-200')}
+                    className={cn("h-[30px] w-full rounded-md border bg-[#fcfcfd] px-3 pr-7 text-[12px] text-slate-600 outline-none shadow-[inset_0_1px_2px_rgba(15,23,42,0.02)] placeholder:text-slate-400", aiBorderColor)}
                   />
                   <ChevronDown size={13} className={cn('pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 transition-transform', openSelect === fieldKey && 'rotate-180')} />
                 </div>
               ) : (
                 <button ref={(node) => { floatingSelectTriggerRefs.current[fieldKey] = node; }} type="button"
                   onClick={() => { if (isRegionCascader && activeRegion) setRegionSelection!(activeRegion); setOpenSelect((p) => (p === fieldKey ? null : fieldKey)); }}
-                  className={cn("flex h-[30px] w-full items-center gap-2 rounded-md border bg-[#fcfcfd] px-3 text-[12px] text-slate-600 outline-none shadow-[inset_0_1px_2px_rgba(15,23,42,0.02)]", showAIBorder ? 'border-indigo-400' : 'border-slate-200')}>
+                  className={cn("flex h-[30px] w-full items-center gap-2 rounded-md border bg-[#fcfcfd] px-3 text-[12px] text-slate-600 outline-none shadow-[inset_0_1px_2px_rgba(15,23,42,0.02)]", aiBorderColor)}>
                   <span className={cn('min-w-0 flex-1 truncate whitespace-nowrap text-left', fieldValues[field.label] ? 'text-slate-600' : 'text-slate-400')}>{fieldValues[field.label] || field.placeholder}</span>
                   <ChevronDown size={13} className={cn('shrink-0 text-slate-300 transition-transform', openSelect === fieldKey && 'rotate-180')} />
                 </button>
@@ -1827,6 +1828,7 @@ export default function OnlineWorkbenchPage({ onOpenWorkOrderDetail }: OnlineWor
                 />
                 <WorkbenchSummaryPanel
                   variant="online"
+                  tabLabelOverrides={activeOnlineBusinessType === '教育' ? { '小结1': '小结1（合肥项目）' } : undefined}
                   tabs={onlineSummaryTabs}
                   activeTab={onlineSummaryTab}
                   onTabSelect={setOnlineSummaryTab}
@@ -2063,7 +2065,7 @@ export default function OnlineWorkbenchPage({ onOpenWorkOrderDetail }: OnlineWor
                 '学校名称': school.name,
                 '学校标签': school.label,
                 '服务归口': school.serviceGroup,
-                '是否审核': school.auditStatus,
+                '是否考核': school.auditStatus,
               },
             }));
           }

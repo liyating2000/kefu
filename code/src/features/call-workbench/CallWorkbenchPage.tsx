@@ -127,7 +127,7 @@ const workbenchCustomerFields: WorkbenchFieldConfig[] = [
   { label: '联系号码', placeholder: '请输入', type: 'input' },
   { label: '学校标签', placeholder: '', type: 'input', disabledUntilSchool: true },
   { label: '服务归口', placeholder: '', type: 'input', disabledUntilSchool: true },
-  { label: '是否审核', placeholder: '', type: 'select', disabledUntilSchool: true },
+  { label: '是否考核', placeholder: '', type: 'select', disabledUntilSchool: true },
 ];
 
 const workbenchSummaryFields: WorkbenchFieldConfig[] = [
@@ -270,7 +270,7 @@ const callWorkbenchInboundProfile: CallWorkbenchInboundProfile = {
     业务类型: '学习机', 客户类型: 'VIP客户', 来电号码: '17601672305',
     省市区: '北京市 / 北京市 / 海淀区', 学校名称: '科大附中',
     运营商: '电信', 客户名称: '王同学', 联系号码: '17601672305',
-    学校标签: '对学习机有兴趣', 服务归口: 'A技能组', 是否审核: '是',
+    学校标签: '对学习机有兴趣', 服务归口: 'A技能组', 是否考核: '是',
   },
 };
 
@@ -304,7 +304,7 @@ const workbenchSelectOptions: Record<string, readonly string[]> = {
   '业务类型': ['教育', '听见', '学习机', '智能硬件', '法院', '医疗'],
   '客户类型': ['普通客户', '潜在客户', 'VIP客户'],
   '运营商': ['移动', '联通', '电信'],
-  '是否审核': ['是', '否'],
+  '是否考核': ['是', '否'],
   '产品分类': ['学习机', '智能硬件', '听见', '教育'],
   '产品名称': ['[AI]T20', '[AI]C10', '[AI]智能录音笔', 'A10', 'X3 Pro', '讯飞听见', '智能办公本'],
   '呼入类型': ['咨询', '投诉', '售后', '回访'],
@@ -852,7 +852,7 @@ export default function CallWorkbenchPage({ onOpenWorkOrderDetail }: CallWorkben
         {field.required && <span className="text-rose-400">*</span>}
       </div>
       {(() => {
-        const isDisabled = field.disabledUntilSchool && !fieldValues['学校名称'];
+        const isDisabled = field.disabledUntilSchool;
         if (field.type === 'school-search') {
           return (
             <div className="flex items-center gap-1.5">
@@ -1311,7 +1311,7 @@ export default function CallWorkbenchPage({ onOpenWorkOrderDetail }: CallWorkben
           '学校名称': school.name,
           '学校标签': school.label,
           '服务归口': school.serviceGroup,
-          '是否审核': school.auditStatus,
+          '是否考核': school.auditStatus,
         }));
         setShowSchoolSearch(false);
       }}

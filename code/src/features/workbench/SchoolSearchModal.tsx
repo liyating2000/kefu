@@ -57,7 +57,7 @@ export default function SchoolSearchModal({
 
   const filtered = useMemo(() => {
     const trimmed = keyword.trim();
-    if (!trimmed) return schools;
+    if (!trimmed) return [];
     return schools.filter(
       (school) =>
         school.name.includes(trimmed) || school.address.includes(trimmed)

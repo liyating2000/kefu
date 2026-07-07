@@ -12,6 +12,7 @@ type TicketTemplateOption = {
 type WorkbenchSummaryPanelProps = {
   variant: WorkbenchSummaryPanelVariant;
   title?: string;
+  tabLabelOverrides?: Record<string, string>;
   tabs: readonly string[];
   activeTab: string;
   onTabSelect: (tab: string) => void;
@@ -76,6 +77,7 @@ const FillIcon = () => (
 export default function WorkbenchSummaryPanel({
   variant,
   title = '会话小结',
+  tabLabelOverrides,
   tabs,
   activeTab,
   onTabSelect,
@@ -95,6 +97,7 @@ export default function WorkbenchSummaryPanel({
 }: WorkbenchSummaryPanelProps) {
   const classes = variantClassMap[variant];
   const [selectedTemplate, setSelectedTemplate] = useState('');
+  const [descManualEnd, setDescManualEnd] = useState(-1);
   const showAISplit = !!isAIDescription;
 
   const handleTemplateChange = (value: string) => {
@@ -108,8 +111,8 @@ export default function WorkbenchSummaryPanel({
   };
 
   const handleCopyDescription = () => { void navigator.clipboard.writeText(aiDescriptionValue ?? ''); };
-  const handleInsertDescription = () => { if (aiDescriptionValue) onDescriptionChange(descriptionValue ? descriptionValue + '\n' + aiDescriptionValue : aiDescriptionValue); };
-  const handleFillDescription = () => { if (aiDescriptionValue) onDescriptionChange(aiDescriptionValue); };
+  const handleInsertDescription = () => { if (aiDescriptionValue) { const prev = descriptionValue; onDescriptionChange(prev ? prev + '\n' + aiDescriptionValue : aiDescriptionValue); setDescManualEnd(prev ? prev.length : 0); } };
+  const handleFillDescription = () => { if (aiDescriptionValue) { onDescriptionChange(aiDescriptionValue); setDescManualEnd(0); } };
   const handleCopyResult = () => { void navigator.clipboard.writeText(aiResultValue ?? ''); };
   const handleInsertResult = () => { if (aiResultValue && onResultChange) onResultChange((resultValue ? resultValue + '\n' : '') + aiResultValue); };
   const handleFillResult = () => { if (aiResultValue && onResultChange) onResultChange(aiResultValue); };
@@ -134,7 +137,7 @@ export default function WorkbenchSummaryPanel({
                       : isFixed ? 'border-transparent text-indigo-400 hover:bg-indigo-50/50 hover:text-indigo-500' : 'border-transparent text-slate-400 hover:bg-slate-50 hover:text-slate-600'
                   )}
                 >
-                  {isFixed ? '✨ ' : ''}{tab}
+                  {isFixed ? '✨ ' : ''}{tabLabelOverrides?.[tab] ?? tab}
                 </button>
               );
             })}
@@ -181,7 +184,7 @@ export default function WorkbenchSummaryPanel({
                       readOnly
                       value={aiDescriptionValue ?? ''}
                       placeholder="AI识别中..."
-                      className={cn(classes.descriptionTextarea, 'h-[120px] border-indigo-300 bg-indigo-50/40 text-slate-600 cursor-default')}
+                      className={cn(classes.descriptionTextarea, 'h-[120px] border-2 border-blue-400 bg-indigo-50/40 text-slate-600 cursor-default')}
                     />
                   </div>
                   <div className="flex flex-col items-center justify-center gap-1.5 border-x border-slate-200 px-1.5">
@@ -194,12 +197,23 @@ export default function WorkbenchSummaryPanel({
                   </div>
                   <div className="flex-1 min-w-0 p-3 space-y-1.5">
                     <div className={classes.descriptionLabel}>来电描述</div>
-                    <textarea
-                      value={descriptionValue}
-                      onChange={(event) => onDescriptionChange(event.target.value)}
-                      placeholder="请输入"
-                      className={cn(classes.descriptionTextarea, 'h-[120px] text-slate-600')}
-                    />
+                    <div className="relative">
+                      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden whitespace-pre-wrap break-words rounded-md border border-transparent px-3 py-2 text-[12px] leading-[1.5]">
+                        {descManualEnd > 0 ? (
+                          <><span className="text-red-500">{descriptionValue.slice(0, descManualEnd)}</span><span className="text-slate-600">{descriptionValue.slice(descManualEnd)}</span></>
+                        ) : descManualEnd === 0 ? (
+                          <span className="text-slate-600">{descriptionValue}</span>
+                        ) : (
+                          <span className="text-red-500">{descriptionValue}</span>
+                        )}
+                      </div>
+                      <textarea
+                        value={descriptionValue}
+                        onChange={(event) => { onDescriptionChange(event.target.value); setDescManualEnd(-1); }}
+                        placeholder="请输入"
+                        className={cn(classes.descriptionTextarea, 'relative h-[120px] bg-transparent text-transparent caret-black')}
+                      />
+                    </div>
                   </div>
                 </div>
                 {/* 处理结果 row */}
@@ -211,7 +225,7 @@ export default function WorkbenchSummaryPanel({
                         readOnly
                         value={aiResultValue ?? ''}
                         placeholder="AI识别中..."
-                        className={cn(classes.descriptionTextarea, 'h-[120px] border-indigo-300 bg-indigo-50/40 text-slate-600 cursor-default')}
+                        className={cn(classes.descriptionTextarea, 'h-[120px] border-2 border-blue-400 bg-indigo-50/40 text-slate-600 cursor-default')}
                       />
                     </div>
                     <div className="flex flex-col items-center justify-center gap-1.5 border-x border-slate-200 px-1.5">
