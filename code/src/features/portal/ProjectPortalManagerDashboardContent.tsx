@@ -9,6 +9,7 @@ import {
   ArrowUpDown,
   CalendarRange,
   ChevronDown,
+  ChevronLeft,
   ChevronRight,
   FileText,
   MessageSquare,
@@ -58,6 +59,7 @@ type ManagerPortalDashboardContentProps = {
   onOpenRankingDetail: () => void;
   onOpenScheduleDisplay: () => void;
   onOpenWorkOrder?: () => void;
+  onOpenWorkOrderDetail?: (data: { id: string; type: string; source: string; status: string; time: string }) => void;
   onOpenCustomerFollow?: () => void;
   onOpenCourseList?: () => void;
   onOpenSummaryManagement?: () => void;
@@ -1327,6 +1329,7 @@ export default function ProjectPortalManagerDashboardContent({
   onOpenRankingDetail,
   onOpenScheduleDisplay,
   onOpenWorkOrder,
+  onOpenWorkOrderDetail,
   onOpenCustomerFollow,
   onOpenCourseList,
   onOpenSummaryManagement,
@@ -1334,6 +1337,32 @@ export default function ProjectPortalManagerDashboardContent({
   isJuneVariant = false,
 }: ManagerPortalDashboardContentProps) {
   const [breakdownLabel, setBreakdownLabel] = useState<string | null>(null);
+  const [mgrWorkOrderPage, setMgrWorkOrderPage] = useState(1);
+  const [mgrWorkOrderFilter, setMgrWorkOrderFilter] = useState<'今日' | '7天内' | '30天内'>('今日');
+  const mgrRecentWorkOrders = [
+    { id: 'WK-20241103-16', type: '售后', source: '热线', status: '处理中', time: '2024-11-03 11:30' },
+    { id: 'WK-20241103-15', type: '咨询', source: 'IM', status: '待处理', time: '2024-11-03 09:45' },
+    { id: 'WK-20241103-14', type: '投诉', source: '售后', status: '处理中', time: '2024-11-03 08:20' },
+    { id: 'WK-20241102-12', type: '咨询', source: 'IM', status: '处理中', time: '2024-11-02 09:05' },
+    { id: 'WK-20241028-07', type: '投诉', source: '热线', status: '已完成', time: '2024-10-28 14:30' },
+    { id: 'WK-20241015-03', type: '售后', source: '市场监督局', status: '待处理', time: '2024-10-15 11:20' },
+    { id: 'WK-20241008-19', type: '咨询', source: '售后', status: '已关闭', time: '2024-10-08 16:45' },
+    { id: 'WK-20240925-08', type: '退换货', source: 'IM', status: '已完成', time: '2024-09-25 10:10' },
+    { id: 'WK-20240918-15', type: '咨询', source: '热线', status: '已完成', time: '2024-09-18 08:50' },
+    { id: 'WK-20240910-22', type: '投诉', source: 'IM', status: '已关闭', time: '2024-09-10 13:25' },
+    { id: 'WK-20240903-11', type: '售后', source: '售后', status: '处理中', time: '2024-09-03 10:40' },
+    { id: 'WK-20240828-06', type: '咨询', source: '热线', status: '已完成', time: '2024-08-28 15:10' },
+  ];
+  const mgrFilteredWorkOrders = (() => {
+    const now = new Date('2024-11-03T00:00:00');
+    const days = mgrWorkOrderFilter === '今日' ? 1 : mgrWorkOrderFilter === '7天内' ? 7 : 30;
+    const cutoff = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
+    return mgrRecentWorkOrders.filter((o) => new Date(o.time) >= cutoff);
+  })();
+  const mgrWorkOrderPageSize = 5;
+  const mgrWorkOrderTotalPages = Math.max(1, Math.ceil(mgrFilteredWorkOrders.length / mgrWorkOrderPageSize));
+  const mgrSafeWorkOrderPage = Math.min(mgrWorkOrderPage, mgrWorkOrderTotalPages);
+  const mgrPagedWorkOrders = mgrFilteredWorkOrders.slice((mgrSafeWorkOrderPage - 1) * mgrWorkOrderPageSize, mgrSafeWorkOrderPage * mgrWorkOrderPageSize);
   const handleTodayTodoClick = (key: TodayTodoKey) => {
     switch (key) {
       case 'work-order':
@@ -1450,6 +1479,62 @@ export default function ProjectPortalManagerDashboardContent({
               onOpenCriticalErrorModal={onOpenCriticalErrorModal}
               onOpenBreakdown={setBreakdownLabel}
             />
+            <section className="surface-card flex flex-col p-6">
+              <div className="mb-5 flex items-center justify-between">
+                <h3 className="text-[15px] font-bold tracking-tight text-slate-800">最近工单</h3>
+                <div className="flex items-center gap-1.5">
+                  {(['今日', '7天内', '30天内'] as const).map((f) => (
+                    <button
+                      key={f}
+                      type="button"
+                      onClick={() => { setMgrWorkOrderFilter(f); setMgrWorkOrderPage(1); }}
+                      className={cn('rounded-full px-3 py-1 text-[12px] font-medium transition-colors', mgrWorkOrderFilter === f ? 'bg-brand-50 text-brand-600 border border-brand-200' : 'text-slate-400 border border-transparent hover:bg-slate-50 hover:text-slate-600')}
+                    >
+                      {f}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="flex-1 overflow-x-auto overflow-y-hidden rounded-2xl border border-slate-200/80 bg-white">
+                <table className="w-full text-left text-[12px]">
+                  <thead>
+                    <tr className="border-b border-slate-200/80 bg-gradient-to-r from-slate-50 to-slate-100/50 text-[12px] font-semibold text-slate-500">
+                      <th className="px-4 py-3 font-semibold">工单编号</th>
+                      <th className="px-4 py-3 font-semibold">工单类型</th>
+                      <th className="px-4 py-3 font-semibold">工单来源</th>
+                      <th className="px-4 py-3 font-semibold">状态</th>
+                      <th className="px-4 py-3 font-semibold">创建时间</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {mgrPagedWorkOrders.map((order) => (
+                      <tr key={order.id} onClick={() => onOpenWorkOrderDetail?.({ ...order })} className="cursor-pointer transition-colors hover:bg-brand-50/40">
+                        <td className="px-4 py-3 text-brand-600 font-semibold">{order.id}</td>
+                        <td className="px-4 py-3 text-slate-600">{order.type}</td>
+                        <td className="px-4 py-3 text-slate-600">{order.source}</td>
+                        <td className="px-4 py-3">
+                          <span className={cn('inline-block rounded-full px-2 py-0.5 text-[11px] font-medium',
+                            order.status === '处理中' ? 'bg-amber-50 text-amber-600' :
+                            order.status === '已完成' ? 'bg-emerald-50 text-emerald-600' :
+                            order.status === '待处理' ? 'bg-sky-50 text-sky-600' :
+                            'bg-slate-100 text-slate-500'
+                          )}>{order.status}</span>
+                        </td>
+                        <td className="px-4 py-3 text-slate-400">{order.time}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="mt-3 flex items-center justify-end gap-2 text-[12px] text-slate-500">
+                <span>共 {mgrFilteredWorkOrders.length} 条</span>
+                <button type="button" disabled={mgrSafeWorkOrderPage <= 1} onClick={() => setMgrWorkOrderPage((p) => Math.max(1, p - 1))} className={cn('flex h-7 w-7 items-center justify-center rounded border border-slate-200 transition-colors', mgrSafeWorkOrderPage <= 1 ? 'text-slate-300 cursor-not-allowed' : 'text-slate-500 hover:bg-slate-50')}><ChevronLeft size={14} /></button>
+                {Array.from({ length: mgrWorkOrderTotalPages }, (_, i) => i + 1).map((p) => (
+                  <button key={p} type="button" onClick={() => setMgrWorkOrderPage(p)} className={cn('flex h-7 min-w-[28px] items-center justify-center rounded border text-[12px] transition-colors', p === mgrSafeWorkOrderPage ? 'border-brand-400 bg-brand-50 text-brand-600 font-medium' : 'border-slate-200 text-slate-500 hover:bg-slate-50')}>{p}</button>
+                ))}
+                <button type="button" disabled={mgrSafeWorkOrderPage >= mgrWorkOrderTotalPages} onClick={() => setMgrWorkOrderPage((p) => Math.min(mgrWorkOrderTotalPages, p + 1))} className={cn('flex h-7 w-7 items-center justify-center rounded border border-slate-200 transition-colors', mgrSafeWorkOrderPage >= mgrWorkOrderTotalPages ? 'text-slate-300 cursor-not-allowed' : 'text-slate-500 hover:bg-slate-50')}><ChevronRight size={14} /></button>
+              </div>
+            </section>
             <MetricFluctuationPanel channel={onlineFilter} />
             <ChartPanel />
           </div>

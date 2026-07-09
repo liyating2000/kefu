@@ -157,6 +157,9 @@ const onlineMonthlyMetricCards: readonly MetricCard[] = [
 const metricPeriodOptions = ['今日', '昨日', '本月'] as const;
 
 const hotlineRecentWorkOrders = [
+  { id: 'WK-20241103-16', type: '售后', source: '热线', status: '处理中', time: '2024-11-03 11:30' },
+  { id: 'WK-20241103-15', type: '咨询', source: 'IM', status: '待处理', time: '2024-11-03 09:45' },
+  { id: 'WK-20241103-14', type: '投诉', source: '售后', status: '处理中', time: '2024-11-03 08:20' },
   { id: 'WK-20241102-12', type: '咨询', source: 'IM', status: '处理中', time: '2024-11-02 09:05' },
   { id: 'WK-20241028-07', type: '投诉', source: '热线', status: '已完成', time: '2024-10-28 14:30' },
   { id: 'WK-20241015-03', type: '售后', source: '市场监督局', status: '待处理', time: '2024-10-15 11:20' },
@@ -216,7 +219,7 @@ export default function AgentPortalDashboardContent({
 }: AgentPortalDashboardContentProps) {
   const isOnlineView = agentSubTab === 'online';
   const [workOrderPage, setWorkOrderPage] = useState(1);
-  const [workOrderFilter, setWorkOrderFilter] = useState<'今日' | '7天内' | '30天内'>('30天内');
+  const [workOrderFilter, setWorkOrderFilter] = useState<'今日' | '7天内' | '30天内'>('今日');
   const filteredWorkOrders = (() => {
     const now = new Date('2024-11-03T00:00:00');
     const days = workOrderFilter === '今日' ? 1 : workOrderFilter === '7天内' ? 7 : 30;
