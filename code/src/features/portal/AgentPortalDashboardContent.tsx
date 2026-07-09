@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import {
   ChevronDown,
+  ChevronLeft,
   ChevronRight,
   FileText,
   MessageSquare,
@@ -161,7 +162,14 @@ const hotlineRecentWorkOrders = [
   { id: 'WK-20241015-03', type: '售后', source: '市场监督局', status: '待处理', time: '2024-10-15 11:20' },
   { id: 'WK-20241008-19', type: '咨询', source: '售后', status: '已关闭', time: '2024-10-08 16:45' },
   { id: 'WK-20240925-08', type: '退换货', source: 'IM', status: '已完成', time: '2024-09-25 10:10' },
-] as const;
+  { id: 'WK-20240918-15', type: '咨询', source: '热线', status: '已完成', time: '2024-09-18 08:50' },
+  { id: 'WK-20240910-22', type: '投诉', source: 'IM', status: '已关闭', time: '2024-09-10 13:25' },
+  { id: 'WK-20240903-11', type: '售后', source: '售后', status: '处理中', time: '2024-09-03 10:40' },
+  { id: 'WK-20240828-06', type: '咨询', source: '热线', status: '已完成', time: '2024-08-28 15:10' },
+  { id: 'WK-20240820-17', type: '退换货', source: 'IM', status: '待处理', time: '2024-08-20 09:35' },
+  { id: 'WK-20240812-09', type: '投诉', source: '市场监督局', status: '已完成', time: '2024-08-12 11:00' },
+  { id: 'WK-20240805-14', type: '咨询', source: '热线', status: '已关闭', time: '2024-08-05 16:20' },
+];
 
 const hotlineLearningRecommendations = [
   {
@@ -207,6 +215,10 @@ export default function AgentPortalDashboardContent({
   onOpenWorkOrderDetail,
 }: AgentPortalDashboardContentProps) {
   const isOnlineView = agentSubTab === 'online';
+  const [workOrderPage, setWorkOrderPage] = useState(1);
+  const workOrderPageSize = 5;
+  const workOrderTotalPages = Math.ceil(hotlineRecentWorkOrders.length / workOrderPageSize);
+  const pagedWorkOrders = hotlineRecentWorkOrders.slice((workOrderPage - 1) * workOrderPageSize, workOrderPage * workOrderPageSize);
   const handleTodayTodoClick = (key: TodayTodoKey) => {
     switch (key) {
       case 'online-workspace':
@@ -478,14 +490,8 @@ export default function AgentPortalDashboardContent({
             <div className="space-y-6">
               {/* Recent work orders */}
               <section className="surface-card flex min-h-[360px] flex-col p-6">
-                <div className="mb-5 flex items-center justify-between">
+                <div className="mb-5">
                   <h3 className="text-[15px] font-bold tracking-tight text-slate-800">最近工单</h3>
-                  <button
-                    type="button"
-                    className="focus-ring flex items-center gap-0.5 rounded-full px-2 py-1 text-[13px] font-medium text-brand-600 transition-colors hover:bg-brand-50"
-                  >
-                    查看全部 <ChevronRight size={13} />
-                  </button>
                 </div>
 
                 <div className="flex-1 overflow-x-auto overflow-y-hidden rounded-2xl border border-slate-200/80 bg-white">
@@ -500,7 +506,7 @@ export default function AgentPortalDashboardContent({
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                      {hotlineRecentWorkOrders.map((order) => (
+                      {pagedWorkOrders.map((order) => (
                         <tr key={order.id} onClick={() => onOpenWorkOrderDetail?.({ ...order })} className="cursor-pointer transition-colors hover:bg-brand-50/40">
                           <td className="px-4 py-3 text-brand-600 font-semibold">{order.id}</td>
                           <td className="px-4 py-3 text-slate-600">{order.type}</td>
@@ -518,6 +524,35 @@ export default function AgentPortalDashboardContent({
                       ))}
                     </tbody>
                   </table>
+                </div>
+                <div className="mt-3 flex items-center justify-end gap-2 text-[12px] text-slate-500">
+                  <span>共 {hotlineRecentWorkOrders.length} 条</span>
+                  <button
+                    type="button"
+                    disabled={workOrderPage <= 1}
+                    onClick={() => setWorkOrderPage((p) => Math.max(1, p - 1))}
+                    className={cn('flex h-7 w-7 items-center justify-center rounded border border-slate-200 transition-colors', workOrderPage <= 1 ? 'text-slate-300 cursor-not-allowed' : 'text-slate-500 hover:bg-slate-50')}
+                  >
+                    <ChevronLeft size={14} />
+                  </button>
+                  {Array.from({ length: workOrderTotalPages }, (_, i) => i + 1).map((p) => (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => setWorkOrderPage(p)}
+                      className={cn('flex h-7 min-w-[28px] items-center justify-center rounded border text-[12px] transition-colors', p === workOrderPage ? 'border-brand-400 bg-brand-50 text-brand-600 font-medium' : 'border-slate-200 text-slate-500 hover:bg-slate-50')}
+                    >
+                      {p}
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    disabled={workOrderPage >= workOrderTotalPages}
+                    onClick={() => setWorkOrderPage((p) => Math.min(workOrderTotalPages, p + 1))}
+                    className={cn('flex h-7 w-7 items-center justify-center rounded border border-slate-200 transition-colors', workOrderPage >= workOrderTotalPages ? 'text-slate-300 cursor-not-allowed' : 'text-slate-500 hover:bg-slate-50')}
+                  >
+                    <ChevronRight size={14} />
+                  </button>
                 </div>
               </section>
 

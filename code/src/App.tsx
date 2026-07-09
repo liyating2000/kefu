@@ -449,7 +449,7 @@ type ProductItem = {
   name: string;
   children?: ProductItem[];
 };
-type AgentPortalPage = 'dashboard' | 'ranking-detail';
+type AgentPortalPage = 'dashboard' | 'ranking-detail' | 'work-order-list';
 type WorkbenchFieldConfig = {
   label: string;
   placeholder: string;
@@ -13166,6 +13166,54 @@ export default function App() {
             <div className="flex-1 p-6 text-slate-500">排名详情页面（开发中）</div>
           ) : viewMode === 'agent' && agentPortalPage === 'ranking-detail' ? (
             <div className="flex-1 p-6 text-slate-500">排名详情页面（开发中）</div>
+          ) : viewMode === 'agent' && agentPortalPage === 'work-order-list' ? (
+            <div className="flex min-h-0 flex-1 flex-col overflow-auto px-6 pb-4 custom-scrollbar">
+              <div className="mb-4 mt-4 flex items-center gap-3">
+                <button type="button" onClick={() => setAgentPortalPage('dashboard')} className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-[13px] font-medium text-[#216BFF] transition-colors hover:bg-[#e8f1ff]">
+                  <ChevronLeft size={15} /> 返回
+                </button>
+                <h2 className="text-[16px] font-bold text-slate-800">待处理工单</h2>
+              </div>
+              <div className="overflow-x-auto rounded-2xl border border-slate-200/80 bg-white">
+                <table className="w-full text-left text-[12px]">
+                  <thead>
+                    <tr className="border-b border-slate-200/80 bg-gradient-to-r from-slate-50 to-slate-100/50 text-[12px] font-semibold text-slate-500">
+                      <th className="px-4 py-3 font-semibold">工单编号</th>
+                      <th className="px-4 py-3 font-semibold">工单类型</th>
+                      <th className="px-4 py-3 font-semibold">工单来源</th>
+                      <th className="px-4 py-3 font-semibold">状态</th>
+                      <th className="px-4 py-3 font-semibold">创建时间</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {[
+                      { id: 'WK-20241105-21', type: '咨询', source: 'IM', status: '待处理', time: '2024-11-05 10:22' },
+                      { id: 'WK-20241104-18', type: '投诉', source: '热线', status: '处理中', time: '2024-11-04 15:40' },
+                      { id: 'WK-20241103-14', type: '售后', source: '市场监督局', status: '待处理', time: '2024-11-03 09:15' },
+                      { id: 'WK-20241102-12', type: '咨询', source: 'IM', status: '处理中', time: '2024-11-02 09:05' },
+                      { id: 'WK-20241101-09', type: '退换货', source: '售后', status: '待处理', time: '2024-11-01 14:30' },
+                      { id: 'WK-20241031-06', type: '咨询', source: 'IM', status: '待处理', time: '2024-10-31 11:20' },
+                      { id: 'WK-20241030-03', type: '售后', source: '热线', status: '处理中', time: '2024-10-30 16:45' },
+                    ].map((order) => (
+                      <tr key={order.id} onClick={() => { setWorkOrderDetailData(order); handleOpenMainTab('工单详情'); }} className="cursor-pointer transition-colors hover:bg-brand-50/40">
+                        <td className="px-4 py-3 font-semibold text-brand-600">{order.id}</td>
+                        <td className="px-4 py-3 text-slate-600">{order.type}</td>
+                        <td className="px-4 py-3 text-slate-600">{order.source}</td>
+                        <td className="px-4 py-3">
+                          <span className={cn('inline-block rounded-full px-2 py-0.5 text-[11px] font-medium',
+                            order.status === '处理中' ? 'bg-amber-50 text-amber-600' :
+                            order.status === '已完成' ? 'bg-emerald-50 text-emerald-600' :
+                            order.status === '待处理' ? 'bg-sky-50 text-sky-600' :
+                            'bg-slate-100 text-slate-500'
+                          )}>{order.status}</span>
+                        </td>
+                        <td className="px-4 py-3 text-slate-400">{order.time}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           ) : (
             <div className="flex min-h-0 flex-1 flex-col overflow-auto px-6 pb-4 custom-scrollbar">
               <PortalViewHeader greeting={portalGreeting || `你好，${userRoleLabels[userRole]}`} />
@@ -13222,7 +13270,7 @@ export default function App() {
                     onOpenRankingDetail={() => setAgentPortalPage('ranking-detail')}
                     onOpenScheduleDisplay={() => handleOpenMainTab('排班信息展示')}
                     onOpenOnlineWorkbench={() => handleOpenMainTab('在线工作台')}
-                    onOpenWorkOrder={() => {}}
+                    onOpenWorkOrder={() => setAgentPortalPage('work-order-list')}
                     onOpenWorkOrderDetail={(data) => { setWorkOrderDetailData(data); handleOpenMainTab('工单详情'); }}
                     onOpenCustomerFollow={() => handleOpenAppointmentTodo()}
                     onOpenCourseList={() => {}}

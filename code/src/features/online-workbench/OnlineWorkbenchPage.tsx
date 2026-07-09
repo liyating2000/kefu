@@ -1415,7 +1415,8 @@ export default function OnlineWorkbenchPage({ onOpenWorkOrderDetail }: OnlineWor
             </div>
           );
         }
-        return <input type="text" value={fieldValues[field.label] ?? ''} onChange={(e) => setFieldValues((p) => ({ ...p, [field.label]: e.target.value }))} placeholder={field.placeholder} className="h-[30px] w-full rounded-md border border-slate-200 bg-[#fcfcfd] px-3 text-[12px] text-slate-600 outline-none shadow-[inset_0_1px_2px_rgba(15,23,42,0.02)] placeholder:text-slate-400" />;
+        const inputBlueBorder = (field.label === '客户名称' || field.label === '联系号码') && scope === 'online-customer';
+        return <input type="text" value={fieldValues[field.label] ?? ''} onChange={(e) => setFieldValues((p) => ({ ...p, [field.label]: e.target.value }))} placeholder={field.placeholder} className={cn("h-[30px] w-full rounded-md border bg-[#fcfcfd] px-3 text-[12px] text-slate-600 outline-none shadow-[inset_0_1px_2px_rgba(15,23,42,0.02)] placeholder:text-slate-400", inputBlueBorder ? 'border-2 border-blue-400' : 'border-slate-200')} />;
       })()}
     </div>
   );
@@ -1828,7 +1829,7 @@ export default function OnlineWorkbenchPage({ onOpenWorkOrderDetail }: OnlineWor
                 />
                 <WorkbenchSummaryPanel
                   variant="online"
-                  tabLabelOverrides={activeOnlineBusinessType === '教育' ? { '小结1': '小结1（合肥项目）' } : undefined}
+                  contentBadge={activeOnlineBusinessType === '教育' && onlineSummaryTab === '小结1' ? '合肥项目' : undefined}
                   tabs={onlineSummaryTabs}
                   activeTab={onlineSummaryTab}
                   onTabSelect={setOnlineSummaryTab}

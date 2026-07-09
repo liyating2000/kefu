@@ -24,6 +24,7 @@ import { twMerge } from 'tailwind-merge';
 import type { WorkOrderDetailData } from './features/call-workbench/WorkOrderDetailPage';
 import ThirdPartyWebsiteSettings from './ThirdPartyWebsiteSettings';
 import PhoneListPage from './PhoneListPage';
+import SchoolSearchModal, { type SchoolRecord } from './features/workbench/SchoolSearchModal';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -3129,67 +3130,123 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                           <div className="text-[11px] font-medium text-slate-600">匿名</div>
                           <button
                             type="button"
-                            aria-pressed={false}
-                            className="relative h-5 w-9 rounded-full bg-slate-300 transition-colors"
+                            aria-pressed={webchatHistoryCustomerAnonymous}
+                            onClick={() => setWebchatHistoryCustomerAnonymous((v) => !v)}
+                            className={cn('relative h-5 w-9 rounded-full transition-colors', webchatHistoryCustomerAnonymous ? 'bg-[#216BFF]' : 'bg-slate-300')}
                           >
-                            <span className="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-all" />
+                            <span className={cn('absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-all', webchatHistoryCustomerAnonymous ? 'left-[18px]' : 'left-0.5')} />
                           </button>
                           <div className="text-[11px] font-medium text-slate-600">业务类型</div>
-                          <select className="h-[30px] min-w-[94px] rounded-md border border-slate-200 bg-[#fcfcfd] px-3 text-[12px] text-slate-600 outline-none">
-                            <option>请选择</option>
-                            <option>个人业务</option>
-                            <option>企业业务</option>
+                          <select
+                            value={webchatHistoryBusinessType}
+                            onChange={(e) => setWebchatHistoryBusinessType(e.target.value)}
+                            className="h-[30px] min-w-[94px] rounded-md border border-slate-200 bg-[#fcfcfd] px-3 text-[12px] text-slate-600 outline-none"
+                          >
+                            {webchatHistoryBusinessTypeOptions.map((opt) => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
                           </select>
                         </div>
 
                         <div className="grid grid-cols-1 gap-x-4 gap-y-4 md:grid-cols-2 xl:grid-cols-3">
                           <Field label="客户类型:" className="[&>span]:w-[88px]">
-                            <select className={inputClass} defaultValue="个人客户">
-                              <option>请选择</option>
-                              <option>个人客户</option>
-                              <option>企业客户</option>
+                            <select
+                              value={webchatHistoryCustomerFields['客户类型'] ?? ''}
+                              onChange={(e) => setWebchatHistoryCustomerFields((p) => ({ ...p, '客户类型': e.target.value }))}
+                              className={inputClass}
+                            >
+                              <option value="">请选择</option>
+                              <option>普通客户</option>
+                              <option>潜在客户</option>
+                              <option>VIP客户</option>
                             </select>
                           </Field>
                           <Field label="来电号码:" className="[&>span]:w-[88px]">
-                            <input placeholder="请输入" className={inputClass} />
+                            <input
+                              value={webchatHistoryCustomerFields['来电号码'] ?? ''}
+                              onChange={(e) => setWebchatHistoryCustomerFields((p) => ({ ...p, '来电号码': e.target.value }))}
+                              placeholder="请输入"
+                              className={inputClass}
+                            />
                           </Field>
                           <Field label="省市区:" className="[&>span]:w-[88px]">
-                            <select className={inputClass}>
-                              <option>请选择</option>
-                              <option>安徽 / 合肥 / 高新区</option>
+                            <select
+                              value={webchatHistoryCustomerFields['省市区'] ?? ''}
+                              onChange={(e) => setWebchatHistoryCustomerFields((p) => ({ ...p, '省市区': e.target.value }))}
+                              className={inputClass}
+                            >
+                              <option value="">请选择</option>
+                              <option>北京市 / 北京市 / 朝阳区</option>
+                              <option>北京市 / 北京市 / 海淀区</option>
+                              <option>安徽省 / 合肥市 / 庐阳区</option>
+                              <option>上海市 / 上海市 / 徐汇区</option>
                             </select>
                           </Field>
-                          <Field label="学校:" className="[&>span]:w-[88px]">
-                            <select className={inputClass}>
-                              <option>请选择</option>
-                            </select>
+                          <Field label="学校名称:" className="[&>span]:w-[88px]">
+                            <div className="flex items-center gap-1.5">
+                              <input
+                                type="text"
+                                value={webchatHistoryCustomerFields['学校名称'] ?? ''}
+                                onChange={(e) => setWebchatHistoryCustomerFields((p) => ({ ...p, '学校名称': e.target.value }))}
+                                placeholder="请输入关键字查询"
+                                className={cn(inputClass, 'min-w-0 flex-1')}
+                              />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setWebchatHistorySchoolSearchKeyword(webchatHistoryCustomerFields['学校名称'] ?? '');
+                                  setWebchatHistorySchoolSearchOpen(true);
+                                }}
+                                className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-md border border-[#96b8ff] bg-[#e8f1ff] text-[#216BFF] transition-colors hover:bg-[#d4e4ff]"
+                                aria-label="查询学校"
+                                title="查询学校"
+                              >
+                                <Search size={14} />
+                              </button>
+                            </div>
                           </Field>
                           <Field label="运营商:" className="[&>span]:w-[88px]">
-                            <select className={inputClass}>
-                              <option>请选择</option>
+                            <select
+                              value={webchatHistoryCustomerFields['运营商'] ?? ''}
+                              onChange={(e) => setWebchatHistoryCustomerFields((p) => ({ ...p, '运营商': e.target.value }))}
+                              className={inputClass}
+                            >
+                              <option value="">请选择</option>
                               <option>移动</option>
                               <option>联通</option>
                               <option>电信</option>
                             </select>
                           </Field>
                           <Field label="客户名称:" className="[&>span]:w-[88px]">
-                            <input defaultValue={`访客${detailRow.visitorId}`} placeholder="请输入" className={inputClass} />
+                            <input
+                              value={webchatHistoryCustomerFields['客户名称'] ?? `访客${detailRow.visitorId}`}
+                              onChange={(e) => setWebchatHistoryCustomerFields((p) => ({ ...p, '客户名称': e.target.value }))}
+                              placeholder="请输入"
+                              className={inputClass}
+                            />
                           </Field>
                           <Field label="联系号码:" className="[&>span]:w-[88px]">
-                            <input placeholder="请输入" className={inputClass} />
+                            <input
+                              value={webchatHistoryCustomerFields['联系号码'] ?? ''}
+                              onChange={(e) => setWebchatHistoryCustomerFields((p) => ({ ...p, '联系号码': e.target.value }))}
+                              placeholder="请输入"
+                              className={inputClass}
+                            />
                           </Field>
                           <Field label="学校标签:" className="[&>span]:w-[88px]">
-                            <input placeholder="请输入" className={inputClass} />
+                            <div className={cn(inputClass, 'flex items-center bg-slate-100 text-slate-400 cursor-not-allowed')}>
+                              <span>{webchatHistoryCustomerFields['学校标签'] || ''}</span>
+                            </div>
                           </Field>
                           <Field label="服务归口:" className="[&>span]:w-[88px]">
-                            <input placeholder="请输入" className={inputClass} />
+                            <div className={cn(inputClass, 'flex items-center bg-slate-100 text-slate-400 cursor-not-allowed')}>
+                              <span>{webchatHistoryCustomerFields['服务归口'] || ''}</span>
+                            </div>
                           </Field>
-                          <Field label="是否审核:" className="[&>span]:w-[88px]">
-                            <select className={inputClass}>
-                              <option>请选择</option>
-                              <option>是</option>
-                              <option>否</option>
-                            </select>
+                          <Field label="是否考核:" className="[&>span]:w-[88px]">
+                            <div className={cn(inputClass, 'flex items-center bg-slate-100 text-slate-400 cursor-not-allowed')}>
+                              <span>{webchatHistoryCustomerFields['是否考核'] || ''}</span>
+                            </div>
                           </Field>
                         </div>
 
@@ -3221,13 +3278,24 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                                 type="button"
                                 onClick={() => setWebchatHistorySummaryTab(tab)}
                                 className={cn(
-                                  'rounded-md border px-2.5 py-1 text-[12px] transition-colors',
+                                  'group relative rounded-md border px-2.5 py-1 text-[12px] transition-colors',
                                   webchatHistorySummaryTab === tab
                                     ? 'border-[#96b8ff] bg-[#e8f1ff] text-brand-500'
                                     : 'border-transparent text-slate-400 hover:bg-slate-50 hover:text-slate-600'
                                 )}
                               >
                                 {tab}
+                                {webchatHistorySummaryTabs.length > 1 && (
+                                  <span
+                                    role="button"
+                                    tabIndex={0}
+                                    onClick={(e) => { e.stopPropagation(); handleRemoveWebchatHistorySummaryTab(tab); }}
+                                    onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); handleRemoveWebchatHistorySummaryTab(tab); } }}
+                                    className="ml-1.5 inline-flex h-3.5 w-3.5 items-center justify-center rounded-full text-[10px] opacity-0 transition-opacity group-hover:opacity-100 hover:bg-slate-200"
+                                  >
+                                    ×
+                                  </span>
+                                )}
                               </button>
                             ))}
                             <button
@@ -3239,94 +3307,232 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                             </button>
                           </div>
                         </div>
+                        {webchatHistoryBusinessType === '教育' && webchatHistorySummaryTab === '小结1' && (
+                          <div className="mb-3 flex items-center">
+                            <span className="rounded border border-[#96b8ff] bg-[#e8f1ff] px-2.5 py-0.5 text-[12px] font-medium text-[#216BFF]">合肥项目</span>
+                          </div>
+                        )}
                         <div className="grid grid-cols-1 gap-x-4 gap-y-4 md:grid-cols-2 xl:grid-cols-3">
                           <Field label="产品分类:" className="[&>span]:w-[88px]">
-                            <select className={inputClass}>
-                              <option>请选择</option>
-                              <option>翻译机</option>
+                            <select
+                              value={webchatHistoryActiveSummaryFields['产品分类'] ?? ''}
+                              onChange={(e) => updateWebchatHistoryActiveSummaryField('产品分类', e.target.value)}
+                              className={inputClass}
+                            >
+                              <option value="">请选择</option>
                               <option>学习机</option>
+                              <option>智能硬件</option>
+                              <option>听见</option>
+                              <option>教育</option>
                             </select>
                           </Field>
                           <Field label="产品名称:" className="[&>span]:w-[88px]">
-                            <select className={inputClass}>
-                              <option>请选择</option>
-                              <option>T10</option>
-                              <option>Pro Max</option>
+                            <select
+                              value={webchatHistoryActiveSummaryFields['产品名称'] ?? ''}
+                              onChange={(e) => updateWebchatHistoryActiveSummaryField('产品名称', e.target.value)}
+                              className={inputClass}
+                            >
+                              <option value="">请选择</option>
+                              <option>A10</option>
+                              <option>T20</option>
+                              <option>C10</option>
+                              <option>X3 Pro</option>
+                              <option>智能录音笔</option>
+                              <option>讯飞听见</option>
+                              <option>智能办公本</option>
                             </select>
                           </Field>
                           <Field label="呼入类型:" className="[&>span]:w-[88px]">
-                            <select className={inputClass}>
-                              <option>请选择</option>
+                            <select
+                              value={webchatHistoryActiveSummaryFields['呼入类型'] ?? ''}
+                              onChange={(e) => updateWebchatHistoryActiveSummaryField('呼入类型', e.target.value)}
+                              className={inputClass}
+                            >
+                              <option value="">请选择</option>
                               <option>咨询</option>
                               <option>投诉</option>
-                            </select>
-                          </Field>
-                          <Field label="问题定型:" className="[&>span]:w-[88px]">
-                            <select className={inputClass}>
-                              <option>请选择</option>
-                              <option>使用咨询</option>
-                              <option>产品故障</option>
+                              <option>售后</option>
+                              <option>回访</option>
                             </select>
                           </Field>
                           <Field label="问题分类一级:" className="[&>span]:w-[88px]">
-                            <select className={inputClass}>
-                              <option>请选择</option>
-                              <option>账户问题</option>
+                            <select
+                              value={webchatHistoryActiveSummaryFields['问题分类一级'] ?? ''}
+                              onChange={(e) => updateWebchatHistoryActiveSummaryField('问题分类一级', e.target.value)}
+                              className={inputClass}
+                            >
+                              <option value="">请选择</option>
+                              <option>设备问题</option>
+                              <option>网络问题</option>
+                              <option>软件问题</option>
+                              <option>充值问题</option>
+                              <option>账号问题</option>
+                              <option>订单问题</option>
+                              <option>售后问题</option>
                             </select>
                           </Field>
                           <Field label="问题分类二级:" className="[&>span]:w-[88px]">
-                            <input placeholder="请输入" className={inputClass} />
+                            <select
+                              value={webchatHistoryActiveSummaryFields['问题分类二级'] ?? ''}
+                              onChange={(e) => updateWebchatHistoryActiveSummaryField('问题分类二级', e.target.value)}
+                              className={inputClass}
+                            >
+                              <option value="">请选择</option>
+                              <option>硬件故障</option>
+                              <option>登录异常</option>
+                              <option>账号注销</option>
+                              <option>系统升级</option>
+                              <option>支付异常</option>
+                              <option>物流查询</option>
+                              <option>退换货</option>
+                              <option>保修咨询</option>
+                            </select>
                           </Field>
                           <Field label="问题分类三级:" className="[&>span]:w-[88px]">
-                            <select className={inputClass}>
-                              <option>请选择</option>
+                            <select
+                              value={webchatHistoryActiveSummaryFields['问题分类三级'] ?? ''}
+                              onChange={(e) => updateWebchatHistoryActiveSummaryField('问题分类三级', e.target.value)}
+                              className={inputClass}
+                            >
+                              <option value="">请选择</option>
+                              <option>屏幕不亮</option>
+                              <option>电池异常</option>
+                              <option>按键失灵</option>
+                              <option>退款未到账</option>
+                              <option>重复扣款</option>
+                              <option>延保服务</option>
+                              <option>密码重置</option>
+                              <option>验证码失败</option>
                             </select>
                           </Field>
                           <Field label="小结类型:" className="[&>span]:w-[88px]">
-                            <select className={inputClass}>
-                              <option>请选择</option>
-                              <option>在线</option>
-                              <option>热线</option>
+                            <select
+                              value={webchatHistoryActiveSummaryFields['小结类型'] ?? ''}
+                              onChange={(e) => updateWebchatHistoryActiveSummaryField('小结类型', e.target.value)}
+                              className={inputClass}
+                            >
+                              <option value="">请选择</option>
+                              <option>服务小结</option>
+                              <option>售后小结</option>
+                              <option>回访小结</option>
                             </select>
                           </Field>
                           <Field label="处理结果状态:" className="[&>span]:w-[88px]">
-                            <select className={inputClass}>
-                              <option>请选择</option>
-                              <option>已解决</option>
-                              <option>未解决</option>
+                            <select
+                              value={webchatHistoryActiveSummaryFields['处理结果状态'] ?? ''}
+                              onChange={(e) => updateWebchatHistoryActiveSummaryField('处理结果状态', e.target.value)}
+                              className={inputClass}
+                            >
+                              <option value="">请选择</option>
+                              <option>已处理</option>
+                              <option>处理中</option>
+                              <option>待回访</option>
+                              <option>已关闭</option>
                             </select>
                           </Field>
                           <Field label="账号:" className="[&>span]:w-[88px]">
-                            <input placeholder="请输入" className={inputClass} />
+                            <input
+                              value={webchatHistoryActiveSummaryFields['账号'] ?? ''}
+                              onChange={(e) => updateWebchatHistoryActiveSummaryField('账号', e.target.value)}
+                              placeholder="请输入"
+                              className={inputClass}
+                            />
                           </Field>
                           <Field label="投诉分类一级:" className="[&>span]:w-[88px]">
-                            <select className={inputClass}>
-                              <option>请选择</option>
+                            <select
+                              value={webchatHistoryActiveSummaryFields['投诉分类一级'] ?? ''}
+                              onChange={(e) => updateWebchatHistoryActiveSummaryField('投诉分类一级', e.target.value)}
+                              className={inputClass}
+                            >
+                              <option value="">请选择</option>
+                              <option>服务态度</option>
+                              <option>处理时效</option>
+                              <option>产品质量</option>
                             </select>
                           </Field>
                           <Field label="投诉分类二级:" className="[&>span]:w-[88px]">
-                            <select className={inputClass}>
-                              <option>请选择</option>
+                            <select
+                              value={webchatHistoryActiveSummaryFields['投诉分类二级'] ?? ''}
+                              onChange={(e) => updateWebchatHistoryActiveSummaryField('投诉分类二级', e.target.value)}
+                              className={inputClass}
+                            >
+                              <option value="">请选择</option>
+                              <option>一级升级</option>
+                              <option>二级升级</option>
+                              <option>专项跟进</option>
                             </select>
                           </Field>
                         </div>
-                        <div className="mt-4">
-                          <span className="mb-2 block text-slate-500">来电描述:</span>
-                          <textarea
-                            rows={3}
-                            value={webchatHistorySummaryText[webchatHistorySummaryTab] ?? ''}
-                            onChange={(event) =>
-                              setWebchatHistorySummaryText((prev) => ({
-                                ...prev,
-                                [webchatHistorySummaryTab]: event.target.value,
-                              }))
-                            }
-                            placeholder="请输入"
-                            className={cn(inputClass, 'h-auto py-2')}
-                          />
+                        <div className="mt-4 space-y-3">
+                          <div className="flex gap-0 rounded-lg border border-slate-200 overflow-hidden">
+                            <div className="flex-1 min-w-0 p-3 space-y-1.5">
+                              <div className="text-[11px] font-medium text-slate-600">来电描述</div>
+                              <textarea
+                                readOnly
+                                value={webchatHistoryActiveAiDesc}
+                                placeholder={webchatHistoryActiveAiDesc ? '' : '无识别结果'}
+                                className={cn('h-[120px] w-full resize-y rounded-md px-3 py-2 text-[12px] text-slate-600 outline-none cursor-default', webchatHistoryActiveAiDesc ? 'border border-slate-200 bg-indigo-50/40' : 'border border-slate-200 bg-slate-50')}
+                              />
+                            </div>
+                            <div className="flex flex-col items-center justify-center gap-1.5 border-x border-slate-200 px-1.5">
+                              <button type="button" onClick={() => { const ai = webchatHistoryActiveAiDesc; const prev = webchatHistorySummaryText[webchatHistorySummaryTab] ?? ''; if (ai) setWebchatHistorySummaryText((p) => ({ ...p, [webchatHistorySummaryTab]: prev ? prev + '\n' + ai : ai })); }} title="插入" className="flex h-6 w-6 items-center justify-center rounded border border-slate-200 bg-white text-slate-400 shadow-sm transition-colors hover:border-indigo-300 hover:text-indigo-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
+                              </button>
+                              <button type="button" onClick={() => { const ai = webchatHistoryActiveAiDesc; if (ai) setWebchatHistorySummaryText((p) => ({ ...p, [webchatHistorySummaryTab]: ai })); }} title="填充" className="flex h-6 w-6 items-center justify-center rounded border border-slate-200 bg-white text-slate-400 shadow-sm transition-colors hover:border-indigo-300 hover:text-indigo-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" x2="12" y1="15" y2="3" /></svg>
+                              </button>
+                            </div>
+                            <div className="flex-1 min-w-0 p-3 space-y-1.5">
+                              <div className="text-[11px] font-medium text-slate-600">来电描述</div>
+                              <textarea
+                                value={webchatHistorySummaryText[webchatHistorySummaryTab] ?? ''}
+                                onChange={(event) =>
+                                  setWebchatHistorySummaryText((prev) => ({
+                                    ...prev,
+                                    [webchatHistorySummaryTab]: event.target.value,
+                                  }))
+                                }
+                                placeholder="请输入"
+                                className="h-[120px] w-full resize-y rounded-md border border-slate-200 bg-[#fcfcfd] px-3 py-2 text-[12px] text-red-500 outline-none"
+                              />
+                            </div>
+                          </div>
+                          <div className="flex gap-0 rounded-lg border border-slate-200 overflow-hidden">
+                            <div className="flex-1 min-w-0 p-3 space-y-1.5">
+                              <div className="text-[11px] font-medium text-slate-600">处理结果</div>
+                              <textarea
+                                readOnly
+                                value={webchatHistoryActiveAiResult}
+                                placeholder={webchatHistoryActiveAiResult ? '' : '无识别结果'}
+                                className={cn('h-[120px] w-full resize-y rounded-md px-3 py-2 text-[12px] text-slate-600 outline-none cursor-default', webchatHistoryActiveAiResult ? 'border border-slate-200 bg-indigo-50/40' : 'border border-slate-200 bg-slate-50')}
+                              />
+                            </div>
+                            <div className="flex flex-col items-center justify-center gap-1.5 border-x border-slate-200 px-1.5">
+                              <button type="button" onClick={() => { const ai = webchatHistoryActiveAiResult; const prev = webchatHistorySummaryResultText[webchatHistorySummaryTab] ?? ''; if (ai) setWebchatHistorySummaryResultText((p) => ({ ...p, [webchatHistorySummaryTab]: prev ? prev + '\n' + ai : ai })); }} title="插入" className="flex h-6 w-6 items-center justify-center rounded border border-slate-200 bg-white text-slate-400 shadow-sm transition-colors hover:border-indigo-300 hover:text-indigo-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
+                              </button>
+                              <button type="button" onClick={() => { const ai = webchatHistoryActiveAiResult; if (ai) setWebchatHistorySummaryResultText((p) => ({ ...p, [webchatHistorySummaryTab]: ai })); }} title="填充" className="flex h-6 w-6 items-center justify-center rounded border border-slate-200 bg-white text-slate-400 shadow-sm transition-colors hover:border-indigo-300 hover:text-indigo-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" x2="12" y1="15" y2="3" /></svg>
+                              </button>
+                            </div>
+                            <div className="flex-1 min-w-0 p-3 space-y-1.5">
+                              <div className="text-[11px] font-medium text-slate-600">处理结果</div>
+                              <textarea
+                                value={webchatHistorySummaryResultText[webchatHistorySummaryTab] ?? ''}
+                                onChange={(event) =>
+                                  setWebchatHistorySummaryResultText((prev) => ({
+                                    ...prev,
+                                    [webchatHistorySummaryTab]: event.target.value,
+                                  }))
+                                }
+                                placeholder="请输入"
+                                className="h-[120px] w-full resize-y rounded-md border border-slate-200 bg-[#fcfcfd] px-3 py-2 text-[12px] text-slate-600 outline-none"
+                              />
+                            </div>
+                          </div>
                         </div>
                         <div className="mt-4 flex justify-end gap-3">
-                          <button type="button" onClick={() => showToast('小结已废弃')} className="rounded-full border border-rose-200 bg-rose-50 px-5 py-1.5 text-[12px] font-medium text-rose-600 transition-colors hover:bg-rose-100">
+                          <button type="button" onClick={() => handleRemoveWebchatHistorySummaryTab(webchatHistorySummaryTab)} className="rounded-full border border-rose-200 bg-rose-50 px-5 py-1.5 text-[12px] font-medium text-rose-600 transition-colors hover:bg-rose-100">
                             废弃
                           </button>
                           <button type="button" onClick={() => showToast('已升级工单')} className="rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-5 py-1.5 text-[12px] font-medium text-[#216BFF]">
@@ -3388,6 +3594,13 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
               </div>
             </div>
           </SectionCard>
+          <SchoolSearchModal
+            isOpen={webchatHistorySchoolSearchOpen}
+            keyword={webchatHistorySchoolSearchKeyword}
+            schools={webchatHistorySchoolRecords}
+            onClose={() => setWebchatHistorySchoolSearchOpen(false)}
+            onSelect={handleWebchatHistorySchoolSelect}
+          />
         </div>
       </div>
     );
@@ -4473,9 +4686,20 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
   const [selectedSupportSessionId, setSelectedSupportSessionId] = useState<string | null>(null);
   const [webchatHistoryDetail, setWebchatHistoryDetail] = useState<string | null>(null);
   const [webchatHistoryDetailTab, setWebchatHistoryDetailTab] = useState<'summary' | 'workorder'>('summary');
-  const [webchatHistorySummaryTabs, setWebchatHistorySummaryTabs] = useState<string[]>(['小结1', '小结2']);
+  const [webchatHistorySummaryTabs, setWebchatHistorySummaryTabs] = useState<string[]>(['小结1', '小结2', '小结3']);
   const [webchatHistorySummaryTab, setWebchatHistorySummaryTab] = useState<string>('小结1');
-  const [webchatHistorySummaryText, setWebchatHistorySummaryText] = useState<Record<string, string>>({ 小结1: '', 小结2: '' });
+  const [webchatHistorySummaryText, setWebchatHistorySummaryText] = useState<Record<string, string>>({ 小结1: '', 小结2: '', 小结3: '' });
+  const [webchatHistorySummaryResultText, setWebchatHistorySummaryResultText] = useState<Record<string, string>>({ 小结1: '', 小结2: '', 小结3: '' });
+  const [webchatHistorySummaryFieldValues, setWebchatHistorySummaryFieldValues] = useState<Record<string, Record<string, string>>>({
+    小结1: { '产品分类': '学习机', '产品名称': 'A10' },
+    小结2: { '产品分类': '学习机' },
+    小结3: { '产品分类': '智能硬件', '产品名称': 'T20', '问题分类一级': '设备问题', '问题分类二级': '硬件故障', '问题分类三级': '屏幕不亮' },
+  });
+  const [webchatHistoryCustomerAnonymous, setWebchatHistoryCustomerAnonymous] = useState(false);
+  const [webchatHistoryBusinessType, setWebchatHistoryBusinessType] = useState('教育');
+  const [webchatHistoryCustomerFields, setWebchatHistoryCustomerFields] = useState<Record<string, string>>({});
+  const [webchatHistorySchoolSearchOpen, setWebchatHistorySchoolSearchOpen] = useState(false);
+  const [webchatHistorySchoolSearchKeyword, setWebchatHistorySchoolSearchKeyword] = useState('');
   const [webchatHistoryVideoPreview, setWebchatHistoryVideoPreview] = useState(false);
   const [webchatHistoryMessageModalOpen, setWebchatHistoryMessageModalOpen] = useState(false);
   const [webchatHistoryMessageContent, setWebchatHistoryMessageContent] = useState('');
@@ -4490,7 +4714,52 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
     const nextTab = `小结${maxIndex + 1}`;
     setWebchatHistorySummaryTabs((prev) => [...prev, nextTab]);
     setWebchatHistorySummaryText((prev) => ({ ...prev, [nextTab]: '' }));
+    setWebchatHistorySummaryFieldValues((prev) => ({ ...prev, [nextTab]: {} }));
     setWebchatHistorySummaryTab(nextTab);
+  };
+  const handleRemoveWebchatHistorySummaryTab = (tab: string) => {
+    setWebchatHistorySummaryTabs((prev) => {
+      const next = prev.filter((t) => t !== tab);
+      if (next.length === 0) return prev;
+      if (webchatHistorySummaryTab === tab) {
+        const idx = prev.indexOf(tab);
+        setWebchatHistorySummaryTab(next[Math.min(idx, next.length - 1)]);
+      }
+      return next;
+    });
+  };
+  const webchatHistorySchoolRecords: SchoolRecord[] = [
+    { name: '合肥市第一中学', label: '高中', address: '合肥市庐阳区', serviceGroup: '教育组', auditStatus: '已审核' } as SchoolRecord,
+    { name: '北京市第四中学', label: '高中', address: '北京市西城区', serviceGroup: '教育组', auditStatus: '已审核' } as SchoolRecord,
+    { name: '上海中学', label: '高中', address: '上海市徐汇区', serviceGroup: '教育组', auditStatus: '待审核' } as SchoolRecord,
+  ];
+  const handleWebchatHistorySchoolSelect = (school: SchoolRecord) => {
+    setWebchatHistoryCustomerFields((prev) => ({
+      ...prev,
+      '学校名称': school.name,
+      '学校标签': school.label,
+      '服务归口': school.serviceGroup,
+      '是否考核': school.auditStatus,
+    }));
+    setWebchatHistorySchoolSearchOpen(false);
+  };
+  const webchatHistoryBusinessTypeOptions = ['教育', '听见', '学习机', '智能硬件', '法院', '医疗'];
+  const webchatHistoryAiDescription: Record<string, string> = {
+    小结1: '【问题描述】用户咨询开户流程，希望了解线上开户所需材料及办理时间\n【业务类型】个人开户\n【已确认信息】用户为新客户，首次咨询',
+    小结2: '【问题描述】用户询问银行卡激活方式及初始密码设置流程\n【业务类型】账户激活\n【已确认信息】用户已收到银行卡',
+  };
+  const webchatHistoryAiResult: Record<string, string> = {
+    小结1: '已告知用户线上开户所需材料（身份证、手机号），引导用户通过手机银行APP完成开户申请，预计1-2个工作日审核完成。',
+    小结2: '已指引用户通过手机银行APP进行银行卡激活，并协助完成初始密码设置，用户已成功激活。',
+  };
+  const webchatHistoryActiveAiDesc = webchatHistoryAiDescription[webchatHistorySummaryTab] ?? '';
+  const webchatHistoryActiveAiResult = webchatHistoryAiResult[webchatHistorySummaryTab] ?? '';
+  const webchatHistoryActiveSummaryFields = webchatHistorySummaryFieldValues[webchatHistorySummaryTab] ?? {};
+  const updateWebchatHistoryActiveSummaryField = (label: string, value: string) => {
+    setWebchatHistorySummaryFieldValues((prev) => ({
+      ...prev,
+      [webchatHistorySummaryTab]: { ...(prev[webchatHistorySummaryTab] ?? {}), [label]: value },
+    }));
   };
   const [webchatTransferTarget, setWebchatTransferTarget] = useState<string | null>(null);
   const [webchatTransferDepartment, setWebchatTransferDepartment] = useState('');

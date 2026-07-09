@@ -13,6 +13,7 @@ type WorkbenchSummaryPanelProps = {
   variant: WorkbenchSummaryPanelVariant;
   title?: string;
   tabLabelOverrides?: Record<string, string>;
+  contentBadge?: string;
   tabs: readonly string[];
   activeTab: string;
   onTabSelect: (tab: string) => void;
@@ -78,6 +79,7 @@ export default function WorkbenchSummaryPanel({
   variant,
   title = '会话小结',
   tabLabelOverrides,
+  contentBadge,
   tabs,
   activeTab,
   onTabSelect,
@@ -155,6 +157,11 @@ export default function WorkbenchSummaryPanel({
       </div>
       <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
         <div className="space-y-4">
+          {contentBadge && (
+            <div className="flex items-center">
+              <span className="rounded border border-[#96b8ff] bg-[#e8f1ff] px-2.5 py-0.5 text-[12px] font-medium text-[#216BFF]">{contentBadge}</span>
+            </div>
+          )}
           <div className={classes.fieldGrid}>
             {fieldsContent}
             {ticketTemplateOptions && ticketTemplateOptions.length > 0 ? (
@@ -179,7 +186,7 @@ export default function WorkbenchSummaryPanel({
                 {/* 来电描述 row */}
                 <div className="flex gap-0 rounded-lg border border-slate-200 overflow-hidden">
                   <div className="flex-1 min-w-0 p-3 space-y-1.5">
-                    <div className={classes.descriptionLabel}>来电描述</div>
+                    <div className={classes.descriptionLabel}>来电描述（AI）</div>
                     <textarea
                       readOnly
                       value={aiDescriptionValue ?? ''}
@@ -220,7 +227,7 @@ export default function WorkbenchSummaryPanel({
                 {onResultChange && (
                   <div className="flex gap-0 rounded-lg border border-slate-200 overflow-hidden">
                     <div className="flex-1 min-w-0 p-3 space-y-1.5">
-                      <div className={classes.descriptionLabel}>处理结果</div>
+                      <div className={classes.descriptionLabel}>处理结果（AI）</div>
                       <textarea
                         readOnly
                         value={aiResultValue ?? ''}
