@@ -216,9 +216,17 @@ export default function AgentPortalDashboardContent({
 }: AgentPortalDashboardContentProps) {
   const isOnlineView = agentSubTab === 'online';
   const [workOrderPage, setWorkOrderPage] = useState(1);
+  const [workOrderFilter, setWorkOrderFilter] = useState<'今日' | '7天内' | '30天内'>('30天内');
+  const filteredWorkOrders = (() => {
+    const now = new Date('2024-11-03T00:00:00');
+    const days = workOrderFilter === '今日' ? 1 : workOrderFilter === '7天内' ? 7 : 30;
+    const cutoff = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
+    return hotlineRecentWorkOrders.filter((o) => new Date(o.time) >= cutoff);
+  })();
   const workOrderPageSize = 5;
-  const workOrderTotalPages = Math.ceil(hotlineRecentWorkOrders.length / workOrderPageSize);
-  const pagedWorkOrders = hotlineRecentWorkOrders.slice((workOrderPage - 1) * workOrderPageSize, workOrderPage * workOrderPageSize);
+  const workOrderTotalPages = Math.max(1, Math.ceil(filteredWorkOrders.length / workOrderPageSize));
+  const safeWorkOrderPage = Math.min(workOrderPage, workOrderTotalPages);
+  const pagedWorkOrders = filteredWorkOrders.slice((safeWorkOrderPage - 1) * workOrderPageSize, safeWorkOrderPage * workOrderPageSize);
   const handleTodayTodoClick = (key: TodayTodoKey) => {
     switch (key) {
       case 'online-workspace':
@@ -490,8 +498,20 @@ export default function AgentPortalDashboardContent({
             <div className="space-y-6">
               {/* Recent work orders */}
               <section className="surface-card flex min-h-[360px] flex-col p-6">
-                <div className="mb-5">
+                <div className="mb-5 flex items-center justify-between">
                   <h3 className="text-[15px] font-bold tracking-tight text-slate-800">最近工单</h3>
+                  <div className="flex items-center gap-1.5">
+                    {(['今日', '7天内', '30天内'] as const).map((f) => (
+                      <button
+                        key={f}
+                        type="button"
+                        onClick={() => { setWorkOrderFilter(f); setWorkOrderPage(1); }}
+                        className={cn('rounded-full px-3 py-1 text-[12px] font-medium transition-colors', workOrderFilter === f ? 'bg-brand-50 text-brand-600 border border-brand-200' : 'text-slate-400 border border-transparent hover:bg-slate-50 hover:text-slate-600')}
+                      >
+                        {f}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="flex-1 overflow-x-auto overflow-y-hidden rounded-2xl border border-slate-200/80 bg-white">
@@ -526,12 +546,12 @@ export default function AgentPortalDashboardContent({
                   </table>
                 </div>
                 <div className="mt-3 flex items-center justify-end gap-2 text-[12px] text-slate-500">
-                  <span>共 {hotlineRecentWorkOrders.length} 条</span>
+                  <span>共 {filteredWorkOrders.length} 条</span>
                   <button
                     type="button"
-                    disabled={workOrderPage <= 1}
+                    disabled={safeWorkOrderPage <= 1}
                     onClick={() => setWorkOrderPage((p) => Math.max(1, p - 1))}
-                    className={cn('flex h-7 w-7 items-center justify-center rounded border border-slate-200 transition-colors', workOrderPage <= 1 ? 'text-slate-300 cursor-not-allowed' : 'text-slate-500 hover:bg-slate-50')}
+                    className={cn('flex h-7 w-7 items-center justify-center rounded border border-slate-200 transition-colors', safeWorkOrderPage <= 1 ? 'text-slate-300 cursor-not-allowed' : 'text-slate-500 hover:bg-slate-50')}
                   >
                     <ChevronLeft size={14} />
                   </button>
@@ -540,16 +560,16 @@ export default function AgentPortalDashboardContent({
                       key={p}
                       type="button"
                       onClick={() => setWorkOrderPage(p)}
-                      className={cn('flex h-7 min-w-[28px] items-center justify-center rounded border text-[12px] transition-colors', p === workOrderPage ? 'border-brand-400 bg-brand-50 text-brand-600 font-medium' : 'border-slate-200 text-slate-500 hover:bg-slate-50')}
+                      className={cn('flex h-7 min-w-[28px] items-center justify-center rounded border text-[12px] transition-colors', p === safeWorkOrderPage ? 'border-brand-400 bg-brand-50 text-brand-600 font-medium' : 'border-slate-200 text-slate-500 hover:bg-slate-50')}
                     >
                       {p}
                     </button>
                   ))}
                   <button
                     type="button"
-                    disabled={workOrderPage >= workOrderTotalPages}
+                    disabled={safeWorkOrderPage >= workOrderTotalPages}
                     onClick={() => setWorkOrderPage((p) => Math.min(workOrderTotalPages, p + 1))}
-                    className={cn('flex h-7 w-7 items-center justify-center rounded border border-slate-200 transition-colors', workOrderPage >= workOrderTotalPages ? 'text-slate-300 cursor-not-allowed' : 'text-slate-500 hover:bg-slate-50')}
+                    className={cn('flex h-7 w-7 items-center justify-center rounded border border-slate-200 transition-colors', safeWorkOrderPage >= workOrderTotalPages ? 'text-slate-300 cursor-not-allowed' : 'text-slate-500 hover:bg-slate-50')}
                   >
                     <ChevronRight size={14} />
                   </button>
