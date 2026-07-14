@@ -1571,15 +1571,12 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                   <tr
                     key={row.id}
                     onDoubleClick={() => {
-                      if (row.status === '暂存') {
+                      if (row.status === '暂存' || row.status === '已完成') {
                         setCustomerInfoModalTarget(row);
                         return;
                       }
                       if (row.summaryType === '热线') {
                         setSummaryHotlineRow(row);
-                        return;
-                      }
-                      if (row.status === '已完成') {
                         return;
                       }
                       if (row.summaryType === '在线') {
@@ -1589,7 +1586,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                     }}
                     className={cn(
                       index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]',
-                      row.summaryType === '热线' || (row.summaryType === '在线' && row.status !== '已完成') ? 'cursor-pointer transition-colors hover:bg-[#e8f1ff]' : '',
+                      'cursor-pointer transition-colors hover:bg-[#e8f1ff]',
                       summaryHotlineRow?.id === row.id ? 'bg-[#e8f1ff]' : ''
                     )}
                   >
@@ -8395,7 +8392,11 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                         readOnly={isSummaryReadOnly}
                       />
                     </div>
-                    {isSummaryReadOnly ? null : (
+                    {isSummaryReadOnly ? (
+                      <div className="mt-4 flex justify-end">
+                        <button type="button" className={solidButtonClass} onClick={() => showToast('已创建工单')}>创建工单</button>
+                      </div>
+                    ) : (
                       <div className="mt-4 flex flex-wrap items-center gap-3">
                         <button type="button" className={solidButtonClass} onClick={() => { showToast('小结已暂存'); setCustomerInfoModalTarget(null); }}>暂存小结</button>
                         <button type="button" className={primaryButtonClass} onClick={() => { showToast('小结已完结'); setCustomerInfoModalTarget(null); }}>小结完结</button>
