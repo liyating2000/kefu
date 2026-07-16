@@ -236,6 +236,7 @@ type WebchatProductRow = {
   robotName: string;
   robotType: string;
   robotConfig: string;
+  agentConfig: string;
   robotAvatar?: string;
   canDelete?: boolean;
   bindBusinessType?: string;
@@ -3161,6 +3162,7 @@ const initialWebchatProducts: WebchatProduct[] = [
     robotName: '学习机xp机器人',
     robotType: '数智机器人',
     robotConfig: '{\n  "robotId": "1"\n}',
+    agentConfig: '{\n  "agentId": "agent-1"\n}',
     config: createWebchatProductConfig('1'),
   },
   {
@@ -3173,6 +3175,7 @@ const initialWebchatProducts: WebchatProduct[] = [
     robotName: '学习机xp1机器人',
     robotType: '数智机器人',
     robotConfig: '{\n  "robotId": "2"\n}',
+    agentConfig: '{\n  "agentId": "agent-2"\n}',
     canDelete: true,
     config: createWebchatProductConfig('2'),
   },
@@ -3186,6 +3189,7 @@ const initialWebchatProducts: WebchatProduct[] = [
     robotName: '学习机xp3机器人',
     robotType: 'dify',
     robotConfig: '{\n  "robotId": "3"\n}',
+    agentConfig: '{\n  "agentId": "agent-3"\n}',
     config: createWebchatProductConfig('3'),
   },
   {
@@ -3198,6 +3202,7 @@ const initialWebchatProducts: WebchatProduct[] = [
     robotName: '学习机xp5机器人',
     robotType: 'dify',
     robotConfig: '{\n  "robotId": "4"\n}',
+    agentConfig: '{\n  "agentId": "agent-4"\n}',
     canDelete: true,
     config: createWebchatProductConfig('4'),
   },
@@ -3211,6 +3216,7 @@ const initialWebchatProducts: WebchatProduct[] = [
     robotName: '翻译笔pro机器人',
     robotType: '数智机器人',
     robotConfig: '{\n  "robotId": "5"\n}',
+    agentConfig: '{\n  "agentId": "agent-5"\n}',
     config: createWebchatProductConfig('5'),
   },
   {
@@ -3223,6 +3229,7 @@ const initialWebchatProducts: WebchatProduct[] = [
     robotName: '跳绳机器人',
     robotType: 'dify',
     robotConfig: '{\n  "robotId": "6"\n}',
+    agentConfig: '{\n  "agentId": "agent-6"\n}',
     canDelete: true,
     config: createWebchatProductConfig('6'),
   },
@@ -3236,6 +3243,7 @@ const initialWebchatProducts: WebchatProduct[] = [
     robotName: '打印机机器人',
     robotType: '数智机器人',
     robotConfig: '{\n  "robotId": "7"\n}',
+    agentConfig: '{\n  "agentId": "agent-7"\n}',
     config: createWebchatProductConfig('7'),
   },
 ];
@@ -4504,6 +4512,7 @@ export default function App() {
     robotName: '',
     robotType: '',
     robotConfig: '',
+    agentConfig: '',
     robotAvatar: '',
     robotAvatarFileName: '',
     robotSilentTime: 60,
@@ -8484,6 +8493,7 @@ export default function App() {
       robotName: '',
       robotType: '',
       robotConfig: '',
+      agentConfig: '',
       robotAvatar: '',
       robotAvatarFileName: '',
       robotSilentTime: 60,
@@ -8511,6 +8521,7 @@ export default function App() {
       robotName: product.robotName,
       robotType: product.robotType,
       robotConfig: product.robotConfig,
+      agentConfig: product.agentConfig ?? '',
       robotAvatar: product.robotAvatar ?? '',
       robotAvatarFileName: product.robotAvatar ? `${product.name}-avatar.png` : '',
       robotSilentTime: 60,
@@ -8729,6 +8740,7 @@ export default function App() {
     const description = webchatProductForm.description.trim();
     const robotName = webchatProductForm.robotName.trim();
     const robotConfig = webchatProductForm.robotConfig.trim();
+    const agentConfig = webchatProductForm.agentConfig.trim();
     const nextErrors: Record<string, string> = {};
     if (!name) {
       nextErrors.name = '产品名称不可为空';
@@ -8753,6 +8765,13 @@ export default function App() {
         nextErrors.robotConfig = '机器人配置必须为合法JSON';
       }
     }
+    if (agentConfig) {
+      try {
+        JSON.parse(agentConfig);
+      } catch {
+        nextErrors.agentConfig = 'agent配置必须为合法JSON';
+      }
+    }
     setWebchatFormErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) {
       return;
@@ -8769,6 +8788,7 @@ export default function App() {
                 robotName,
                 robotType: webchatProductForm.robotType || '',
                 robotConfig,
+                agentConfig,
                 robotAvatar: webchatProductForm.robotAvatar || undefined,
                 bindBusinessType: webchatProductForm.bindBusinessType,
                 bindProductCategory: webchatProductForm.bindProductCategory,
@@ -8790,6 +8810,7 @@ export default function App() {
         robotName,
         robotType: webchatProductForm.robotType || '',
         robotConfig,
+        agentConfig,
         robotAvatar: webchatProductForm.robotAvatar || undefined,
         bindBusinessType: webchatProductForm.bindBusinessType,
         bindProductCategory: webchatProductForm.bindProductCategory,
@@ -8820,6 +8841,7 @@ export default function App() {
       robotName: `${activeWebchatProductCategory}同步机器人`,
       robotType: '数智机器人',
       robotConfig: `{\n  "robotId": "${String(Math.max(0, ...webchatProducts.map((item) => Number(item.id))) + 1)}"\n}`,
+      agentConfig: `{\n  "agentId": "agent-${String(Math.max(0, ...webchatProducts.map((item) => Number(item.id))) + 1)}"\n}`,
       config: createWebchatProductConfig(`sync-${Date.now()}`),
     };
     setWebchatProducts((current) => [syncedProduct, ...current]);
@@ -13598,6 +13620,20 @@ export default function App() {
                               </div>
                             </div>
                             {webchatFormErrors.robotAvatar ? <div className="mt-1 text-[12px] text-[#ff6f6f]">{webchatFormErrors.robotAvatar}</div> : null}
+                          </div>
+                        </div>
+                        <div className="mt-2 text-[14px] font-semibold text-slate-700">agent设置</div>
+                        <div className="grid grid-cols-[92px_1fr] items-start gap-4 text-[14px] text-slate-600">
+                          <span className="pt-2 text-right font-medium">agent配置:</span>
+                          <div>
+                            <textarea
+                              value={webchatProductForm.agentConfig}
+                              onChange={(event) => setWebchatProductForm((current) => ({ ...current, agentConfig: event.target.value }))}
+                              placeholder='{"key": "value"}'
+                              rows={6}
+                              className={cn("w-full rounded border px-3 py-2 font-mono text-[12px] outline-none", webchatFormErrors.agentConfig ? "border-[#ff6f6f]" : "border-slate-200")}
+                            />
+                            {webchatFormErrors.agentConfig ? <div className="mt-1 text-[12px] text-[#ff6f6f]">{webchatFormErrors.agentConfig}</div> : null}
                           </div>
                         </div>
                       </>

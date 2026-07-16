@@ -138,6 +138,7 @@ type Row = {
     routeMode: string;
     workingHoursStart: string;
     workingHoursEnd: string;
+    robotFirstScreenExpireMinutes: string;
     robotName: string;
     robotConfig: string;
     robotKind: string;
@@ -368,6 +369,7 @@ const baseConfig = (businessType: BusinessType): Row['config'] => ({
   routeMode: '智能路由',
   workingHoursStart: '09:00',
   workingHoursEnd: '18:00',
+  robotFirstScreenExpireMinutes: '30',
   robotName: '小智助手V4',
   robotConfig: '{\n  "robotId": "BOUY-KHK_9098"\n}',
   robotKind: '数智机器人',
@@ -2608,6 +2610,15 @@ export default function WebchatChannelMaintenance() {
                       <label className="block text-[13px] text-slate-600">产品分类<select value={active.config.productCategory} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, productCategory: e.target.value } }))} className="mt-2 h-10 w-full rounded-lg border border-slate-200 px-3 outline-none"><option value="">请选择</option>{productCategories.map((item) => <option key={item}>{item}</option>)}</select></label>
                       <label className="block text-[13px] text-slate-600">产品名称<select value={active.config.productName} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, productName: e.target.value } }))} className="mt-2 h-10 w-full rounded-lg border border-slate-200 px-3 outline-none"><option value="">请选择</option>{productNames.map((item) => <option key={item}>{item}</option>)}</select></label>
                       <label className="block text-[13px] text-slate-600">路由模式<select value={active.config.routeMode} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, routeMode: e.target.value } }))} className="mt-2 h-10 w-full rounded-lg border border-slate-200 px-3 outline-none"><option>标准路由</option><option>智能路由</option></select></label>
+                      <label className="block text-[13px] text-slate-600">机器人首屏显示过期时间（分钟）
+                        <input
+                          type="number"
+                          min={1}
+                          value={active.config.robotFirstScreenExpireMinutes}
+                          onChange={(event) => updateActive((row) => ({ ...row, config: { ...row.config, robotFirstScreenExpireMinutes: event.target.value } }))}
+                          className="mt-2 h-10 w-full rounded-lg border border-slate-200 px-3 text-[13px] outline-none focus:border-[#216BFF]"
+                        />
+                      </label>
                       <div className="block text-[13px] text-slate-600 col-span-2">工作时间
                         <div className="mt-2 flex items-center gap-2">
                           <input
