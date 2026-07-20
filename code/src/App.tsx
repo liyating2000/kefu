@@ -4295,7 +4295,9 @@ export default function App() {
   const [isAccountFiltersExpanded, setIsAccountFiltersExpanded] = useState(true);
   const [showAccountAddModal, setShowAccountAddModal] = useState(false);
   const [accountNextId, setAccountNextId] = useState(1001);
-  const [accountAddForm, setAccountAddForm] = useState({ domainAccount: '', employeeName: '', employeeId: '1001', extensionNo: '', phone: '', defaultDept: '', chatRole: '坐席', role: '' });
+  const [accountAddForm, setAccountAddForm] = useState({ domainAccount: '', employeeName: '', employeeId: '1001', extensionNo: '', phone: '', defaultDept: '', chatRole: '坐席', role: '', roles: [] as string[] });
+  const [showAccountEditModal, setShowAccountEditModal] = useState(false);
+  const [accountEditForm, setAccountEditForm] = useState({ domainAccount: '', employeeName: '', employeeId: '', extensionNo: '', phone: '', defaultDept: '', chatRole: '坐席', role: '', roles: [] as string[] });
 
   // 门户类型管理 state
   const [showPortalTypeModal, setShowPortalTypeModal] = useState(false);
@@ -9957,16 +9959,16 @@ export default function App() {
   ];
 
   const accountManagementRows = [
-    { id: 1, loginName: 'ADMIN', employeeName: 'ADMIN', employeeId: 'ADMIN', extensionNo: '000001', permConfig: '系统组', defaultDept: '公司总部/管理部', deptSchedule: '系统组', phone: '15000000000', email: '', group: '', entryDate: '2000-01-01', workStatus: '工作', chatRole: '管理员', concurrentCount: '管理部', sessionPeriod: 'ADMIN', suitablePeriod: '', portalType: '管理员门户' as const },
-    { id: 2, loginName: 'qt', employeeName: 'qt', employeeId: '3097', extensionNo: '87100013097', permConfig: '管理组', defaultDept: '公司总部/管理部', deptSchedule: '系统组', phone: '15900000022', email: '', group: '', entryDate: '2026-03-05', workStatus: '工作', chatRole: '管理员', concurrentCount: '-', sessionPeriod: 'qt', suitablePeriod: '2', portalType: '管理员门户' as const },
-    { id: 3, loginName: 'lyhz2', employeeName: 'lyhz2', employeeId: '3002', extensionNo: '87100013002', permConfig: '管理组', defaultDept: '公司总部/管理部', deptSchedule: '系统组', phone: '18099992222', email: '', group: '', entryDate: '2026-02-27', workStatus: '工作', chatRole: '坐席', concurrentCount: '-', sessionPeriod: 'lyhz2', suitablePeriod: '2', portalType: '坐席门户' as const },
-    { id: 4, loginName: 'lyhz1', employeeName: '客服1', employeeId: '3003', extensionNo: '87100013003', permConfig: '客服组一', defaultDept: '客服部/区', deptSchedule: '客服部/区', phone: '18011111111', email: '', group: '', entryDate: '2026-02-27', workStatus: '离职', chatRole: '坐席', concurrentCount: '-', sessionPeriod: 'lyhz1', suitablePeriod: '2', portalType: '坐席门户' as const },
-    { id: 5, loginName: 'lyt04', employeeName: 'k5004', employeeId: '3004', extensionNo: '87100013004', permConfig: '客服组/客服部/区', defaultDept: '客服部/区', deptSchedule: '客服部/区', phone: '16011114444', email: '', group: '', entryDate: '2026-03-16', workStatus: '工作', chatRole: '坐席', concurrentCount: '-', sessionPeriod: 'k5004', suitablePeriod: '2', portalType: '坐席门户' as const },
-    { id: 6, loginName: 'lyt05', employeeName: 'k5005', employeeId: '3005', extensionNo: '87100013005', permConfig: '客服部一', defaultDept: '客服部/区', deptSchedule: '客服部/区', phone: '16051111234', email: '', group: '', entryDate: '2026-03-16', workStatus: '工作', chatRole: '坐席', concurrentCount: '-', sessionPeriod: 'k5005', suitablePeriod: '2', portalType: '坐席门户' as const },
-    { id: 7, loginName: 'lyt06', employeeName: 'k5006', employeeId: '3006', extensionNo: '87100013006', permConfig: '客服部一', defaultDept: '客服部/区', deptSchedule: '客服部/区', phone: '18022223456', email: '', group: '', entryDate: '2026-03-16', workStatus: '锁定', chatRole: '坐席', concurrentCount: '-', sessionPeriod: 'k5006', suitablePeriod: '2', portalType: '坐席门户' as const },
-    { id: 8, loginName: 'lyt07', employeeName: 'k5007', employeeId: '3007', extensionNo: '87100013007', permConfig: '客服部一', defaultDept: '客服部/区', deptSchedule: '客服部/区', phone: '15910000001', email: '', group: '', entryDate: '2026-03-23', workStatus: '工作', chatRole: '管理员', concurrentCount: '-', sessionPeriod: 'k5007', suitablePeriod: '2', portalType: '管理员门户' as const },
-    { id: 9, loginName: 'lyt08', employeeName: 'k5008', employeeId: '3008', extensionNo: '87100013008', permConfig: '客服部一', defaultDept: '客服部/区', deptSchedule: '客服部/区', phone: '15910000002', email: '', group: '', entryDate: '2026-02-23', workStatus: '密码过期', chatRole: '坐席', concurrentCount: '-', sessionPeriod: 'k5008', suitablePeriod: '2', portalType: '坐席门户' as const },
-    { id: 10, loginName: 'lyt09', employeeName: 'k5009', employeeId: '3009', extensionNo: '87100013009', permConfig: '客服部一基', defaultDept: '客服部/区', deptSchedule: '客服部/区', phone: '15910000003', email: '', group: '', entryDate: '2026-03-23', workStatus: '工作', chatRole: '坐席', concurrentCount: '-', sessionPeriod: 'lyt09', suitablePeriod: '2', portalType: '坐席门户' as const },
+    { id: 1, loginName: 'ADMIN', employeeName: 'ADMIN', employeeId: 'ADMIN', extensionNo: '000001', permConfig: '系统组', defaultDept: '公司总部/管理部', deptSchedule: '系统组', phone: '15000000000', email: '', group: '', entryDate: '2000-01-01', workStatus: '工作', chatRole: '管理员', concurrentCount: '管理部', sessionPeriod: 'ADMIN', suitablePeriod: '', portalType: '管理员门户' as const, roles: ['系统管理员'] },
+    { id: 2, loginName: 'qt', employeeName: 'qt', employeeId: '3097', extensionNo: '87100013097', permConfig: '管理组', defaultDept: '公司总部/管理部', deptSchedule: '系统组', phone: '15900000022', email: '', group: '', entryDate: '2026-03-05', workStatus: '工作', chatRole: '管理员', concurrentCount: '-', sessionPeriod: 'qt', suitablePeriod: '2', portalType: '管理员门户' as const, roles: ['班组长', '系统管理员'] },
+    { id: 3, loginName: 'lyhz2', employeeName: 'lyhz2', employeeId: '3002', extensionNo: '87100013002', permConfig: '管理组', defaultDept: '公司总部/管理部', deptSchedule: '系统组', phone: '18099992222', email: '', group: '', entryDate: '2026-02-27', workStatus: '工作', chatRole: '坐席', concurrentCount: '-', sessionPeriod: 'lyhz2', suitablePeriod: '2', portalType: '坐席门户' as const, roles: ['坐席'] },
+    { id: 4, loginName: 'lyhz1', employeeName: '客服1', employeeId: '3003', extensionNo: '87100013003', permConfig: '客服组一', defaultDept: '客服部/区', deptSchedule: '客服部/区', phone: '18011111111', email: '', group: '', entryDate: '2026-02-27', workStatus: '离职', chatRole: '坐席', concurrentCount: '-', sessionPeriod: 'lyhz1', suitablePeriod: '2', portalType: '坐席门户' as const, roles: ['坐席'] },
+    { id: 5, loginName: 'lyt04', employeeName: 'k5004', employeeId: '3004', extensionNo: '87100013004', permConfig: '客服组/客服部/区', defaultDept: '客服部/区', deptSchedule: '客服部/区', phone: '16011114444', email: '', group: '', entryDate: '2026-03-16', workStatus: '工作', chatRole: '坐席', concurrentCount: '-', sessionPeriod: 'k5004', suitablePeriod: '2', portalType: '坐席门户' as const, roles: ['坐席'] },
+    { id: 6, loginName: 'lyt05', employeeName: 'k5005', employeeId: '3005', extensionNo: '87100013005', permConfig: '客服部一', defaultDept: '客服部/区', deptSchedule: '客服部/区', phone: '16051111234', email: '', group: '', entryDate: '2026-03-16', workStatus: '工作', chatRole: '坐席', concurrentCount: '-', sessionPeriod: 'k5005', suitablePeriod: '2', portalType: '坐席门户' as const, roles: ['坐席'] },
+    { id: 7, loginName: 'lyt06', employeeName: 'k5006', employeeId: '3006', extensionNo: '87100013006', permConfig: '客服部一', defaultDept: '客服部/区', deptSchedule: '客服部/区', phone: '18022223456', email: '', group: '', entryDate: '2026-03-16', workStatus: '锁定', chatRole: '坐席', concurrentCount: '-', sessionPeriod: 'k5006', suitablePeriod: '2', portalType: '坐席门户' as const, roles: ['坐席', '班组长'] },
+    { id: 8, loginName: 'lyt07', employeeName: 'k5007', employeeId: '3007', extensionNo: '87100013007', permConfig: '客服部一', defaultDept: '客服部/区', deptSchedule: '客服部/区', phone: '15910000001', email: '', group: '', entryDate: '2026-03-23', workStatus: '工作', chatRole: '管理员', concurrentCount: '-', sessionPeriod: 'k5007', suitablePeriod: '2', portalType: '管理员门户' as const, roles: ['班组长', '总监'] },
+    { id: 9, loginName: 'lyt08', employeeName: 'k5008', employeeId: '3008', extensionNo: '87100013008', permConfig: '客服部一', defaultDept: '客服部/区', deptSchedule: '客服部/区', phone: '15910000002', email: '', group: '', entryDate: '2026-02-23', workStatus: '密码过期', chatRole: '坐席', concurrentCount: '-', sessionPeriod: 'k5008', suitablePeriod: '2', portalType: '坐席门户' as const, roles: ['坐席'] },
+    { id: 10, loginName: 'lyt09', employeeName: 'k5009', employeeId: '3009', extensionNo: '87100013009', permConfig: '客服部一基', defaultDept: '客服部/区', deptSchedule: '客服部/区', phone: '15910000003', email: '', group: '', entryDate: '2026-03-23', workStatus: '工作', chatRole: '坐席', concurrentCount: '-', sessionPeriod: 'lyt09', suitablePeriod: '2', portalType: '坐席门户' as const, roles: ['坐席'] },
   ];
 
   const accountManagementContent = (
@@ -10012,7 +10014,7 @@ export default function App() {
               <button type="button" onClick={() => setIsAccountFiltersExpanded((v) => !v)} className="ml-auto text-[13px] text-[#216BFF]">{isAccountFiltersExpanded ? '收起' : '展开'}</button>
             </div>
             <div className="mt-3 flex flex-wrap items-center gap-3">
-              <button type="button" onClick={() => { setAccountAddForm({ domainAccount: '', employeeName: '', employeeId: String(accountNextId), extensionNo: '', phone: '', defaultDept: '', chatRole: '坐席', role: '' }); setShowAccountAddModal(true); }} className="h-9 rounded-md bg-[#216BFF] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#1a5ce6]">新增</button>
+              <button type="button" onClick={() => { setAccountAddForm({ domainAccount: '', employeeName: '', employeeId: String(accountNextId), extensionNo: '', phone: '', defaultDept: '', chatRole: '坐席', role: '', roles: [] }); setShowAccountAddModal(true); }} className="h-9 rounded-md bg-[#216BFF] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#1a5ce6]">新增</button>
               <button type="button" className="h-9 rounded-md bg-[#216BFF] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#1a5ce6]">导入</button>
               <button type="button" className="h-9 rounded-md border border-[#96b8ff] bg-[#e8f1ff] px-4 text-[13px] font-medium text-[#216BFF] transition-colors hover:bg-[#c9dcff]">权限刷新</button>
               <button type="button" className="h-9 rounded-md border border-[#96b8ff] bg-[#e8f1ff] px-4 text-[13px] font-medium text-[#216BFF] transition-colors hover:bg-[#c9dcff]">权限导出</button>
@@ -10033,7 +10035,7 @@ export default function App() {
                 {accountManagementRows.map((row, index) => (
                   <tr key={row.id} className={cn(index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfc]')}>
                     <td className="whitespace-nowrap px-4 py-3">{row.id}</td>
-                    <td className="whitespace-nowrap px-4 py-3"><button type="button" className="text-[#216BFF] hover:underline">{row.loginName}</button></td>
+                    <td className="whitespace-nowrap px-4 py-3"><button type="button" onClick={() => { setAccountEditForm({ domainAccount: row.loginName, employeeName: row.employeeName, employeeId: row.employeeId, extensionNo: row.extensionNo, phone: row.phone, defaultDept: row.defaultDept, chatRole: row.chatRole, role: row.portalType, roles: row.roles }); setShowAccountEditModal(true); }} className="text-[#216BFF] hover:underline">{row.loginName}</button></td>
                     <td className="whitespace-nowrap px-4 py-3">{row.employeeName}</td>
                     <td className="whitespace-nowrap px-4 py-3">{row.employeeId}</td>
                     <td className="whitespace-nowrap px-4 py-3">{row.extensionNo}</td>
@@ -10089,11 +10091,34 @@ export default function App() {
                       <option value="客服部/区">客服部/区</option>
                     </select>
                   </div>
+                  <div className="col-span-2 flex items-center gap-2 relative">
+                    <label className="w-[70px] shrink-0 text-right text-[13px] text-slate-600"><span className="mr-0.5 text-red-500">*</span>角色</label>
+                    <div className="relative min-w-0 flex-1">
+                      <button type="button" onClick={() => setAccountAddForm((f) => ({ ...f, _rolesOpen: !f._rolesOpen } as any))} className="flex h-9 w-full items-center justify-between rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 outline-none focus:border-[#216BFF]">
+                        <span className={accountAddForm.roles.length > 0 ? 'truncate text-slate-700' : 'text-slate-400'}>{accountAddForm.roles.length > 0 ? accountAddForm.roles.join('、') : '请至少选择一个角色'}</span>
+                        <ChevronDown size={14} className="shrink-0 text-slate-400" />
+                      </button>
+                      {(accountAddForm as any)._rolesOpen && (
+                        <div className="absolute left-0 top-10 z-50 w-full rounded-md border border-slate-200 bg-white py-1 shadow-lg">
+                          <label className="flex cursor-pointer items-center gap-2 px-3 py-1.5 text-[13px] text-slate-600 hover:bg-[#f7f9fc]">
+                            <input type="checkbox" checked={accountAddForm.roles.length === 4} onChange={() => setAccountAddForm((f) => ({ ...f, roles: f.roles.length === 4 ? [] : ['坐席', '班组长', '总监', '系统管理员'] }))} className="h-4 w-4 rounded border-slate-300 accent-[#216BFF]" />
+                            全选
+                          </label>
+                          {['坐席', '班组长', '总监', '系统管理员'].map((r) => (
+                            <label key={r} className="flex cursor-pointer items-center gap-2 px-3 py-1.5 text-[13px] text-slate-600 hover:bg-[#f7f9fc]">
+                              <input type="checkbox" checked={accountAddForm.roles.includes(r)} onChange={() => setAccountAddForm((f) => ({ ...f, roles: f.roles.includes(r) ? f.roles.filter((x) => x !== r) : [...f.roles, r] }))} className="h-4 w-4 rounded border-slate-300 accent-[#216BFF]" />
+                              {r}
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                   <div className="flex items-center gap-2">
                     <label className="w-[70px] shrink-0 text-right text-[13px] text-slate-600">会话限制</label>
                     <input type="number" placeholder="请输入会话限制" min={1} max={20} className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 outline-none placeholder:text-slate-400 focus:border-[#216BFF]" />
                   </div>
-                  <div className="col-span-2 flex items-center gap-2">
+                  <div className="flex items-center gap-2">
                     <label className="w-[70px] shrink-0 text-right text-[13px] text-slate-600"><span className="mr-0.5 text-red-500">*</span>门户类型</label>
                     <select value={accountAddForm.role} onChange={(e) => setAccountAddForm((f) => ({ ...f, role: e.target.value }))} className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 outline-none focus:border-[#216BFF]">
                       <option value="">请选择门户类型</option>
@@ -10122,6 +10147,90 @@ export default function App() {
             <div className="flex items-center justify-end gap-2 border-t border-slate-100 px-5 py-4">
               <button type="button" onClick={() => setShowAccountAddModal(false)} className="h-9 rounded-md border border-slate-200 bg-white px-5 text-[13px] font-medium text-slate-500 transition-colors hover:bg-slate-50">取消</button>
               <button type="button" onClick={() => { setAccountNextId((n) => n + 1); setShowAccountAddModal(false); }} className="h-9 rounded-md bg-[#216BFF] px-5 text-[13px] font-medium text-white transition-colors hover:bg-[#1a5ce6]">确定</button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+      {showAccountEditModal ? (
+        <div className="fixed inset-0 z-[100] flex items-start justify-center bg-black/30 pt-[10vh]" onClick={() => setShowAccountEditModal(false)}>
+          <div className="w-full max-w-[900px] overflow-hidden rounded-xl bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+              <h3 className="text-[15px] font-semibold text-slate-800">编辑账号</h3>
+              <button type="button" onClick={() => setShowAccountEditModal(false)} className="flex h-7 w-7 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600"><X size={15} /></button>
+            </div>
+            <div className="flex gap-6 px-5 py-5">
+              <div className="flex-1 space-y-4">
+                <h4 className="text-[13px] font-semibold text-slate-700 border-b border-slate-100 pb-2">账号信息</h4>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-4">
+                  <div className="flex items-center gap-2">
+                    <label className="w-[70px] shrink-0 text-right text-[13px] text-slate-600"><span className="mr-0.5 text-red-500">*</span>账号</label>
+                    <input type="text" value={accountEditForm.domainAccount} disabled className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-slate-50 px-3 text-[13px] text-slate-400 outline-none cursor-not-allowed" />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="w-[70px] shrink-0 text-right text-[13px] text-slate-600"><span className="mr-0.5 text-red-500">*</span>员工姓名</label>
+                    <input type="text" value={accountEditForm.employeeName} disabled className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-slate-50 px-3 text-[13px] text-slate-400 outline-none cursor-not-allowed" />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="w-[70px] shrink-0 text-right text-[13px] text-slate-600"><span className="mr-0.5 text-red-500">*</span>员工工号</label>
+                    <input type="text" value={accountEditForm.employeeId} onChange={(e) => setAccountEditForm((f) => ({ ...f, employeeId: e.target.value }))} placeholder="请输入员工工号" className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 outline-none placeholder:text-slate-400 focus:border-[#216BFF]" />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="w-[70px] shrink-0 text-right text-[13px] text-slate-600"><span className="mr-0.5 text-red-500">*</span>分机号</label>
+                    <input type="text" value={accountEditForm.extensionNo} onChange={(e) => setAccountEditForm((f) => ({ ...f, extensionNo: e.target.value }))} placeholder="请输入分机号" className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 outline-none placeholder:text-slate-400 focus:border-[#216BFF]" />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="w-[70px] shrink-0 text-right text-[13px] text-slate-600"><span className="mr-0.5 text-red-500">*</span>手机号</label>
+                    <input type="text" value={accountEditForm.phone} disabled className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-slate-50 px-3 text-[13px] text-slate-400 outline-none cursor-not-allowed" />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="w-[70px] shrink-0 text-right text-[13px] text-slate-600"><span className="mr-0.5 text-red-500">*</span>默认部门</label>
+                    <select value={accountEditForm.defaultDept} disabled className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-slate-50 px-3 text-[13px] text-slate-400 outline-none cursor-not-allowed">
+                      <option value="">请选择默认部门</option>
+                      <option value="公司总部/管理部">公司总部/管理部</option>
+                      <option value="客服部/区">客服部/区</option>
+                    </select>
+                  </div>
+                  <div className="col-span-2 flex items-center gap-2">
+                    <label className="w-[70px] shrink-0 text-right text-[13px] text-slate-600"><span className="mr-0.5 text-red-500">*</span>角色</label>
+                    <div className="flex h-9 min-w-0 flex-1 items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3">
+                      {accountEditForm.roles.length > 0 ? accountEditForm.roles.map((r) => (
+                        <span key={r} className="inline-block rounded bg-[#e8f1ff] px-2 py-0.5 text-[12px] text-[#216BFF]">{r}</span>
+                      )) : <span className="text-[13px] text-slate-400">-</span>}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="w-[70px] shrink-0 text-right text-[13px] text-slate-600">会话限制</label>
+                    <input type="number" placeholder="请输入会话限制" min={1} max={20} className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 outline-none placeholder:text-slate-400 focus:border-[#216BFF]" />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="w-[70px] shrink-0 text-right text-[13px] text-slate-600"><span className="mr-0.5 text-red-500">*</span>门户类型</label>
+                    <select value={accountEditForm.role} onChange={(e) => setAccountEditForm((f) => ({ ...f, role: e.target.value }))} className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 outline-none focus:border-[#216BFF]">
+                      <option value="">请选择门户类型</option>
+                      <option value="坐席门户">坐席门户</option>
+                      <option value="管理员门户">管理员门户</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div className="w-px bg-slate-100" />
+              <div className="w-[220px] shrink-0 space-y-4">
+                <h4 className="text-[13px] font-semibold text-slate-700 border-b border-slate-100 pb-2">权限信息</h4>
+                <div className="flex items-start gap-3">
+                  <label className="w-[70px] shrink-0 pt-0.5 text-right text-[13px] text-slate-600">数据权限</label>
+                  <div className="flex-1 space-y-2.5">
+                    {['仅看自己', '所属部门', '所属部门及下属部门', '自定义'].map((opt) => (
+                      <label key={opt} className="flex items-center gap-2 text-[13px] text-slate-600">
+                        <input type="radio" name="account-edit-data-perm" defaultChecked={opt === '仅看自己'} className="h-4 w-4 accent-[#216BFF]" />
+                        {opt}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-2 border-t border-slate-100 px-5 py-4">
+              <button type="button" onClick={() => setShowAccountEditModal(false)} className="h-9 rounded-md border border-slate-200 bg-white px-5 text-[13px] font-medium text-slate-500 transition-colors hover:bg-slate-50">取消</button>
+              <button type="button" onClick={() => setShowAccountEditModal(false)} className="h-9 rounded-md bg-[#216BFF] px-5 text-[13px] font-medium text-white transition-colors hover:bg-[#1a5ce6]">确定</button>
             </div>
           </div>
         </div>
