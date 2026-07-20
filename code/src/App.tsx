@@ -18,6 +18,7 @@ import GroupMaintenance from './GroupMaintenance';
 import TargetValueMaintenance from './TargetValueMaintenance';
 import BrandMaintenance from './BrandMaintenance';
 import FormMaintenance from './FormMaintenance';
+import PortalMaintenance from './PortalMaintenance';
 import AttachmentManagement from './AttachmentManagement';
 import ProductModuleMaintenance from './ProductModuleMaintenance';
 import channelMobileIcon from './assets/channel-icons/移动端.png';
@@ -399,7 +400,8 @@ type MainTab =
   | '小结管理'
   | '业务字段上线审核'
   | '账号管理'
-  | '表单维护';
+  | '表单维护'
+  | '门户维护';
 type ManagerPortalPage = 'dashboard' | 'overview-detail' | 'work-order-list';
 
 // 繁忙公告管理类型定义
@@ -3077,6 +3079,7 @@ const operationDeskMenus: SubMenuItem[] = [
   { label: '业务字段管理', action: { type: 'tab', tab: '业务字段管理' } },
   { label: '业务字段上线审核', action: { type: 'tab', tab: '业务字段上线审核' } },
   { label: '表单维护', action: { type: 'tab', tab: '表单维护' } },
+  { label: '门户维护', action: { type: 'tab', tab: '门户维护' } },
   { label: '发件人邮箱配置', action: { type: 'none' } },
   { label: '消息维护', action: { type: 'none' } },
   { label: '短信/邮件模板管理', action: { type: 'none' } },
@@ -4286,12 +4289,29 @@ export default function App() {
   const [isWebchatMaintenanceTabVisible, setIsWebchatMaintenanceTabVisible] = useState(false);
   const [isDeptRoleManagementTabVisible, setIsDeptRoleManagementTabVisible] = useState(false);
   const [isAccountManagementTabVisible, setIsAccountManagementTabVisible] = useState(false);
+  const [isPortalMaintenanceTabVisible, setIsPortalMaintenanceTabVisible] = useState(false);
   const [isWorkOrderDetailTabVisible, setIsWorkOrderDetailTabVisible] = useState(false);
   const [workOrderDetailData, setWorkOrderDetailData] = useState<WorkOrderDetailData | null>(null);
   const [isAccountFiltersExpanded, setIsAccountFiltersExpanded] = useState(true);
   const [showAccountAddModal, setShowAccountAddModal] = useState(false);
   const [accountNextId, setAccountNextId] = useState(1001);
   const [accountAddForm, setAccountAddForm] = useState({ domainAccount: '', employeeName: '', employeeId: '1001', extensionNo: '', phone: '', defaultDept: '', chatRole: '坐席', role: '' });
+
+  // 门户类型管理 state
+  const [showPortalTypeModal, setShowPortalTypeModal] = useState(false);
+  const [portalTypeModalPortalType, setPortalTypeModalPortalType] = useState<'坐席门户' | '管理员门户'>('坐席门户');
+  const [portalTypeModalSelectedAccounts, setPortalTypeModalSelectedAccounts] = useState<Set<string>>(new Set());
+  const [portalTypeModalAccountSearch, setPortalTypeModalAccountSearch] = useState('');
+  const [portalTypeModalAssignments, setPortalTypeModalAssignments] = useState<{ id: string; loginName: string; employeeName: string; employeeId: string; department: string; portalType: '坐席门户' | '管理员门户' }[]>([
+    { id: 'pta-1', loginName: 'ADMIN', employeeName: 'ADMIN', employeeId: 'ADMIN', department: '公司总部/管理部', portalType: '管理员门户' },
+    { id: 'pta-2', loginName: 'qt', employeeName: 'qt', employeeId: '3097', department: '公司总部/管理部', portalType: '管理员门户' },
+    { id: 'pta-3', loginName: 'lyhz2', employeeName: 'lyhz2', employeeId: '3002', department: '公司总部/管理部', portalType: '坐席门户' },
+    { id: 'pta-4', loginName: 'lyhz1', employeeName: '客服1', employeeId: '3003', department: '客服部/区', portalType: '坐席门户' },
+    { id: 'pta-5', loginName: 'lyt04', employeeName: 'k5004', employeeId: '3004', department: '客服部/区', portalType: '坐席门户' },
+    { id: 'pta-6', loginName: 'lyt07', employeeName: 'k5007', employeeId: '3007', department: '客服部/区', portalType: '管理员门户' },
+  ]);
+  const [portalTypeModalToast, setPortalTypeModalToast] = useState<string | null>(null);
+  let portalTypeIdCounter = 200;
 
   // 繁忙公告管理 state
   const [busyAnnouncements, setBusyAnnouncements] = useState<BusyAnnouncement[]>(busyAnnouncementManagementRows);
@@ -4872,6 +4892,12 @@ export default function App() {
       setActiveTab('表单维护');
       return;
     }
+    if (tab === '门户维护') {
+      setIsPortalMaintenanceTabVisible(true);
+      setIsOperationDeskExpanded(true);
+      setActiveTab('门户维护');
+      return;
+    }
     if (tab === '组别维护') {
       setIsGroupMaintenanceTabVisible(true);
       setIsOperationDeskExpanded(true);
@@ -5063,6 +5089,13 @@ export default function App() {
     setActiveLegacyModulePage(null);
     setIsAccountManagementTabVisible(false);
     if (activeTab === '账号管理') {
+      setActiveTab(lastPrimaryTab);
+    }
+  };
+  const handleClosePortalMaintenanceTab = () => {
+    setActiveLegacyModulePage(null);
+    setIsPortalMaintenanceTabVisible(false);
+    if (activeTab === '门户维护') {
       setActiveTab(lastPrimaryTab);
     }
   };
@@ -9924,16 +9957,16 @@ export default function App() {
   ];
 
   const accountManagementRows = [
-    { id: 1, loginName: 'ADMIN', employeeName: 'ADMIN', employeeId: 'ADMIN', extensionNo: '000001', permConfig: '系统组', defaultDept: '公司总部/管理部', deptSchedule: '系统组', phone: '15000000000', email: '', group: '', entryDate: '2000-01-01', workStatus: '工作', chatRole: '管理员', concurrentCount: '管理部', sessionPeriod: 'ADMIN', suitablePeriod: '' },
-    { id: 2, loginName: 'qt', employeeName: 'qt', employeeId: '3097', extensionNo: '87100013097', permConfig: '管理组', defaultDept: '公司总部/管理部', deptSchedule: '系统组', phone: '15900000022', email: '', group: '', entryDate: '2026-03-05', workStatus: '工作', chatRole: '管理员', concurrentCount: '-', sessionPeriod: 'qt', suitablePeriod: '2' },
-    { id: 3, loginName: 'lyhz2', employeeName: 'lyhz2', employeeId: '3002', extensionNo: '87100013002', permConfig: '管理组', defaultDept: '公司总部/管理部', deptSchedule: '系统组', phone: '18099992222', email: '', group: '', entryDate: '2026-02-27', workStatus: '工作', chatRole: '坐席', concurrentCount: '-', sessionPeriod: 'lyhz2', suitablePeriod: '2' },
-    { id: 4, loginName: 'lyhz1', employeeName: '客服1', employeeId: '3003', extensionNo: '87100013003', permConfig: '客服组一', defaultDept: '客服部/区', deptSchedule: '客服部/区', phone: '18011111111', email: '', group: '', entryDate: '2026-02-27', workStatus: '离职', chatRole: '坐席', concurrentCount: '-', sessionPeriod: 'lyhz1', suitablePeriod: '2' },
-    { id: 5, loginName: 'lyt04', employeeName: 'k5004', employeeId: '3004', extensionNo: '87100013004', permConfig: '客服组/客服部/区', defaultDept: '客服部/区', deptSchedule: '客服部/区', phone: '16011114444', email: '', group: '', entryDate: '2026-03-16', workStatus: '工作', chatRole: '坐席', concurrentCount: '-', sessionPeriod: 'k5004', suitablePeriod: '2' },
-    { id: 6, loginName: 'lyt05', employeeName: 'k5005', employeeId: '3005', extensionNo: '87100013005', permConfig: '客服部一', defaultDept: '客服部/区', deptSchedule: '客服部/区', phone: '16051111234', email: '', group: '', entryDate: '2026-03-16', workStatus: '工作', chatRole: '坐席', concurrentCount: '-', sessionPeriod: 'k5005', suitablePeriod: '2' },
-    { id: 7, loginName: 'lyt06', employeeName: 'k5006', employeeId: '3006', extensionNo: '87100013006', permConfig: '客服部一', defaultDept: '客服部/区', deptSchedule: '客服部/区', phone: '18022223456', email: '', group: '', entryDate: '2026-03-16', workStatus: '锁定', chatRole: '坐席', concurrentCount: '-', sessionPeriod: 'k5006', suitablePeriod: '2' },
-    { id: 8, loginName: 'lyt07', employeeName: 'k5007', employeeId: '3007', extensionNo: '87100013007', permConfig: '客服部一', defaultDept: '客服部/区', deptSchedule: '客服部/区', phone: '15910000001', email: '', group: '', entryDate: '2026-03-23', workStatus: '工作', chatRole: '管理员', concurrentCount: '-', sessionPeriod: 'k5007', suitablePeriod: '2' },
-    { id: 9, loginName: 'lyt08', employeeName: 'k5008', employeeId: '3008', extensionNo: '87100013008', permConfig: '客服部一', defaultDept: '客服部/区', deptSchedule: '客服部/区', phone: '15910000002', email: '', group: '', entryDate: '2026-02-23', workStatus: '密码过期', chatRole: '坐席', concurrentCount: '-', sessionPeriod: 'k5008', suitablePeriod: '2' },
-    { id: 10, loginName: 'lyt09', employeeName: 'k5009', employeeId: '3009', extensionNo: '87100013009', permConfig: '客服部一基', defaultDept: '客服部/区', deptSchedule: '客服部/区', phone: '15910000003', email: '', group: '', entryDate: '2026-03-23', workStatus: '工作', chatRole: '坐席', concurrentCount: '-', sessionPeriod: 'lyt09', suitablePeriod: '2' },
+    { id: 1, loginName: 'ADMIN', employeeName: 'ADMIN', employeeId: 'ADMIN', extensionNo: '000001', permConfig: '系统组', defaultDept: '公司总部/管理部', deptSchedule: '系统组', phone: '15000000000', email: '', group: '', entryDate: '2000-01-01', workStatus: '工作', chatRole: '管理员', concurrentCount: '管理部', sessionPeriod: 'ADMIN', suitablePeriod: '', portalType: '管理员门户' as const },
+    { id: 2, loginName: 'qt', employeeName: 'qt', employeeId: '3097', extensionNo: '87100013097', permConfig: '管理组', defaultDept: '公司总部/管理部', deptSchedule: '系统组', phone: '15900000022', email: '', group: '', entryDate: '2026-03-05', workStatus: '工作', chatRole: '管理员', concurrentCount: '-', sessionPeriod: 'qt', suitablePeriod: '2', portalType: '管理员门户' as const },
+    { id: 3, loginName: 'lyhz2', employeeName: 'lyhz2', employeeId: '3002', extensionNo: '87100013002', permConfig: '管理组', defaultDept: '公司总部/管理部', deptSchedule: '系统组', phone: '18099992222', email: '', group: '', entryDate: '2026-02-27', workStatus: '工作', chatRole: '坐席', concurrentCount: '-', sessionPeriod: 'lyhz2', suitablePeriod: '2', portalType: '坐席门户' as const },
+    { id: 4, loginName: 'lyhz1', employeeName: '客服1', employeeId: '3003', extensionNo: '87100013003', permConfig: '客服组一', defaultDept: '客服部/区', deptSchedule: '客服部/区', phone: '18011111111', email: '', group: '', entryDate: '2026-02-27', workStatus: '离职', chatRole: '坐席', concurrentCount: '-', sessionPeriod: 'lyhz1', suitablePeriod: '2', portalType: '坐席门户' as const },
+    { id: 5, loginName: 'lyt04', employeeName: 'k5004', employeeId: '3004', extensionNo: '87100013004', permConfig: '客服组/客服部/区', defaultDept: '客服部/区', deptSchedule: '客服部/区', phone: '16011114444', email: '', group: '', entryDate: '2026-03-16', workStatus: '工作', chatRole: '坐席', concurrentCount: '-', sessionPeriod: 'k5004', suitablePeriod: '2', portalType: '坐席门户' as const },
+    { id: 6, loginName: 'lyt05', employeeName: 'k5005', employeeId: '3005', extensionNo: '87100013005', permConfig: '客服部一', defaultDept: '客服部/区', deptSchedule: '客服部/区', phone: '16051111234', email: '', group: '', entryDate: '2026-03-16', workStatus: '工作', chatRole: '坐席', concurrentCount: '-', sessionPeriod: 'k5005', suitablePeriod: '2', portalType: '坐席门户' as const },
+    { id: 7, loginName: 'lyt06', employeeName: 'k5006', employeeId: '3006', extensionNo: '87100013006', permConfig: '客服部一', defaultDept: '客服部/区', deptSchedule: '客服部/区', phone: '18022223456', email: '', group: '', entryDate: '2026-03-16', workStatus: '锁定', chatRole: '坐席', concurrentCount: '-', sessionPeriod: 'k5006', suitablePeriod: '2', portalType: '坐席门户' as const },
+    { id: 8, loginName: 'lyt07', employeeName: 'k5007', employeeId: '3007', extensionNo: '87100013007', permConfig: '客服部一', defaultDept: '客服部/区', deptSchedule: '客服部/区', phone: '15910000001', email: '', group: '', entryDate: '2026-03-23', workStatus: '工作', chatRole: '管理员', concurrentCount: '-', sessionPeriod: 'k5007', suitablePeriod: '2', portalType: '管理员门户' as const },
+    { id: 9, loginName: 'lyt08', employeeName: 'k5008', employeeId: '3008', extensionNo: '87100013008', permConfig: '客服部一', defaultDept: '客服部/区', deptSchedule: '客服部/区', phone: '15910000002', email: '', group: '', entryDate: '2026-02-23', workStatus: '密码过期', chatRole: '坐席', concurrentCount: '-', sessionPeriod: 'k5008', suitablePeriod: '2', portalType: '坐席门户' as const },
+    { id: 10, loginName: 'lyt09', employeeName: 'k5009', employeeId: '3009', extensionNo: '87100013009', permConfig: '客服部一基', defaultDept: '客服部/区', deptSchedule: '客服部/区', phone: '15910000003', email: '', group: '', entryDate: '2026-03-23', workStatus: '工作', chatRole: '坐席', concurrentCount: '-', sessionPeriod: 'lyt09', suitablePeriod: '2', portalType: '坐席门户' as const },
   ];
 
   const accountManagementContent = (
@@ -9984,13 +10017,14 @@ export default function App() {
               <button type="button" className="h-9 rounded-md border border-[#96b8ff] bg-[#e8f1ff] px-4 text-[13px] font-medium text-[#216BFF] transition-colors hover:bg-[#c9dcff]">权限刷新</button>
               <button type="button" className="h-9 rounded-md border border-[#96b8ff] bg-[#e8f1ff] px-4 text-[13px] font-medium text-[#216BFF] transition-colors hover:bg-[#c9dcff]">权限导出</button>
               <button type="button" className="h-9 rounded-md bg-[#216BFF] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#1a5ce6]">部门/角色管理</button>
+              <button type="button" onClick={() => { setPortalTypeModalPortalType('坐席门户'); setPortalTypeModalSelectedAccounts(new Set()); setPortalTypeModalAccountSearch(''); setShowPortalTypeModal(true); }} className="h-9 rounded-md bg-[#216BFF] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#1a5ce6]">门户类型管理</button>
             </div>
           </div>
           <div className="min-h-0 overflow-auto px-4 custom-scrollbar">
             <table className="min-w-[1800px] table-fixed text-left text-[13px]">
               <thead className="bg-[#fafafa] text-slate-600">
                 <tr>
-                  {['序号', '账号', '员工姓名', '员工工号', '分机号', '默认部门', '员工手机号', '入职时间', '工作状态', '会话限制'].map((col) => (
+                  {['序号', '账号', '员工姓名', '员工工号', '分机号', '默认部门', '员工手机号', '入职时间', '工作状态', '门户类型', '会话限制'].map((col) => (
                     <th key={col} className="whitespace-nowrap px-4 py-3 font-medium">{col}</th>
                   ))}
                 </tr>
@@ -10007,6 +10041,7 @@ export default function App() {
                     <td className="whitespace-nowrap px-4 py-3">{row.phone}</td>
                     <td className="whitespace-nowrap px-4 py-3">{row.entryDate}</td>
                     <td className="whitespace-nowrap px-4 py-3">{row.workStatus}</td>
+                    <td className="whitespace-nowrap px-4 py-3"><span className={row.portalType === '坐席门户' ? 'inline-block rounded-full bg-[#e8f1ff] px-2.5 py-0.5 text-[12px] font-medium text-[#216BFF]' : 'inline-block rounded-full bg-[#e6f7ed] px-2.5 py-0.5 text-[12px] font-medium text-[#16a34a]'}>{row.portalType}</span></td>
                     <td className="whitespace-nowrap px-4 py-3">{row.suitablePeriod || '-'}</td>
                   </tr>
                 ))}
@@ -10059,13 +10094,11 @@ export default function App() {
                     <input type="number" placeholder="请输入会话限制" min={1} max={20} className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 outline-none placeholder:text-slate-400 focus:border-[#216BFF]" />
                   </div>
                   <div className="col-span-2 flex items-center gap-2">
-                    <label className="w-[70px] shrink-0 text-right text-[13px] text-slate-600"><span className="mr-0.5 text-red-500">*</span>角色</label>
+                    <label className="w-[70px] shrink-0 text-right text-[13px] text-slate-600"><span className="mr-0.5 text-red-500">*</span>门户类型</label>
                     <select value={accountAddForm.role} onChange={(e) => setAccountAddForm((f) => ({ ...f, role: e.target.value }))} className="h-9 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-700 outline-none focus:border-[#216BFF]">
-                      <option value="">请至少选择一个角色</option>
-                      <option value="坐席">坐席</option>
-                      <option value="班组长">班组长</option>
-                      <option value="总监">总监</option>
-                      <option value="系统管理员">系统管理员</option>
+                      <option value="">请选择门户类型</option>
+                      <option value="坐席门户">坐席门户</option>
+                      <option value="管理员门户">管理员门户</option>
                     </select>
                   </div>
                 </div>
@@ -10093,6 +10126,83 @@ export default function App() {
           </div>
         </div>
       ) : null}
+      {showPortalTypeModal && (() => {
+        const assignedNames = new Set(portalTypeModalAssignments.map((a) => a.loginName));
+        const availableList = accountManagementRows
+          .filter((a) => !assignedNames.has(a.loginName))
+          .filter((a) => {
+            if (!portalTypeModalAccountSearch.trim()) return true;
+            const kw = portalTypeModalAccountSearch.trim().toLowerCase();
+            return a.loginName.toLowerCase().includes(kw) || a.employeeName.toLowerCase().includes(kw) || a.employeeId.toLowerCase().includes(kw);
+          });
+        return (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/30" onClick={() => setShowPortalTypeModal(false)}>
+            <div className="w-[560px] rounded-lg bg-white shadow-xl" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+                <h3 className="text-[15px] font-semibold text-slate-800">门户类型管理</h3>
+                <button type="button" onClick={() => setShowPortalTypeModal(false)} className="text-slate-400 hover:text-slate-600"><X size={18} /></button>
+              </div>
+              <div className="px-5 py-5">
+                <div className="mb-4">
+                  <label className="mb-2 block text-[13px] font-medium text-slate-600">选择门户类型 <span className="text-red-400">*</span></label>
+                  <div className="flex gap-3">
+                    {(['坐席门户', '管理员门户'] as const).map((pt) => (
+                      <button key={pt} type="button" onClick={() => setPortalTypeModalPortalType(pt)}
+                        className={portalTypeModalPortalType === pt
+                          ? 'flex h-10 items-center gap-2 rounded-md border-2 border-[#216BFF] bg-[#e8f1ff] px-4 text-[13px] font-medium text-[#216BFF]'
+                          : 'flex h-10 items-center gap-2 rounded-md border border-slate-200 bg-white px-4 text-[13px] text-slate-600 transition-colors hover:border-[#216BFF] hover:text-[#216BFF]'
+                        }
+                      >
+                        {portalTypeModalPortalType === pt && <Check size={14} />}
+                        {pt}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="mb-2 block text-[13px] font-medium text-slate-600">
+                    选择账号 <span className="text-red-400">*</span>
+                    {portalTypeModalSelectedAccounts.size > 0 && <span className="ml-2 text-[12px] font-normal text-[#216BFF]">已选 {portalTypeModalSelectedAccounts.size} 个</span>}
+                  </label>
+                  <input type="text" placeholder="搜索账号/姓名/工号..." value={portalTypeModalAccountSearch} onChange={(e) => setPortalTypeModalAccountSearch(e.target.value)}
+                    className="h-10 w-full min-w-0 rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-600 outline-none transition-colors placeholder:text-slate-400 focus:border-[#216BFF]" />
+                  <div className="mt-2 max-h-[240px] overflow-auto rounded-md border border-slate-200 custom-scrollbar">
+                    {availableList.length > 0 ? availableList.map((acc) => (
+                      <label key={acc.loginName} className="flex cursor-pointer items-center gap-3 border-b border-slate-50 px-3 py-2.5 text-[13px] transition-colors last:border-b-0 hover:bg-[#f7f9fc]">
+                        <input type="checkbox" checked={portalTypeModalSelectedAccounts.has(acc.loginName)} onChange={() => setPortalTypeModalSelectedAccounts((prev) => { const next = new Set(prev); if (next.has(acc.loginName)) next.delete(acc.loginName); else next.add(acc.loginName); return next; })}
+                          className="h-4 w-4 rounded border-slate-300 text-[#216BFF] accent-[#216BFF]" />
+                        <span className="font-medium text-slate-700">{acc.loginName}</span>
+                        <span className="text-slate-500">{acc.employeeName}</span>
+                        <span className="text-slate-400">{acc.employeeId}</span>
+                        <span className="ml-auto text-[12px] text-slate-400">{acc.defaultDept}</span>
+                      </label>
+                    )) : (
+                      <div className="py-6 text-center text-[13px] text-slate-400">{portalTypeModalAccountSearch.trim() ? '没有匹配的账号' : '所有账号均已分配'}</div>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center justify-end gap-2 border-t border-slate-100 px-5 py-3">
+                <button type="button" onClick={() => setShowPortalTypeModal(false)} className="inline-flex h-9 shrink-0 items-center justify-center whitespace-nowrap rounded-md border border-slate-200 bg-white px-4 text-[13px] font-medium text-slate-500 transition-colors hover:bg-slate-50">取消</button>
+                <button type="button" onClick={() => {
+                  if (portalTypeModalSelectedAccounts.size === 0) { setPortalTypeModalToast('请至少选择一个账号'); window.setTimeout(() => setPortalTypeModalToast(null), 1800); return; }
+                  const newItems: typeof portalTypeModalAssignments = [];
+                  for (const row of accountManagementRows) {
+                    if (portalTypeModalSelectedAccounts.has(row.loginName)) {
+                      newItems.push({ id: `pta-${++portalTypeIdCounter}`, loginName: row.loginName, employeeName: row.employeeName, employeeId: row.employeeId, department: row.defaultDept, portalType: portalTypeModalPortalType });
+                    }
+                  }
+                  setPortalTypeModalAssignments((prev) => [...prev, ...newItems]);
+                  setPortalTypeModalToast(`已添加 ${newItems.length} 个账号到${portalTypeModalPortalType}`);
+                  window.setTimeout(() => setPortalTypeModalToast(null), 1800);
+                  setShowPortalTypeModal(false);
+                }} className="inline-flex h-9 shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-[#216BFF] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#1a5ce6]">确定添加</button>
+              </div>
+              {portalTypeModalToast && <div className="fixed left-1/2 top-5 z-[200] -translate-x-1/2 rounded-lg bg-slate-800 px-5 py-2.5 text-[13px] text-white shadow-lg">{portalTypeModalToast}</div>}
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 
@@ -13116,6 +13226,7 @@ export default function App() {
             ...(isWebchatMaintenanceTabVisible ? (['网聊维护'] as MainTab[]) : []),
             ...(isDeptRoleManagementTabVisible ? (['部门角色管理'] as MainTab[]) : []),
             ...(isAccountManagementTabVisible ? (['账号管理'] as MainTab[]) : []),
+            ...(isPortalMaintenanceTabVisible ? (['门户维护'] as MainTab[]) : []),
             ...(isWorkOrderDetailTabVisible ? (['工单详情'] as MainTab[]) : []),
             ...openLegacyModulePages.map(p => (legacyModuleLabels[p] ?? p) as MainTab),
           ])}
@@ -13124,7 +13235,7 @@ export default function App() {
             ...([
               '消息服务', '排班信息展示', '业务字段管理', '业务字段上线审核', '组别维护', '目标值维护', '账号管理',
               '品牌维护', '附件管理', '产品模块维护', '繁忙公告管理', '隐私声明管理',
-              '用户体系管理', '网聊维护', '部门角色管理', '在线工作台', '工单详情',
+              '用户体系管理', '网聊维护', '部门角色管理', '在线工作台', '工单详情', '门户维护',
             ] as const).map(tab => [tab, `关闭${tab}`]),
             ...openLegacyModulePages.map(p => {
               const label = legacyModuleLabels[p] ?? p;
@@ -13165,6 +13276,7 @@ export default function App() {
             else if (tab === '部门角色管理') handleCloseDeptRoleManagementTab();
             else if (tab === '账号管理') handleCloseAccountManagementTab();
             else if (tab === '工单详情') handleCloseWorkOrderDetailTab();
+            else if (tab === '门户维护') handleClosePortalMaintenanceTab();
           }}
           onOpenPortal={() => {
             setManagerPortalPage('dashboard');
@@ -13180,7 +13292,7 @@ export default function App() {
 
         {/* old header removed - now using MainHeader */}
 
-        {activeLegacyModulePage ? <LegacyModulesPanel page={activeLegacyModulePage} onOpenMainTab={handleOpenMainTab} onOpenLegacyModulePage={handleOpenLegacyModulePage} onOpenWorkOrderDetail={(data) => { setWorkOrderDetailData(data); handleOpenMainTab('工单详情'); }} initialState={legacyModuleInitialState} onClearInitialState={() => setLegacyModuleInitialState(null)} /> : activeTab === '呼叫工作台' ? callWorkbenchContent : activeTab === '在线工作台' ? onlineWorkbenchContent : activeTab === '消息服务' ? messageServiceContent : activeTab === '排班信息展示' ? scheduleDisplayContent : activeTab === '业务字段管理' ? businessFieldManagementContent : activeTab === '业务字段上线审核' ? <BusinessFieldLaunchReviewContent /> : activeTab === '组别维护' ? <GroupMaintenance /> : activeTab === '目标值维护' ? <TargetValueMaintenance /> : activeTab === '品牌维护' ? <BrandMaintenance /> : activeTab === '附件管理' ? <AttachmentManagement /> : activeTab === '产品模块维护' ? <ProductModuleMaintenance /> : activeTab === '表单维护' ? <FormMaintenance /> : activeTab === '繁忙公告管理' ? busyAnnouncementManagementContent : activeTab === '隐私声明管理' ? privacyStatementManagementContent : activeTab === '用户体系管理' ? userSystemManagementContent : activeTab === '网聊维护' ? renderWebchatMaintenanceContent() : activeTab === '部门角色管理' ? renderDeptRoleManagementContent() : activeTab === '账号管理' ? accountManagementContent : activeTab === '工单详情' && workOrderDetailData ? <WorkOrderDetailPage data={workOrderDetailData} onBack={handleCloseWorkOrderDetailTab} /> : (
+        {activeLegacyModulePage ? <LegacyModulesPanel page={activeLegacyModulePage} onOpenMainTab={handleOpenMainTab} onOpenLegacyModulePage={handleOpenLegacyModulePage} onOpenWorkOrderDetail={(data) => { setWorkOrderDetailData(data); handleOpenMainTab('工单详情'); }} initialState={legacyModuleInitialState} onClearInitialState={() => setLegacyModuleInitialState(null)} /> : activeTab === '呼叫工作台' ? callWorkbenchContent : activeTab === '在线工作台' ? onlineWorkbenchContent : activeTab === '消息服务' ? messageServiceContent : activeTab === '排班信息展示' ? scheduleDisplayContent : activeTab === '业务字段管理' ? businessFieldManagementContent : activeTab === '业务字段上线审核' ? <BusinessFieldLaunchReviewContent /> : activeTab === '组别维护' ? <GroupMaintenance /> : activeTab === '目标值维护' ? <TargetValueMaintenance /> : activeTab === '品牌维护' ? <BrandMaintenance /> : activeTab === '附件管理' ? <AttachmentManagement /> : activeTab === '产品模块维护' ? <ProductModuleMaintenance /> : activeTab === '表单维护' ? <FormMaintenance /> : activeTab === '繁忙公告管理' ? busyAnnouncementManagementContent : activeTab === '隐私声明管理' ? privacyStatementManagementContent : activeTab === '用户体系管理' ? userSystemManagementContent : activeTab === '网聊维护' ? renderWebchatMaintenanceContent() : activeTab === '部门角色管理' ? renderDeptRoleManagementContent() : activeTab === '账号管理' ? accountManagementContent : activeTab === '工单详情' && workOrderDetailData ? <WorkOrderDetailPage data={workOrderDetailData} onBack={handleCloseWorkOrderDetailTab} /> : activeTab === '门户维护' ? <PortalMaintenance /> : (
         <>
           {viewMode === 'manager' && managerPortalPage === 'overview-detail' ? (
             <div className="flex-1 p-6 text-slate-500">概览详情页面（开发中）</div>
