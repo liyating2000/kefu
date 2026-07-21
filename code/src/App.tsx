@@ -4299,7 +4299,7 @@ export default function App() {
   const [showAccountEditModal, setShowAccountEditModal] = useState(false);
   const [accountEditForm, setAccountEditForm] = useState({ domainAccount: '', employeeName: '', employeeId: '', extensionNo: '', phone: '', defaultDept: '', chatRole: '坐席', role: '', roles: [] as string[] });
 
-  // 门户类型管理 state
+  // 门户管理 state
   const [showPortalTypeModal, setShowPortalTypeModal] = useState(false);
   const [portalTypeModalPortalType, setPortalTypeModalPortalType] = useState<'坐席门户' | '管理员门户'>('坐席门户');
   const [portalTypeModalSelectedAccounts, setPortalTypeModalSelectedAccounts] = useState<Set<string>>(new Set());
@@ -4312,6 +4312,8 @@ export default function App() {
     { id: 'pta-5', loginName: 'lyt04', employeeName: 'k5004', employeeId: '3004', department: '客服部/区', portalType: '坐席门户' },
     { id: 'pta-6', loginName: 'lyt07', employeeName: 'k5007', employeeId: '3007', department: '客服部/区', portalType: '管理员门户' },
   ]);
+  const [portalTypeModalDirectorAccounts, setPortalTypeModalDirectorAccounts] = useState<string[]>([]);
+  const [portalTypeModalDirectorDropdownOpen, setPortalTypeModalDirectorDropdownOpen] = useState(false);
   const [portalTypeModalToast, setPortalTypeModalToast] = useState<string | null>(null);
   let portalTypeIdCounter = 200;
 
@@ -10019,7 +10021,7 @@ export default function App() {
               <button type="button" className="h-9 rounded-md border border-[#96b8ff] bg-[#e8f1ff] px-4 text-[13px] font-medium text-[#216BFF] transition-colors hover:bg-[#c9dcff]">权限刷新</button>
               <button type="button" className="h-9 rounded-md border border-[#96b8ff] bg-[#e8f1ff] px-4 text-[13px] font-medium text-[#216BFF] transition-colors hover:bg-[#c9dcff]">权限导出</button>
               <button type="button" className="h-9 rounded-md bg-[#216BFF] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#1a5ce6]">部门/角色管理</button>
-              <button type="button" onClick={() => { setPortalTypeModalPortalType('坐席门户'); setPortalTypeModalSelectedAccounts(new Set()); setPortalTypeModalAccountSearch(''); setShowPortalTypeModal(true); }} className="h-9 rounded-md bg-[#216BFF] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#1a5ce6]">门户类型管理</button>
+              <button type="button" onClick={() => { setPortalTypeModalPortalType('坐席门户'); setPortalTypeModalSelectedAccounts(new Set()); setPortalTypeModalAccountSearch(''); setPortalTypeModalDirectorAccounts([]); setPortalTypeModalDirectorDropdownOpen(false); setShowPortalTypeModal(true); }} className="h-9 rounded-md bg-[#216BFF] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#1a5ce6]">门户管理</button>
             </div>
           </div>
           <div className="min-h-0 overflow-auto px-4 custom-scrollbar">
@@ -10248,10 +10250,41 @@ export default function App() {
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/30" onClick={() => setShowPortalTypeModal(false)}>
             <div className="w-[560px] rounded-lg bg-white shadow-xl" onClick={(e) => e.stopPropagation()}>
               <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-                <h3 className="text-[15px] font-semibold text-slate-800">门户类型管理</h3>
+                <h3 className="text-[15px] font-semibold text-slate-800">门户管理</h3>
                 <button type="button" onClick={() => setShowPortalTypeModal(false)} className="text-slate-400 hover:text-slate-600"><X size={18} /></button>
               </div>
               <div className="px-5 py-5">
+                <div className="mb-4">
+                  <label className="mb-2 block text-[13px] font-medium text-slate-600">总监账号</label>
+                  <div className="relative">
+                    <div onClick={() => setPortalTypeModalDirectorDropdownOpen((v) => !v)}
+                      className="flex min-h-[40px] w-full cursor-pointer flex-wrap items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-[13px] text-slate-600 transition-colors hover:border-[#216BFF]">
+                      {portalTypeModalDirectorAccounts.length > 0 ? portalTypeModalDirectorAccounts.map((name) => {
+                        const acc = accountManagementRows.find((a) => a.loginName === name);
+                        return (
+                          <span key={name} className="inline-flex items-center gap-1 rounded bg-[#e8f1ff] px-2 py-0.5 text-[12px] text-[#216BFF]">
+                            {acc ? `${acc.employeeName}(${acc.loginName})` : name}
+                            <button type="button" onClick={(e) => { e.stopPropagation(); setPortalTypeModalDirectorAccounts((prev) => prev.filter((n) => n !== name)); }} className="ml-0.5 text-[#216BFF]/60 hover:text-[#216BFF]"><X size={12} /></button>
+                          </span>
+                        );
+                      }) : <span className="text-slate-400">请选择总监账号（可多选）</span>}
+                    </div>
+                    {portalTypeModalDirectorDropdownOpen && (
+                      <div className="absolute left-0 top-full z-10 mt-1 max-h-[200px] w-full overflow-auto rounded-md border border-slate-200 bg-white shadow-lg custom-scrollbar">
+                        {accountManagementRows.filter((a) => a.chatRole === '管理员').map((acc) => (
+                          <label key={acc.loginName} className="flex cursor-pointer items-center gap-3 border-b border-slate-50 px-3 py-2.5 text-[13px] transition-colors last:border-b-0 hover:bg-[#f7f9fc]">
+                            <input type="checkbox" checked={portalTypeModalDirectorAccounts.includes(acc.loginName)}
+                              onChange={() => setPortalTypeModalDirectorAccounts((prev) => prev.includes(acc.loginName) ? prev.filter((n) => n !== acc.loginName) : [...prev, acc.loginName])}
+                              className="h-4 w-4 rounded border-slate-300 text-[#216BFF] accent-[#216BFF]" />
+                            <span className="font-medium text-slate-700">{acc.employeeName}</span>
+                            <span className="text-slate-500">{acc.loginName}</span>
+                            <span className="ml-auto text-[12px] text-slate-400">{acc.defaultDept}</span>
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
                 <div className="mb-4">
                   <label className="mb-2 block text-[13px] font-medium text-slate-600">选择门户类型 <span className="text-red-400">*</span></label>
                   <div className="flex gap-3">
