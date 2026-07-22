@@ -523,6 +523,36 @@ const createProblemClassificationTreeNodes = ({
     };
   });
 
+const createTicketTemplateTwoLevelTreeNodes = ({
+  businessTypes,
+  productCategories,
+  expandedNodeMap,
+}: {
+  businessTypes: readonly ProductManagementBusinessTypeItem[];
+  productCategories: readonly ProductManagementCategoryItem[];
+  expandedNodeMap: Readonly<Record<string, boolean>>;
+}): ProblemClassificationTreeNode[] =>
+  businessTypes.map((businessType) => {
+    const businessTypeNodeId = getProblemClassificationBusinessTypeNodeId(businessType.businessTypeId);
+    const categoryNodes = productCategories
+      .filter((category) => category.businessTypeName === businessType.name)
+      .map((category) => ({
+        id: getProblemClassificationCategoryNodeId(category.categoryId),
+        name: category.name,
+        enabled: category.enabled,
+        expanded: false,
+        children: [] as ProblemClassificationTreeNode[],
+      }));
+
+    return {
+      id: businessTypeNodeId,
+      name: businessType.name,
+      enabled: businessType.enabled,
+      expanded: expandedNodeMap[businessTypeNodeId] ?? false,
+      children: categoryNodes,
+    };
+  });
+
 const collectSelectableProblemClassificationNodeIds = (
   nodes: readonly ProblemClassificationTreeNode[],
   depth = 0
@@ -3591,9 +3621,7 @@ function FieldManagementDetailManagementPanel({
       relatedNodeId: normalizeInitialProblemClassificationRelatedNodeId(item.relatedNodeId),
     }))
   );
-  const [selectedTicketTemplateNodeId, setSelectedTicketTemplateNodeId] = useState(
-    defaultProblemClassificationProductNodeId
-  );
+  const [selectedTicketTemplateNodeId, setSelectedTicketTemplateNodeId] = useState('');
   const [ticketTemplateExpandedNodeMap, setTicketTemplateExpandedNodeMap] = useState<
     Record<string, boolean>
   >({});
@@ -4177,10 +4205,9 @@ function FieldManagementDetailManagementPanel({
     setProblemClassificationLevelCreateState(null);
   };
 
-  const ticketTemplateTree = createProblemClassificationTreeNodes({
+  const ticketTemplateTree = createTicketTemplateTwoLevelTreeNodes({
     businessTypes,
     productCategories,
-    productNames,
     expandedNodeMap: ticketTemplateExpandedNodeMap,
   });
   const ticketTemplateDisplayItems = ticketTemplateItems.filter(
@@ -4637,13 +4664,6 @@ function FieldManagementCustomFieldDrawer({
     onDraftChange(updater);
   };
 
-  const [isOptionMoreSettingsOpen, setIsOptionMoreSettingsOpen] = useState(false);
-  const [optionMoreSettingsDrawerOpen, setOptionMoreSettingsDrawerOpen] = useState(false);
-  const [optionMoreSettingsEditingItem, setOptionMoreSettingsEditingItem] = useState<{
-    item: OptionFieldMoreSettingsItem;
-    mode: 'view' | 'edit';
-  } | null>(null);
-
   return (
     <div className="fixed inset-0 z-50 flex bg-[rgba(15,23,42,0.18)]">
       <button type="button" aria-label={`关闭${title}`} onClick={onClose} className="h-full flex-1" />
@@ -4980,134 +5000,8 @@ function FieldManagementCustomFieldDrawer({
               </FieldManagementCustomFieldRow>
             )}
 
-            {draft.fieldType === '选项' ? (
-              <div className="mt-2 rounded-[6px] border border-[#eef2f6]">
-                <button
-                  type="button"
-                  onClick={() => setIsOptionMoreSettingsOpen((v) => !v)}
-                  className="flex w-full items-center gap-2 px-4 py-3 text-[14px] font-medium text-slate-700 transition-colors hover:bg-slate-50"
-                >
-                  <ChevronRight
-                    size={14}
-                    className={cn('transition-transform', isOptionMoreSettingsOpen && 'rotate-90')}
-                  />
-                  更多设置
-                </button>
-
-                {isOptionMoreSettingsOpen ? (
-                  <div className="border-t border-[#eef2f6] px-4 py-4">
-                    {draft.optionMoreSettings.length > 0 ? (
-                      <div className="overflow-hidden rounded-[6px]">
-                        <table className="min-w-full table-fixed text-left">
-                          <thead className="bg-[#fafcfe] text-[13px] text-slate-600">
-                            <tr>
-                              <th className="w-[132px] px-4 py-[8px] font-medium">选项</th>
-                              <th className="px-4 py-[8px] font-medium">操作</th>
-                            </tr>
-                          </thead>
-                          <tbody className="text-[13px] text-slate-600">
-                            {draft.optionMoreSettings.map((item) => (
-                              <tr key={item.id} className="border-b border-[#eef2f6] last:border-b-0">
-                                <td className="px-4 py-[14px] text-slate-700">{item.optionValue}</td>
-                                <td className="px-4 py-[14px]">
-                                  <div className="flex items-center gap-4 whitespace-nowrap text-[#216BFF]">
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        setOptionMoreSettingsEditingItem({ item, mode: 'view' });
-                                        setOptionMoreSettingsDrawerOpen(true);
-                                      }}
-                                      className="inline-flex items-center gap-1 transition-colors hover:text-[#216BFF]"
-                                    >
-                                      <Eye size={13} />
-                                      查看
-                                    </button>
-                                    {readOnly ? null : (
-                                      <>
-                                        <button
-                                          type="button"
-                                          onClick={() => {
-                                            setOptionMoreSettingsEditingItem({ item, mode: 'edit' });
-                                            setOptionMoreSettingsDrawerOpen(true);
-                                          }}
-                                          className="inline-flex items-center gap-1 transition-colors hover:text-[#216BFF]"
-                                        >
-                                          <Pencil size={13} />
-                                          编辑
-                                        </button>
-                                        <button
-                                          type="button"
-                                          onClick={() =>
-                                            updateDraft((current) => ({
-                                              ...current,
-                                              optionMoreSettings: current.optionMoreSettings.filter((s) => s.id !== item.id),
-                                            }))
-                                          }
-                                          className="inline-flex items-center gap-1 transition-colors hover:text-[#216BFF]"
-                                        >
-                                          <Trash2 size={13} />
-                                          删除
-                                        </button>
-                                      </>
-                                    )}
-                                  </div>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    ) : null}
-
-                    {readOnly ? null : (
-                      <div className={draft.optionMoreSettings.length > 0 ? 'mt-4' : ''}>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setOptionMoreSettingsEditingItem(null);
-                            setOptionMoreSettingsDrawerOpen(true);
-                          }}
-                          className="inline-flex h-[28px] items-center gap-1 rounded-[4px] border border-[#96b8ff] bg-white px-3 text-[13px] text-[#216BFF] transition-colors hover:bg-[#e8f1ff]"
-                        >
-                          <Plus size={14} />
-                          添加
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                ) : null}
-              </div>
-            ) : null}
           </div>
         </div>
-
-        {optionMoreSettingsDrawerOpen ? (
-          <OptionFieldMoreSettingsDrawer
-            editingItem={optionMoreSettingsEditingItem}
-            availableOptionValues={draft.optionItems
-              .map((item) => item.value.trim())
-              .filter((v) => v.length > 0)}
-            usedOptionValues={draft.optionMoreSettings
-              .filter((s) => s.id !== optionMoreSettingsEditingItem?.item.id)
-              .map((s) => s.optionValue)}
-            onClose={() => {
-              setOptionMoreSettingsDrawerOpen(false);
-              setOptionMoreSettingsEditingItem(null);
-            }}
-            onCreateItem={(item) =>
-              updateDraft((current) => ({
-                ...current,
-                optionMoreSettings: [...current.optionMoreSettings, item],
-              }))
-            }
-            onUpdateItem={(item) =>
-              updateDraft((current) => ({
-                ...current,
-                optionMoreSettings: current.optionMoreSettings.map((s) => (s.id === item.id ? item : s)),
-              }))
-            }
-          />
-        ) : null}
 
         {readOnly ? (
           <div className="flex items-center justify-end gap-3 px-4 py-4">
@@ -5847,12 +5741,14 @@ function FieldManagementProblemClassificationTree({
   nodes,
   selectedNodeId,
   depth = 0,
+  selectableDepth = 2,
   onToggleTreeNode,
   onSelectTreeNode,
 }: {
   nodes: readonly ProblemClassificationTreeNode[];
   selectedNodeId: string;
   depth?: number;
+  selectableDepth?: number;
   onToggleTreeNode: (nodeId: string) => void;
   onSelectTreeNode: (nodeId: string) => void;
 }) {
@@ -5860,7 +5756,7 @@ function FieldManagementProblemClassificationTree({
     <div className="space-y-[1px]">
       {nodes.map((node) => {
         const hasChildren = node.children.length > 0;
-        const isSelectable = depth === 2;
+        const isSelectable = depth === selectableDepth;
         const isSelected = isSelectable && node.id === selectedNodeId;
 
         return (
@@ -5920,6 +5816,7 @@ function FieldManagementProblemClassificationTree({
                   nodes={node.children}
                   selectedNodeId={selectedNodeId}
                   depth={depth + 1}
+                  selectableDepth={selectableDepth}
                   onToggleTreeNode={onToggleTreeNode}
                   onSelectTreeNode={onSelectTreeNode}
                 />
@@ -7416,11 +7313,12 @@ function FieldManagementTicketTemplatePanel({
         style={{ gridTemplateColumns: 'minmax(240px, 320px) minmax(0, 1fr)' }}
       >
         <section className="flex min-h-[610px] min-w-[240px] flex-col overflow-hidden rounded-[6px] border border-[#e7edf3] bg-white">
-          <div className="px-[13px] py-[12px] text-[14px] font-semibold text-slate-700">业务类型和产品</div>
+          <div className="px-[13px] py-[12px] text-[14px] font-semibold text-slate-700">业务类型和产品分类</div>
           <div className="min-h-0 flex-1 overflow-auto px-[8px] pb-[14px] pt-[2px] custom-scrollbar">
             <FieldManagementProblemClassificationTree
               nodes={treeNodes}
               selectedNodeId={selectedNodeId}
+              selectableDepth={1}
               onToggleTreeNode={onToggleTreeNode}
               onSelectTreeNode={onSelectTreeNode}
             />

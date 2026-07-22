@@ -251,32 +251,33 @@ type DistributionPoint = {
  * 日维度 X 轴为 8:00–23:00 半小时粒度，周/月维度仍为整点粒度。
  */
 const halfHourLabels: string[] = [];
-for (let h = 8; h <= 23; h++) {
+for (let h = 8; h <= 22; h++) {
+  if (h === 8) { halfHourLabels.push('8:30'); continue; }
   halfHourLabels.push(`${h}:00`);
-  if (h < 23) halfHourLabels.push(`${h}:30`);
+  if (h < 22) halfHourLabels.push(`${h}:30`);
 }
 const hourLabels = Array.from({ length: 24 }, (_, i) => String(i));
 
 const chartDataByPeriod: Record<'日' | '周' | '月', DistributionPoint[]> = {
-  // 日 — 8:00~23:00 半小时粒度
+  // 日 — 8:30~22:00 半小时粒度
   日: halfHourLabels.map((label) => {
     const [hStr, mStr] = label.split(':');
     const hour = Number(hStr);
     const isHalf = mStr === '30';
-    const baseFull = [0, 0, 0, 0, 0, 0, 0, 0, 5800, 7200, 6500, 6000, 4500, 8000, 9200, 8800, 7500, 6200, 4800, 3500, 2800, 2000, 1500, 900];
-    const mpFull   = [0, 0, 0, 0, 0, 0, 0, 0, 15, 18, 17, 16, 13, 20, 19, 18, 17, 15, 12, 10, 8, 6, 5, 3];
-    const b0 = baseFull[hour];
-    const m0 = mpFull[hour];
+    const baseFull = [0, 0, 0, 0, 0, 0, 0, 0, 5800, 7200, 6500, 6000, 4500, 8000, 9200, 8800, 7500, 6200, 4800, 3500, 2800, 2000, 1500];
+    const mpFull   = [0, 0, 0, 0, 0, 0, 0, 0, 15, 18, 17, 16, 13, 20, 19, 18, 17, 15, 12, 10, 8, 6, 5];
+    const b0 = baseFull[hour] ?? 0;
+    const m0 = mpFull[hour] ?? 0;
     if (!isHalf) return { label, business: b0, manpower: m0 };
-    const b1 = hour + 1 < 24 ? baseFull[hour + 1] : b0;
-    const m1 = hour + 1 < 24 ? mpFull[hour + 1] : m0;
+    const b1 = hour + 1 < baseFull.length ? baseFull[hour + 1] : b0;
+    const m1 = hour + 1 < mpFull.length ? mpFull[hour + 1] : m0;
     return { label, business: Math.round((b0 + b1) / 2), manpower: Math.round(((m0 + m1) / 2) * 10) / 10 };
   }),
-  // 周 — 周一到周五
+  // 周 — 周一到周日
   周: (() => {
-    const weekLabels = ['周一', '周二', '周三', '周四', '周五'];
-    const base = [6200, 7100, 6800, 7400, 5900];
-    const mp   = [16, 18, 17, 19, 15];
+    const weekLabels = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+    const base = [6200, 7100, 6800, 7400, 5900, 3200, 2800];
+    const mp   = [16, 18, 17, 19, 15, 10, 8];
     return weekLabels.map((label, i) => ({ label, business: base[i], manpower: mp[i] }));
   })(),
   // 月 — 本月1号到当天

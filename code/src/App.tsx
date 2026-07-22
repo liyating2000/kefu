@@ -3720,7 +3720,7 @@ const workbenchSelectOptions: Record<string, readonly string[]> = {
   '是否审核': ['是', '否'],
   '产品分类': ['学习机', '智能硬件', '听见', '教育'],
   '产品名称': ['A10', 'X3 Pro', '讯飞听见', '智能办公本'],
-  '呼入类型': ['咨询', '投诉', '售后', '回访'],
+  '呼入类型': ['咨询', '投诉', '建议', '表扬', '商机'],
   '问题定型': ['功能咨询', '故障报修', '物流查询', '费用问题'],
   '问题分类一级': ['账号问题', '设备问题', '订单问题', '售后问题'],
   '问题分类三级': ['三级分类A', '三级分类B', '三级分类C'],
@@ -4312,8 +4312,9 @@ export default function App() {
     { id: 'pta-5', loginName: 'lyt04', employeeName: 'k5004', employeeId: '3004', department: '客服部/区', portalType: '坐席门户' },
     { id: 'pta-6', loginName: 'lyt07', employeeName: 'k5007', employeeId: '3007', department: '客服部/区', portalType: '管理员门户' },
   ]);
-  const [portalTypeModalDirectorAccounts, setPortalTypeModalDirectorAccounts] = useState<string[]>([]);
+  const [portalTypeModalDirectorAccount, setPortalTypeModalDirectorAccount] = useState<string>('');
   const [portalTypeModalDirectorDropdownOpen, setPortalTypeModalDirectorDropdownOpen] = useState(false);
+  const [portalTypeModalTab, setPortalTypeModalTab] = useState<'director' | 'portalType'>('director');
   const [portalTypeModalToast, setPortalTypeModalToast] = useState<string | null>(null);
   let portalTypeIdCounter = 200;
 
@@ -10021,7 +10022,7 @@ export default function App() {
               <button type="button" className="h-9 rounded-md border border-[#96b8ff] bg-[#e8f1ff] px-4 text-[13px] font-medium text-[#216BFF] transition-colors hover:bg-[#c9dcff]">权限刷新</button>
               <button type="button" className="h-9 rounded-md border border-[#96b8ff] bg-[#e8f1ff] px-4 text-[13px] font-medium text-[#216BFF] transition-colors hover:bg-[#c9dcff]">权限导出</button>
               <button type="button" className="h-9 rounded-md bg-[#216BFF] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#1a5ce6]">部门/角色管理</button>
-              <button type="button" onClick={() => { setPortalTypeModalPortalType('坐席门户'); setPortalTypeModalSelectedAccounts(new Set()); setPortalTypeModalAccountSearch(''); setPortalTypeModalDirectorAccounts([]); setPortalTypeModalDirectorDropdownOpen(false); setShowPortalTypeModal(true); }} className="h-9 rounded-md bg-[#216BFF] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#1a5ce6]">门户管理</button>
+              <button type="button" onClick={() => { setPortalTypeModalPortalType('坐席门户'); setPortalTypeModalSelectedAccounts(new Set()); setPortalTypeModalAccountSearch(''); setPortalTypeModalDirectorAccount(''); setPortalTypeModalDirectorDropdownOpen(false); setPortalTypeModalTab('director'); setShowPortalTypeModal(true); }} className="h-9 rounded-md bg-[#216BFF] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#1a5ce6]">门户管理</button>
             </div>
           </div>
           <div className="min-h-0 overflow-auto px-4 custom-scrollbar">
@@ -10253,40 +10254,40 @@ export default function App() {
                 <h3 className="text-[15px] font-semibold text-slate-800">门户管理</h3>
                 <button type="button" onClick={() => setShowPortalTypeModal(false)} className="text-slate-400 hover:text-slate-600"><X size={18} /></button>
               </div>
+              <div className="flex border-b border-slate-100">
+                <button type="button" onClick={() => setPortalTypeModalTab('director')}
+                  className={`px-5 py-3 text-[13px] font-medium transition-colors ${portalTypeModalTab === 'director' ? 'border-b-2 border-[#216BFF] text-[#216BFF]' : 'text-slate-500 hover:text-slate-700'}`}>总监账号配置</button>
+                <button type="button" onClick={() => setPortalTypeModalTab('portalType')}
+                  className={`px-5 py-3 text-[13px] font-medium transition-colors ${portalTypeModalTab === 'portalType' ? 'border-b-2 border-[#216BFF] text-[#216BFF]' : 'text-slate-500 hover:text-slate-700'}`}>门户类型配置</button>
+              </div>
               <div className="px-5 py-5">
-                <div className="mb-4">
+                {portalTypeModalTab === 'director' ? (
+                <div>
                   <label className="mb-2 block text-[13px] font-medium text-slate-600">总监账号</label>
                   <div className="relative">
                     <div onClick={() => setPortalTypeModalDirectorDropdownOpen((v) => !v)}
-                      className="flex min-h-[40px] w-full cursor-pointer flex-wrap items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-[13px] text-slate-600 transition-colors hover:border-[#216BFF]">
-                      {portalTypeModalDirectorAccounts.length > 0 ? portalTypeModalDirectorAccounts.map((name) => {
-                        const acc = accountManagementRows.find((a) => a.loginName === name);
-                        return (
-                          <span key={name} className="inline-flex items-center gap-1 rounded bg-[#e8f1ff] px-2 py-0.5 text-[12px] text-[#216BFF]">
-                            {acc ? `${acc.employeeName}(${acc.loginName})` : name}
-                            <button type="button" onClick={(e) => { e.stopPropagation(); setPortalTypeModalDirectorAccounts((prev) => prev.filter((n) => n !== name)); }} className="ml-0.5 text-[#216BFF]/60 hover:text-[#216BFF]"><X size={12} /></button>
-                          </span>
-                        );
-                      }) : <span className="text-slate-400">请选择总监账号（可多选）</span>}
+                      className="flex h-10 w-full cursor-pointer items-center rounded-md border border-slate-200 bg-white px-3 text-[13px] text-slate-600 transition-colors hover:border-[#216BFF]">
+                      {portalTypeModalDirectorAccount ? (() => { const acc = accountManagementRows.find((a) => a.loginName === portalTypeModalDirectorAccount); return <span className="text-slate-700">{acc ? `${acc.employeeName}(${acc.loginName})` : portalTypeModalDirectorAccount}</span>; })() : <span className="text-slate-400">请选择总监账号</span>}
+                      <ChevronDown size={14} className="ml-auto text-slate-400" />
                     </div>
                     {portalTypeModalDirectorDropdownOpen && (
                       <div className="absolute left-0 top-full z-10 mt-1 max-h-[200px] w-full overflow-auto rounded-md border border-slate-200 bg-white shadow-lg custom-scrollbar">
                         {accountManagementRows.filter((a) => a.chatRole === '管理员').map((acc) => (
-                          <label key={acc.loginName} className="flex cursor-pointer items-center gap-3 border-b border-slate-50 px-3 py-2.5 text-[13px] transition-colors last:border-b-0 hover:bg-[#f7f9fc]">
-                            <input type="checkbox" checked={portalTypeModalDirectorAccounts.includes(acc.loginName)}
-                              onChange={() => setPortalTypeModalDirectorAccounts((prev) => prev.includes(acc.loginName) ? prev.filter((n) => n !== acc.loginName) : [...prev, acc.loginName])}
-                              className="h-4 w-4 rounded border-slate-300 text-[#216BFF] accent-[#216BFF]" />
+                          <div key={acc.loginName} onClick={() => { setPortalTypeModalDirectorAccount(acc.loginName); setPortalTypeModalDirectorDropdownOpen(false); }}
+                            className={`flex cursor-pointer items-center gap-3 border-b border-slate-50 px-3 py-2.5 text-[13px] transition-colors last:border-b-0 hover:bg-[#f7f9fc] ${portalTypeModalDirectorAccount === acc.loginName ? 'bg-[#e8f1ff]' : ''}`}>
                             <span className="font-medium text-slate-700">{acc.employeeName}</span>
                             <span className="text-slate-500">{acc.loginName}</span>
                             <span className="ml-auto text-[12px] text-slate-400">{acc.defaultDept}</span>
-                          </label>
+                          </div>
                         ))}
                       </div>
                     )}
                   </div>
                 </div>
+                ) : (
+                <>
                 <div className="mb-4">
-                  <label className="mb-2 block text-[13px] font-medium text-slate-600">选择门户类型 <span className="text-red-400">*</span></label>
+                  <label className="mb-2 block text-[13px] font-medium text-slate-600">选择门户类型</label>
                   <div className="flex gap-3">
                     {(['坐席门户', '管理员门户'] as const).map((pt) => (
                       <button key={pt} type="button" onClick={() => setPortalTypeModalPortalType(pt)}
@@ -10303,7 +10304,7 @@ export default function App() {
                 </div>
                 <div>
                   <label className="mb-2 block text-[13px] font-medium text-slate-600">
-                    选择账号 <span className="text-red-400">*</span>
+                    选择账号
                     {portalTypeModalSelectedAccounts.size > 0 && <span className="ml-2 text-[12px] font-normal text-[#216BFF]">已选 {portalTypeModalSelectedAccounts.size} 个</span>}
                   </label>
                   <input type="text" placeholder="搜索账号/姓名/工号..." value={portalTypeModalAccountSearch} onChange={(e) => setPortalTypeModalAccountSearch(e.target.value)}
@@ -10323,22 +10324,25 @@ export default function App() {
                     )}
                   </div>
                 </div>
+                </>
+                )}
               </div>
               <div className="flex items-center justify-end gap-2 border-t border-slate-100 px-5 py-3">
                 <button type="button" onClick={() => setShowPortalTypeModal(false)} className="inline-flex h-9 shrink-0 items-center justify-center whitespace-nowrap rounded-md border border-slate-200 bg-white px-4 text-[13px] font-medium text-slate-500 transition-colors hover:bg-slate-50">取消</button>
                 <button type="button" onClick={() => {
-                  if (portalTypeModalSelectedAccounts.size === 0) { setPortalTypeModalToast('请至少选择一个账号'); window.setTimeout(() => setPortalTypeModalToast(null), 1800); return; }
                   const newItems: typeof portalTypeModalAssignments = [];
                   for (const row of accountManagementRows) {
                     if (portalTypeModalSelectedAccounts.has(row.loginName)) {
                       newItems.push({ id: `pta-${++portalTypeIdCounter}`, loginName: row.loginName, employeeName: row.employeeName, employeeId: row.employeeId, department: row.defaultDept, portalType: portalTypeModalPortalType });
                     }
                   }
-                  setPortalTypeModalAssignments((prev) => [...prev, ...newItems]);
-                  setPortalTypeModalToast(`已添加 ${newItems.length} 个账号到${portalTypeModalPortalType}`);
-                  window.setTimeout(() => setPortalTypeModalToast(null), 1800);
+                  if (newItems.length > 0) {
+                    setPortalTypeModalAssignments((prev) => [...prev, ...newItems]);
+                    setPortalTypeModalToast(`已添加 ${newItems.length} 个账号到${portalTypeModalPortalType}`);
+                    window.setTimeout(() => setPortalTypeModalToast(null), 1800);
+                  }
                   setShowPortalTypeModal(false);
-                }} className="inline-flex h-9 shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-[#216BFF] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#1a5ce6]">确定添加</button>
+                }} className="inline-flex h-9 shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-[#216BFF] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#1a5ce6]">确定</button>
               </div>
               {portalTypeModalToast && <div className="fixed left-1/2 top-5 z-[200] -translate-x-1/2 rounded-lg bg-slate-800 px-5 py-2.5 text-[13px] text-white shadow-lg">{portalTypeModalToast}</div>}
             </div>
@@ -10844,6 +10848,17 @@ export default function App() {
                       <div className="h-6 w-11 rounded-full bg-slate-200 transition-colors after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow after:transition-all peer-checked:bg-[#216BFF] peer-checked:after:translate-x-5" />
                     </label>
                     <span className="text-[12px] text-slate-400">开启后将显示账号水印</span>
+                  </div>
+                </div>
+                <h3 className="mt-8 text-[16px] font-bold text-slate-800">登录方式</h3>
+                <div className="mt-4 rounded-lg border border-slate-200 px-5 py-5">
+                  <div className="flex items-center gap-5">
+                    <span className="w-[130px] shrink-0 text-[13px] font-medium text-slate-700">启用系统默认登录</span>
+                    <label className="relative inline-flex cursor-pointer items-center">
+                      <input type="checkbox" className="peer sr-only" />
+                      <div className="h-6 w-11 rounded-full bg-slate-200 transition-colors after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow after:transition-all peer-checked:bg-[#216BFF] peer-checked:after:translate-x-5" />
+                    </label>
+                    <span className="text-[12px] text-slate-400">开启后将使用系统默认登录方式</span>
                   </div>
                 </div>
                 <div className="mt-8 flex justify-end">
@@ -14450,14 +14465,7 @@ export default function App() {
       `}</style>
 
       {/* Help floating button */}
-      <button
-        type="button"
-        onClick={() => setIsHelpSidebarOpen(true)}
-        className="fixed bottom-6 right-6 z-[60] flex h-12 w-12 items-center justify-center rounded-full bg-[#216BFF] text-white shadow-lg transition-transform hover:scale-110 hover:bg-[#1a5ce6]"
-        aria-label="帮助文档"
-      >
-        <HelpCircle size={24} />
-      </button>
+      {/* 帮助按钮已隐藏 */}
 
       {isHelpSidebarOpen && (
         <HelpSidebarContent onClose={() => setIsHelpSidebarOpen(false)} />
