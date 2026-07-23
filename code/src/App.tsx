@@ -3079,7 +3079,6 @@ const operationDeskMenus: SubMenuItem[] = [
   { label: '业务字段管理', action: { type: 'tab', tab: '业务字段管理' } },
   { label: '业务字段上线审核', action: { type: 'tab', tab: '业务字段上线审核' } },
   { label: '表单维护', action: { type: 'tab', tab: '表单维护' } },
-  { label: '门户维护', action: { type: 'tab', tab: '门户维护' } },
   { label: '发件人邮箱配置', action: { type: 'none' } },
   { label: '消息维护', action: { type: 'none' } },
   { label: '短信/邮件模板管理', action: { type: 'none' } },
@@ -13206,7 +13205,7 @@ export default function App() {
                 </label>
               </div>
               <button type="button" onClick={() => setIsLoggedIn(true)} className="h-11 w-full rounded-lg bg-gradient-to-r from-[#216BFF] to-[#1a5ce6] text-[15px] font-semibold text-white shadow-md transition-shadow hover:shadow-lg">登 录</button>
-              <button type="button" onClick={() => setIsLoggedIn(true)} className="h-11 w-full rounded-lg border border-slate-200 bg-white text-[15px] font-semibold text-slate-600 transition-colors hover:bg-slate-50">SSO 登录</button>
+
             </div>
           </div>
         </div>
