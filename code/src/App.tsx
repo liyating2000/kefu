@@ -278,7 +278,9 @@ type WebchatProductDialog =
   | 'quick-button'
   | 'content-tag'
   | 'content-item'
-  | 'quote';
+  | 'quote'
+  | 'batch-robot'
+  | 'batch-agent';
 type WebchatConfirmAction =
   | null
   | { type: 'delete-product'; productId: string; title: string; message: string }
@@ -9492,6 +9494,36 @@ export default function App() {
                   >
                     批量高频操作配置
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (selectedWebchatProductIds.length === 0) {
+                        showWebchatToastMessage('error', '请先勾选要操作的产品');
+                        setShowWebchatBatchActionMenu(false);
+                        return;
+                      }
+                      setShowWebchatBatchActionMenu(false);
+                      setWebchatProductDialog('batch-robot');
+                    }}
+                    className="flex w-full rounded px-3 py-2 text-left text-[13px] text-slate-600 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-300"
+                  >
+                    批量机器人设置
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (selectedWebchatProductIds.length === 0) {
+                        showWebchatToastMessage('error', '请先勾选要操作的产品');
+                        setShowWebchatBatchActionMenu(false);
+                        return;
+                      }
+                      setShowWebchatBatchActionMenu(false);
+                      setWebchatProductDialog('batch-agent');
+                    }}
+                    className="flex w-full rounded px-3 py-2 text-left text-[13px] text-slate-600 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-300"
+                  >
+                    批量agent设置
+                  </button>
 
                 </div>
               )}
@@ -10847,17 +10879,6 @@ export default function App() {
                       <div className="h-6 w-11 rounded-full bg-slate-200 transition-colors after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow after:transition-all peer-checked:bg-[#216BFF] peer-checked:after:translate-x-5" />
                     </label>
                     <span className="text-[12px] text-slate-400">开启后将显示账号水印</span>
-                  </div>
-                </div>
-                <h3 className="mt-8 text-[16px] font-bold text-slate-800">登录方式</h3>
-                <div className="mt-4 rounded-lg border border-slate-200 px-5 py-5">
-                  <div className="flex items-center gap-5">
-                    <span className="w-[130px] shrink-0 text-[13px] font-medium text-slate-700">启用系统默认登录</span>
-                    <label className="relative inline-flex cursor-pointer items-center">
-                      <input type="checkbox" className="peer sr-only" />
-                      <div className="h-6 w-11 rounded-full bg-slate-200 transition-colors after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow after:transition-all peer-checked:bg-[#216BFF] peer-checked:after:translate-x-5" />
-                    </label>
-                    <span className="text-[12px] text-slate-400">开启后将使用系统默认登录方式</span>
                   </div>
                 </div>
                 <div className="mt-8 flex justify-end">
@@ -13721,7 +13742,11 @@ export default function App() {
                             ? `${editingWebchatContentTagId ? '编辑' : '新增'}高频内容标签`
                             : webchatProductDialog === 'content-item'
                               ? `${editingWebchatContentItemId ? '编辑' : '新增'}高频内容`
-                              : '一键引用'}
+                              : webchatProductDialog === 'batch-robot'
+                                ? '批量机器人设置'
+                                : webchatProductDialog === 'batch-agent'
+                                  ? '批量agent设置'
+                                  : '一键引用'}
                 </div>
                 <button
                   type="button"
@@ -14006,6 +14031,68 @@ export default function App() {
                         </div>
                       </div>
                     ) : null}
+
+                    {webchatProductDialog === 'batch-robot' ? (
+                      <>
+                        <div className="mb-2 text-[13px] text-slate-500">已选择 {selectedWebchatProductIds.length} 个产品，配置将覆盖所有选中产品的机器人设置。</div>
+                        <div className="grid grid-cols-[92px_1fr] items-start gap-4 text-[14px] text-slate-600">
+                          <span className="pt-2 text-right font-medium">机器人配置:</span>
+                          <div>
+                            <textarea
+                              value={webchatProductForm.robotConfig}
+                              onChange={(event) => setWebchatProductForm((current) => ({ ...current, robotConfig: event.target.value }))}
+                              placeholder='{"key": "value"}'
+                              rows={6}
+                              className="w-full rounded border border-slate-200 px-3 py-2 font-mono text-[12px] outline-none"
+                            />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-[92px_1fr] items-center gap-4 text-[14px] text-slate-600">
+                          <span className="text-right font-medium">机器人头像:</span>
+                          <div>
+                            <div className="flex items-center gap-4">
+                              <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-[10px] border border-dashed border-[#bdd4ee] bg-[#f8fbff] text-[#7ca0c6]">
+                                {webchatProductForm.robotAvatar ? (
+                                  <img src={webchatProductForm.robotAvatar} alt="机器人头像" className="h-full w-full object-cover" />
+                                ) : (
+                                  <ImageIcon size={18} />
+                                )}
+                              </div>
+                              <div>
+                                <button
+                                  type="button"
+                                  onClick={() => webchatProductRobotAvatarInputRef.current?.click()}
+                                  className="text-[13px] font-medium text-[#216BFF]"
+                                >
+                                  {webchatProductForm.robotAvatar ? '重新上传' : '上传图片'}
+                                </button>
+                                <div className="mt-1 text-[12px] text-slate-400">
+                                  {webchatProductForm.robotAvatarFileName || '建议44×44px'}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    ) : null}
+
+                    {webchatProductDialog === 'batch-agent' ? (
+                      <>
+                        <div className="mb-2 text-[13px] text-slate-500">已选择 {selectedWebchatProductIds.length} 个产品，配置将覆盖所有选中产品的agent设置。</div>
+                        <div className="grid grid-cols-[92px_1fr] items-start gap-4 text-[14px] text-slate-600">
+                          <span className="pt-2 text-right font-medium">agent配置:</span>
+                          <div>
+                            <textarea
+                              value={webchatProductForm.agentConfig}
+                              onChange={(event) => setWebchatProductForm((current) => ({ ...current, agentConfig: event.target.value }))}
+                              placeholder='{"key": "value"}'
+                              rows={6}
+                              className="w-full rounded border border-slate-200 px-3 py-2 font-mono text-[12px] outline-none"
+                            />
+                          </div>
+                        </div>
+                      </>
+                    ) : null}
                   </div>
 
                   <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
@@ -14033,6 +14120,30 @@ export default function App() {
                         }
                         if (webchatProductDialog === 'content-item') {
                           handleSaveWebchatContentItem();
+                          return;
+                        }
+                        if (webchatProductDialog === 'batch-robot') {
+                          setWebchatProducts((current) =>
+                            current.map((p) =>
+                              selectedWebchatProductIds.includes(p.id)
+                                ? { ...p, robotConfig: webchatProductForm.robotConfig, robotAvatar: webchatProductForm.robotAvatar || p.robotAvatar }
+                                : p
+                            )
+                          );
+                          showWebchatToastMessage('success', `已批量更新${selectedWebchatProductIds.length}个产品的机器人设置`);
+                          closeWebchatDialog();
+                          return;
+                        }
+                        if (webchatProductDialog === 'batch-agent') {
+                          setWebchatProducts((current) =>
+                            current.map((p) =>
+                              selectedWebchatProductIds.includes(p.id)
+                                ? { ...p, agentConfig: webchatProductForm.agentConfig }
+                                : p
+                            )
+                          );
+                          showWebchatToastMessage('success', `已批量更新${selectedWebchatProductIds.length}个产品的agent设置`);
+                          closeWebchatDialog();
                           return;
                         }
                         handleQuoteWebchatQuickButtons();

@@ -34,7 +34,6 @@ import CallCustomerInfoPanel from './CallCustomerInfoPanel';
 import CallInboundInfoPanel from './CallInboundInfoPanel';
 import CallHistoryPanel from './CallHistoryPanel';
 import CallRightSidebar from './CallRightSidebar';
-import CallAgentPanel from './CallAgentPanel';
 import CallScheduleFollowUpModal from './CallScheduleFollowUpModal';
 import TaggingModal from '../workbench/TaggingModal';
 import AttachmentQueryModal from '../workbench/AttachmentQueryModal';
@@ -52,7 +51,6 @@ import toolServicePointIcon from '../../assets/tool-icons/tool-售后网点查�
 import toolRepairPriceIcon from '../../assets/tool-icons/tool-售后维修价格.png';
 import toolPaymentIcon from '../../assets/tool-icons/tool-售后付款.png';
 import toolSortIcon from '../../assets/tool-icons/tool-排序.png';
-import onlineSideAgentIcon from '../../assets/rightside-icons/在线-侧-Agent.png';
 import onlineSideWorkOrderIcon from '../../assets/rightside-icons/在线-侧-工单端丽.png';
 import onlineSideKnowledgeBaseIcon from '../../assets/rightside-icons/在线-侧-知识库.png';
 import onlineSideToolIcon from '../../assets/rightside-icons/在线-侧-常用工具.png';
@@ -63,8 +61,8 @@ import onlineSideSettingsIcon from '../../assets/rightside-icons/在线-侧-设�
 type WorkbenchHistoryTab = '会话历史' | '通话历史' | '短信历史' | '邮件历史';
 type WorkbenchSummaryTab = string;
 type WorkbenchToolTab = '工单管理' | '知识库' | '常用工具' | '第三方网站';
-type CallRightPanel = 'agent' | 'workorder' | 'knowledge' | 'toolsite' | 'summary';
-type CallSidebarFeatureKey = 'agent' | 'workorder' | 'knowledge' | 'toolsite' | 'summary' | 'settings';
+type CallRightPanel = 'workorder' | 'knowledge' | 'toolsite' | 'summary';
+type CallSidebarFeatureKey = 'workorder' | 'knowledge' | 'toolsite' | 'summary' | 'settings';
 type OnlineThirdPartyScope = 'public' | 'personal';
 type IconComponent = React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>;
 
@@ -284,7 +282,6 @@ const callSidebarFeatureDefinitions: ReadonlyArray<{
   icon?: React.ComponentType<{ size?: number; strokeWidth?: number }>;
   locked?: boolean;
 }> = [
-  { key: 'agent', label: 'Agent', title: 'Agent', imageSrc: onlineSideAgentIcon, panel: 'agent' },
   { key: 'workorder', label: '工单历史', title: '工单历史', imageSrc: onlineSideWorkOrderIcon, panel: 'workorder' },
   { key: 'toolsite', label: '第三方网站', title: '第三方网站', imageSrc: onlineSideToolIcon, panel: 'toolsite' },
   { key: 'summary', label: '通话小结', title: '通话小结', icon: FilePen, panel: 'summary' },
@@ -297,7 +294,7 @@ const callSidebarFeatureDefinitionMap = callSidebarFeatureDefinitions.reduce<
 >((result, item) => { result[item.key] = item; return result; }, {} as Record<CallSidebarFeatureKey, (typeof callSidebarFeatureDefinitions)[number]>);
 
 const callSidebarInitialVisibility: Record<CallSidebarFeatureKey, boolean> = {
-  agent: true, workorder: true, knowledge: true, toolsite: true, summary: true, settings: true,
+  workorder: true, knowledge: true, toolsite: true, summary: true, settings: true,
 };
 
 const workbenchSelectOptions: Record<string, readonly string[]> = {
@@ -1081,9 +1078,6 @@ export default function CallWorkbenchPage({ onOpenWorkOrderDetail }: CallWorkben
   );
 
   // ─── Right panel content ─────────────────────────────────────────
-  const callRobotPanelContent = (
-    <CallAgentPanel />
-  );
 
   const callSummaryPanelContent = (
     <WorkbenchSummaryPanel
@@ -1099,7 +1093,7 @@ export default function CallWorkbenchPage({ onOpenWorkOrderDetail }: CallWorkben
       actions={
         <>
           <button type="button" onClick={() => handleRemoveCallSummaryTab(callSummaryTab)} className="rounded-full border border-rose-300 bg-rose-50/60 px-5 py-[7px] text-[12px] font-medium text-rose-500 transition-colors hover:bg-rose-50">废弃</button>
-          <button className="rounded-full border border-brand-300 px-5 py-[7px] text-[12px] font-medium text-brand-500 transition-colors hover:bg-brand-50">升级工单</button>
+          <button className="rounded-full border border-brand-300 px-5 py-[7px] text-[12px] font-medium text-brand-500 transition-colors hover:bg-brand-50">创建工单</button>
           <button className="rounded-full border border-brand-300 px-5 py-[7px] text-[12px] font-medium text-brand-500 transition-colors hover:bg-brand-50">暂存</button>
           <button className="rounded-full border border-brand-300 px-5 py-[7px] text-[12px] font-medium text-brand-500 transition-colors hover:bg-brand-50">提交</button>
         </>
@@ -1108,8 +1102,7 @@ export default function CallWorkbenchPage({ onOpenWorkOrderDetail }: CallWorkben
   );
 
   const callRightSingleContent =
-    callRightPanel === 'agent' ? callRobotPanelContent
-    : callRightPanel === 'workorder' ? (
+    callRightPanel === 'workorder' ? (
       <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[14px] border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
         <div className="shrink-0 border-b border-slate-100 px-4 py-3">
           <h2 className="text-[14px] font-bold text-slate-800">工单历史</h2>

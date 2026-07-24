@@ -89,8 +89,8 @@ export const hotlineTodoItems: TodayTodoItem[] = [
 ];
 
 export const onlineTodoItems: TodayTodoItem[] = [
-  { key: 'work-order', label: '待处理工单', value: 15, icon: FileText, tone: 'orange' },
-  { key: 'customer-follow', label: '待跟进客户', value: 11, icon: UserCheck, tone: 'teal' },
+  { key: 'work-order', label: '待处理工单', value: 32, icon: FileText, tone: 'orange' },
+  { key: 'customer-follow', label: '待跟进客户', value: 20, icon: UserCheck, tone: 'teal' },
   { key: 'summary-pending', label: '待处理小结', value: 5, icon: ClipboardCheck, tone: 'sky' },
   { key: 'course-list', label: '待学习课程', value: 2, icon: BookOpen, tone: 'violet' },
 ];

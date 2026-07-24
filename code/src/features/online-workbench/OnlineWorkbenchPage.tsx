@@ -1848,7 +1848,7 @@ export default function OnlineWorkbenchPage({ onOpenWorkOrderDetail }: OnlineWor
                   actions={
                     <>
                       <button type="button" onClick={() => handleRemoveOnlineSummaryTab(onlineSummaryTab)} className="rounded-full border border-rose-300 bg-rose-50/60 px-5 py-1.5 text-[12px] font-medium text-rose-500 transition-colors hover:bg-rose-50">废弃</button>
-                      <button className="rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-5 py-1.5 text-[12px] font-medium text-[#216BFF]">升级工单</button>
+                      <button className="rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-5 py-1.5 text-[12px] font-medium text-[#216BFF]">创建工单</button>
                       {activeOnlineBusinessType === '教育' ? <button type="button" onClick={() => setShowCreateTpdModal(true)} className="rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-5 py-1.5 text-[12px] font-medium text-[#216BFF]">创建TPD工单</button> : null}
                       <button className="rounded-full border border-[#96b8ff] bg-[#e8f1ff] px-5 py-1.5 text-[12px] font-medium text-[#216BFF]">提交</button>
                     </>

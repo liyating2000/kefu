@@ -9,8 +9,8 @@ type IconComponent = ComponentType<{
   className?: string;
 }>;
 
-type CallRightPanel = 'agent' | 'workorder' | 'knowledge' | 'toolsite' | 'summary';
-type CallSidebarFeatureKey = 'agent' | 'workorder' | 'knowledge' | 'toolsite' | 'summary' | 'settings';
+type CallRightPanel = 'workorder' | 'knowledge' | 'toolsite' | 'summary';
+type CallSidebarFeatureKey = 'workorder' | 'knowledge' | 'toolsite' | 'summary' | 'settings';
 
 type FloatingMenuOptions = {
   align?: 'left' | 'center' | 'right';
