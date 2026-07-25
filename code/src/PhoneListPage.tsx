@@ -2,6 +2,8 @@ import React, { useMemo, useState } from 'react';
 import { ChevronDown, ChevronLeft, ChevronRight, RotateCcw, Search, X } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import ProblemClassificationSearchModal, { type ProblemClassificationCombo } from './features/workbench/ProblemClassificationSearchModal';
+import SchoolSearchModal, { type SchoolRecord } from './features/workbench/SchoolSearchModal';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -183,6 +185,24 @@ export default function PhoneListPage() {
   const [summaryFieldsByTab, setSummaryFieldsByTab] = useState<Record<string, Record<string, string>>>({ '小结1': {} });
   const [summaryTextByTab, setSummaryTextByTab] = useState<Record<string, string>>({ '小结1': '' });
   const [summaryResultTextByTab, setSummaryResultTextByTab] = useState<Record<string, string>>({ '小结1': '' });
+  const [showProblemSearch, setShowProblemSearch] = useState(false);
+  const [showSchoolSearch, setShowSchoolSearch] = useState(false);
+  const [schoolSearchKeyword, setSchoolSearchKeyword] = useState('');
+  const businessType = '教育';
+
+  const problemCombos: ProblemClassificationCombo[] = [
+    { level1: '产品咨询', level2: '学习机', level3: '功能咨询' },
+    { level1: '产品咨询', level2: '学习机', level3: '价格咨询' },
+    { level1: '售后服务', level2: '维修', level3: '屏幕维修' },
+    { level1: '售后服务', level2: '退换货', level3: '七天无理由' },
+    { level1: '投诉建议', level2: '服务态度', level3: '响应速度' },
+  ];
+
+  const schoolRecords: SchoolRecord[] = [
+    { name: '合肥市第一中学', label: '高中', address: '合肥市庐阳区', serviceGroup: '教育组', auditStatus: '已审核', province: '安徽省', city: '合肥市', district: '庐阳区' },
+    { name: '北京市第四中学', label: '高中', address: '北京市西城区', serviceGroup: '教育组', auditStatus: '已审核', province: '北京市', city: '北京市', district: '西城区' },
+    { name: '上海中学', label: '高中', address: '上海市徐汇区', serviceGroup: '教育组', auditStatus: '待审核', province: '上海市', city: '上海市', district: '徐汇区' },
+  ];
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -475,6 +495,38 @@ export default function PhoneListPage() {
                       <option>电信</option>
                     </select>
                   </Field>
+                  <Field label="学校名称:">
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        type="text"
+                        value={customerFields['学校名称'] ?? ''}
+                        onChange={(e) => setCustomerFields((p) => ({ ...p, '学校名称': e.target.value }))}
+                        placeholder="请输入关键字查询"
+                        className={cn(inputClass, 'min-w-0 flex-1')}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSchoolSearchKeyword(customerFields['学校名称'] ?? '');
+                          setShowSchoolSearch(true);
+                        }}
+                        className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-md border border-[#96b8ff] bg-[#e8f1ff] text-[#216BFF] transition-colors hover:bg-[#d4e4ff]"
+                        aria-label="查询学校"
+                        title="查询学校"
+                      >
+                        <Search size={14} />
+                      </button>
+                    </div>
+                  </Field>
+                  <Field label="学校标签:">
+                    <input value={customerFields['学校标签'] ?? ''} onChange={(e) => setCustomerFields((p) => ({ ...p, '学校标签': e.target.value }))} placeholder="请输入" className={inputClass} />
+                  </Field>
+                  <Field label="服务归口:">
+                    <input value={customerFields['服务归口'] ?? ''} onChange={(e) => setCustomerFields((p) => ({ ...p, '服务归口': e.target.value }))} placeholder="请输入" className={inputClass} />
+                  </Field>
+                  <Field label="是否考核:">
+                    <input value={customerFields['是否考核'] ?? ''} onChange={(e) => setCustomerFields((p) => ({ ...p, '是否考核': e.target.value }))} placeholder="请输入" className={inputClass} />
+                  </Field>
                 </div>
               </div>
 
@@ -494,7 +546,7 @@ export default function PhoneListPage() {
                             : 'border-transparent text-slate-400 hover:bg-slate-50 hover:text-slate-600'
                         )}
                       >
-                        {tab}
+                        {businessType === '教育' && tab === '小结1' ? '小结1（合肥项目）' : tab}
                         {summaryTabs.length > 1 && (
                           <span
                             role="button"
@@ -564,6 +616,30 @@ export default function PhoneListPage() {
                       <option>保修咨询</option>
                     </select>
                   </Field>
+                  <Field label="问题分类三级:">
+                    <div className="flex items-center gap-1.5">
+                      <select value={activeSummaryFields['问题分类三级'] ?? ''} onChange={(e) => updateActiveSummaryField('问题分类三级', e.target.value)} className={cn(inputClass, 'min-w-0 flex-1')}>
+                        <option value="">请选择</option>
+                        <option>屏幕不亮</option>
+                        <option>电池异常</option>
+                        <option>按键失灵</option>
+                        <option>退款未到账</option>
+                        <option>重复扣款</option>
+                        <option>延保服务</option>
+                        <option>密码重置</option>
+                        <option>验证码失败</option>
+                      </select>
+                      <button
+                        type="button"
+                        onClick={() => setShowProblemSearch(true)}
+                        className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-md border border-[#96b8ff] bg-[#e8f1ff] text-[#216BFF] transition-colors hover:bg-[#d4e4ff]"
+                        aria-label="搜索问题分类"
+                        title="搜索问题分类"
+                      >
+                        <Search size={14} />
+                      </button>
+                    </div>
+                  </Field>
                   <Field label="小结类型:">
                     <select value={activeSummaryFields['小结类型'] ?? ''} onChange={(e) => updateActiveSummaryField('小结类型', e.target.value)} className={inputClass}>
                       <option value="">请选择</option>
@@ -606,6 +682,34 @@ export default function PhoneListPage() {
           </div>
         </div>
       )}
+
+      <ProblemClassificationSearchModal
+        isOpen={showProblemSearch}
+        combos={problemCombos}
+        onClose={() => setShowProblemSearch(false)}
+        onSelect={(combo) => {
+          updateActiveSummaryField('问题分类一级', combo.level1);
+          updateActiveSummaryField('问题分类二级', combo.level2);
+          updateActiveSummaryField('问题分类三级', combo.level3);
+          setShowProblemSearch(false);
+        }}
+      />
+      <SchoolSearchModal
+        isOpen={showSchoolSearch}
+        keyword={schoolSearchKeyword}
+        schools={schoolRecords}
+        onClose={() => setShowSchoolSearch(false)}
+        onSelect={(school) => {
+          setCustomerFields((p) => ({
+            ...p,
+            '学校名称': school.name,
+            '学校标签': school.label,
+            '服务归口': school.serviceGroup,
+            '是否考核': school.auditStatus,
+          }));
+          setShowSchoolSearch(false);
+        }}
+      />
 
       {toast ? (
         <div className="pointer-events-none absolute left-1/2 top-6 z-50 -translate-x-1/2 rounded-full bg-slate-800/90 px-4 py-2 text-[13px] font-medium text-white shadow-lg">

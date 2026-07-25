@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, ChevronDown, Lock, Users, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ChevronDown, Lock, Pin, Users, X } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { useEffect, useLayoutEffect, useRef, useState, type ComponentType, type MouseEvent } from 'react';
 
@@ -310,6 +310,14 @@ export default function OnlineSessionListPanel({
                           strokeWidth={2.2}
                           className="shrink-0 text-amber-500"
                           aria-label="已锁定"
+                        />
+                      ) : null}
+                      {pinnedSessionIds.includes(session.id) ? (
+                        <Pin
+                          size={12}
+                          strokeWidth={2.2}
+                          className="shrink-0 text-brand-500"
+                          aria-label="已置顶"
                         />
                       ) : null}
                     </span>

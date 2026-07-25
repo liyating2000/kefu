@@ -25,6 +25,7 @@ import type { WorkOrderDetailData } from './features/call-workbench/WorkOrderDet
 import ThirdPartyWebsiteSettings from './ThirdPartyWebsiteSettings';
 import PhoneListPage from './PhoneListPage';
 import SchoolSearchModal, { type SchoolRecord } from './features/workbench/SchoolSearchModal';
+import ProblemClassificationSearchModal, { type ProblemClassificationCombo } from './features/workbench/ProblemClassificationSearchModal';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -805,6 +806,23 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
   const [summaryHotlineRow, setSummaryHotlineRow] = useState<(typeof summaryRows)[number] | null>(null);
   const [customerInfoTarget, setCustomerInfoTarget] = useState<(typeof summaryRows)[number] | null>(null);
   const [customerInfoModalTarget, setCustomerInfoModalTarget] = useState<(typeof summaryRows)[number] | null>(null);
+  const [summaryModalLevels, setSummaryModalLevels] = useState<Record<string, string>>({});
+  const [summaryModalCustomerFields, setSummaryModalCustomerFields] = useState<Record<string, string>>({});
+  const [showSummaryModalProblemSearch, setShowSummaryModalProblemSearch] = useState(false);
+  const [showSummaryModalSchoolSearch, setShowSummaryModalSchoolSearch] = useState(false);
+  const [summaryModalSchoolKeyword, setSummaryModalSchoolKeyword] = useState('');
+  const summaryModalProblemCombos: ProblemClassificationCombo[] = [
+    { level1: '产品咨询', level2: '学习机', level3: '功能咨询' },
+    { level1: '产品咨询', level2: '学习机', level3: '价格咨询' },
+    { level1: '售后服务', level2: '维修', level3: '屏幕维修' },
+    { level1: '售后服务', level2: '退换货', level3: '七天无理由' },
+    { level1: '投诉建议', level2: '服务态度', level3: '响应速度' },
+  ];
+  const summaryModalSchoolRecords: SchoolRecord[] = [
+    { name: '合肥市第一中学', label: '高中', address: '合肥市庐阳区', serviceGroup: '教育组', auditStatus: '已审核' } as SchoolRecord,
+    { name: '北京市第四中学', label: '高中', address: '北京市西城区', serviceGroup: '教育组', auditStatus: '已审核' } as SchoolRecord,
+    { name: '上海中学', label: '高中', address: '上海市徐汇区', serviceGroup: '教育组', auditStatus: '待审核' } as SchoolRecord,
+  ];
   const [summaryCorrectionForm, setSummaryCorrectionForm] = useState<Record<string, string>>({});
   const [summaryFilters, setSummaryFilters] = useState({
     scope: 'my' as 'my' | 'managed' | 'all',
@@ -1573,6 +1591,8 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                     onDoubleClick={() => {
                       if (row.status === '暂存' || row.status === '已完成') {
                         setCustomerInfoModalTarget(row);
+                        setSummaryModalLevels({ level1: row.level1, level2: row.level2, level3: row.level3 });
+                        setSummaryModalCustomerFields({});
                         return;
                       }
                       if (row.summaryType === '热线') {
@@ -3281,7 +3301,7 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                                     : 'border-transparent text-slate-400 hover:bg-slate-50 hover:text-slate-600'
                                 )}
                               >
-                                {tab}
+                                {webchatHistoryBusinessType === '教育' && tab === '小结1' ? '小结1（合肥项目）' : tab}
                                 {webchatHistorySummaryTabs.length > 1 && (
                                   <span
                                     role="button"
@@ -3304,11 +3324,6 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                             </button>
                           </div>
                         </div>
-                        {webchatHistoryBusinessType === '教育' && webchatHistorySummaryTab === '小结1' && (
-                          <div className="mb-3 flex items-center">
-                            <span className="rounded border border-[#96b8ff] bg-[#e8f1ff] px-2.5 py-0.5 text-[12px] font-medium text-[#216BFF]">合肥项目</span>
-                          </div>
-                        )}
                         <div className="grid grid-cols-1 gap-x-4 gap-y-4 md:grid-cols-2 xl:grid-cols-3">
                           <Field label="产品分类:" className="[&>span]:w-[88px]">
                             <select
@@ -3386,21 +3401,32 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                             </select>
                           </Field>
                           <Field label="问题分类三级:" className="[&>span]:w-[88px]">
-                            <select
-                              value={webchatHistoryActiveSummaryFields['问题分类三级'] ?? ''}
-                              onChange={(e) => updateWebchatHistoryActiveSummaryField('问题分类三级', e.target.value)}
-                              className={inputClass}
-                            >
-                              <option value="">请选择</option>
-                              <option>屏幕不亮</option>
-                              <option>电池异常</option>
-                              <option>按键失灵</option>
-                              <option>退款未到账</option>
-                              <option>重复扣款</option>
-                              <option>延保服务</option>
-                              <option>密码重置</option>
-                              <option>验证码失败</option>
-                            </select>
+                            <div className="flex items-center gap-1.5">
+                              <select
+                                value={webchatHistoryActiveSummaryFields['问题分类三级'] ?? ''}
+                                onChange={(e) => updateWebchatHistoryActiveSummaryField('问题分类三级', e.target.value)}
+                                className={cn(inputClass, 'min-w-0 flex-1')}
+                              >
+                                <option value="">请选择</option>
+                                <option>屏幕不亮</option>
+                                <option>电池异常</option>
+                                <option>按键失灵</option>
+                                <option>退款未到账</option>
+                                <option>重复扣款</option>
+                                <option>延保服务</option>
+                                <option>密码重置</option>
+                                <option>验证码失败</option>
+                              </select>
+                              <button
+                                type="button"
+                                onClick={() => setWebchatHistoryProblemSearchOpen(true)}
+                                className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-md border border-[#96b8ff] bg-[#e8f1ff] text-[#216BFF] transition-colors hover:bg-[#d4e4ff]"
+                                aria-label="搜索问题分类"
+                                title="搜索问题分类"
+                              >
+                                <Search size={14} />
+                              </button>
+                            </div>
                           </Field>
                           <Field label="小结类型:" className="[&>span]:w-[88px]">
                             <select
@@ -3597,6 +3623,17 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
             schools={webchatHistorySchoolRecords}
             onClose={() => setWebchatHistorySchoolSearchOpen(false)}
             onSelect={handleWebchatHistorySchoolSelect}
+          />
+          <ProblemClassificationSearchModal
+            isOpen={webchatHistoryProblemSearchOpen}
+            combos={webchatHistoryProblemCombos}
+            onClose={() => setWebchatHistoryProblemSearchOpen(false)}
+            onSelect={(combo) => {
+              updateWebchatHistoryActiveSummaryField('问题分类一级', combo.level1);
+              updateWebchatHistoryActiveSummaryField('问题分类二级', combo.level2);
+              updateWebchatHistoryActiveSummaryField('问题分类三级', combo.level3);
+              setWebchatHistoryProblemSearchOpen(false);
+            }}
           />
         </div>
       </div>
@@ -4697,6 +4734,14 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
   const [webchatHistoryCustomerFields, setWebchatHistoryCustomerFields] = useState<Record<string, string>>({});
   const [webchatHistorySchoolSearchOpen, setWebchatHistorySchoolSearchOpen] = useState(false);
   const [webchatHistorySchoolSearchKeyword, setWebchatHistorySchoolSearchKeyword] = useState('');
+  const [webchatHistoryProblemSearchOpen, setWebchatHistoryProblemSearchOpen] = useState(false);
+  const webchatHistoryProblemCombos: ProblemClassificationCombo[] = [
+    { level1: '产品咨询', level2: '学习机', level3: '功能咨询' },
+    { level1: '产品咨询', level2: '学习机', level3: '价格咨询' },
+    { level1: '售后服务', level2: '维修', level3: '屏幕维修' },
+    { level1: '售后服务', level2: '退换货', level3: '七天无理由' },
+    { level1: '投诉建议', level2: '服务态度', level3: '响应速度' },
+  ];
   const [webchatHistoryVideoPreview, setWebchatHistoryVideoPreview] = useState(false);
   const [webchatHistoryMessageModalOpen, setWebchatHistoryMessageModalOpen] = useState(false);
   const [webchatHistoryMessageContent, setWebchatHistoryMessageContent] = useState('');
@@ -7490,11 +7535,6 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                       <option>请选择三级小结</option>
                     </select>
                   </Field>
-                  <Field label="四级小结:" className="[&>span]:w-[72px]">
-                    <select className={inputClass}>
-                      <option>请选择四级小结</option>
-                    </select>
-                  </Field>
                 </div>
                 <div className="mt-4">
                   <span className="mb-2 block text-slate-500">备注:</span>
@@ -8332,6 +8372,38 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                   <Field label="地址:" className="[&>span]:w-[72px]">
                     <input placeholder="请输入地址" className={inputClass} />
                   </Field>
+                  <Field label="学校名称:" className="[&>span]:w-[72px]">
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        type="text"
+                        value={summaryModalCustomerFields['学校名称'] ?? ''}
+                        onChange={(e) => setSummaryModalCustomerFields((p) => ({ ...p, '学校名称': e.target.value }))}
+                        placeholder="请输入关键字查询"
+                        className={cn(inputClass, 'min-w-0 flex-1')}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSummaryModalSchoolKeyword(summaryModalCustomerFields['学校名称'] ?? '');
+                          setShowSummaryModalSchoolSearch(true);
+                        }}
+                        className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-md border border-[#96b8ff] bg-[#e8f1ff] text-[#216BFF] transition-colors hover:bg-[#d4e4ff]"
+                        aria-label="查询学校"
+                        title="查询学校"
+                      >
+                        <Search size={14} />
+                      </button>
+                    </div>
+                  </Field>
+                  <Field label="学校标签:" className="[&>span]:w-[72px]">
+                    <input value={summaryModalCustomerFields['学校标签'] ?? ''} onChange={(e) => setSummaryModalCustomerFields((p) => ({ ...p, '学校标签': e.target.value }))} placeholder="请输入" className={inputClass} />
+                  </Field>
+                  <Field label="服务归口:" className="[&>span]:w-[72px]">
+                    <input value={summaryModalCustomerFields['服务归口'] ?? ''} onChange={(e) => setSummaryModalCustomerFields((p) => ({ ...p, '服务归口': e.target.value }))} placeholder="请输入" className={inputClass} />
+                  </Field>
+                  <Field label="是否考核:" className="[&>span]:w-[72px]">
+                    <input value={summaryModalCustomerFields['是否考核'] ?? ''} onChange={(e) => setSummaryModalCustomerFields((p) => ({ ...p, '是否考核': e.target.value }))} placeholder="请输入" className={inputClass} />
+                  </Field>
                 </div>
                 <div className="mt-4 flex flex-wrap items-center gap-3">
                   <button type="button" className={primaryButtonClass}>查询</button>
@@ -8348,40 +8420,61 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
                       <Field label="一级小结:" className="[&>span]:w-[72px]">
                         <select
                           className={cn(inputClass, isSummaryReadOnly && 'cursor-not-allowed bg-slate-100 text-slate-400')}
-                          defaultValue={customerInfoModalTarget.level1}
+                          value={summaryModalLevels.level1 ?? ''}
+                          onChange={(e) => setSummaryModalLevels((p) => ({ ...p, level1: e.target.value }))}
                           disabled={isSummaryReadOnly}
                         >
                           <option>请选择一级小结</option>
                           <option value={customerInfoModalTarget.level1}>{customerInfoModalTarget.level1}</option>
+                          <option value="产品咨询">产品咨询</option>
+                          <option value="售后服务">售后服务</option>
+                          <option value="投诉建议">投诉建议</option>
                         </select>
                       </Field>
                       <Field label="二级小结:" className="[&>span]:w-[72px]">
                         <select
                           className={cn(inputClass, isSummaryReadOnly && 'cursor-not-allowed bg-slate-100 text-slate-400')}
-                          defaultValue={customerInfoModalTarget.level2}
+                          value={summaryModalLevels.level2 ?? ''}
+                          onChange={(e) => setSummaryModalLevels((p) => ({ ...p, level2: e.target.value }))}
                           disabled={isSummaryReadOnly}
                         >
                           <option>请选择二级小结</option>
                           <option value={customerInfoModalTarget.level2}>{customerInfoModalTarget.level2}</option>
+                          <option value="学习机">学习机</option>
+                          <option value="维修">维修</option>
+                          <option value="退换货">退换货</option>
+                          <option value="服务态度">服务态度</option>
                         </select>
                       </Field>
                       <Field label="三级小结:" className="[&>span]:w-[72px]">
-                        <select
-                          className={cn(inputClass, isSummaryReadOnly && 'cursor-not-allowed bg-slate-100 text-slate-400')}
-                          defaultValue={customerInfoModalTarget.level3}
-                          disabled={isSummaryReadOnly}
-                        >
-                          <option>请选择三级小结</option>
-                          <option value={customerInfoModalTarget.level3}>{customerInfoModalTarget.level3}</option>
-                        </select>
-                      </Field>
-                      {isSummaryReadOnly ? null : (
-                        <Field label="四级小结:" className="[&>span]:w-[72px]">
-                          <select className={inputClass}>
-                            <option>请选择四级小结</option>
+                        <div className="flex items-center gap-1.5">
+                          <select
+                            className={cn(inputClass, 'min-w-0 flex-1', isSummaryReadOnly && 'cursor-not-allowed bg-slate-100 text-slate-400')}
+                            value={summaryModalLevels.level3 ?? ''}
+                            onChange={(e) => setSummaryModalLevels((p) => ({ ...p, level3: e.target.value }))}
+                            disabled={isSummaryReadOnly}
+                          >
+                            <option>请选择三级小结</option>
+                            <option value={customerInfoModalTarget.level3}>{customerInfoModalTarget.level3}</option>
+                            <option value="功能咨询">功能咨询</option>
+                            <option value="价格咨询">价格咨询</option>
+                            <option value="屏幕维修">屏幕维修</option>
+                            <option value="七天无理由">七天无理由</option>
+                            <option value="响应速度">响应速度</option>
                           </select>
-                        </Field>
-                      )}
+                          {!isSummaryReadOnly && (
+                            <button
+                              type="button"
+                              onClick={() => setShowSummaryModalProblemSearch(true)}
+                              className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-md border border-[#96b8ff] bg-[#e8f1ff] text-[#216BFF] transition-colors hover:bg-[#d4e4ff]"
+                              aria-label="搜索问题分类"
+                              title="搜索问题分类"
+                            >
+                              <Search size={14} />
+                            </button>
+                          )}
+                        </div>
+                      </Field>
                     </div>
                     <div className="mt-4">
                       <span className="mb-2 block text-slate-500">备注:</span>
@@ -8442,6 +8535,31 @@ export default function LegacyModulesPanel({ page, onOpenMainTab, onOpenLegacyMo
               </div>
             </div>
           </div>
+          <ProblemClassificationSearchModal
+            isOpen={showSummaryModalProblemSearch}
+            combos={summaryModalProblemCombos}
+            onClose={() => setShowSummaryModalProblemSearch(false)}
+            onSelect={(combo) => {
+              setSummaryModalLevels({ level1: combo.level1, level2: combo.level2, level3: combo.level3 });
+              setShowSummaryModalProblemSearch(false);
+            }}
+          />
+          <SchoolSearchModal
+            isOpen={showSummaryModalSchoolSearch}
+            keyword={summaryModalSchoolKeyword}
+            schools={summaryModalSchoolRecords}
+            onClose={() => setShowSummaryModalSchoolSearch(false)}
+            onSelect={(school) => {
+              setSummaryModalCustomerFields((p) => ({
+                ...p,
+                '学校名称': school.name,
+                '学校标签': school.label,
+                '服务归口': school.serviceGroup,
+                '是否考核': school.auditStatus,
+              }));
+              setShowSummaryModalSchoolSearch(false);
+            }}
+          />
         </Modal>
       ) : null}
     </>

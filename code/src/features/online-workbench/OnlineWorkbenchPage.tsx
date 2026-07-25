@@ -1829,7 +1829,8 @@ export default function OnlineWorkbenchPage({ onOpenWorkOrderDetail }: OnlineWor
                 />
                 <WorkbenchSummaryPanel
                   variant="online"
-                  contentBadge={activeOnlineBusinessType === '教育' && onlineSummaryTab === '小结1' ? '合肥项目' : undefined}
+                  contentBadge={undefined}
+                  tabLabelOverrides={activeOnlineBusinessType === '教育' ? { '小结1': '小结1（合肥项目）' } : undefined}
                   tabs={onlineSummaryTabs}
                   activeTab={onlineSummaryTab}
                   onTabSelect={setOnlineSummaryTab}
