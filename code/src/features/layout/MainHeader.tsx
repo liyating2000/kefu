@@ -71,7 +71,7 @@ type MainHeaderProps = {
   onLogout?: () => void;
 };
 
-const breakOptions = ['厕所', '吃饭', '会议', '其他', '午休'] as const;
+const breakOptions = ['小休', '培训', '协助'] as const;
 type BreakOption = (typeof breakOptions)[number];
 
 function StatusItem({

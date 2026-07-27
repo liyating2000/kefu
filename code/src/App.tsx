@@ -3387,7 +3387,7 @@ const userSystemManagementInitialRows = [
 ];
 
 const messageServiceMailboxes = ['我的公告箱', '我发布的', '已失效公告'] as const;
-const onlineStatusOptions = ['在线状态', '马上回来', '电话在线', '忙碌状态', '离开状态', '午餐状态', '隐身状态'] as const;
+const onlineStatusOptions = ['在线状态', '培训状态', '小休状态', '会议状态', '后处理状态'] as const;
 const onlineBusinessTypeOptions = ['教育', '听见', '学习机', '智能硬件', '法院', '医疗'] as const;
 const webchatBindProductCategories = ['学习机', '智能硬件', '听见', '教育'] as const;
 const webchatBindProductNames = ['A10', 'X3 Pro', '讯飞听见', '智能办公本'] as const;

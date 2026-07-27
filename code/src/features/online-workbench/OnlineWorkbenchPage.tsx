@@ -508,7 +508,7 @@ const agentPresenceMetaMap: Record<AgentPresence, AgentPresenceMeta> = {
   'signed-out': { sideActionLabel: '签入', sideActionIcon: ArrowRight, sideActionButtonCls: 'bg-[linear-gradient(180deg,#3d78ff_0%,#216BFF_100%)] text-white shadow-[0_10px_18px_rgba(33,107,255,0.2)] hover:brightness-[0.98]', sideActionIconWrapCls: 'border-white/90 text-white', showOnlineStatusSelector: false },
 };
 
-const onlineStatusOptions = ['在线状态', '马上回来', '电话在线', '忙碌状态', '离开状态', '午餐状态', '隐身状态'] as const;
+const onlineStatusOptions = ['在线状态', '培训状态', '小休状态', '会议状态', '后处理状态'] as const;
 const onlineBusinessTypeOptions = ['教育', '听见', '学习机', '智能硬件', '法院', '医疗'] as const;
 
 const onlineCustomerFields: WorkbenchFieldConfig[] = [

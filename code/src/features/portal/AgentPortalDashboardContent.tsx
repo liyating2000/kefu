@@ -119,7 +119,7 @@ const onlineMetricCards: readonly MetricCard[] = [
   { label: '总沟通时长', value: '4:20:10' },
   { label: '平均沟通时长', value: '00:01:2', note: '部门平均 00:01:3' },
   { label: '总后处理时长', value: '01:20:4', note: '部门平均 01:15:3', danger: true },
-  { label: '平均后处理时长', value: '00:00:4', note: '部门平均 00:00:3' },
+  { label: '部门平均后处理时长', value: '00:00:3' },
   { label: '小休时长', value: '01:20:4', note: '部门平均 01:15:2', danger: true },
   { label: '质检平均分', value: '85/3条', note: '部门平均 90', primary: true },
 ];
@@ -134,7 +134,7 @@ const onlineYesterdayMetricCards: readonly MetricCard[] = [
   { label: '总沟通时长', value: '4:08:55' },
   { label: '平均沟通时长', value: '00:01:3', note: '部门平均 00:01:2' },
   { label: '总后处理时长', value: '01:12:38', note: '部门平均 01:08:25', danger: true },
-  { label: '平均后处理时长', value: '00:00:5', note: '部门平均 00:00:4' },
+  { label: '部门平均后处理时长', value: '00:00:4' },
   { label: '小休时长', value: '01:10:24', note: '部门平均 01:05:18', danger: true },
   { label: '质检平均分', value: '87/5条', note: '部门平均 90', primary: true },
 ];
@@ -149,7 +149,7 @@ const onlineMonthlyMetricCards: readonly MetricCard[] = [
   { label: '总沟通时长', value: '39:42:15' },
   { label: '平均沟通时长', value: '00:01:4', note: '部门平均 00:01:3' },
   { label: '总后处理时长', value: '08:45:2', note: '部门平均 07:58:4', danger: true },
-  { label: '平均后处理时长', value: '00:00:5', note: '部门平均 00:00:4' },
+  { label: '部门平均后处理时长', value: '00:00:4' },
   { label: '小休时长', value: '08:18:4', note: '部门平均 07:42:5', danger: true },
   { label: '质检平均分', value: '89/28条', note: '部门平均 91', primary: true },
 ];
