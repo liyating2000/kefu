@@ -139,6 +139,7 @@ type Row = {
     workingHoursStart: string;
     workingHoursEnd: string;
     robotFirstScreenExpireMinutes: string;
+    heliConfigId: string;
     robotName: string;
     robotConfig: string;
     robotKind: string;
@@ -248,6 +249,7 @@ const chatFeatureItems = [
   { label: '机器人问题是否解决', description: '开启后提供机器人问题是否解决功能，访客可以评价', defaultChecked: true },
   { label: '留言', description: '开启后允许客户进行留言', defaultChecked: true },
   { label: '强认证', description: '开启后对访客进行强认证', defaultChecked: false },
+  { label: '标题栏显示', description: '开启后头部标题栏将按渠道显示', defaultChecked: false },
 ] as const;
 const gradientAngleOptions = [0, 45, 90, 135] as const;
 const themeColorPresets = ['#F04438', '#FF8A00', '#FACC15', '#22C55E', '#216BFF', '#3B82F6', '#D946EF', '#A855F7', '#16A34A', '#0EA5E9'];
@@ -370,6 +372,7 @@ const baseConfig = (businessType: BusinessType): Row['config'] => ({
   workingHoursStart: '09:00',
   workingHoursEnd: '18:00',
   robotFirstScreenExpireMinutes: '30',
+  heliConfigId: '',
   robotName: '小智助手V4',
   robotConfig: '{\n  "robotId": "BOUY-KHK_9098"\n}',
   robotKind: '数智机器人',
@@ -2610,6 +2613,15 @@ export default function WebchatChannelMaintenance() {
                       <label className="block text-[13px] text-slate-600">产品分类<select value={active.config.productCategory} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, productCategory: e.target.value } }))} className="mt-2 h-10 w-full rounded-lg border border-slate-200 px-3 outline-none"><option value="">请选择</option>{productCategories.map((item) => <option key={item}>{item}</option>)}</select></label>
                       <label className="block text-[13px] text-slate-600">产品名称<select value={active.config.productName} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, productName: e.target.value } }))} className="mt-2 h-10 w-full rounded-lg border border-slate-200 px-3 outline-none"><option value="">请选择</option>{productNames.map((item) => <option key={item}>{item}</option>)}</select></label>
                       <label className="block text-[13px] text-slate-600">路由模式<select value={active.config.routeMode} onChange={(e) => updateActive((row) => ({ ...row, config: { ...row.config, routeMode: e.target.value } }))} className="mt-2 h-10 w-full rounded-lg border border-slate-200 px-3 outline-none"><option>标准路由</option><option>智能路由</option></select></label>
+                      <label className="block text-[13px] text-slate-600">合力configID
+                        <input
+                          type="text"
+                          value={active.config.heliConfigId}
+                          onChange={(event) => updateActive((row) => ({ ...row, config: { ...row.config, heliConfigId: event.target.value } }))}
+                          placeholder="请输入合力configID"
+                          className="mt-2 h-10 w-full rounded-lg border border-slate-200 px-3 text-[13px] outline-none focus:border-[#216BFF]"
+                        />
+                      </label>
                       <label className="block text-[13px] text-slate-600">机器人首屏显示过期时间（分钟）
                         <input
                           type="number"
